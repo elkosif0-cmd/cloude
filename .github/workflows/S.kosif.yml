@@ -154,9 +154,9 @@ jobs:
           import re as _re
           _b=_re.search(r'<meta name="sqc-build" content="([0-9a-f]{10})">',app)
           assert _b and "./skosif.js?v="+_b.group(1) in app, "build number missing or not the bundle's"
-          assert "<title>SQC — Smart Quality Control</title>" in app
-          assert "SQC" in unlock and "sqc-logo.svg" in unlock
-          assert '"name":"SQC — Smart Quality Control"' in manifest
+          assert "<title>KOSIF EARTH — المحاسبة والمراجعة والأدوات الذكية</title>" in app
+          assert "KOSIF EARTH" in unlock and "kosif-earth-wordmark.svg" in unlock
+          assert '"name": "KOSIF EARTH — المحاسبة والمراجعة والأدوات الذكية"' in manifest
           assert "const SEED_B64 = \"\";" in app
           assert len(list(Path("dist/secure").glob("seed.enc.b64.part*"))) == 6
           assert "SEED_RAWS=[{" not in app, "price catalog left in plaintext"
@@ -261,7 +261,7 @@ jobs:
               assert marker in js, "luxe marker missing: "+marker
           for marker in ["--sk-heat-1",".sk-ph",".skk4",".sktb-bar",".skhm-cell",".sksev"]:
               assert marker in css, "luxe style missing: "+marker
-          assert "AI-Powered Audit &amp; Assurance Platform" in unlock, "sign-in page lost the SQC claim"
+          assert "KOSIF EARTH · Accounting, Audit &amp; Intelligence" in unlock, "sign-in page lost the EARTH accounting/audit claim"
           # live assistant, theme studio, charts v2, tables v2 (Excel), print preview
           for marker in ["SKosifAssistant","functionDeclarations","accentTokens","waterfall","exportXlsx","rightToLeft","skp-bar","__skRealPrint"]:
               assert marker in js, "marker missing: "+marker
