@@ -44,7 +44,7 @@ const F=await p.evaluate(()=>({hub:SK.caps.members('tbreview').map(x=>x.id),hidd
 await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1500);
 const FS=await p.evaluate(()=>({adv:!!document.querySelector('.tbr-adv [data-studio-host]'),own:[...document.querySelectorAll('.tbr-tabs [data-tab]')].some(x=>x.dataset.tab==='studio')}));
 ok('المنظومة الواحدة','ملف مراجعة واحد: أدوات الاستوديو داخل تبويبات الملف نفسها بلا قائمة ثانية',F.hidden===6&&FS.adv&&!FS.own);ok('المنظومة الواحدة','التحليل صفحة في مركز المراجعة',F.hub.includes('auditanalytics'));
-ok('المنظومة الواحدة','مسار العمل (يأتي من / يذهب إلى) في كل شاشة',await has('.skflow')&&F.feeds>=30);await p.click('.tbr-tabs [data-tab="tb"]');await p.waitForTimeout(500);ok('المنظومة الواحدة','الإرسال إلى المهام وسجل الملاحظات',F.flow&&await has('[data-flow-finding]'));
+ok('المنظومة الواحدة','مسار العمل (يأتي من / يذهب إلى) في كل شاشة',await has('.skflow')&&F.feeds>=30);await p.locator('.tbr-tabs [data-tab="tb"]:visible').first().click();await p.waitForTimeout(500);ok('المنظومة الواحدة','الإرسال إلى المهام وسجل الملاحظات',F.flow&&await has('[data-flow-finding]'));
 await go('dash',1400);ok('المنظومة الواحدة','رحلة العمل في مركز القيادة',await p.waitForFunction(()=>document.querySelectorAll('.skjr li').length===5,null,{timeout:6000}).then(()=>true,()=>false));
 await go('dash',1400);ok('نبض اليوم','بطاقة نبض اليوم تحت الملخص الصباحي: أربع بلاطات (طلبات اليوم، تحصيل اليوم، غير مدفوع، 7 أيام) وقائمة الاتصال وشريط جاهزية الإقفال',await p.waitForFunction(()=>{const s=document.querySelector('#view .skpulse');return !!s&&s.querySelectorAll('.skpulse-t').length===4&&!!s.querySelector('.skpulse-band, .skpulse-cols .skpulse-empty')},null,{timeout:15000}).then(()=>true,()=>false));
 ok('نبض اليوم','أرقام النبض = سجلات النواة ومحرك الإيقاع (دالة نقية)',await p.evaluate(()=>{const P=window.SKosifPulse;if(!P||!P.current())return false;const c=P.current();return typeof c.fig.orders==='number'&&Array.isArray(c.calls)&&(c.close===null||['ready','almost','blocked','atRisk'].includes(c.close.band))}));
@@ -105,11 +105,11 @@ const CM=await RD('committee');ok('التقارير المتقدمة','تقري�
 const IC=await RD('icfr');ok('التقارير المتقدمة','تقرير الإدارة عن الرقابة الداخلية (COSO 2013)',IC.includes('COSO'));
 const PR=await RD('peers');ok('التقارير المتقدمة','المقارنة بالنظراء العالميين',PR.includes('وسيط النظراء'));
 ok('التقارير المتقدمة','مركز التقارير: المستندات مجمعة وأوراق المراجعة تفتح في المعاينة',await p.evaluate(()=>document.querySelectorAll('.tbr-docg .tbr-dg').length===5&&document.querySelectorAll('[data-fw-doc]').length===5));
-await p.click('[data-tab="plan"]');await p.waitForTimeout(1200);
+await p.locator('.tbr-tabs [data-tab="plan"]:visible').first().click();await p.waitForTimeout(1200);
 const FWK=await p.evaluate(()=>({wps:document.querySelectorAll('.fw-wp').length,mx:document.querySelectorAll('.fw-mx tbody tr').length,glob:document.querySelectorAll('.fw-src.global').length,sign:document.querySelectorAll('[data-fw-sign]').length}));
 ok('العمل الميداني','مصفوفة المخاطر × التأكيدات (ISA 315)',FWK.mx>0);ok('العمل الميداني','أوراق عمل بمراجع وإجراءات وعينات (ISA 330/530)',FWK.wps>0);
 ok('العمل الميداني','إجراءات المراجعين العالميين للمخاطر الجوهرية',FWK.glob>0);ok('العمل الميداني','توقيع المُعد والمراجِع مع فصل المهام',FWK.sign>0&&await p.evaluate(()=>{const w=SKEngines.audit.fieldwork.workingPapers({materiality:{overall:1,performance:1,trivial:0},risks:[],accounts:[]});return Array.isArray(w)}));
-await p.click('[data-tab="close"]');await p.waitForTimeout(800);ok('العمل الميداني','بوابة الإكمال (ISA 450/560/570/580)',await has('.fw-gate')&&await p.evaluate(()=>document.querySelectorAll('.fw-item').length>=10));
+await p.locator('.tbr-tabs [data-tab="close"]:visible').first().click();await p.waitForTimeout(800);ok('العمل الميداني','بوابة الإكمال (ISA 450/560/570/580)',await has('.fw-gate')&&await p.evaluate(()=>document.querySelectorAll('.fw-item').length>=10));
 await p.click('[data-fw-doc="reps"]');await p.waitForTimeout(1300);ok('العمل الميداني','خطاب الإقرارات يفتح في المعاينة قبل الطباعة',await has('.skout-f'));await p.keyboard.press('Escape');
 // ---------- demo, templates, outputs ----------
 const D=await p.evaluate(async()=>({demo:(await SK.demo.status()).filter(x=>x.demo).length,tpl:SK.templates.list().length,out:!!SK.output}));
@@ -122,7 +122,7 @@ await p.keyboard.press('Escape');
 // ---------- themes & identity ----------
 ok('الهوية والثيمات','خمسة ثيمات احترافية جديدة',['aurora','vivid','oasis','graphite','onyx'].every(x=>E.looks>=14));
 await p.evaluate(()=>SKosifShell.setLook('oasis'));await p.waitForTimeout(500);
-await go('tbreview',1800);await p.click('.tbr-tabs [data-tab="fs"]');await p.waitForTimeout(700);await p.click('[data-doc="integrated"]');await p.waitForTimeout(1500);
+await go('tbreview',1800);await p.locator('.tbr-tabs [data-tab="fs"]:visible').first().click();await p.waitForTimeout(700);await p.click('[data-doc="integrated"]');await p.waitForTimeout(1500);
 const IR=await p.evaluate(()=>({cover:!!document.querySelector('.ir-cover'),secs:document.querySelectorAll('.ir-sec').length,q:!!document.querySelector('.ir-q'),bar:!!document.querySelector('.sqc-nb'),risks:document.querySelectorAll('.ir-rt tbody tr').length,compat:document.querySelectorAll('.ir-compat-t tbody tr').length,
   corpusCompat:SKEngines.reports.globalCorpus.reportCompatibility(['auditor_report','income_statement','balance_sheet']).length,
   prov:window.SKosifAI&&SKosifAI.providers().map(x=>x.id).join(','),check:SKEngines.reports.narrative.verifyNumbers('412.6 مليون',{allowed:[412.6]}).length===0}));
@@ -158,10 +158,10 @@ ok('المساعد التطبيقي','أهلية IFRS 19 وتصنيف الأحد
 await go('codex',900);await p.evaluate(()=>SKosifCodex.tab('guide'));await p.waitForTimeout(300);ok('المساعد التطبيقي','أدوات الإطار والاعتراف والعرض والإيضاح والتدفقات والتطبيقات المتقدمة داخل المدونة',await has('.cdx-guide [data-ag-tab="framework"]')&&await has('.cdx-guide [data-ag-tab="recognition"]')&&await has('.cdx-guide [data-ag-tab="cashflow"]')&&await has('.cdx-guide [data-ag-tab="advanced"]'));
 await p.click('.cdx-guide [data-ag-tab="advanced"]');await p.waitForTimeout(300);ok('المساعد التطبيقي','IFRS 18 وIFRS 19 والأطراف ذات العلاقة والأحداث اللاحقة في مجموعة واحدة',await has('[data-ag-mode="ifrs18"]')&&await has('[data-ag-mode="ifrs19"]')&&await has('[data-ag-mode="related"]')&&await has('[data-ag-mode="events"]'));
 // ---------- global audit practice from the research bundle: planning, completion, reporting and the books ----------
-await go('tbreview',1200);await p.click('[data-tab="plan"]');await p.waitForTimeout(1200);
+await go('tbreview',1200);await p.locator('.tbr-tabs [data-tab="plan"]:visible').first().click();await p.waitForTimeout(1200);
 ok('ممارسات المراجعة العالمية','خطة الأهمية النسبية في العمل الميداني: أساس معدّل وتنفيذية حسب الخطر وحد إبلاغ',await has('.ap-card [data-ap-risk="controlDeficiencies"]')&&await txt('حد إبلاغ المكلفين بالحوكمة'));
 ok('ممارسات المراجعة العالمية','مراجعة التقديرات بأثر رجعي (ISA 540) في التخطيط',await txt('مراجعة التقديرات بأثر رجعي'));
-await p.click('[data-tab="close"]');await p.waitForTimeout(1200);
+await p.locator('.tbr-tabs [data-tab="close"]:visible').first().click();await p.waitForTimeout(1200);
 ok('ممارسات المراجعة العالمية','الاستمرارية في الإكمال: توقع نقدي 12 شهراً وسيناريوهات حادة واختبار عكسي',await p.evaluate(()=>document.querySelectorAll('.ap-gc tbody tr').length>=6&&!!document.querySelector('.ap-gc svg')));
 await p.locator('.tbr-tabs [data-tab="fs"]:visible').first().click();await p.waitForTimeout(1000);await p.click('[data-doc="issue"]');await p.waitForTimeout(1200);
 ok('ممارسات المراجعة العالمية','الأمور الرئيسية تُصاغ من المخاطر والسوابق العالمية مع النتيجة والاختيار',await p.evaluate(()=>document.querySelectorAll('.ap-kam [data-ap-kam]').length>0));
