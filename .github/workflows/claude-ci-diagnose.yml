@@ -1,0 +1,38 @@
+name: Claude API - tiered CI identity diagnosis
+
+on:
+  workflow_dispatch:
+    inputs:
+      model_tier:
+        description: "Cost-aware tier: economy Haiku, standard Sonnet, expert Opus"
+        required: true
+        default: economy
+        type: choice
+        options:
+          - economy
+          - standard
+          - expert
+
+permissions:
+  contents: read
+
+concurrency:
+  group: claude-ci-diagnosis
+  cancel-in-progress: false
+
+jobs:
+  diagnosis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      MODEL_TIER: ${{ inputs.model_tier }}
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - name: Checkout trusted main only
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Run read-only Anthropic diagnosis with economical tier first
+        run: python3 tools/claude_ci_repair_advice.py
