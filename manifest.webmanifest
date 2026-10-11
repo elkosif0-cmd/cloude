@@ -1,1 +1,104 @@
-{"id":"./","name":"SQC — Smart Quality Control","short_name":"SQC","description":"SQC — Smart Quality Control: منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي — ملف المراجعة والأدلة والقوائم والتقارير، مع أدوات مساعدة للمحاسب، تعمل دون اتصال على الآيفون واللابتوب.","lang":"ar","dir":"rtl","start_url":"./","scope":"./","display":"standalone","display_override":["window-controls-overlay","standalone"],"orientation":"any","background_color":"#1d1814","theme_color":"#1d1814","categories":["business","finance","productivity"],"icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"},{"src":"art/sqc-icon.svg","sizes":"any","type":"image/svg+xml"}],"shortcuts":[{"name":"ملف المراجعة — الارتباط وميزان المراجعة","short_name":"ملف المراجعة","url":"./?go=tbreview","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"}]},{"name":"المستندات والأدلة — طلبات العميل","short_name":"الأدلة","url":"./?go=auditdocs","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"}]},{"name":"التقارير والإصدار","short_name":"التقارير","url":"./?go=auditreport","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"}]},{"name":"بحث وانتقال سريع","short_name":"بحث","url":"./?do=search","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"}]},{"name":"الأدوات المساعدة للمحاسب","short_name":"الأدوات","url":"./?go=helperdesk","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"}]}]}
+{
+  "id": "./",
+  "name": "KOSIF EARTH — المحاسبة والمراجعة والأدوات الذكية",
+  "short_name": "KOSIF EARTH",
+  "description": "KOSIF EARTH: نظام المحاسبة والمراجعة والأدوات الذكية للشركات، مع مساحات عمل مستقلة لكل شركة.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+  "orientation": "any",
+  "background_color": "#f3ece2",
+  "theme_color": "#243e36",
+  "categories": [
+    "business",
+    "finance",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "art/brand/kosif-earth-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "ملف المراجعة — الارتباط وميزان المراجعة",
+      "short_name": "ملف المراجعة",
+      "url": "./?go=tbreview",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "المستندات والأدلة — طلبات العميل",
+      "short_name": "الأدلة",
+      "url": "./?go=auditdocs",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "التقارير والإصدار",
+      "short_name": "التقارير",
+      "url": "./?go=auditreport",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "بحث وانتقال سريع",
+      "short_name": "بحث",
+      "url": "./?do=search",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "الأدوات المساعدة للمحاسب",
+      "short_name": "الأدوات",
+      "url": "./?go=helperdesk",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
