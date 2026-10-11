@@ -1060,3 +1060,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Cloudflare Pages source remains linked to former owner kosif199022-jpg for repo ID 1352281400 (new owner elkosif0-cmd). Source connect POST failed because existing connection; PATCH accepted but did not change source. The existing subdomain, production deployment and production secrets remain unchanged.
 - Rollback: previously successful production deployment ID 3d4e0540-7f1c-4634-9503-e479f4ed4e03 is retained and can be restored if a future release fails, subject to verification.
 - Unfinished: Owner fixes GitHub billing/Actions availability (or explicitly authorizes a reviewed manual production release), then PR #236 can be merged and main published from the verified safe production package. Do not replace the protected production with an unencrypted/no-private-data preview dist.
+
+### TASK CHATGPT-20261011-CLAUDE-API-EARTH — Claude API code-development workflow (candidate)
+- Agent: ChatGPT; owner request: connect the available Anthropic API credits to `https://earth.kosif.pp.ua` for coding and development.
+- Source verified: `elkosif0-cmd/cloude` main → GitHub Actions `pages-deploy.yml` → Cloudflare Pages `s-kosif` custom domain EARTH.
+- Scope deliberately limited to repo development workflow (`.github/workflows/claude-earth-development.yml`), owner-initiated issue template, and Arabic setup runbook; no app UI, data, engine, account/password, deployment, or production change.
+- Workflow gates: only `elkosif0-cmd` or `kosif199022-jpg`, explicit `@claude` in issue/PR comment, scoped GitHub token, no automatic main merge, no full output, `--max-turns 12`.
+- Prerequisites not performed: user must create and save `ANTHROPIC_API_KEY` in repository Actions secrets and install official Claude GitHub App. API connectivity and live billing are **NOT TESTED**.
+- Branch: `chatgpt/claude-api-dev-github-20261011` (isolated from main); PR pending creation/review. No publish.
+- Follow-up: review GitHub Action security, confirm Action billing/availability, merge by owner, add secret locally, then test with an owner `@claude` issue and inspect resulting PR/CI before publishing.
