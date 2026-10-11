@@ -1,0 +1,38 @@
+name: Claude API - controlled PR review
+
+# Owner-invoked only: avoids surprise token spend and keeps the
+# Anthropic key away from untrusted PR-triggered workflow code.
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull request number to review'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: claude-api-pr-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      PR_NUMBER: ${{ inputs.pr_number }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_MODEL: claude-sonnet-5-5
+    steps:
+      - name: Checkout approved default-branch review script
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Review bounded PR diff using Anthropic API
+        run: python3 tools/claude_pr_review.py
