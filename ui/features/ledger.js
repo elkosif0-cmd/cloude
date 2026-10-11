@@ -1346,7 +1346,19 @@ function ensureAccounts(list){const d=db(),has=c=>d.accounts.find(x=>String(x.co
   if(plan.accounts.length){d.accounts.push(...plan.accounts);put(d)}
   return Object.fromEntries(list.map(([code])=>[code,has(code).id]))}
 window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,ensureAccounts,postEntry,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
-  open:(t,o={})=>{tab=t||"accounts";if(o.q)vatQ=o.q;window.SKosifCore.go("ledger")},tabs:()=>allTabs(db()),
+  open:(t,o={})=>{
+    invalidateReview();tab=t||"accounts";if(o.q)vatQ=o.q;
+    const C=window.SKosifCore,root=document.querySelector('#view .sk-view[data-bound="1"]');
+    // The view renderer owns the nested .sk-view, not the #view shell. Core.go
+    // to an already-open ledger leaves it intact: repaint the real owner node.
+    if(C?.view?.()==="ledger"&&root){
+      paint(root);
+      // Share the same render lifecycle with the responsive rail and home guide.
+      dispatchEvent(new Event("sk:render"));
+      return;
+    }
+    C?.go?.("ledger");
+  },tabs:()=>allTabs(db()),
   /* the tab on screen (the menu marks «إقرار الضريبة» or «الإقفال» current — R20) */
   current:()=>tab||(db().accounts.length?"close":"accounts"),families:()=>families(db()).map(([id,label,tabs])=>({id,label,tabs:tabs.map(([t])=>t)})),
   /* read-only views of the books for the month-end close, the morning brief and the alerts */

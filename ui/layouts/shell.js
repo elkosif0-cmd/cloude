@@ -27,8 +27,8 @@ function identityMetadata(){
 /* ---------- preferences: theme (look) + density ----------
    look: kosif (default «دفتر KOSIF», 2026-10-09) | kosif-night | cobalt («كوبالت وجليد», 2026-10-08) | cobalt-night | navygold | … | auto */
 const LOOKS=[
-  ["kosif","دفتر KOSIF","الهوية المعتمدة: ورق كريمي وحبر فحمي ولمسة زعفران واحدة — من تطبيق KOSIF",["#fbf8f3","#1d1814","#f3ece2","#d9530e"]],
-  ["kosif-night","دفتر KOSIF الليلي","نفس الهوية بإضاءة ليلية: فحم دافئ وزعفران",["#161310","#110f0d","#f5ede3","#f2732d"]],
+  ["kosif","دفتر KOSIF","الهوية المعتمدة: ورق كريمي وحبر فحمي ولمسة زعفران واحدة — من تطبيق KOSIF",["#f4f7f2","#092b20","#ffffff","#176b4b"]],
+  ["kosif-night","دفتر KOSIF الليلي","نفس الهوية بإضاءة ليلية: فحم دافئ وزعفران",["#0c1712","#081e16","#14231b","#8adaab"]],
   ["cobalt","كوبالت وجليد","هوية 2026-10-08: كوبالت ليلي وأزرق الكوبالت ولمعة الجليد وبطاقات بيضاء",["#f4f6fb","#0b1030","#2340c4","#19c3d9"]],
   ["cobalt-night","كوبالت وجليد الليلي","هوية الكوبالت بإضاءة ليلية",["#070a1e","#050719","#9fb0ff","#5fdcea"]],
   ["navygold","الكحلي والذهبي","هوية SQC السابقة: كحلي وذهبي وعاجي",["#f7f4ec","#0b1f3a","#13305a","#c9a227"]],
@@ -201,7 +201,8 @@ let lastSig="";
 const NAV_KEY="skosif_nav_v1";
 const CHEV='<svg class="skn-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const navState=()=>{const d=load(NAV_KEY,{})||{};return d.open&&typeof d.open==="object"?d.open:{}};
-function setNavOpen(g,v){const d=load(NAV_KEY,{})||{};d.open={...(d.open||{}),[g]:v};save(NAV_KEY,d)}
+const navPrefKey=(gate,group)=>String(gate||'')+'/'+String(group||'');
+function setNavOpen(g,v){const d=load(NAV_KEY,{})||{},gate=SK.gate?.current?.()||'';d.open={...(d.open||{}),[navPrefKey(gate,g)]:v};save(NAV_KEY,d)}
 let navQ="";
 const nq=s=>String(s||"").toLowerCase().replace(/[ً-ٰٟ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").trim();
 /* the menu is the chosen entry's alone (FOUNDATION §3): a switcher for the three entries on top, then that entry's
@@ -226,7 +227,10 @@ function paintNav(){
   domains.forEach(gr=>{
     const items=(menu?gr.hubs:SK.caps.hubsInGroup(gr.id).filter(c=>!gate||SK.caps.inGatewayOf(c,gate))).map(c=>[c,itemPages(c,cur)]).filter(([,pg])=>pg.length);
     if(!items.length)return;
-    const here=items.some(([c,pg])=>isOn(c,pg)),isOpen=here||(open[gr.id]!==undefined?open[gr.id]:true);
+    const here=items.some(([c,pg])=>isOn(c,pg)),key=navPrefKey(gate,gr.id);
+    /* Active group opens. Other groups begin collapsed, but users may expand
+       them within this gateway. Search temporarily opens matching groups. */
+    const isOpen=here||!!navQ||(open[key]===true);
     html+='<div class="skn-group'+(isOpen?'':' closed')+(here?' here':'')+'" role="group" aria-label="'+esc(gr.label)+'" data-g="'+esc(gr.id)+'"><button type="button" class="nav-group skn-gh" data-g="'+esc(gr.id)+'" aria-expanded="'+isOpen+'"><span class="skn-gi">'+(SK.icons[gr.icon]||"")+'</span><span>'+esc(gr.label)+'</span><i class="skn-gc">'+items.length+'</i>'+CHEV+'</button>'+
       '<div class="skn-subgroup" data-sg="'+esc(gr.id)+'">'+items.map(([c,pg])=>navButton(c,cur,pg,isOn(c,pg))).join("")+'</div></div>';
   });
@@ -235,23 +239,50 @@ function paintNav(){
 }
 function filterNav(){
   const nav=$("#nav");if(!nav)return;const q=nq(navQ);
-  nav.classList.toggle("skn-searching",!!q);
-  $$(".skn-group",nav).forEach(g=>{
-    let any=false;
-    $$(".nav-btn",g).forEach(b=>{const txt=SK.caps.members(b.dataset.hub||b.dataset.v).map(c=>c.label+" "+c.hubLabel+" "+c.kw+" "+c.en+" "+c.sub).join(" "),hit=!q||nq(txt).includes(q);b.classList.toggle("skn-miss",!hit);if(hit)any=true});
-    g.classList.toggle("skn-none",!!q&&!any);
+  // Match real item labels before descriptions of whole hubs. Otherwise
+  // searching a named ledger tab (e.g. trial balance) returns every ledger
+  // tab because their shared parent mentions the same words.
+  const groups=$$(".skn-group",nav),rows=groups.flatMap(g=>$$(".nav-btn",g));
+  const matches=rows.map(b=>{
+    const label=nq((b.textContent||"")+" "+(b.title||"")+" "+(b.dataset.tab||""));
+    const pages=b.dataset.act==="navtab"?[]:(SK.caps.members(b.dataset.hub||b.dataset.v)||[]);
+    const target=SK.caps.get(b.dataset.v);
+    const desc=nq([...pages,...(target?[target]:[])].map(c=>(c.label||"")+" "+(c.hubLabel||"")+" "+(c.kw||"")+" "+(c.en||"")+" "+(c.sub||"")).join(" "));
+    return {b,labelHit:!q||label.includes(q),descHit:!q||desc.includes(q)};
   });
+  const named=q&&matches.some(x=>x.labelHit);
+  let found=0;
+  nav.classList.toggle("skn-searching",!!q);
+  for(const x of matches){
+    const hit=named?x.labelHit:(x.labelHit||x.descHit);
+    x.b.classList.toggle("skn-miss",!hit);
+    if(hit)found++;
+  }
+  groups.forEach(g=>g.classList.toggle("skn-none",!!q&&!$$(".nav-btn",g).some(b=>!b.classList.contains("skn-miss"))));
+  const status=$("#skn-search-status");
+  if(status){
+    status.hidden=!q;
+    status.textContent=q?(found===0?"لا توجد نتائج":found+" نتيجة"):"";
+  }
 }
 function navSearch(){
   const nav=$("#nav");if(!nav||$("#skn-q"))return;
   const w=document.createElement("div");w.className="skn-search";
-  w.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input id="skn-q" type="search" autocomplete="off" placeholder="تصفية القائمة…" aria-label="تصفية شاشات القائمة">';
+  w.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input id="skn-q" type="search" autocomplete="off" placeholder="ابحث عن مهمة أو شاشة…" aria-label="البحث في شاشات هذا القسم" aria-describedby="skn-search-status"><span class="skn-search-status" id="skn-search-status" aria-live="polite" aria-atomic="true" hidden></span>';
   nav.before(w);
   const inp=$("#skn-q",w);
-  inp.addEventListener("input",()=>{navQ=inp.value;filterNav()});
+  inp.addEventListener("input",()=>{navQ=inp.value;paintNav()});
   inp.addEventListener("keydown",e=>{
-    if(e.key==="Escape"){inp.value="";navQ="";filterNav();inp.blur()}
-    if(e.key==="Enter"){const b=$$(".nav-btn",nav).find(x=>!x.classList.contains("skn-miss"));if(b){core().go(b.dataset.v);inp.value="";navQ="";filterNav()}}
+    if(e.key==="Escape"){inp.value="";navQ="";paintNav();inp.blur()}
+    if(e.key==="Enter"){
+      e.preventDefault();
+      const b=$$(".nav-btn",nav).find(x=>!x.classList.contains("skn-miss")&&!x.closest(".skn-none"));
+      if(b){
+        // Reuse the existing click path; links to ledger/audit tabs need
+        // data-tab, not just core.go(data-v) which loses the chosen tab.
+        b.click();inp.value="";navQ="";paintNav();inp.blur();
+      }
+    }
   });
   nav.addEventListener("click",e=>{
     const gb=e.target.closest(".skn-gate");if(gb&&nav.contains(gb)){if(SK.gate)SK.gate.set(gb.dataset.gate,{go:true});return}
@@ -305,7 +336,7 @@ function paintTop(){
     }
   }
   else if(cr)cr.textContent="";
-  document.title=(cap?cap.label:(t&&t.textContent)||"")+" · SQC";
+  document.title=(cap?cap.label:(t&&t.textContent)||"")+" · KOSIF EARTH";
   /* Drawer scroll locking is owned by syncSidebar so it can capture/restore scroll atomically. */
 }
 /* phones: bottom tab bar — in the page flow (sticky), never over content. Four screens the user
