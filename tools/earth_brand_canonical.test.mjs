@@ -44,8 +44,12 @@ test('generated phone assets and private-preview gate remain valid',()=>{
  const dir=new URL('../dist/',import.meta.url);
  const shipped=JSON.parse(fs.readFileSync(new URL('manifest.webmanifest',dir),'utf8'));
  assert.equal(shipped.short_name,'KOSIF EARTH');
- for(const icon of ['icon-192.png','icon-512.png','apple-touch-icon.png','art/brand/kosif-earth-icon.svg'])
-   assert(fs.statSync(new URL(icon,dir)).size>500);
+ for(const icon of ['icon-192.png','icon-512.png','apple-touch-icon.png','art/brand/kosif-earth-icon.svg','art/brand/kosif-earth-wordmark.svg'])
+   assert(fs.statSync(new URL(icon,dir)).size>500,icon+' must not be an empty or corrupt asset');
+ const wordmark=fs.readFileSync(new URL('art/brand/kosif-earth-wordmark.svg',dir),'utf8');
+ assert.match(wordmark,/^<svg\s/);
+ assert.match(wordmark,/>KOSIF<\/text>/);
+ assert.match(wordmark,/>EARTH<\/text>/);
  const app=fs.readFileSync(new URL('app-safe.html',dir),'utf8');
  assert.match(app,/id="app-name">KOSIF EARTH/);
  assert.match(app,/<title>KOSIF EARTH/);
