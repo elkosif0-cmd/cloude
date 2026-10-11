@@ -15,7 +15,7 @@ const sidebar={ready:false,rail:null,observer:null,narrow:innerWidth<=900,open:f
 function identityMetadata(){
   const h=document.head;if(!h)return;
   h.querySelectorAll('link[rel~="icon"]').forEach(x=>x.remove());
-  const icon=document.createElement("link");icon.rel="icon";icon.type="image/svg+xml";icon.href="./art/sqc-icon.svg";h.appendChild(icon);
+  const icon=document.createElement("link");icon.rel="icon";icon.type="image/svg+xml";icon.href="./art/brand/kosif-earth-icon.svg";h.appendChild(icon);
   let manifest=h.querySelector('link[rel="manifest"]');
   if(!manifest){manifest=document.createElement("link");manifest.rel="manifest";h.appendChild(manifest)}
   manifest.href="./manifest.webmanifest";

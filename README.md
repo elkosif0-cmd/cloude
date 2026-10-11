@@ -1,11 +1,11 @@
-# SQC — Smart Quality Control
+# KOSIF EARTH — Accounting, Audit & Intelligent Tools
 
 > **اقرأ أولاً — ملف إلزامي:** [`docs/PRODUCT_MANDATE_ar.md`](docs/PRODUCT_MANDATE_ar.md) — هيكل المنتج الذي طلبه المالك (ثلاثة مداخل)، متطلبات الهدف وخطة الإتمام M1–M7، مع [مصفوفة أدلة الكود وحدود التنفيذ](docs/product/THREE_ENTRY_IMPLEMENTATION_GAPS_AR.md). التقارير مشتركة داخل المداخل الثلاثة. الالتزام بالوثائق لا يثبت اكتمال التنفيذ.
 
 
-![SQC — Smart Quality Control · AI-Powered Audit & Assurance Platform](ui/art/sqc-banner.jpg)
+![KOSIF EARTH — Accounting, Audit & Intelligent Tools](ui/art/brand/earth-office-sunlit-mobile.webp)
 
-**SQC — Smart Quality Control** · منصة المراجعة والتأكيد المدعومة بالذكاء الاصطناعي (AI-Powered Audit & Assurance Platform).
+**KOSIF EARTH** · منصة المحاسبة والمراجعة والأدوات الذكية، مع الحفاظ على مساحات مستقلة لكل شركة (Accounting, Audit & Intelligent Tools).
 The app was previously named S.kosif / KOSIF; storage keys and file names keep the old prefix so existing data keeps loading.
 
 ### AI audit and integrated reporting

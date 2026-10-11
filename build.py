@@ -45,8 +45,8 @@ if b'const SEED_B64 = "";' not in html: raise SystemExit("Safe app marker missin
 text=html.decode("utf-8")
 
 # Product branding: keep business data intact, rename only the application shell.
-text=re.sub(r"<title>[^<]*</title>","<title>SQC — Smart Quality Control</title>",text,count=1,flags=re.I)
-text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="SQC">', text, count=1, flags=re.I)
+text=re.sub(r"<title>[^<]*</title>","<title>KOSIF EARTH — المحاسبة والمراجعة والأدوات الذكية</title>",text,count=1,flags=re.I)
+text=re.sub(r'<meta\s+name=["\']apple-mobile-web-app-title["\'][^>]*>', '<meta name="apple-mobile-web-app-title" content="KOSIF EARTH">', text, count=1, flags=re.I)
 # the app shell opens in «دفتر KOSIF» (2026-10-09): its paper rail colours the browser bar; the front door stays cobalt
 text=re.sub(r"<meta\s+name=['\"]theme-color['\"][^>]*>", '<meta name="theme-color" content="#f3ece2">', text, flags=re.I)
 head_end=text.find("</head>")
@@ -56,17 +56,17 @@ head,tail=text[:head_end],text[head_end:]
 # so browser precedence cannot resurrect favicon-32x32.png, kosif-cloud.svg or manifest.json.
 head=re.sub(r"<link\b(?=[^>]*\brel=['\"](?:shortcut\s+)?icon['\"])[^>]*>\s*", "", head, flags=re.I)
 head=re.sub(r"<link\b(?=[^>]*\brel=['\"]manifest['\"])[^>]*>\s*", "", head, flags=re.I)
-head += '<link rel="icon" type="image/svg+xml" href="./art/sqc-icon.svg">'
+head += '<link rel="icon" type="image/svg+xml" href="./art/brand/kosif-earth-icon.svg">'
 head += '<link rel="icon" type="image/png" href="./icon-192.png">'
 head += '<link rel="manifest" href="./manifest.webmanifest">'
 text=head+tail
 # Product identity is audit-first SQC; أغنام الوادي is only the demo company, never the product description.
-DESCRIPTION="SQC — Smart Quality Control: منصة المراجعة والتأكيد — ملف المراجعة والأدلة والقوائم والتقارير، مع أدوات مساعدة للمحاسب، تعمل دون اتصال."
+DESCRIPTION="KOSIF EARTH — منصة واحدة للمحاسبة والمراجعة والأدوات الذكية، مع مساحات منفصلة لكل شركة."
 text,nd=re.subn(r'<meta\s+name=["\']description["\'][^>]*>',f'<meta name="description" content="{DESCRIPTION}">',text,count=1,flags=re.I)
 if nd!=1: raise SystemExit("Page description meta missing")
 # the rail brand: the SQC mark and name (the core markup is kept; only the brand block is replaced)
 text,nb=re.subn(r'<div class="brand-mark" aria-hidden="true">.*?</div>\s*<div><h1 id="app-name">[^<]*</h1>',
-  '<div class="brand-mark" aria-hidden="true"><img src="./art/sqc-icon.svg" alt="" width="24" height="24"></div>\n        <div><h1 id="app-name">SQC</h1>',text,count=1,flags=re.S)
+  '<div class="brand-mark" aria-hidden="true"><img src="./art/brand/kosif-earth-icon.svg" alt="" width="24" height="24"></div>\n        <div><h1 id="app-name">KOSIF EARTH</h1>',text,count=1,flags=re.S)
 if nb!=1: raise SystemExit("Rail brand markup missing")
 # R10 (docs/rebuild/HARSH_REVIEW_20261008_ar.md): the butchery lab's note named the cells of the owner's spreadsheet
 # (AD46, AG44:AG46, AD48); a user reads where the numbers come from, not which cells held them
@@ -141,6 +141,11 @@ for name in ["icon-192.png","icon-512.png","apple-touch-icon.png"]:
     src=Path("payload")/(name+".b64")
     (out/name).write_bytes(base64.b64decode(src.read_text(encoding="utf-8").strip()))
 
+# Keep the old payload data files untouched. Replace only visible PWA icon output.
+for size in [192,512]:
+    shutil.copyfile(Path("ui/art/brand")/f"kosif-earth-{size}.png",out/f"icon-{size}.png")
+shutil.copyfile(Path("ui/art/brand/kosif-earth-192.png"),out/"apple-touch-icon.png")
+
 for name in ["sw.js","manifest.webmanifest","INSTALL-iPHONE-ar.txt","INSTALL-LAPTOP-ar.txt","_headers"]:
     (out/name).write_bytes(Path(name).read_bytes())
 if MODE=="preview":
@@ -168,4 +173,4 @@ sw=(out/"sw.js").read_text(encoding="utf-8")
 sw,n=re.subn(r"const CACHE='[^']*';",f"const CACHE='skosif-{digest.hexdigest()[:12]}';",sw,count=1)
 if n!=1: raise SystemExit("sw.js CACHE marker missing")
 (out/"sw.js").write_text(sw,encoding="utf-8",newline="\n")
-print("Built SQC ("+MODE+"):",len(list(out.rglob("*"))),"entries")
+print("Built KOSIF EARTH ("+MODE+"):",len(list(out.rglob("*"))),"entries")

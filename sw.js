@@ -1,4 +1,4 @@
-/* S.kosif — locked PWA service worker. build.py names CACHE after the build contents. */
+/* KOSIF EARTH — compatible legacy PWA service worker. build.py names CACHE after the build contents. */
 const CACHE='skosif-build';
 const CORE=['./','./index.html','./app-safe.html','./skosif.css','./skosif.js','./art/sheep.webp','./art/landscape.webp','./art/hero.webp','./art/ram.svg','./art/valley-dusk.svg','./art/ornament.svg','./art/kosif-cloud.svg','./art/kosif-sky.svg','./art/kosif-icon.svg','./art/sqc-icon.svg','./art/sqc-mark.svg','./art/sqc-mark-dark.svg','./art/sqc-logo.svg','./art/sqc-banner.jpg','./art/fonts/plex-400-arabic.woff2','./art/fonts/plex-400-latin.woff2','./art/fonts/plex-500-arabic.woff2','./art/fonts/plex-500-latin.woff2','./art/fonts/plex-600-arabic.woff2','./art/fonts/plex-600-latin.woff2','./art/fonts/plex-700-arabic.woff2','./art/fonts/plex-700-latin.woff2','./apple-touch-icon.png','./icon-192.png','./icon-512.png','./manifest.webmanifest','./art/crystal-world.js'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));

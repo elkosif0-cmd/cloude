@@ -129,17 +129,17 @@ const IR=await p.evaluate(()=>({cover:!!document.querySelector('.ir-cover'),secs
 ok('التقرير المتكامل','التقرير السنوي المتكامل على بنية التقارير العالمية (غلاف، رسائل، مخاطر، جدوى، حوكمة، مراجع، قوائم، ملحق مطابقة)',IR.cover&&IR.secs>=15&&IR.q&&IR.bar&&IR.risks>=5);
 ok('التقرير المتكامل','الذكاء الاصطناعي من Gemini أو OpenAI أو Claude مع التحقق من كل رقم',IR.prov==='gemini,openai,anthropic'&&IR.check);
 ok('التقرير المتكامل','اختبار هيكل المخرجات فعلياً مقابل كل التقارير الـ50',IR.compat===50&&IR.corpusCompat===50);
-ok('الهوية والثيمات','هوية SQC واحدة في كل الثيمات',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail #app-name'),'::before').content.includes('SQC')));
+ok('الهوية والثيمات','هوية KOSIF EARTH واحدة في كل الثيمات',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail #app-name'),'::before').content.includes('KOSIF EARTH')));
 await p.evaluate(()=>SKosifShell.setLook('kosif'));
 /* SQC finish: the interface face is self-hosted and loads; no look lets the rail spill sideways; the SQC mark in every non-heritage look */
 const TY=await p.evaluate(async()=>{await document.fonts.ready;const plex=[...document.fonts].some(f=>/IBM Plex Sans Arabic/.test(f.family)&&f.status==='loaded');
   const looks=SKosifShell.looks().map(x=>x.id).filter(x=>x!=='auto'),spill=[],mark=[];
   for(const l of looks){SKosifShell.setLook(l);await new Promise(r=>setTimeout(r,120));const r=document.querySelector('.rail');if(r&&r.scrollWidth>r.clientWidth+1)spill.push(l);
-    const bg=getComputedStyle(document.querySelector('.rail .brand'),'::before').backgroundImage;if(!/heritage/.test(l)&&!/sqc-icon/.test(bg))mark.push(l)}
+    const bg=getComputedStyle(document.querySelector('.rail .brand'),'::before').backgroundImage;if(!/heritage/.test(l)&&!/kosif-earth-icon/.test(bg))mark.push(l)}
   SKosifShell.setLook('kosif');return{plex,spill,mark,n:looks.length}});
 ok('الهوية والثيمات','خط الواجهة IBM Plex Sans Arabic مستضاف داخل التطبيق ويُحمَّل',TY.plex);
 ok('الهوية والثيمات','لا يفيض الشريط الجانبي في أي من الثيمات ('+TY.n+')',!TY.spill.length);
-ok('الهوية والثيمات','شعار SQC في كل الثيمات غير التراثية',!TY.mark.length);
+ok('الهوية والثيمات','شعار KOSIF EARTH في كل الثيمات غير التراثية',!TY.mark.length);
 ok('الهوية والثيمات','نظام خطوط موحد (أرقام بعرض ثابت)',await p.evaluate(()=>{const td=document.querySelector('td');return !td||getComputedStyle(td).fontVariantNumeric.includes('tabular')}));
 // ---------- attachments ----------
 await go('salesintel',1500);const S=await p.evaluate(()=>[...document.querySelectorAll('[data-slab]')].map(x=>x.dataset.slab));
