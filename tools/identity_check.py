@@ -35,17 +35,17 @@ app_head = app.split("</head>", 1)[0]
 unlock_head = index.split("</head>", 1)[0]
 
 desc = re.search(r'<meta\s+name=["\']description["\']\s+content="([^"]*)"', app)
-ok("page description exists and names SQC", bool(desc) and desc.group(1).startswith("SQC"))
+ok("page description exists and names KOSIF EARTH", bool(desc) and desc.group(1).startswith("KOSIF EARTH"))
 ok("page description is audit-first", bool(desc) and "المراجعة" in desc.group(1) and not any(s in desc.group(1) for s in SALES_FIRST), desc.group(1) if desc else "")
 tag = re.search(r'#biz-name::after\{content:"([^"]*)"', css)
 ok("rail tagline is audit-first", bool(tag) and "المراجعة" in tag.group(1) and not any(s in tag.group(1) for s in SALES_FIRST), tag.group(1) if tag else "missing")
 ok("manifest description is audit-first", "المراجعة" in manifest["description"] and not any(s in manifest["description"] for s in SALES_FIRST))
-ok("manifest theme is the «دفتر KOSIF» ink of the door (R20)", manifest.get("theme_color") == "#1d1814" and manifest.get("background_color") == "#1d1814", str(manifest.get("theme_color")))
+ok("manifest uses the canonical EARTH PWA ink and paper", manifest.get("theme_color") == "#243e36" and manifest.get("background_color") == "#f3ece2", str(manifest.get("theme_color")))
 ok("unlock page wears the «دفتر KOSIF» ink (R20: one identity from the first screen)", 'name="theme-color" content="#1d1814"' in unlock_head)
 ok("no cobalt left in the brand art, the door and the manifest (R20)", not any(c in t.lower() for t in [index, manifest_raw] + [Path(f).read_text(encoding="utf-8").lower() for f in ("ui/art/sqc-icon.svg","ui/art/sqc-logo.svg","ui/art/sqc-mark.svg","ui/art/sqc-mark-dark.svg")] for c in ("#2340c4","#0b1030","#19c3d9")))
 ok("unlock / landing page carries no sales-first product line", not any(s in index for s in SALES_FIRST))
 ok("app shell uses canonical SQC theme color («دفتر KOSIF» paper rail)", 'name="theme-color" content="#f3ece2"' in app_head)
-ok("app shell uses SQC favicon", 'href="./art/sqc-icon.svg"' in app_head and "kosif-cloud.svg" not in app_head)
+ok("app shell uses canonical EARTH favicon", 'href="./art/brand/kosif-earth-icon.svg"' in app_head and "kosif-cloud.svg" not in app_head and 'href="./art/sqc-icon.svg"' not in app_head)
 ok("app shell advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in app_head)
 ok("unlock page has audit-first meta description", 'name="description"' in unlock_head and "المراجعة" in unlock_head)
 ok("unlock page advertises manifest", 'rel="manifest" href="./manifest.webmanifest"' in unlock_head)
@@ -73,4 +73,4 @@ ok("أغنام الوادي remains the demo company", "أغنام الوادي"
 
 if failures:
     print(f"\n{len(failures)} identity check(s) failed"); sys.exit(1)
-print("\nProduct identity is audit-first SQC; the demo company and the helpers are intact.")
+print("\nKOSIF EARTH product identity verified; demo company and helpers intact.")
