@@ -1,0 +1,2795 @@
+{
+  "schema": "mercedes-source-model-v1",
+  "company": "Mercedes-Benz Group",
+  "report_year": 2025,
+  "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+  "status": "selected_primary_statements_and_detailed_notes_not_full_report_assurance",
+  "tables": {
+    "income": {
+      "source_physical_pages": [
+        3492
+      ],
+      "source_report_pages": [
+        252
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_flow",
+      "entity_scope": "consolidated_group",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "revenue": {
+          "2025": "132214",
+          "2024": "145594"
+        },
+        "cost_sales": {
+          "2025": "-109881",
+          "2024": "-117018"
+        },
+        "gross_profit": {
+          "2025": "22333",
+          "2024": "28576"
+        },
+        "selling": {
+          "2025": "-9718",
+          "2024": "-9993"
+        },
+        "administration": {
+          "2025": "-2477",
+          "2024": "-2529"
+        },
+        "research_noncapitalized": {
+          "2025": "-6055",
+          "2024": "-5580"
+        },
+        "other_operating_income": {
+          "2025": "1551",
+          "2024": "2507"
+        },
+        "other_operating_expense": {
+          "2025": "-1025",
+          "2024": "-483"
+        },
+        "equity_method": {
+          "2025": "1118",
+          "2024": "1138"
+        },
+        "other_financial": {
+          "2025": "93",
+          "2024": "-37"
+        },
+        "ebit": {
+          "2025": "5820",
+          "2024": "13599"
+        },
+        "interest_income": {
+          "2025": "623",
+          "2024": "738"
+        },
+        "interest_expense": {
+          "2025": "-159",
+          "2024": "-190"
+        },
+        "pretax": {
+          "2025": "6284",
+          "2024": "14147"
+        },
+        "tax": {
+          "2025": "-953",
+          "2024": "-3738"
+        },
+        "net_profit": {
+          "2025": "5331",
+          "2024": "10409"
+        },
+        "nci_profit": {
+          "2025": "190",
+          "2024": "202"
+        },
+        "parent_profit": {
+          "2025": "5141",
+          "2024": "10207"
+        }
+      }
+    },
+    "oci": {
+      "source_physical_pages": [
+        3493
+      ],
+      "source_report_pages": [
+        253
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_flow",
+      "entity_scope": "consolidated_group",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "net_profit": {
+          "2025": "5331",
+          "2024": "10409"
+        },
+        "currency_translation": {
+          "2025": "-1525",
+          "2024": "1001"
+        },
+        "debt": {
+          "2025": "3",
+          "2024": "9"
+        },
+        "derivatives": {
+          "2025": "808",
+          "2024": "-1181"
+        },
+        "equity_method_reclassifiable": {
+          "2025": "-508",
+          "2024": "3"
+        },
+        "reclassifiable_total": {
+          "2025": "-1222",
+          "2024": "-168"
+        },
+        "pensions": {
+          "2025": "1020",
+          "2024": "1045"
+        },
+        "equity": {
+          "2025": "-57",
+          "2024": "-126"
+        },
+        "equity_method_nonreclassifiable": {
+          "2025": "157",
+          "2024": "23"
+        },
+        "nonreclassifiable_total": {
+          "2025": "1120",
+          "2024": "942"
+        },
+        "oci": {
+          "2025": "-102",
+          "2024": "774"
+        },
+        "oci_nci": {
+          "2025": "-114",
+          "2024": "5"
+        },
+        "oci_parent": {
+          "2025": "12",
+          "2024": "769"
+        },
+        "comprehensive": {
+          "2025": "5229",
+          "2024": "11183"
+        },
+        "comprehensive_nci": {
+          "2025": "76",
+          "2024": "207"
+        },
+        "comprehensive_parent": {
+          "2025": "5153",
+          "2024": "10976"
+        }
+      }
+    },
+    "assets": {
+      "source_physical_pages": [
+        3494
+      ],
+      "source_report_pages": [
+        254
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "consolidated_group",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "intangible": {
+          "2025": "20547",
+          "2024": "19436"
+        },
+        "ppe_rou": {
+          "2025": "27340",
+          "2024": "26537"
+        },
+        "operating_leases": {
+          "2025": "39472",
+          "2024": "45220"
+        },
+        "equity_method": {
+          "2025": "10037",
+          "2024": "12786"
+        },
+        "fs_noncurrent": {
+          "2025": "41902",
+          "2024": "48547"
+        },
+        "securities_noncurrent": {
+          "2025": "626",
+          "2024": "644"
+        },
+        "other_financial_noncurrent": {
+          "2025": "2953",
+          "2024": "3020"
+        },
+        "deferred_tax": {
+          "2025": "6090",
+          "2024": "4335"
+        },
+        "income_tax_noncurrent": {
+          "2025": "426",
+          "2024": "327"
+        },
+        "other_noncurrent": {
+          "2025": "3941",
+          "2024": "2391"
+        },
+        "noncurrent_total": {
+          "2025": "153334",
+          "2024": "163243"
+        },
+        "inventory": {
+          "2025": "23933",
+          "2024": "26234"
+        },
+        "trade_receivables": {
+          "2025": "5851",
+          "2024": "6973"
+        },
+        "fs_current": {
+          "2025": "34387",
+          "2024": "39320"
+        },
+        "cash": {
+          "2025": "12254",
+          "2024": "14511"
+        },
+        "securities_current": {
+          "2025": "6940",
+          "2024": "7086"
+        },
+        "other_financial_current": {
+          "2025": "2852",
+          "2024": "2868"
+        },
+        "income_tax_current": {
+          "2025": "1257",
+          "2024": "1034"
+        },
+        "other_current": {
+          "2025": "3645",
+          "2024": "3581"
+        },
+        "held_for_sale": {
+          "2025": "11013",
+          "2024": "160"
+        },
+        "current_total": {
+          "2025": "102132",
+          "2024": "101767"
+        },
+        "total_assets": {
+          "2025": "255466",
+          "2024": "265010"
+        }
+      }
+    },
+    "equity_liabilities": {
+      "source_physical_pages": [
+        3495
+      ],
+      "source_report_pages": [
+        255
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "consolidated_group",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "share_capital": {
+          "2025": "3070",
+          "2024": "3070"
+        },
+        "capital_reserves": {
+          "2025": "11718",
+          "2024": "11718"
+        },
+        "retained_earnings": {
+          "2025": "77631",
+          "2024": "75469"
+        },
+        "other_reserves": {
+          "2025": "1163",
+          "2024": "2368"
+        },
+        "treasury_shares": {
+          "2025": "-325",
+          "2024": "0"
+        },
+        "parent_equity": {
+          "2025": "93257",
+          "2024": "92625"
+        },
+        "nci": {
+          "2025": "983",
+          "2024": "1005"
+        },
+        "equity": {
+          "2025": "94240",
+          "2024": "93630"
+        },
+        "pension": {
+          "2025": "807",
+          "2024": "952"
+        },
+        "provisions_noncurrent": {
+          "2025": "7612",
+          "2024": "7332"
+        },
+        "debt_noncurrent": {
+          "2025": "62410",
+          "2024": "73487"
+        },
+        "financial_noncurrent": {
+          "2025": "1278",
+          "2024": "1490"
+        },
+        "deferred_tax": {
+          "2025": "10201",
+          "2024": "7497"
+        },
+        "contract_refund_noncurrent": {
+          "2025": "2942",
+          "2024": "3100"
+        },
+        "income_tax_noncurrent": {
+          "2025": "1020",
+          "2024": "1342"
+        },
+        "other_noncurrent": {
+          "2025": "1188",
+          "2024": "1354"
+        },
+        "noncurrent_total": {
+          "2025": "87458",
+          "2024": "96554"
+        },
+        "trade_payables": {
+          "2025": "10665",
+          "2024": "11312"
+        },
+        "provisions_current": {
+          "2025": "7846",
+          "2024": "7688"
+        },
+        "debt_current": {
+          "2025": "37596",
+          "2024": "39311"
+        },
+        "financial_current": {
+          "2025": "4277",
+          "2024": "4071"
+        },
+        "contract_refund_current": {
+          "2025": "7955",
+          "2024": "8146"
+        },
+        "income_tax_current": {
+          "2025": "646",
+          "2024": "705"
+        },
+        "other_current": {
+          "2025": "3443",
+          "2024": "3547"
+        },
+        "held_for_sale": {
+          "2025": "1340",
+          "2024": "46"
+        },
+        "current_total": {
+          "2025": "73768",
+          "2024": "74826"
+        },
+        "total_equity_liabilities": {
+          "2025": "255466",
+          "2024": "265010"
+        }
+      }
+    },
+    "cash_flow": {
+      "source_physical_pages": [
+        3496,
+        3497
+      ],
+      "source_report_pages": [
+        256,
+        257
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_flow",
+      "entity_scope": "consolidated_group_including_cash_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "pretax": {
+          "2025": "6284",
+          "2024": "14147"
+        },
+        "da_impairment": {
+          "2025": "7223",
+          "2024": "6772"
+        },
+        "other_noncash": {
+          "2025": "-1204",
+          "2024": "-1362"
+        },
+        "disposal_gains_losses": {
+          "2025": "65",
+          "2024": "18"
+        },
+        "inventory_change": {
+          "2025": "724",
+          "2024": "737"
+        },
+        "trade_change": {
+          "2025": "895",
+          "2024": "-1199"
+        },
+        "fs_receivable_change": {
+          "2025": "5828",
+          "2024": "3280"
+        },
+        "leased_vehicle_change": {
+          "2025": "-4060",
+          "2024": "-3110"
+        },
+        "other_operating_change": {
+          "2025": "2585",
+          "2024": "986"
+        },
+        "equity_method_dividends": {
+          "2025": "1330",
+          "2024": "1918"
+        },
+        "tax_paid": {
+          "2025": "-1664",
+          "2024": "-4452"
+        },
+        "cfo": {
+          "2025": "18006",
+          "2024": "17735"
+        },
+        "ppe_acquisition": {
+          "2025": "-5482",
+          "2024": "-4039"
+        },
+        "intangible_acquisition": {
+          "2025": "-4260",
+          "2024": "-4626"
+        },
+        "ppe_intangible_disposal": {
+          "2025": "191",
+          "2024": "188"
+        },
+        "shareholding_acquisition": {
+          "2025": "-304",
+          "2024": "-363"
+        },
+        "shareholding_disposal": {
+          "2025": "413",
+          "2024": "716"
+        },
+        "securities_acquisition": {
+          "2025": "-12303",
+          "2024": "-6785"
+        },
+        "securities_disposal": {
+          "2025": "12557",
+          "2024": "6160"
+        },
+        "other_investing": {
+          "2025": "-12",
+          "2024": "-1"
+        },
+        "cfi": {
+          "2025": "-9200",
+          "2024": "-8750"
+        },
+        "short_financing_change": {
+          "2025": "-3558",
+          "2024": "-3171"
+        },
+        "long_financing_additions": {
+          "2025": "28598",
+          "2024": "38338"
+        },
+        "long_financing_repayment": {
+          "2025": "-30970",
+          "2024": "-35355"
+        },
+        "parent_dividend": {
+          "2025": "-4140",
+          "2024": "-5486"
+        },
+        "nci_dividend": {
+          "2025": "-183",
+          "2024": "-239"
+        },
+        "treasury_purchase_cash": {
+          "2025": "-360",
+          "2024": "-4921"
+        },
+        "other_financing": {
+          "2025": "160",
+          "2024": "82"
+        },
+        "cff": {
+          "2025": "-10453",
+          "2024": "-10752"
+        },
+        "fx": {
+          "2025": "-593",
+          "2024": "311"
+        },
+        "cash_change": {
+          "2025": "-2240",
+          "2024": "-1456"
+        }
+      }
+    },
+    "cash_bridge": {
+      "source_physical_pages": [
+        3497
+      ],
+      "source_report_pages": [
+        257
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "opening_closing_stock_bridge",
+      "entity_scope": "consolidated_group_cash_with_and_without_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "opening_total": {
+          "2025": "14516",
+          "2024": "15972"
+        },
+        "opening_hfs": {
+          "2025": "5",
+          "2024": "10"
+        },
+        "opening_balance_sheet": {
+          "2025": "14511",
+          "2024": "15962"
+        },
+        "closing_total": {
+          "2025": "12276",
+          "2024": "14516"
+        },
+        "closing_hfs": {
+          "2025": "22",
+          "2024": "5"
+        },
+        "closing_balance_sheet": {
+          "2025": "12254",
+          "2024": "14511"
+        }
+      },
+      "row_period_roles": {
+        "opening_total": "start_of_year",
+        "opening_hfs": "start_of_year",
+        "opening_balance_sheet": "start_of_year",
+        "closing_total": "end_of_year",
+        "closing_hfs": "end_of_year",
+        "closing_balance_sheet": "end_of_year"
+      }
+    },
+    "equity_rollforward": {
+      "source_physical_pages": [
+        3498
+      ],
+      "source_report_pages": [
+        258
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_flow",
+      "entity_scope": "consolidated_total_equity",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "opening": {
+          "2025": "93630",
+          "2024": "92816"
+        },
+        "net_profit": {
+          "2025": "5331",
+          "2024": "10409"
+        },
+        "oci": {
+          "2025": "-102",
+          "2024": "774"
+        },
+        "comprehensive": {
+          "2025": "5229",
+          "2024": "11183"
+        },
+        "dividends": {
+          "2025": "-4325",
+          "2024": "-5728"
+        },
+        "scope_changes": {
+          "2025": "4",
+          "2024": "128"
+        },
+        "capital_increase": {
+          "2025": "89",
+          "2024": "5"
+        },
+        "treasury_purchase_accrual": {
+          "2025": "-381",
+          "2024": "-4809"
+        },
+        "treasury_issue": {
+          "2025": "56",
+          "2024": "73"
+        },
+        "other": {
+          "2025": "-62",
+          "2024": "-38"
+        },
+        "closing": {
+          "2025": "94240",
+          "2024": "93630"
+        }
+      },
+      "row_period_roles": {
+        "opening": "opening_stock",
+        "net_profit": "annual_flow",
+        "oci": "annual_flow",
+        "comprehensive": "annual_flow",
+        "dividends": "annual_flow",
+        "scope_changes": "annual_flow",
+        "capital_increase": "annual_flow",
+        "treasury_purchase_accrual": "annual_flow",
+        "treasury_issue": "annual_flow",
+        "other": "annual_flow",
+        "closing": "closing_stock"
+      }
+    },
+    "tax_reconciliation": {
+      "source_physical_pages": [
+        3534
+      ],
+      "source_report_pages": [
+        294
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_flow",
+      "entity_scope": "consolidated_group",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "current_tax": {
+          "2025": "-1231",
+          "2024": "-3908"
+        },
+        "deferred_tax": {
+          "2025": "278",
+          "2024": "170"
+        },
+        "deferred_temporary": {
+          "2025": "-790",
+          "2024": "135"
+        },
+        "deferred_losses_credits": {
+          "2025": "1068",
+          "2024": "35"
+        },
+        "expected_tax": {
+          "2025": "-1874",
+          "2024": "-4219"
+        },
+        "foreign_rate": {
+          "2025": "270",
+          "2024": "307"
+        },
+        "trade_rate": {
+          "2025": "48",
+          "2024": "26"
+        },
+        "law_change": {
+          "2025": "723",
+          "2024": "78"
+        },
+        "unrecognized_deferred_change": {
+          "2025": "-59",
+          "2024": "-76"
+        },
+        "taxfree_nondeductible": {
+          "2025": "-33",
+          "2024": "376"
+        },
+        "other": {
+          "2025": "-28",
+          "2024": "-230"
+        },
+        "actual_tax": {
+          "2025": "-953",
+          "2024": "-3738"
+        }
+      }
+    },
+    "deferred_tax": {
+      "source_physical_pages": [
+        3536
+      ],
+      "source_report_pages": [
+        296
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "consolidated_group_gross_and_offset",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "gross_assets": {
+          "2025": "15062",
+          "2024": "16521"
+        },
+        "gross_liabilities": {
+          "2025": "-18968",
+          "2024": "-19566"
+        },
+        "unrecognized": {
+          "2025": "-205",
+          "2024": "-117"
+        },
+        "unrecognized_temporary": {
+          "2025": "-61",
+          "2024": "-1"
+        },
+        "unrecognized_losses": {
+          "2025": "-144",
+          "2024": "-116"
+        },
+        "unbalanced_assets": {
+          "2025": "14857",
+          "2024": "16404"
+        },
+        "unbalanced_liabilities": {
+          "2025": "-18968",
+          "2024": "-19566"
+        },
+        "balanced_assets": {
+          "2025": "6090",
+          "2024": "4335"
+        },
+        "balanced_liabilities": {
+          "2025": "-10201",
+          "2024": "-7497"
+        },
+        "net": {
+          "2025": "-4111",
+          "2024": "-3162"
+        }
+      }
+    },
+    "deferred_tax_rollforward": {
+      "source_physical_pages": [
+        3537
+      ],
+      "source_report_pages": [
+        297
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_flow",
+      "entity_scope": "consolidated_group",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "opening": {
+          "2025": "-3162",
+          "2024": "-3587"
+        },
+        "income_statement": {
+          "2025": "278",
+          "2024": "170"
+        },
+        "equity_oci": {
+          "2025": "1",
+          "2024": "30"
+        },
+        "debt_oci": {
+          "2025": "-1",
+          "2024": "-3"
+        },
+        "derivatives_oci": {
+          "2025": "-336",
+          "2024": "504"
+        },
+        "pensions_oci": {
+          "2025": "-777",
+          "2024": "-226"
+        },
+        "other": {
+          "2025": "-114",
+          "2024": "-50"
+        },
+        "closing": {
+          "2025": "-4111",
+          "2024": "-3162"
+        }
+      },
+      "row_period_roles": {
+        "opening": "opening_stock",
+        "income_statement": "annual_flow",
+        "equity_oci": "annual_flow",
+        "debt_oci": "annual_flow",
+        "derivatives_oci": "annual_flow",
+        "pensions_oci": "annual_flow",
+        "other": "annual_flow",
+        "closing": "closing_stock"
+      }
+    },
+    "operating_lease_assets": {
+      "source_physical_pages": [
+        3541
+      ],
+      "source_report_pages": [
+        301
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "opening_closing_stock_bridge",
+      "entity_scope": "consolidated_group",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "cost_opening": {
+          "2025": "58197",
+          "2024": "54820"
+        },
+        "cost_additions": {
+          "2025": "24742",
+          "2024": "24269"
+        },
+        "cost_transfers": {
+          "2025": "0",
+          "2024": "3"
+        },
+        "cost_hfs": {
+          "2025": "-10649",
+          "2024": "0"
+        },
+        "cost_disposals": {
+          "2025": "-19958",
+          "2024": "-21788"
+        },
+        "cost_other": {
+          "2025": "-2492",
+          "2024": "893"
+        },
+        "cost_closing": {
+          "2025": "49840",
+          "2024": "58197"
+        },
+        "dep_opening": {
+          "2025": "12977",
+          "2024": "13108"
+        },
+        "dep_additions": {
+          "2025": "7882",
+          "2024": "7895"
+        },
+        "dep_hfs": {
+          "2025": "-2703",
+          "2024": "0"
+        },
+        "dep_disposals": {
+          "2025": "-7152",
+          "2024": "-8240"
+        },
+        "dep_other": {
+          "2025": "-636",
+          "2024": "214"
+        },
+        "dep_closing": {
+          "2025": "10368",
+          "2024": "12977"
+        },
+        "carrying": {
+          "2025": "39472",
+          "2024": "45220"
+        }
+      },
+      "row_period_roles": {
+        "cost_opening": "opening_stock",
+        "cost_additions": "annual_flow",
+        "cost_transfers": "annual_flow",
+        "cost_hfs": "annual_flow",
+        "cost_disposals": "annual_flow",
+        "cost_other": "annual_flow",
+        "cost_closing": "closing_stock",
+        "dep_opening": "opening_stock",
+        "dep_additions": "annual_flow",
+        "dep_hfs": "annual_flow",
+        "dep_disposals": "annual_flow",
+        "dep_other": "annual_flow",
+        "dep_closing": "closing_stock",
+        "carrying": "closing_stock"
+      }
+    },
+    "lease_maturity": {
+      "source_physical_pages": [
+        3541
+      ],
+      "source_report_pages": [
+        301
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "future_contractual_cash_flows",
+      "entity_scope": "consolidated_operating_leases_undiscounted",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "within_1y": {
+          "2025": "8821",
+          "2024": "7957"
+        },
+        "1_2y": {
+          "2025": "7091",
+          "2024": "6036"
+        },
+        "2_3y": {
+          "2025": "3515",
+          "2024": "3846"
+        },
+        "3_4y": {
+          "2025": "1538",
+          "2024": "2047"
+        },
+        "4_5y": {
+          "2025": "326",
+          "2024": "473"
+        },
+        "later_5y": {
+          "2025": "151",
+          "2024": "142"
+        },
+        "total": {
+          "2025": "21442",
+          "2024": "20501"
+        }
+      }
+    },
+    "fs_receivables": {
+      "source_physical_pages": [
+        3546
+      ],
+      "source_report_pages": [
+        306
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "consolidated_balance_sheet_excluding_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "customer_current": {
+          "2025": "13187",
+          "2024": "15753"
+        },
+        "customer_noncurrent": {
+          "2025": "25469",
+          "2024": "29886"
+        },
+        "customer_total": {
+          "2025": "38656",
+          "2024": "45639"
+        },
+        "dealer_current": {
+          "2025": "15438",
+          "2024": "17138"
+        },
+        "dealer_noncurrent": {
+          "2025": "5123",
+          "2024": "5874"
+        },
+        "dealer_total": {
+          "2025": "20561",
+          "2024": "23012"
+        },
+        "lease_current": {
+          "2025": "5927",
+          "2024": "6687"
+        },
+        "lease_noncurrent": {
+          "2025": "11406",
+          "2024": "12745"
+        },
+        "lease_total": {
+          "2025": "17333",
+          "2024": "19432"
+        },
+        "residual_current": {
+          "2025": "212",
+          "2024": "175"
+        },
+        "residual_noncurrent": {
+          "2025": "512",
+          "2024": "714"
+        },
+        "residual_total": {
+          "2025": "724",
+          "2024": "889"
+        },
+        "gross_current": {
+          "2025": "34764",
+          "2024": "39753"
+        },
+        "gross_noncurrent": {
+          "2025": "42510",
+          "2024": "49219"
+        },
+        "gross_total": {
+          "2025": "77274",
+          "2024": "88972"
+        },
+        "allowance_current": {
+          "2025": "-377",
+          "2024": "-433"
+        },
+        "allowance_noncurrent": {
+          "2025": "-608",
+          "2024": "-672"
+        },
+        "allowance_total": {
+          "2025": "-985",
+          "2024": "-1105"
+        },
+        "net_current": {
+          "2025": "34387",
+          "2024": "39320"
+        },
+        "net_noncurrent": {
+          "2025": "41902",
+          "2024": "48547"
+        },
+        "net_total": {
+          "2025": "76289",
+          "2024": "87867"
+        }
+      }
+    },
+    "finance_lease": {
+      "source_physical_pages": [
+        3547
+      ],
+      "source_report_pages": [
+        307
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "consolidated_finance_lease_receivables_excluding_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "payments": {
+          "2025": "18663",
+          "2024": "20850"
+        },
+        "within_1y": {
+          "2025": "6675",
+          "2024": "7371"
+        },
+        "1_2y": {
+          "2025": "4457",
+          "2024": "5406"
+        },
+        "2_3y": {
+          "2025": "3519",
+          "2024": "3975"
+        },
+        "3_4y": {
+          "2025": "2362",
+          "2024": "2703"
+        },
+        "4_5y": {
+          "2025": "1257",
+          "2024": "1187"
+        },
+        "later_5y": {
+          "2025": "393",
+          "2024": "208"
+        },
+        "unguaranteed_residual": {
+          "2025": "859",
+          "2024": "887"
+        },
+        "gross_investment": {
+          "2025": "19522",
+          "2024": "21737"
+        },
+        "unearned_income": {
+          "2025": "-2189",
+          "2024": "-2305"
+        },
+        "gross_carrying": {
+          "2025": "17333",
+          "2024": "19432"
+        },
+        "allowance": {
+          "2025": "-266",
+          "2024": "-323"
+        },
+        "net_carrying": {
+          "2025": "17067",
+          "2024": "19109"
+        }
+      }
+    },
+    "ecl_total": {
+      "source_physical_pages": [
+        3548
+      ],
+      "source_report_pages": [
+        308
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "opening_closing_stock_bridge",
+      "entity_scope": "financial_services_receivables_including_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "opening": {
+          "2025": "1105",
+          "2024": "1055"
+        },
+        "additions": {
+          "2025": "244",
+          "2024": "293"
+        },
+        "remeasurement": {
+          "2025": "388",
+          "2024": "361"
+        },
+        "utilization": {
+          "2025": "-244",
+          "2024": "-194"
+        },
+        "reversals": {
+          "2025": "-433",
+          "2024": "-433"
+        },
+        "transfer_stage1": {
+          "2025": "0",
+          "2024": "0"
+        },
+        "transfer_stage2": {
+          "2025": "0",
+          "2024": "0"
+        },
+        "transfer_stage3": {
+          "2025": "0",
+          "2024": "0"
+        },
+        "fx_other": {
+          "2025": "-57",
+          "2024": "23"
+        },
+        "closing": {
+          "2025": "1003",
+          "2024": "1105"
+        }
+      },
+      "row_period_roles": {
+        "opening": "opening_stock",
+        "additions": "annual_flow",
+        "remeasurement": "annual_flow",
+        "utilization": "annual_flow",
+        "reversals": "annual_flow",
+        "transfer_stage1": "annual_flow",
+        "transfer_stage2": "annual_flow",
+        "transfer_stage3": "annual_flow",
+        "fx_other": "annual_flow",
+        "closing": "closing_stock"
+      }
+    },
+    "ecl_stage1": {
+      "source_physical_pages": [
+        3548
+      ],
+      "source_report_pages": [
+        308
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "opening_closing_stock_bridge",
+      "entity_scope": "financial_services_receivables_including_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "opening": {
+          "2025": "297",
+          "2024": "329"
+        },
+        "additions": {
+          "2025": "107",
+          "2024": "132"
+        },
+        "remeasurement": {
+          "2025": "-33",
+          "2024": "-36"
+        },
+        "utilization": {
+          "2025": "-3",
+          "2024": "-4"
+        },
+        "reversals": {
+          "2025": "-134",
+          "2024": "-140"
+        },
+        "transfer_stage1": {
+          "2025": "77",
+          "2024": "60"
+        },
+        "transfer_stage2": {
+          "2025": "-29",
+          "2024": "-33"
+        },
+        "transfer_stage3": {
+          "2025": "-3",
+          "2024": "-3"
+        },
+        "fx_other": {
+          "2025": "-15",
+          "2024": "-8"
+        },
+        "closing": {
+          "2025": "264",
+          "2024": "297"
+        }
+      },
+      "row_period_roles": {
+        "opening": "opening_stock",
+        "additions": "annual_flow",
+        "remeasurement": "annual_flow",
+        "utilization": "annual_flow",
+        "reversals": "annual_flow",
+        "transfer_stage1": "annual_flow",
+        "transfer_stage2": "annual_flow",
+        "transfer_stage3": "annual_flow",
+        "fx_other": "annual_flow",
+        "closing": "closing_stock"
+      }
+    },
+    "ecl_stage2": {
+      "source_physical_pages": [
+        3548
+      ],
+      "source_report_pages": [
+        308
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "opening_closing_stock_bridge",
+      "entity_scope": "financial_services_receivables_including_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "opening": {
+          "2025": "244",
+          "2024": "240"
+        },
+        "additions": {
+          "2025": "44",
+          "2024": "54"
+        },
+        "remeasurement": {
+          "2025": "116",
+          "2024": "90"
+        },
+        "utilization": {
+          "2025": "-33",
+          "2024": "-36"
+        },
+        "reversals": {
+          "2025": "-77",
+          "2024": "-88"
+        },
+        "transfer_stage1": {
+          "2025": "-60",
+          "2024": "-46"
+        },
+        "transfer_stage2": {
+          "2025": "47",
+          "2024": "50"
+        },
+        "transfer_stage3": {
+          "2025": "-35",
+          "2024": "-45"
+        },
+        "fx_other": {
+          "2025": "-18",
+          "2024": "25"
+        },
+        "closing": {
+          "2025": "228",
+          "2024": "244"
+        }
+      },
+      "row_period_roles": {
+        "opening": "opening_stock",
+        "additions": "annual_flow",
+        "remeasurement": "annual_flow",
+        "utilization": "annual_flow",
+        "reversals": "annual_flow",
+        "transfer_stage1": "annual_flow",
+        "transfer_stage2": "annual_flow",
+        "transfer_stage3": "annual_flow",
+        "fx_other": "annual_flow",
+        "closing": "closing_stock"
+      }
+    },
+    "ecl_stage3": {
+      "source_physical_pages": [
+        3548
+      ],
+      "source_report_pages": [
+        308
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "opening_closing_stock_bridge",
+      "entity_scope": "financial_services_receivables_including_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "opening": {
+          "2025": "564",
+          "2024": "486"
+        },
+        "additions": {
+          "2025": "93",
+          "2024": "107"
+        },
+        "remeasurement": {
+          "2025": "305",
+          "2024": "307"
+        },
+        "utilization": {
+          "2025": "-208",
+          "2024": "-154"
+        },
+        "reversals": {
+          "2025": "-222",
+          "2024": "-205"
+        },
+        "transfer_stage1": {
+          "2025": "-17",
+          "2024": "-14"
+        },
+        "transfer_stage2": {
+          "2025": "-18",
+          "2024": "-17"
+        },
+        "transfer_stage3": {
+          "2025": "38",
+          "2024": "48"
+        },
+        "fx_other": {
+          "2025": "-24",
+          "2024": "6"
+        },
+        "closing": {
+          "2025": "511",
+          "2024": "564"
+        }
+      },
+      "row_period_roles": {
+        "opening": "opening_stock",
+        "additions": "annual_flow",
+        "remeasurement": "annual_flow",
+        "utilization": "annual_flow",
+        "reversals": "annual_flow",
+        "transfer_stage1": "annual_flow",
+        "transfer_stage2": "annual_flow",
+        "transfer_stage3": "annual_flow",
+        "fx_other": "annual_flow",
+        "closing": "closing_stock"
+      }
+    },
+    "credit_exposure": {
+      "source_physical_pages": [
+        3548
+      ],
+      "source_report_pages": [
+        308
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "financial_services_receivables_including_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "stage1": {
+          "2025": "68300",
+          "2024": "78997"
+        },
+        "stage2": {
+          "2025": "8067",
+          "2024": "8569"
+        },
+        "stage3": {
+          "2025": "1355",
+          "2024": "1490"
+        },
+        "gross": {
+          "2025": "77722",
+          "2024": "89056"
+        },
+        "not_past_due": {
+          "2025": "74094",
+          "2024": "85233"
+        },
+        "past_due_30_or_less": {
+          "2025": "1798",
+          "2024": "1694"
+        },
+        "past_due_31_60": {
+          "2025": "600",
+          "2024": "774"
+        },
+        "past_due_61_90": {
+          "2025": "281",
+          "2024": "368"
+        },
+        "past_due_91_180": {
+          "2025": "312",
+          "2024": "338"
+        },
+        "past_due_over180": {
+          "2025": "637",
+          "2024": "649"
+        }
+      }
+    },
+    "segment_revenue": {
+      "source_physical_pages": [
+        3605
+      ],
+      "source_report_pages": [
+        365
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_flow",
+      "entity_scope": "segments_before_and_after_intersegment_eliminations",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "cars_external": {
+          "2025": "91653",
+          "2024": "102483"
+        },
+        "cars_internal": {
+          "2025": "4754",
+          "2024": "5278"
+        },
+        "cars_total": {
+          "2025": "96407",
+          "2024": "107761"
+        },
+        "vans_external": {
+          "2025": "16724",
+          "2024": "18612"
+        },
+        "vans_internal": {
+          "2025": "424",
+          "2024": "708"
+        },
+        "vans_total": {
+          "2025": "17148",
+          "2024": "19320"
+        },
+        "fs_external": {
+          "2025": "23837",
+          "2024": "24499"
+        },
+        "fs_internal": {
+          "2025": "788",
+          "2024": "584"
+        },
+        "fs_total": {
+          "2025": "24625",
+          "2024": "25083"
+        },
+        "segments_total": {
+          "2025": "138180",
+          "2024": "152164"
+        },
+        "eliminations": {
+          "2025": "-5966",
+          "2024": "-6570"
+        },
+        "group": {
+          "2025": "132214",
+          "2024": "145594"
+        }
+      }
+    },
+    "segment_ebit": {
+      "source_physical_pages": [
+        3605,
+        3606
+      ],
+      "source_report_pages": [
+        365,
+        366
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_flow",
+      "entity_scope": "segments_with_corporate_reconciliation",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "cars": {
+          "2025": "3564",
+          "2024": "8460"
+        },
+        "vans": {
+          "2025": "1309",
+          "2024": "2932"
+        },
+        "fs": {
+          "2025": "690",
+          "2024": "1134"
+        },
+        "segments": {
+          "2025": "5563",
+          "2024": "12526"
+        },
+        "reconciliation": {
+          "2025": "257",
+          "2024": "1073"
+        },
+        "reconciliation_equity_method": {
+          "2025": "326",
+          "2024": "686"
+        },
+        "reconciliation_other": {
+          "2025": "-195",
+          "2024": "197"
+        },
+        "reconciliation_eliminations": {
+          "2025": "126",
+          "2024": "190"
+        },
+        "group": {
+          "2025": "5820",
+          "2024": "13599"
+        }
+      }
+    },
+    "segment_assets_bridge": {
+      "source_physical_pages": [
+        3606
+      ],
+      "source_report_pages": [
+        366
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "segments_with_unallocated_and_eliminations",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "segments": {
+          "2025": "240554",
+          "2024": "253026"
+        },
+        "daimler_truck": {
+          "2025": "8221",
+          "2024": "8655"
+        },
+        "other_equity_method": {
+          "2025": "173",
+          "2024": "227"
+        },
+        "income_tax": {
+          "2025": "6304",
+          "2024": "3867"
+        },
+        "other_eliminations": {
+          "2025": "-21159",
+          "2024": "-21339"
+        },
+        "segment_assets_group": {
+          "2025": "234093",
+          "2024": "244436"
+        },
+        "unallocated": {
+          "2025": "21373",
+          "2024": "20574"
+        },
+        "group_assets": {
+          "2025": "255466",
+          "2024": "265010"
+        }
+      }
+    },
+    "segment_liabilities_bridge": {
+      "source_physical_pages": [
+        3606
+      ],
+      "source_report_pages": [
+        366
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "segments_with_unallocated_and_eliminations",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "segments": {
+          "2025": "187347",
+          "2024": "196675"
+        },
+        "income_tax": {
+          "2025": "9952",
+          "2024": "7827"
+        },
+        "other_eliminations": {
+          "2025": "-21353",
+          "2024": "-21563"
+        },
+        "segment_liabilities_group": {
+          "2025": "175946",
+          "2024": "182939"
+        },
+        "unallocated": {
+          "2025": "-14720",
+          "2024": "-11559"
+        },
+        "equity": {
+          "2025": "94240",
+          "2024": "93630"
+        },
+        "group_equity_liabilities": {
+          "2025": "255466",
+          "2024": "265010"
+        }
+      }
+    },
+    "regional_revenue": {
+      "source_physical_pages": [
+        3607
+      ],
+      "source_report_pages": [
+        367
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_flow",
+      "entity_scope": "consolidated_group_by_customer_location",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "europe": {
+          "2025": "57908",
+          "2024": "58764"
+        },
+        "germany_of_europe": {
+          "2025": "20943",
+          "2024": "21707"
+        },
+        "north_america": {
+          "2025": "34552",
+          "2024": "38917"
+        },
+        "us_of_north_america": {
+          "2025": "30974",
+          "2024": "34900"
+        },
+        "asia": {
+          "2025": "31571",
+          "2024": "39643"
+        },
+        "china_of_asia": {
+          "2025": "16519",
+          "2024": "23139"
+        },
+        "other": {
+          "2025": "8183",
+          "2024": "8270"
+        },
+        "total": {
+          "2025": "132214",
+          "2024": "145594"
+        }
+      }
+    },
+    "net_assets_average": {
+      "source_physical_pages": [
+        3608
+      ],
+      "source_report_pages": [
+        368
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "annual_average_stock",
+      "entity_scope": "capital_management_not_closing_balance_sheet_equity",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "cars": {
+          "2025": "39404",
+          "2024": "41905"
+        },
+        "vans": {
+          "2025": "1454",
+          "2024": "1632"
+        },
+        "fs_equity": {
+          "2025": "13002",
+          "2024": "12993"
+        },
+        "segments": {
+          "2025": "53860",
+          "2024": "56530"
+        },
+        "daimler_truck": {
+          "2025": "8312",
+          "2024": "8466"
+        },
+        "other_equity_method": {
+          "2025": "182",
+          "2024": "230"
+        },
+        "income_tax": {
+          "2025": "-4273",
+          "2024": "-4717"
+        },
+        "other_eliminations": {
+          "2025": "246",
+          "2024": "-19"
+        },
+        "group": {
+          "2025": "58327",
+          "2024": "60490"
+        }
+      },
+      "row_period_roles": {
+        "cars": "annual_average_stock",
+        "vans": "annual_average_stock",
+        "fs_equity": "annual_average_stock",
+        "segments": "annual_average_stock",
+        "daimler_truck": "annual_average_stock",
+        "other_equity_method": "annual_average_stock",
+        "income_tax": "annual_average_stock",
+        "other_eliminations": "annual_average_stock",
+        "group": "annual_average_stock"
+      }
+    },
+    "eps": {
+      "source_physical_pages": [
+        3492,
+        3609
+      ],
+      "source_report_pages": [
+        252,
+        369
+      ],
+      "currency": "EUR",
+      "unit": "EUR per share",
+      "decimal_places": 2,
+      "period_kind": "annual_flow",
+      "entity_scope": "attributable_to_parent_shareholders",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "basic": {
+          "2025": "5.34",
+          "2024": "10.19"
+        },
+        "diluted": {
+          "2025": "5.34",
+          "2024": "10.19"
+        }
+      }
+    },
+    "weighted_shares": {
+      "source_physical_pages": [
+        3609
+      ],
+      "source_report_pages": [
+        369
+      ],
+      "currency": null,
+      "unit": "million shares",
+      "decimal_places": 1,
+      "period_kind": "annual_weighted_average_stock",
+      "entity_scope": "parent_shares_outstanding_not_year_end_shares",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "basic": {
+          "2025": "962.4",
+          "2024": "1002.0"
+        },
+        "diluted": {
+          "2025": "962.4",
+          "2024": "1002.0"
+        }
+      },
+      "row_period_roles": {
+        "basic": "annual_weighted_average_stock",
+        "diluted": "annual_weighted_average_stock"
+      }
+    },
+    "pension_funding": {
+      "source_physical_pages": [
+        3559
+      ],
+      "source_report_pages": [
+        319
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "defined_benefit_pensions_excluding_post_employment_healthcare",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "obligation": {
+          "2025": "20188",
+          "2024": "21599"
+        },
+        "plan_assets": {
+          "2025": "22828",
+          "2024": "22550"
+        },
+        "funded_status": {
+          "2025": "2640",
+          "2024": "951"
+        },
+        "asset_ceiling": {
+          "2025": "-19",
+          "2024": "-13"
+        },
+        "net_balance": {
+          "2025": "2621",
+          "2024": "938"
+        },
+        "asset": {
+          "2025": "3131",
+          "2024": "1553"
+        },
+        "liability": {
+          "2025": "-510",
+          "2024": "-615"
+        }
+      }
+    },
+    "risk_provisions": {
+      "source_physical_pages": [
+        3565
+      ],
+      "source_report_pages": [
+        325
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "consolidated_group",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "warranty": {
+          "2025": "7091",
+          "2024": "6934"
+        },
+        "personnel": {
+          "2025": "3762",
+          "2024": "4198"
+        },
+        "litigation": {
+          "2025": "1891",
+          "2024": "1683"
+        },
+        "other": {
+          "2025": "2714",
+          "2024": "2205"
+        },
+        "total": {
+          "2025": "15458",
+          "2024": "15020"
+        },
+        "current": {
+          "2025": "7846",
+          "2024": "7688"
+        },
+        "noncurrent": {
+          "2025": "7612",
+          "2024": "7332"
+        }
+      }
+    },
+    "financing_debt": {
+      "source_physical_pages": [
+        3566
+      ],
+      "source_report_pages": [
+        326
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "consolidated_balance_sheet_excluding_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "bonds": {
+          "2025": "54862",
+          "2024": "62886"
+        },
+        "commercial_paper": {
+          "2025": "101",
+          "2024": "952"
+        },
+        "banks": {
+          "2025": "24427",
+          "2024": "26315"
+        },
+        "deposits": {
+          "2025": "1562",
+          "2024": "1557"
+        },
+        "abs": {
+          "2025": "16177",
+          "2024": "18199"
+        },
+        "leases": {
+          "2025": "1989",
+          "2024": "2233"
+        },
+        "other": {
+          "2025": "888",
+          "2024": "656"
+        },
+        "current": {
+          "2025": "37596",
+          "2024": "39311"
+        },
+        "noncurrent": {
+          "2025": "62410",
+          "2024": "73487"
+        },
+        "total": {
+          "2025": "100006",
+          "2024": "112798"
+        }
+      }
+    },
+    "financial_instruments": {
+      "source_physical_pages": [
+        3575,
+        3577
+      ],
+      "source_report_pages": [
+        335,
+        337
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "financial_instruments_including_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "fs_carrying": {
+          "2025": "76719",
+          "2024": "87950"
+        },
+        "fs_fair_value": {
+          "2025": "78487",
+          "2024": "90048"
+        },
+        "trade_carrying": {
+          "2025": "5893",
+          "2024": "6982"
+        },
+        "cash": {
+          "2025": "12276",
+          "2024": "14517"
+        },
+        "financing_carrying": {
+          "2025": "98486",
+          "2024": "110583"
+        },
+        "financing_fair_value": {
+          "2025": "98529",
+          "2024": "110095"
+        },
+        "asset_total_carrying": {
+          "2025": "108161",
+          "2024": "122724"
+        },
+        "asset_total_fair_value": {
+          "2025": "109929",
+          "2024": "124822"
+        },
+        "liability_total_carrying": {
+          "2025": "119572",
+          "2024": "132116"
+        },
+        "liability_total_fair_value": {
+          "2025": "119615",
+          "2024": "131628"
+        }
+      }
+    },
+    "fair_value_hierarchy": {
+      "source_physical_pages": [
+        3579
+      ],
+      "source_report_pages": [
+        339
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "recognized_at_fair_value_excluding_amortized_cost_disclosure_only_fair_values",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "assets_level1": {
+          "2025": "7617",
+          "2024": "7096"
+        },
+        "assets_level2": {
+          "2025": "2055",
+          "2024": "1889"
+        },
+        "assets_level3": {
+          "2025": "1041",
+          "2024": "702"
+        },
+        "assets_total": {
+          "2025": "10713",
+          "2024": "9687"
+        },
+        "liabilities_level1": {
+          "2025": "0",
+          "2024": "0"
+        },
+        "liabilities_level2": {
+          "2025": "447",
+          "2024": "1232"
+        },
+        "liabilities_level3": {
+          "2025": "0",
+          "2024": "0"
+        },
+        "liabilities_total": {
+          "2025": "447",
+          "2024": "1232"
+        }
+      }
+    },
+    "derivative_netting": {
+      "source_physical_pages": [
+        3578
+      ],
+      "source_report_pages": [
+        338
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "derivatives_gross_recognized_and_hypothetical_default_netting",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "asset_gross_recognized": {
+          "2025": "2032",
+          "2024": "1562"
+        },
+        "liability_gross_recognized": {
+          "2025": "447",
+          "2024": "1232"
+        },
+        "potential_offset": {
+          "2025": "-317",
+          "2024": "-888"
+        },
+        "asset_hypothetical_net": {
+          "2025": "1715",
+          "2024": "674"
+        },
+        "liability_hypothetical_net": {
+          "2025": "130",
+          "2024": "344"
+        }
+      }
+    },
+    "contract_refund": {
+      "source_physical_pages": [
+        3568
+      ],
+      "source_report_pages": [
+        328
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_stock",
+      "entity_scope": "consolidated_group_excluding_held_for_sale",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "service": {
+          "2025": "4118",
+          "2024": "4275"
+        },
+        "other_contract": {
+          "2025": "2071",
+          "2024": "1926"
+        },
+        "contract_total": {
+          "2025": "6189",
+          "2024": "6201"
+        },
+        "sales_refund": {
+          "2025": "4379",
+          "2024": "4655"
+        },
+        "other_refund": {
+          "2025": "329",
+          "2024": "390"
+        },
+        "refund_total": {
+          "2025": "4708",
+          "2024": "5045"
+        },
+        "total": {
+          "2025": "10897",
+          "2024": "11246"
+        },
+        "current": {
+          "2025": "7955",
+          "2024": "8146"
+        },
+        "noncurrent": {
+          "2025": "2942",
+          "2024": "3100"
+        }
+      }
+    },
+    "contingencies": {
+      "source_physical_pages": [
+        3574
+      ],
+      "source_report_pages": [
+        334
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "closing_maximum_or_best_estimate_off_balance_sheet",
+      "entity_scope": "unrecognized_contingent_obligations_not_booked_liabilities",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "legal": {
+          "2025": "2147",
+          "2024": "2333"
+        },
+        "jv_support": {
+          "2025": "622",
+          "2024": "0"
+        },
+        "warranty": {
+          "2025": "318",
+          "2024": "319"
+        },
+        "other": {
+          "2025": "69",
+          "2024": "155"
+        },
+        "total": {
+          "2025": "3156",
+          "2024": "2807"
+        },
+        "purchase_commitments": {
+          "2025": "6282",
+          "2024": "6572"
+        }
+      }
+    },
+    "liquidity_runoff": {
+      "source_physical_pages": [
+        3596,
+        3597
+      ],
+      "source_report_pages": [
+        356,
+        357
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "future_contractual_undiscounted_cashflows",
+      "entity_scope": "recognized_liability_contractual_cashflows_plus_maximum_undrawn_commitments_and_guarantees",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "financing": {
+          "2025": "108373",
+          "2024": "122698"
+        },
+        "derivatives": {
+          "2025": "383",
+          "2024": "1409"
+        },
+        "trade": {
+          "2025": "10665",
+          "2024": "11312"
+        },
+        "other_financial": {
+          "2025": "5059",
+          "2024": "4322"
+        },
+        "sales_obligations": {
+          "2025": "4379",
+          "2024": "4655"
+        },
+        "loan_commitments": {
+          "2025": "2289",
+          "2024": "2635"
+        },
+        "guarantees": {
+          "2025": "384",
+          "2024": "139"
+        },
+        "total": {
+          "2025": "131532",
+          "2024": "147170"
+        },
+        "year1": {
+          "2025": "62279",
+          "2024": "64907"
+        },
+        "year2": {
+          "2025": "28848",
+          "2024": "31633"
+        },
+        "year3": {
+          "2025": "14411",
+          "2024": "20976"
+        },
+        "year4": {
+          "2025": "7098",
+          "2024": "6608"
+        },
+        "year5": {
+          "2025": "6476",
+          "2024": "6419"
+        },
+        "later": {
+          "2025": "12420",
+          "2024": "16627"
+        }
+      },
+      "calendar_bands": {
+        "2025": [
+          "2026",
+          "2027",
+          "2028",
+          "2029",
+          "2030",
+          ">=2031"
+        ],
+        "2024": [
+          "2025",
+          "2026",
+          "2027",
+          "2028",
+          "2029",
+          ">=2030"
+        ]
+      }
+    },
+    "daimler_truck_associate_income": {
+      "source_physical_pages": [
+        3544
+      ],
+      "source_report_pages": [
+        304
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "mixed_duration_flow",
+      "entity_scope": "associate_own_IFRS_information_not_Mercedes_consolidated_revenue",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-09-30",
+          "months": 9
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "months": 12
+        }
+      },
+      "rows": {
+        "revenue": {
+          "2025": "33733",
+          "2024": "54077"
+        },
+        "continuing_profit": {
+          "2025": "1401",
+          "2024": "3066"
+        },
+        "discontinued_profit": {
+          "2025": "166",
+          "2024": "0"
+        },
+        "oci": {
+          "2025": "-643",
+          "2024": "-173"
+        },
+        "comprehensive": {
+          "2025": "924",
+          "2024": "2893"
+        }
+      },
+      "direct_growth_comparison_allowed": false
+    },
+    "daimler_truck_associate_assets": {
+      "source_physical_pages": [
+        3544
+      ],
+      "source_report_pages": [
+        304
+      ],
+      "currency": "EUR",
+      "unit": "EUR million",
+      "decimal_places": 0,
+      "period_kind": "mixed_as_of_stock",
+      "entity_scope": "associate_own_IFRS_information_with_investor_adjustments",
+      "standard": "IFRS as adopted by EU plus German HGB 315e",
+      "periods": {
+        "2025": {
+          "as_of": "2025-09-30"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "noncurrent_assets": {
+          "2025": "36162",
+          "2024": "40794"
+        },
+        "current_assets": {
+          "2025": "40351",
+          "2024": "38455"
+        },
+        "noncurrent_liabilities": {
+          "2025": "30681",
+          "2024": "27533"
+        },
+        "current_liabilities": {
+          "2025": "19801",
+          "2024": "23617"
+        },
+        "equity": {
+          "2025": "26031",
+          "2024": "28099"
+        }
+      },
+      "direct_same_year_end_comparison_allowed": false
+    }
+  },
+  "assurance": {
+    "financial_statement_audit": {
+      "auditor": "PricewaterhouseCoopers GmbH Wirtschaftspr\u00fcfungsgesellschaft",
+      "opinion": "unmodified",
+      "scope": "consolidated_FY2025_financial_statements_and_Group_management_report_subject_to_exclusions",
+      "year_end": "2025-12-31",
+      "report_date": "2026-03-03",
+      "source_physical_pages": [
+        3630,
+        3631,
+        3634,
+        3635,
+        3636,
+        3639
+      ],
+      "separate_icfr_effectiveness_opinion": false,
+      "separate_KAM_opinions": false,
+      "whole_annual_report_assured": false
+    },
+    "sustainability": {
+      "overall_level": "limited",
+      "reasonable_assurance_only": [
+        "starred_total_employees",
+        "starred_top_management_gender_absolute",
+        "starred_europe_vehicle_CO2",
+        "starred_US_vehicle_GHG",
+        "starred_China_imported_car_fleet_consumption"
+      ],
+      "source_physical_pages": [
+        3640,
+        3641,
+        3642,
+        3643,
+        3644
+      ],
+      "control_effectiveness_opinion": false
+    },
+    "esef": {
+      "scope": "conversion_only_of_named_German_ESEF_file",
+      "covers_this_corpus_PDF_as_ESEF": false,
+      "source_physical_pages": [
+        3637,
+        3638,
+        3639
+      ]
+    }
+  },
+  "scope_warnings": [
+    "Parent-company HGB condensed statements (physical3343\u20133345) are separate from consolidated IFRS.",
+    "Amounts are reported figures; no adjusted earnings should substitute for IFRS EBIT.",
+    "Source rounded integers can cause small arithmetic residuals; reported exact source anchors remain authoritative.",
+    "ECL stage table includes held-for-sale assets; balance-sheet receivables table excludes them.",
+    "Note14 prior finance-lease comparative reclassifies3355 EURm from unguaranteed residual values into contractual payments.",
+    "This model covers selected statements and notes, not every report disclosure.",
+    "Note13 Daimler Truck2025 income covers9months and asset figuresSeptember30;2024 is annual/December31. Do not compute annual growth from this table.",
+    "Financial instruments note31 prior cash14517 EURm differs from cash-flow closing14516 EURm; preserve both reported anchors and record1m presentation difference without inventing a correction.",
+    "Note32 prior FS maximum exposure87867 EURm differs note31 carrying87950 EURm despite both tables describing Group amounts including HFS; unresolved source/scope question."
+  ]
+}

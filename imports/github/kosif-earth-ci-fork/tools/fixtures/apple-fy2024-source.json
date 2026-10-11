@@ -1,0 +1,1752 @@
+{
+  "schema": "company-source-oracle/v1",
+  "company": "Apple Inc.",
+  "report": "2024 Form 10-K",
+  "scope": {
+    "basis": "consolidated",
+    "entities": "Apple Inc. and wholly owned subsidiaries",
+    "accounting_framework": "US GAAP",
+    "currency": "USD",
+    "default_unit": "million",
+    "fiscal_period_end": "2024-09-28",
+    "comparative_period_end": "2023-09-30",
+    "third_period_end": "2022-09-24",
+    "weeks": {
+      "2024": 52,
+      "2023": 53,
+      "2022": 52
+    },
+    "citations": [
+      94,
+      125,
+      127,
+      130,
+      144
+    ]
+  },
+  "audit": {
+    "auditor": "Ernst & Young LLP",
+    "opinion_date": "2024-11-01",
+    "financial_statement_opinion": "unqualified",
+    "framework": "PCAOB",
+    "critical_audit_matter": "Uncertain Tax Positions",
+    "internal_control_opinion": "effective in all material respects, COSO 2013 criteria",
+    "citations": [
+      144,
+      145,
+      146
+    ],
+    "assurance_boundary": "These are conclusions by the original independent auditor. Replaying published figures does not earn an audit opinion, prove controls effectiveness, or reproduce performed audit procedures."
+  },
+  "source": {
+    "file": "global_financial_and_audit_research_bundle_extended_verified.pdf",
+    "sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+    "total_pages": 12506,
+    "apple_package_pages": [
+      94,
+      214
+    ]
+  },
+  "review_coverage": {
+    "text_read_pages": [
+      94,
+      95,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146
+    ],
+    "rendered_and_visually_checked_pages": [
+      125,
+      127,
+      129,
+      133
+    ],
+    "not_claimed": "This is a focused primary-statement and notes review, not a deep reading of all 121 Apple-package pages."
+  },
+  "interpretation_cautions": [
+    "Cash-flow cash includes restricted cash; prior balance-sheet cash 29,965 differs from CF opening 30,737. A balance-sheet movement of -22 is not FY2024 reported CF change -794.",
+    "Balance-sheet receivables, inventory, and payables movements do not equal operating CF movements; acquisition/noncash/other effects are not recoverable from two balance sheets alone.",
+    "Published financial statements are consolidated summaries, not journal entries, a general ledger, or a real trial balance.",
+    "A component absent as a separate statement line must not be assumed to be economically zero.",
+    "Deriving current and non-current amounts must preserve published classification, including distinct securities and debt maturities."
+  ],
+  "items": [
+    {
+      "id": "revenue_products",
+      "statement": "income_statement",
+      "label": "Net sales - Products",
+      "values": {
+        "2024": 294866,
+        "2023": 298085,
+        "2022": 316199
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "revenue_services",
+      "statement": "income_statement",
+      "label": "Net sales - Services",
+      "values": {
+        "2024": 96169,
+        "2023": 85200,
+        "2022": 78129
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "revenue",
+      "statement": "income_statement",
+      "label": "Total net sales",
+      "values": {
+        "2024": 391035,
+        "2023": 383285,
+        "2022": 394328
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cogs_products",
+      "statement": "income_statement",
+      "label": "Cost of sales - Products",
+      "values": {
+        "2024": 185233,
+        "2023": 189282,
+        "2022": 201471
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cogs_services",
+      "statement": "income_statement",
+      "label": "Cost of sales - Services",
+      "values": {
+        "2024": 25119,
+        "2023": 24855,
+        "2022": 22075
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cogs",
+      "statement": "income_statement",
+      "label": "Total cost of sales",
+      "values": {
+        "2024": 210352,
+        "2023": 214137,
+        "2022": 223546
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "gross_profit",
+      "statement": "income_statement",
+      "label": "Gross margin",
+      "values": {
+        "2024": 180683,
+        "2023": 169148,
+        "2022": 170782
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "research",
+      "statement": "income_statement",
+      "label": "Research and development",
+      "values": {
+        "2024": 31370,
+        "2023": 29915,
+        "2022": 26251
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "sga",
+      "statement": "income_statement",
+      "label": "Selling, general and administrative",
+      "values": {
+        "2024": 26097,
+        "2023": 24932,
+        "2022": 25094
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "opex",
+      "statement": "income_statement",
+      "label": "Total operating expenses",
+      "values": {
+        "2024": 57467,
+        "2023": 54847,
+        "2022": 51345
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "operating_income",
+      "statement": "income_statement",
+      "label": "Operating income",
+      "values": {
+        "2024": 123216,
+        "2023": 114301,
+        "2022": 119437
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "other_income",
+      "statement": "income_statement",
+      "label": "Other income/(expense), net",
+      "values": {
+        "2024": 269,
+        "2023": -565,
+        "2022": -334
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "pretax_income",
+      "statement": "income_statement",
+      "label": "Income before provision for income taxes",
+      "values": {
+        "2024": 123485,
+        "2023": 113736,
+        "2022": 119103
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "income_tax",
+      "statement": "income_statement",
+      "label": "Provision for income taxes",
+      "values": {
+        "2024": 29749,
+        "2023": 16741,
+        "2022": 19300
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "net_income",
+      "statement": "income_statement",
+      "label": "Net income",
+      "values": {
+        "2024": 93736,
+        "2023": 96995,
+        "2022": 99803
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "eps_basic",
+      "statement": "income_statement",
+      "label": "Basic earnings per share",
+      "values": {
+        "2024": 6.11,
+        "2023": 6.16,
+        "2022": 6.15
+      },
+      "unit": "USD per share",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "eps_diluted",
+      "statement": "income_statement",
+      "label": "Diluted earnings per share",
+      "values": {
+        "2024": 6.08,
+        "2023": 6.13,
+        "2022": 6.11
+      },
+      "unit": "USD per share",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "shares_basic",
+      "statement": "income_statement",
+      "label": "Shares used in EPS - Basic",
+      "values": {
+        "2024": 15343783,
+        "2023": 15744231,
+        "2022": 16215963
+      },
+      "unit": "thousand shares",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "shares_diluted",
+      "statement": "income_statement",
+      "label": "Shares used in EPS - Diluted",
+      "values": {
+        "2024": 15408095,
+        "2023": 15812547,
+        "2022": 16325819
+      },
+      "unit": "thousand shares",
+      "citation": {
+        "bundle_page": 125,
+        "report_page": 29,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "oci_forex",
+      "statement": "comprehensive_income",
+      "label": "Foreign currency translation, net of tax",
+      "values": {
+        "2024": 395,
+        "2023": -765,
+        "2022": -1511
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 126,
+        "report_page": 30,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "oci_derivatives_fair_value",
+      "statement": "comprehensive_income",
+      "label": "Fair value derivative instruments",
+      "values": {
+        "2024": -832,
+        "2023": 323,
+        "2022": 3212
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 126,
+        "report_page": 30,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "oci_derivatives_reclassification",
+      "statement": "comprehensive_income",
+      "label": "Derivative gains/losses reclassification",
+      "values": {
+        "2024": -1337,
+        "2023": -1717,
+        "2022": -1074
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 126,
+        "report_page": 30,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "oci_derivatives",
+      "statement": "comprehensive_income",
+      "label": "Total change derivative instruments",
+      "values": {
+        "2024": -2169,
+        "2023": -1394,
+        "2022": 2138
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 126,
+        "report_page": 30,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "oci_securities_fair_value",
+      "statement": "comprehensive_income",
+      "label": "Fair value marketable debt securities",
+      "values": {
+        "2024": 5850,
+        "2023": 1563,
+        "2022": -12104
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 126,
+        "report_page": 30,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "oci_securities_reclassification",
+      "statement": "comprehensive_income",
+      "label": "Marketable debt reclassification",
+      "values": {
+        "2024": 204,
+        "2023": 253,
+        "2022": 205
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 126,
+        "report_page": 30,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "oci_securities",
+      "statement": "comprehensive_income",
+      "label": "Total change marketable debt securities",
+      "values": {
+        "2024": 6054,
+        "2023": 1816,
+        "2022": -11899
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 126,
+        "report_page": 30,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "oci",
+      "statement": "comprehensive_income",
+      "label": "Total other comprehensive income/(loss)",
+      "values": {
+        "2024": 4280,
+        "2023": -343,
+        "2022": -11272
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 126,
+        "report_page": 30,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "comprehensive_income",
+      "statement": "comprehensive_income",
+      "label": "Total comprehensive income",
+      "values": {
+        "2024": 98016,
+        "2023": 96652,
+        "2022": 88531
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 126,
+        "report_page": 30,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cash",
+      "statement": "balance_sheet",
+      "label": "Cash and cash equivalents",
+      "values": {
+        "2024": 29943,
+        "2023": 29965
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "securities_current",
+      "statement": "balance_sheet",
+      "label": "Marketable securities - Current",
+      "values": {
+        "2024": 35228,
+        "2023": 31590
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "trade_receivables",
+      "statement": "balance_sheet",
+      "label": "Accounts receivable, net",
+      "values": {
+        "2024": 33410,
+        "2023": 29508
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "vendor_receivables",
+      "statement": "balance_sheet",
+      "label": "Vendor non-trade receivables",
+      "values": {
+        "2024": 32833,
+        "2023": 31477
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "inventory",
+      "statement": "balance_sheet",
+      "label": "Inventories",
+      "values": {
+        "2024": 7286,
+        "2023": 6331
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "other_current_assets",
+      "statement": "balance_sheet",
+      "label": "Other current assets",
+      "values": {
+        "2024": 14287,
+        "2023": 14695
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "current_assets",
+      "statement": "balance_sheet",
+      "label": "Total current assets",
+      "values": {
+        "2024": 152987,
+        "2023": 143566
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "securities_noncurrent",
+      "statement": "balance_sheet",
+      "label": "Marketable securities - Non-current",
+      "values": {
+        "2024": 91479,
+        "2023": 100544
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "ppe",
+      "statement": "balance_sheet",
+      "label": "Property, plant and equipment, net",
+      "values": {
+        "2024": 45680,
+        "2023": 43715
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "other_noncurrent_assets",
+      "statement": "balance_sheet",
+      "label": "Other non-current assets",
+      "values": {
+        "2024": 74834,
+        "2023": 64758
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "noncurrent_assets",
+      "statement": "balance_sheet",
+      "label": "Total non-current assets",
+      "values": {
+        "2024": 211993,
+        "2023": 209017
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "assets",
+      "statement": "balance_sheet",
+      "label": "Total assets",
+      "values": {
+        "2024": 364980,
+        "2023": 352583
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "payables",
+      "statement": "balance_sheet",
+      "label": "Accounts payable",
+      "values": {
+        "2024": 68960,
+        "2023": 62611
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "other_current_liabilities",
+      "statement": "balance_sheet",
+      "label": "Other current liabilities",
+      "values": {
+        "2024": 78304,
+        "2023": 58829
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "deferred_revenue_current",
+      "statement": "balance_sheet",
+      "label": "Deferred revenue - Current",
+      "values": {
+        "2024": 8249,
+        "2023": 8061
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "commercial_paper",
+      "statement": "balance_sheet",
+      "label": "Commercial paper",
+      "values": {
+        "2024": 9967,
+        "2023": 5985
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "term_debt_current",
+      "statement": "balance_sheet",
+      "label": "Term debt - Current",
+      "values": {
+        "2024": 10912,
+        "2023": 9822
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "current_liabilities",
+      "statement": "balance_sheet",
+      "label": "Total current liabilities",
+      "values": {
+        "2024": 176392,
+        "2023": 145308
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "term_debt_noncurrent",
+      "statement": "balance_sheet",
+      "label": "Term debt - Non-current",
+      "values": {
+        "2024": 85750,
+        "2023": 95281
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "other_noncurrent_liabilities",
+      "statement": "balance_sheet",
+      "label": "Other non-current liabilities",
+      "values": {
+        "2024": 45888,
+        "2023": 49848
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "noncurrent_liabilities",
+      "statement": "balance_sheet",
+      "label": "Total non-current liabilities",
+      "values": {
+        "2024": 131638,
+        "2023": 145129
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "liabilities",
+      "statement": "balance_sheet",
+      "label": "Total liabilities",
+      "values": {
+        "2024": 308030,
+        "2023": 290437
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "common_stock_apic",
+      "statement": "balance_sheet",
+      "label": "Common stock and additional paid-in capital",
+      "values": {
+        "2024": 83276,
+        "2023": 73812
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "accumulated_deficit",
+      "statement": "balance_sheet",
+      "label": "Accumulated deficit",
+      "values": {
+        "2024": -19154,
+        "2023": -214
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "accumulated_oci",
+      "statement": "balance_sheet",
+      "label": "Accumulated other comprehensive loss",
+      "values": {
+        "2024": -7172,
+        "2023": -11452
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "equity",
+      "statement": "balance_sheet",
+      "label": "Total shareholders equity",
+      "values": {
+        "2024": 56950,
+        "2023": 62146
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "liabilities_equity",
+      "statement": "balance_sheet",
+      "label": "Total liabilities and shareholders equity",
+      "values": {
+        "2024": 364980,
+        "2023": 352583
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 127,
+        "report_page": 31,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "equity_open",
+      "statement": "equity_changes",
+      "label": "Total shareholders equity, beginning",
+      "values": {
+        "2024": 62146,
+        "2023": 50672,
+        "2022": 63090
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 128,
+        "report_page": 32,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "common_stock_issued",
+      "statement": "equity_changes",
+      "label": "Common stock issued",
+      "values": {
+        "2024": 1423,
+        "2023": 1346,
+        "2022": 1175
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 128,
+        "report_page": 32,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "apic_withheld",
+      "statement": "equity_changes",
+      "label": "Common stock withheld - APIC",
+      "values": {
+        "2024": -3993,
+        "2023": -3521,
+        "2022": -2971
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 128,
+        "report_page": 32,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "apic_sbc",
+      "statement": "equity_changes",
+      "label": "Share-based compensation - APIC",
+      "values": {
+        "2024": 12034,
+        "2023": 11138,
+        "2022": 9280
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 128,
+        "report_page": 32,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "dividends_declared",
+      "statement": "equity_changes",
+      "label": "Dividends and dividend equivalents declared",
+      "values": {
+        "2024": -15218,
+        "2023": -14996,
+        "2022": -14793
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 128,
+        "report_page": 32,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "retained_withheld",
+      "statement": "equity_changes",
+      "label": "Common stock withheld - retained earnings",
+      "values": {
+        "2024": -1612,
+        "2023": -2099,
+        "2022": -3454
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 128,
+        "report_page": 32,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "equity_repurchases",
+      "statement": "equity_changes",
+      "label": "Common stock repurchased - retained earnings",
+      "values": {
+        "2024": -95846,
+        "2023": -77046,
+        "2022": -90186
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 128,
+        "report_page": 32,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "dividends_per_share",
+      "statement": "equity_changes",
+      "label": "Dividends and equivalents declared per share or RSU",
+      "values": {
+        "2024": 0.98,
+        "2023": 0.94,
+        "2022": 0.9
+      },
+      "unit": "USD per share or RSU",
+      "citation": {
+        "bundle_page": 128,
+        "report_page": 32,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_cash_open",
+      "statement": "cash_flows",
+      "label": "Cash including restricted cash, beginning",
+      "values": {
+        "2024": 30737,
+        "2023": 24977,
+        "2022": 35929
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_depreciation",
+      "statement": "cash_flows",
+      "label": "Depreciation and amortization",
+      "values": {
+        "2024": 11445,
+        "2023": 11519,
+        "2022": 11104
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_sbc",
+      "statement": "cash_flows",
+      "label": "Share-based compensation expense",
+      "values": {
+        "2024": 11688,
+        "2023": 10833,
+        "2022": 9038
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_other_adjustments",
+      "statement": "cash_flows",
+      "label": "Other noncash adjustments",
+      "values": {
+        "2024": -2266,
+        "2023": -2227,
+        "2022": 1006
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_receivables",
+      "statement": "cash_flows",
+      "label": "Change in accounts receivable",
+      "values": {
+        "2024": -3788,
+        "2023": -1688,
+        "2022": -1823
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_vendor_receivables",
+      "statement": "cash_flows",
+      "label": "Change in vendor non-trade receivables",
+      "values": {
+        "2024": -1356,
+        "2023": 1271,
+        "2022": -7520
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_inventory",
+      "statement": "cash_flows",
+      "label": "Change in inventories",
+      "values": {
+        "2024": -1046,
+        "2023": -1618,
+        "2022": 1484
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_other_assets",
+      "statement": "cash_flows",
+      "label": "Change in other current and non-current assets",
+      "values": {
+        "2024": -11731,
+        "2023": -5684,
+        "2022": -6499
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_payables",
+      "statement": "cash_flows",
+      "label": "Change in accounts payable",
+      "values": {
+        "2024": 6020,
+        "2023": -1889,
+        "2022": 9448
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_other_liabilities",
+      "statement": "cash_flows",
+      "label": "Change in other current and non-current liabilities",
+      "values": {
+        "2024": 15552,
+        "2023": 3031,
+        "2022": 6110
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_operating",
+      "statement": "cash_flows",
+      "label": "Cash generated by operating activities",
+      "values": {
+        "2024": 118254,
+        "2023": 110543,
+        "2022": 122151
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_securities_purchases",
+      "statement": "cash_flows",
+      "label": "Purchases of marketable securities",
+      "values": {
+        "2024": -48656,
+        "2023": -29513,
+        "2022": -76923
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_securities_maturities",
+      "statement": "cash_flows",
+      "label": "Proceeds from maturities of marketable securities",
+      "values": {
+        "2024": 51211,
+        "2023": 39686,
+        "2022": 29917
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_securities_sales",
+      "statement": "cash_flows",
+      "label": "Proceeds from sales of marketable securities",
+      "values": {
+        "2024": 11135,
+        "2023": 5828,
+        "2022": 37446
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_capex",
+      "statement": "cash_flows",
+      "label": "Payments for acquisition of PP&E",
+      "values": {
+        "2024": -9447,
+        "2023": -10959,
+        "2022": -10708
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_other_investing",
+      "statement": "cash_flows",
+      "label": "Other investing",
+      "values": {
+        "2024": -1308,
+        "2023": -1337,
+        "2022": -2086
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_investing",
+      "statement": "cash_flows",
+      "label": "Cash generated by/(used in) investing activities",
+      "values": {
+        "2024": 2935,
+        "2023": 3705,
+        "2022": -22354
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_equity_tax",
+      "statement": "cash_flows",
+      "label": "Payments for taxes on net share settlement",
+      "values": {
+        "2024": -5441,
+        "2023": -5431,
+        "2022": -6223
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_dividends",
+      "statement": "cash_flows",
+      "label": "Payments for dividends and equivalents",
+      "values": {
+        "2024": -15234,
+        "2023": -15025,
+        "2022": -14841
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_repurchases",
+      "statement": "cash_flows",
+      "label": "Repurchases of common stock",
+      "values": {
+        "2024": -94949,
+        "2023": -77550,
+        "2022": -89402
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_debt_issuance",
+      "statement": "cash_flows",
+      "label": "Proceeds from issuance of term debt, net",
+      "values": {
+        "2024": 0,
+        "2023": 5228,
+        "2022": 5465
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_debt_repaid",
+      "statement": "cash_flows",
+      "label": "Repayments of term debt",
+      "values": {
+        "2024": -9958,
+        "2023": -11151,
+        "2022": -9543
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_commercial_paper",
+      "statement": "cash_flows",
+      "label": "Proceeds/(repayments) commercial paper, net",
+      "values": {
+        "2024": 3960,
+        "2023": -3978,
+        "2022": 3955
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_other_financing",
+      "statement": "cash_flows",
+      "label": "Other financing",
+      "values": {
+        "2024": -361,
+        "2023": -581,
+        "2022": -160
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_financing",
+      "statement": "cash_flows",
+      "label": "Cash used in financing activities",
+      "values": {
+        "2024": -121983,
+        "2023": -108488,
+        "2022": -110749
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_change",
+      "statement": "cash_flows",
+      "label": "Change in cash including restricted cash",
+      "values": {
+        "2024": -794,
+        "2023": 5760,
+        "2022": -10952
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cf_cash_close",
+      "statement": "cash_flows",
+      "label": "Cash including restricted cash, ending",
+      "values": {
+        "2024": 29943,
+        "2023": 30737,
+        "2022": 24977
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "cash_taxes_paid",
+      "statement": "cash_flows",
+      "label": "Cash paid for income taxes, net",
+      "values": {
+        "2024": 26102,
+        "2023": 18679,
+        "2022": 19573
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 129,
+        "report_page": 33,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "note_ppe_gross",
+      "statement": "notes",
+      "label": "Gross property plant and equipment",
+      "values": {
+        "2024": 119128,
+        "2023": 114599
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 135,
+        "report_page": 39,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "note_ppe_accum_depreciation",
+      "statement": "notes",
+      "label": "Accumulated depreciation",
+      "values": {
+        "2024": -73448,
+        "2023": -70884
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 135,
+        "report_page": 39,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "note_dta",
+      "statement": "notes",
+      "label": "Deferred tax assets in other non-current assets",
+      "values": {
+        "2024": 19499,
+        "2023": 17852
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 135,
+        "report_page": 39,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "note_current_tax_payable",
+      "statement": "notes",
+      "label": "Income taxes payable - Current",
+      "values": {
+        "2024": 26601,
+        "2023": 8819
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 135,
+        "report_page": 39,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "note_noncurrent_tax_payable",
+      "statement": "notes",
+      "label": "Income taxes payable - Non-current",
+      "values": {
+        "2024": 9254,
+        "2023": 15457
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 135,
+        "report_page": 39,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "state_aid_tax_impact",
+      "statement": "notes",
+      "label": "Impact of State Aid Decision on tax",
+      "values": {
+        "2024": 10246,
+        "2023": 0,
+        "2022": 0
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 136,
+        "report_page": 40,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "operating_rou",
+      "statement": "notes",
+      "label": "Operating lease ROU assets",
+      "values": {
+        "2024": 10234,
+        "2023": 10661
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 138,
+        "report_page": 42,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "finance_rou",
+      "statement": "notes",
+      "label": "Finance lease ROU assets",
+      "values": {
+        "2024": 1069,
+        "2023": 1015
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 138,
+        "report_page": 42,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "operating_lease_current",
+      "statement": "notes",
+      "label": "Operating lease liabilities - Current",
+      "values": {
+        "2024": 1488,
+        "2023": 1410
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 138,
+        "report_page": 42,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "operating_lease_noncurrent",
+      "statement": "notes",
+      "label": "Operating lease liabilities - Non-current",
+      "values": {
+        "2024": 10046,
+        "2023": 10408
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 138,
+        "report_page": 42,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "finance_lease_current",
+      "statement": "notes",
+      "label": "Finance lease liabilities - Current",
+      "values": {
+        "2024": 144,
+        "2023": 165
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 138,
+        "report_page": 42,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "finance_lease_noncurrent",
+      "statement": "notes",
+      "label": "Finance lease liabilities - Non-current",
+      "values": {
+        "2024": 752,
+        "2023": 859
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 138,
+        "report_page": 42,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "lease_liabilities",
+      "statement": "notes",
+      "label": "Total lease liabilities",
+      "values": {
+        "2024": 12430,
+        "2023": 12842
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 138,
+        "report_page": 42,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "term_debt",
+      "statement": "notes",
+      "label": "Total term debt",
+      "values": {
+        "2024": 96662,
+        "2023": 105103
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 139,
+        "report_page": 43,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    },
+    {
+      "id": "debt_principal",
+      "statement": "notes",
+      "label": "Total term debt principal",
+      "values": {
+        "2024": 97341,
+        "2023": 106572
+      },
+      "unit": "USD million",
+      "citation": {
+        "bundle_page": 139,
+        "report_page": 43,
+        "source": "Apple Inc. 2024 Form 10-K"
+      }
+    }
+  ],
+  "frozen_before_app_execution": true,
+  "frozen_at_utc": "2026-10-05T10:37:59.913199+00:00"
+}

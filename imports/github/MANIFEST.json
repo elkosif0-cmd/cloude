@@ -1,0 +1,51 @@
+[
+  {
+    "source": "kosif199022-jpg/kosif-audit-studio",
+    "commit": "60352af4dd095b7def57dfa32f5a20f74b7fc003",
+    "copied": 220,
+    "excluded": 0,
+    "note": "Snapshot, not full Git history; secrets scan is best-effort."
+  },
+  {
+    "source": "kosif199022-jpg/see",
+    "commit": "158e31cf26db1e6b77c5e068fa26dee64c45753e",
+    "copied": 226,
+    "excluded": 0,
+    "note": "Snapshot, not full Git history; secrets scan is best-effort."
+  },
+  {
+    "source": "kosif199022-jpg/new",
+    "commit": "e0a0cc351f6620416a649f62b05d00c83bed5848",
+    "copied": 10,
+    "excluded": 0,
+    "note": "Snapshot, not full Git history; secrets scan is best-effort."
+  },
+  {
+    "source": "kosif199022-jpg/moon",
+    "commit": "52baec7a598ecbfb42db97c2e9e3e6ed852781f5",
+    "copied": 50,
+    "excluded": 1,
+    "note": "Snapshot, not full Git history; secrets scan is best-effort."
+  },
+  {
+    "source": "kosif199022-jpg/kosif-audit-pro",
+    "commit": "1be540e2b397ea2106b931a0fbde1c174e6558a9",
+    "copied": 123,
+    "excluded": 1,
+    "note": "Snapshot, not full Git history; secrets scan is best-effort."
+  },
+  {
+    "source": "kosif199022-jpg/kosif-earth-ci-fork",
+    "commit": "b324b99a6d649da1be3c687b5d9f3e4ca860a83e",
+    "copied": 1030,
+    "excluded": 12,
+    "note": "Snapshot, not full Git history; secrets scan is best-effort."
+  },
+  {
+    "source": "kosif199022-jpg/smart-trial-balance-review",
+    "commit": "9b646fd704b0f5ccf48c8bce7877e96e3783335b",
+    "copied": 11,
+    "excluded": 0,
+    "note": "Snapshot, not full Git history; secrets scan is best-effort."
+  }
+]

@@ -1,0 +1,21 @@
+name = "s-kosif-capabilities-v2"
+main = "capabilities-v2/worker.js"
+compatibility_date = "2026-09-25"
+workers_dev = true
+
+# Bind after creating the D1 database:
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "s-kosif-capabilities-v2"
+# database_id = "<D1_DATABASE_ID>"
+
+# Optional Cloudflare Access verification:
+# [vars]
+# TEAM_DOMAIN = "https://<team>.cloudflareaccess.com"
+# POLICY_AUD = "<application-audience>"
+# ALLOWED_ORIGINS = "https://s-kosif.pages.dev"
+
+# Required for the server-side document vault. The API fails closed when this binding is absent.
+# [[r2_buckets]]
+# binding = "DOCUMENTS"
+# bucket_name = "s-kosif-documents"

@@ -1,0 +1,2382 @@
+{
+  "id": "VIS-100-SUPPORTED",
+  "synthetic": true,
+  "usage": "Synthetic supported-range renderer fixture and conceptual journal recipe. Map to approved actual interfaces before end-to-end tests; do not bypass context confirmation or validation.",
+  "context": {
+    "entityName": "شركة الاختبارات الاصطناعية للتجارة والخدمات المهنية والحلول المحاسبية المتكاملة في المنطقة العربية",
+    "entityId": "SYNTHETIC-ENTITY-001",
+    "period": {
+      "start": "2026-01-01",
+      "end": "2026-09-30"
+    },
+    "currency": "SAR",
+    "exponent": 2,
+    "scale": 1,
+    "scope": "single-entity management draft",
+    "confirmation": "user-confirmed synthetic context, not ownership verification"
+  },
+  "columns": [
+    {
+      "id": "account",
+      "label": "الحساب"
+    },
+    {
+      "id": "closingDebit",
+      "label": "الرصيد المدين"
+    },
+    {
+      "id": "closingCredit",
+      "label": "الرصيد الدائن"
+    }
+  ],
+  "rows": [
+    {
+      "id": "VIS-001",
+      "code": "000001",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 001",
+      "balanceMinor": "0",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-002",
+      "code": "000002",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 002",
+      "balanceMinor": "0",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-003",
+      "code": "000003",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 003",
+      "balanceMinor": "1",
+      "closingDebitMinor": "1",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-004",
+      "code": "000004",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 004",
+      "balanceMinor": "-1",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "1"
+    },
+    {
+      "id": "VIS-005",
+      "code": "000005",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 005",
+      "balanceMinor": "123456789098",
+      "closingDebitMinor": "123456789098",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-006",
+      "code": "000006",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 006",
+      "balanceMinor": "-123456789098",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "123456789098"
+    },
+    {
+      "id": "VIS-007",
+      "code": "000007",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 007",
+      "balanceMinor": "123456789",
+      "closingDebitMinor": "123456789",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-008",
+      "code": "000008",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 008",
+      "balanceMinor": "-123456789",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "123456789"
+    },
+    {
+      "id": "VIS-009",
+      "code": "000009",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 009",
+      "balanceMinor": "10000",
+      "closingDebitMinor": "10000",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-010",
+      "code": "000010",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 010",
+      "balanceMinor": "-10000",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "10000"
+    },
+    {
+      "id": "VIS-011",
+      "code": "000011",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 011",
+      "balanceMinor": "74070",
+      "closingDebitMinor": "74070",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-012",
+      "code": "000012",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 012",
+      "balanceMinor": "-74070",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "74070"
+    },
+    {
+      "id": "VIS-013",
+      "code": "000013",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 013",
+      "balanceMinor": "86415",
+      "closingDebitMinor": "86415",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-014",
+      "code": "000014",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 014",
+      "balanceMinor": "-86415",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "86415"
+    },
+    {
+      "id": "VIS-015",
+      "code": "000015",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 015",
+      "balanceMinor": "98760",
+      "closingDebitMinor": "98760",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-016",
+      "code": "000016",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 016",
+      "balanceMinor": "-98760",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "98760"
+    },
+    {
+      "id": "VIS-017",
+      "code": "000017",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 017",
+      "balanceMinor": "111105",
+      "closingDebitMinor": "111105",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-018",
+      "code": "000018",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 018",
+      "balanceMinor": "-111105",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "111105"
+    },
+    {
+      "id": "VIS-019",
+      "code": "000019",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 019",
+      "balanceMinor": "123450",
+      "closingDebitMinor": "123450",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-020",
+      "code": "000020",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 020",
+      "balanceMinor": "-123450",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "123450"
+    },
+    {
+      "id": "VIS-021",
+      "code": "000021",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 021",
+      "balanceMinor": "135795",
+      "closingDebitMinor": "135795",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-022",
+      "code": "000022",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 022",
+      "balanceMinor": "-135795",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "135795"
+    },
+    {
+      "id": "VIS-023",
+      "code": "000023",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 023",
+      "balanceMinor": "148140",
+      "closingDebitMinor": "148140",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-024",
+      "code": "000024",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 024",
+      "balanceMinor": "-148140",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "148140"
+    },
+    {
+      "id": "VIS-025",
+      "code": "000025",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 025",
+      "balanceMinor": "160485",
+      "closingDebitMinor": "160485",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-026",
+      "code": "000026",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 026",
+      "balanceMinor": "-160485",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "160485"
+    },
+    {
+      "id": "VIS-027",
+      "code": "000027",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 027",
+      "balanceMinor": "172830",
+      "closingDebitMinor": "172830",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-028",
+      "code": "000028",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 028",
+      "balanceMinor": "-172830",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "172830"
+    },
+    {
+      "id": "VIS-029",
+      "code": "000029",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 029",
+      "balanceMinor": "185175",
+      "closingDebitMinor": "185175",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-030",
+      "code": "000030",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 030",
+      "balanceMinor": "-185175",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "185175"
+    },
+    {
+      "id": "VIS-031",
+      "code": "000031",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 031",
+      "balanceMinor": "197520",
+      "closingDebitMinor": "197520",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-032",
+      "code": "000032",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 032",
+      "balanceMinor": "-197520",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "197520"
+    },
+    {
+      "id": "VIS-033",
+      "code": "000033",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 033",
+      "balanceMinor": "209865",
+      "closingDebitMinor": "209865",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-034",
+      "code": "000034",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 034",
+      "balanceMinor": "-209865",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "209865"
+    },
+    {
+      "id": "VIS-035",
+      "code": "000035",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 035",
+      "balanceMinor": "222210",
+      "closingDebitMinor": "222210",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-036",
+      "code": "000036",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 036",
+      "balanceMinor": "-222210",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "222210"
+    },
+    {
+      "id": "VIS-037",
+      "code": "000037",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 037",
+      "balanceMinor": "234555",
+      "closingDebitMinor": "234555",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-038",
+      "code": "000038",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 038",
+      "balanceMinor": "-234555",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "234555"
+    },
+    {
+      "id": "VIS-039",
+      "code": "000039",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 039",
+      "balanceMinor": "246900",
+      "closingDebitMinor": "246900",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-040",
+      "code": "000040",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 040",
+      "balanceMinor": "-246900",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "246900"
+    },
+    {
+      "id": "VIS-041",
+      "code": "000041",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 041",
+      "balanceMinor": "259245",
+      "closingDebitMinor": "259245",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-042",
+      "code": "000042",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 042",
+      "balanceMinor": "-259245",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "259245"
+    },
+    {
+      "id": "VIS-043",
+      "code": "000043",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 043",
+      "balanceMinor": "271590",
+      "closingDebitMinor": "271590",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-044",
+      "code": "000044",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 044",
+      "balanceMinor": "-271590",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "271590"
+    },
+    {
+      "id": "VIS-045",
+      "code": "000045",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 045",
+      "balanceMinor": "283935",
+      "closingDebitMinor": "283935",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-046",
+      "code": "000046",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 046",
+      "balanceMinor": "-283935",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "283935"
+    },
+    {
+      "id": "VIS-047",
+      "code": "000047",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 047",
+      "balanceMinor": "296280",
+      "closingDebitMinor": "296280",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-048",
+      "code": "000048",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 048",
+      "balanceMinor": "-296280",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "296280"
+    },
+    {
+      "id": "VIS-049",
+      "code": "000049",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 049",
+      "balanceMinor": "308625",
+      "closingDebitMinor": "308625",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-050",
+      "code": "000050",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 050",
+      "balanceMinor": "-308625",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "308625"
+    },
+    {
+      "id": "VIS-051",
+      "code": "000051",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 051",
+      "balanceMinor": "320970",
+      "closingDebitMinor": "320970",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-052",
+      "code": "000052",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 052",
+      "balanceMinor": "-320970",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "320970"
+    },
+    {
+      "id": "VIS-053",
+      "code": "000053",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 053",
+      "balanceMinor": "333315",
+      "closingDebitMinor": "333315",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-054",
+      "code": "000054",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 054",
+      "balanceMinor": "-333315",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "333315"
+    },
+    {
+      "id": "VIS-055",
+      "code": "000055",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 055",
+      "balanceMinor": "345660",
+      "closingDebitMinor": "345660",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-056",
+      "code": "000056",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 056",
+      "balanceMinor": "-345660",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "345660"
+    },
+    {
+      "id": "VIS-057",
+      "code": "000057",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 057",
+      "balanceMinor": "358005",
+      "closingDebitMinor": "358005",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-058",
+      "code": "000058",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 058",
+      "balanceMinor": "-358005",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "358005"
+    },
+    {
+      "id": "VIS-059",
+      "code": "000059",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 059",
+      "balanceMinor": "370350",
+      "closingDebitMinor": "370350",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-060",
+      "code": "000060",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 060",
+      "balanceMinor": "-370350",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "370350"
+    },
+    {
+      "id": "VIS-061",
+      "code": "000061",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 061",
+      "balanceMinor": "382695",
+      "closingDebitMinor": "382695",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-062",
+      "code": "000062",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 062",
+      "balanceMinor": "-382695",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "382695"
+    },
+    {
+      "id": "VIS-063",
+      "code": "000063",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 063",
+      "balanceMinor": "395040",
+      "closingDebitMinor": "395040",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-064",
+      "code": "000064",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 064",
+      "balanceMinor": "-395040",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "395040"
+    },
+    {
+      "id": "VIS-065",
+      "code": "000065",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 065",
+      "balanceMinor": "407385",
+      "closingDebitMinor": "407385",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-066",
+      "code": "000066",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 066",
+      "balanceMinor": "-407385",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "407385"
+    },
+    {
+      "id": "VIS-067",
+      "code": "000067",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 067",
+      "balanceMinor": "419730",
+      "closingDebitMinor": "419730",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-068",
+      "code": "000068",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 068",
+      "balanceMinor": "-419730",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "419730"
+    },
+    {
+      "id": "VIS-069",
+      "code": "000069",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 069",
+      "balanceMinor": "432075",
+      "closingDebitMinor": "432075",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-070",
+      "code": "000070",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 070",
+      "balanceMinor": "-432075",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "432075"
+    },
+    {
+      "id": "VIS-071",
+      "code": "000071",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 071",
+      "balanceMinor": "444420",
+      "closingDebitMinor": "444420",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-072",
+      "code": "000072",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 072",
+      "balanceMinor": "-444420",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "444420"
+    },
+    {
+      "id": "VIS-073",
+      "code": "000073",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 073",
+      "balanceMinor": "456765",
+      "closingDebitMinor": "456765",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-074",
+      "code": "000074",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 074",
+      "balanceMinor": "-456765",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "456765"
+    },
+    {
+      "id": "VIS-075",
+      "code": "000075",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 075",
+      "balanceMinor": "469110",
+      "closingDebitMinor": "469110",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-076",
+      "code": "000076",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 076",
+      "balanceMinor": "-469110",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "469110"
+    },
+    {
+      "id": "VIS-077",
+      "code": "000077",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 077",
+      "balanceMinor": "481455",
+      "closingDebitMinor": "481455",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-078",
+      "code": "000078",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 078",
+      "balanceMinor": "-481455",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "481455"
+    },
+    {
+      "id": "VIS-079",
+      "code": "000079",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 079",
+      "balanceMinor": "493800",
+      "closingDebitMinor": "493800",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-080",
+      "code": "000080",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 080",
+      "balanceMinor": "-493800",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "493800"
+    },
+    {
+      "id": "VIS-081",
+      "code": "000081",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 081",
+      "balanceMinor": "506145",
+      "closingDebitMinor": "506145",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-082",
+      "code": "000082",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 082",
+      "balanceMinor": "-506145",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "506145"
+    },
+    {
+      "id": "VIS-083",
+      "code": "000083",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 083",
+      "balanceMinor": "518490",
+      "closingDebitMinor": "518490",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-084",
+      "code": "000084",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 084",
+      "balanceMinor": "-518490",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "518490"
+    },
+    {
+      "id": "VIS-085",
+      "code": "000085",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 085",
+      "balanceMinor": "530835",
+      "closingDebitMinor": "530835",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-086",
+      "code": "000086",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 086",
+      "balanceMinor": "-530835",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "530835"
+    },
+    {
+      "id": "VIS-087",
+      "code": "000087",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 087",
+      "balanceMinor": "543180",
+      "closingDebitMinor": "543180",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-088",
+      "code": "000088",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 088",
+      "balanceMinor": "-543180",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "543180"
+    },
+    {
+      "id": "VIS-089",
+      "code": "000089",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 089",
+      "balanceMinor": "555525",
+      "closingDebitMinor": "555525",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-090",
+      "code": "000090",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 090",
+      "balanceMinor": "-555525",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "555525"
+    },
+    {
+      "id": "VIS-091",
+      "code": "000091",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 091",
+      "balanceMinor": "567870",
+      "closingDebitMinor": "567870",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-092",
+      "code": "000092",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 092",
+      "balanceMinor": "-567870",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "567870"
+    },
+    {
+      "id": "VIS-093",
+      "code": "000093",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 093",
+      "balanceMinor": "580215",
+      "closingDebitMinor": "580215",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-094",
+      "code": "000094",
+      "role": "detail",
+      "label": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 094",
+      "balanceMinor": "-580215",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "580215"
+    },
+    {
+      "id": "VIS-095",
+      "code": "000095",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 095",
+      "balanceMinor": "592560",
+      "closingDebitMinor": "592560",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-096",
+      "code": "000096",
+      "role": "detail",
+      "label": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 096",
+      "balanceMinor": "-592560",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "592560"
+    },
+    {
+      "id": "VIS-097",
+      "code": "000097",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 097",
+      "balanceMinor": "604905",
+      "closingDebitMinor": "604905",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-098",
+      "code": "000098",
+      "role": "detail",
+      "label": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 098",
+      "balanceMinor": "-604905",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "604905"
+    },
+    {
+      "id": "VIS-099",
+      "code": "000099",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 099",
+      "balanceMinor": "617250",
+      "closingDebitMinor": "617250",
+      "closingCreditMinor": "0"
+    },
+    {
+      "id": "VIS-100",
+      "code": "000100",
+      "role": "detail",
+      "label": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 100",
+      "balanceMinor": "-617250",
+      "closingDebitMinor": "0",
+      "closingCreditMinor": "617250"
+    }
+  ],
+  "expected": {
+    "detailRowCount": 100,
+    "totalRowCount": 1,
+    "closingDebitMinor": "123595810588",
+    "closingCreditMinor": "123595810588",
+    "formattedTotalLatinDigits": "1,235,958,105.88",
+    "largeValueLatinDigits": "1,234,567,890.98",
+    "zeroText": "0.00",
+    "smallValueText": "0.01",
+    "role": "total"
+  },
+  "signContract": "Negative balance belongs in the closing credit column as a positive magnitude; no negative closing-side values. Signed balances remain signed in semantic data. Never label these columns period movements.",
+  "notes": [
+    {
+      "id": "SYN-N01",
+      "title": "نطاق البيانات التجريبية",
+      "text": "جميع الأسماء والقيم في هذه العينة مصطنعة لاختبار العرض. تأكيد نطاق التقرير لا يثبت ملكية البيانات ولا يمثل مراجعة مهنية."
+    }
+  ],
+  "renderStates": [
+    {
+      "id": "unconfirmed",
+      "scopeConfirmed": false,
+      "expected": "نطاق التقرير غير مؤكد",
+      "output": "No confirmation or complete status; follow approved blocking rules."
+    },
+    {
+      "id": "confirmed-draft",
+      "scopeConfirmed": true,
+      "numericChecksPassed": true,
+      "expected": [
+        "مسودة إدارية",
+        "نطاق التقرير أكده المستخدم",
+        "مخرجات إدارية من القيود المرحلة؛ لا تمثل رأيًا مهنيًا أو قوائم مالية مدققة."
+      ],
+      "forbidden": [
+        "ملكية البيانات مؤكدة",
+        "تقرير مدقق",
+        "معتمد للإصدار",
+        "صادر"
+      ]
+    },
+    {
+      "id": "stale",
+      "scopeConfirmed": false,
+      "sourceChanged": true,
+      "expected": "تغيرت البيانات أو نطاق العمل؛ حدّث المعاينة وأكد النطاق مجددًا.",
+      "output": "Stale confirmation cannot be reused; frozen prior values are not silently recalculated."
+    }
+  ],
+  "negativeSummaryFixture": {
+    "id": "VIS-NEGATIVE",
+    "revenueMinor": "8000",
+    "expenseMinor": "10000",
+    "resultMinor": "-2000",
+    "acceptedDisplay": [
+      "-20.00",
+      "(20.00)"
+    ],
+    "expected": "Negative result clearly distinguished from zero and unavailable; no sign reversal. Numeric run stays LTR within Arabic row."
+  },
+  "missingFixture": {
+    "id": "VIS-MISSING",
+    "comparator": null,
+    "expected": "غير متاح",
+    "forbidden": "0.00 substituted for missing"
+  },
+  "scopeNote": "User-confirmation phrases are proposed exact copy; semantic distinction is mandatory even if implementation uses equivalent clear Arabic.",
+  "rangeValidation": {
+    "capMinor": "1000000000000",
+    "fullAbsoluteInputSidesMinor": "247191621576",
+    "withinCap": true,
+    "provenance": "51 synthetic balanced posted journals / 102 signed lines; two 1.00 opposite journals preserve two zero-balance accounts. All other pairs have one journal. No opening/carry or prior-period inputs. This is a supported-range recipe, not proof that the unfinished adapter accepted it."
+  },
+  "journalRecipe": {
+    "schema": "conceptual signed-minor recipe; map to approved ledger API in tests",
+    "accounts": [
+      {
+        "id": "VIS-001",
+        "code": "000001",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 001",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-002",
+        "code": "000002",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 002",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-003",
+        "code": "000003",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 003",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-004",
+        "code": "000004",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 004",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-005",
+        "code": "000005",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 005",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-006",
+        "code": "000006",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 006",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-007",
+        "code": "000007",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 007",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-008",
+        "code": "000008",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 008",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-009",
+        "code": "000009",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 009",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-010",
+        "code": "000010",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 010",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-011",
+        "code": "000011",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 011",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-012",
+        "code": "000012",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 012",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-013",
+        "code": "000013",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 013",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-014",
+        "code": "000014",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 014",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-015",
+        "code": "000015",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 015",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-016",
+        "code": "000016",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 016",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-017",
+        "code": "000017",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 017",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-018",
+        "code": "000018",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 018",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-019",
+        "code": "000019",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 019",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-020",
+        "code": "000020",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 020",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-021",
+        "code": "000021",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 021",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-022",
+        "code": "000022",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 022",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-023",
+        "code": "000023",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 023",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-024",
+        "code": "000024",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 024",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-025",
+        "code": "000025",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 025",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-026",
+        "code": "000026",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 026",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-027",
+        "code": "000027",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 027",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-028",
+        "code": "000028",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 028",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-029",
+        "code": "000029",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 029",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-030",
+        "code": "000030",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 030",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-031",
+        "code": "000031",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 031",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-032",
+        "code": "000032",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 032",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-033",
+        "code": "000033",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 033",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-034",
+        "code": "000034",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 034",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-035",
+        "code": "000035",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 035",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-036",
+        "code": "000036",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 036",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-037",
+        "code": "000037",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 037",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-038",
+        "code": "000038",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 038",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-039",
+        "code": "000039",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 039",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-040",
+        "code": "000040",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 040",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-041",
+        "code": "000041",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 041",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-042",
+        "code": "000042",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 042",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-043",
+        "code": "000043",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 043",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-044",
+        "code": "000044",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 044",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-045",
+        "code": "000045",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 045",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-046",
+        "code": "000046",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 046",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-047",
+        "code": "000047",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 047",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-048",
+        "code": "000048",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 048",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-049",
+        "code": "000049",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 049",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-050",
+        "code": "000050",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 050",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-051",
+        "code": "000051",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 051",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-052",
+        "code": "000052",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 052",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-053",
+        "code": "000053",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 053",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-054",
+        "code": "000054",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 054",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-055",
+        "code": "000055",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 055",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-056",
+        "code": "000056",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 056",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-057",
+        "code": "000057",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 057",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-058",
+        "code": "000058",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 058",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-059",
+        "code": "000059",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 059",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-060",
+        "code": "000060",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 060",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-061",
+        "code": "000061",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 061",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-062",
+        "code": "000062",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 062",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-063",
+        "code": "000063",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 063",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-064",
+        "code": "000064",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 064",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-065",
+        "code": "000065",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 065",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-066",
+        "code": "000066",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 066",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-067",
+        "code": "000067",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 067",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-068",
+        "code": "000068",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 068",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-069",
+        "code": "000069",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 069",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-070",
+        "code": "000070",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 070",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-071",
+        "code": "000071",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 071",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-072",
+        "code": "000072",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 072",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-073",
+        "code": "000073",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 073",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-074",
+        "code": "000074",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 074",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-075",
+        "code": "000075",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 075",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-076",
+        "code": "000076",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 076",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-077",
+        "code": "000077",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 077",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-078",
+        "code": "000078",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 078",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-079",
+        "code": "000079",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 079",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-080",
+        "code": "000080",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 080",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-081",
+        "code": "000081",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 081",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-082",
+        "code": "000082",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 082",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-083",
+        "code": "000083",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 083",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-084",
+        "code": "000084",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 084",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-085",
+        "code": "000085",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 085",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-086",
+        "code": "000086",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 086",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-087",
+        "code": "000087",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 087",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-088",
+        "code": "000088",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 088",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-089",
+        "code": "000089",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 089",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-090",
+        "code": "000090",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 090",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-091",
+        "code": "000091",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 091",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-092",
+        "code": "000092",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 092",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-093",
+        "code": "000093",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 093",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-094",
+        "code": "000094",
+        "name": "حساب تسوية تجريبي لا يمثل أي منشأة حقيقية مع الرمز ACCT-0007 والمرجع REF/2026/009 — بند اختباري 094",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-095",
+        "code": "000095",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 095",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-096",
+        "code": "000096",
+        "name": "إيرادات الخدمات التجريبية المؤجلة والمستحقة التي تتطلب وصفًا واضحًا دون اختصار الاسم أو حذف نهايته — بند اختباري 096",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-097",
+        "code": "000097",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 097",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-098",
+        "code": "000098",
+        "name": "النقدية لدى المصارف والحسابات التشغيلية المقيدة للمشروع التجريبي طويل الاسم والمرجع المختلط TEST-2026-A — بند اختباري 098",
+        "conceptualType": "liability"
+      },
+      {
+        "id": "VIS-099",
+        "code": "000099",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 099",
+        "conceptualType": "asset"
+      },
+      {
+        "id": "VIS-100",
+        "code": "000100",
+        "name": "ذمم العملاء عن الخدمات المهنية والاستشارات والمشروعات الممتدة ذات الأسماء العربية الطويلة جدًا — بند اختباري 100",
+        "conceptualType": "liability"
+      }
+    ],
+    "journals": [
+      {
+        "id": "SYN-J-000-A",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-001",
+            "signedMinor": "100"
+          },
+          {
+            "accountId": "VIS-002",
+            "signedMinor": "-100"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-000-B",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-001",
+            "signedMinor": "-100"
+          },
+          {
+            "accountId": "VIS-002",
+            "signedMinor": "100"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-001",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-003",
+            "signedMinor": "1"
+          },
+          {
+            "accountId": "VIS-004",
+            "signedMinor": "-1"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-002",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-005",
+            "signedMinor": "123456789098"
+          },
+          {
+            "accountId": "VIS-006",
+            "signedMinor": "-123456789098"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-003",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-007",
+            "signedMinor": "123456789"
+          },
+          {
+            "accountId": "VIS-008",
+            "signedMinor": "-123456789"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-004",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-009",
+            "signedMinor": "10000"
+          },
+          {
+            "accountId": "VIS-010",
+            "signedMinor": "-10000"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-005",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-011",
+            "signedMinor": "74070"
+          },
+          {
+            "accountId": "VIS-012",
+            "signedMinor": "-74070"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-006",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-013",
+            "signedMinor": "86415"
+          },
+          {
+            "accountId": "VIS-014",
+            "signedMinor": "-86415"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-007",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-015",
+            "signedMinor": "98760"
+          },
+          {
+            "accountId": "VIS-016",
+            "signedMinor": "-98760"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-008",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-017",
+            "signedMinor": "111105"
+          },
+          {
+            "accountId": "VIS-018",
+            "signedMinor": "-111105"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-009",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-019",
+            "signedMinor": "123450"
+          },
+          {
+            "accountId": "VIS-020",
+            "signedMinor": "-123450"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-010",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-021",
+            "signedMinor": "135795"
+          },
+          {
+            "accountId": "VIS-022",
+            "signedMinor": "-135795"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-011",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-023",
+            "signedMinor": "148140"
+          },
+          {
+            "accountId": "VIS-024",
+            "signedMinor": "-148140"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-012",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-025",
+            "signedMinor": "160485"
+          },
+          {
+            "accountId": "VIS-026",
+            "signedMinor": "-160485"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-013",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-027",
+            "signedMinor": "172830"
+          },
+          {
+            "accountId": "VIS-028",
+            "signedMinor": "-172830"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-014",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-029",
+            "signedMinor": "185175"
+          },
+          {
+            "accountId": "VIS-030",
+            "signedMinor": "-185175"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-015",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-031",
+            "signedMinor": "197520"
+          },
+          {
+            "accountId": "VIS-032",
+            "signedMinor": "-197520"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-016",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-033",
+            "signedMinor": "209865"
+          },
+          {
+            "accountId": "VIS-034",
+            "signedMinor": "-209865"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-017",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-035",
+            "signedMinor": "222210"
+          },
+          {
+            "accountId": "VIS-036",
+            "signedMinor": "-222210"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-018",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-037",
+            "signedMinor": "234555"
+          },
+          {
+            "accountId": "VIS-038",
+            "signedMinor": "-234555"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-019",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-039",
+            "signedMinor": "246900"
+          },
+          {
+            "accountId": "VIS-040",
+            "signedMinor": "-246900"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-020",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-041",
+            "signedMinor": "259245"
+          },
+          {
+            "accountId": "VIS-042",
+            "signedMinor": "-259245"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-021",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-043",
+            "signedMinor": "271590"
+          },
+          {
+            "accountId": "VIS-044",
+            "signedMinor": "-271590"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-022",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-045",
+            "signedMinor": "283935"
+          },
+          {
+            "accountId": "VIS-046",
+            "signedMinor": "-283935"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-023",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-047",
+            "signedMinor": "296280"
+          },
+          {
+            "accountId": "VIS-048",
+            "signedMinor": "-296280"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-024",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-049",
+            "signedMinor": "308625"
+          },
+          {
+            "accountId": "VIS-050",
+            "signedMinor": "-308625"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-025",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-051",
+            "signedMinor": "320970"
+          },
+          {
+            "accountId": "VIS-052",
+            "signedMinor": "-320970"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-026",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-053",
+            "signedMinor": "333315"
+          },
+          {
+            "accountId": "VIS-054",
+            "signedMinor": "-333315"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-027",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-055",
+            "signedMinor": "345660"
+          },
+          {
+            "accountId": "VIS-056",
+            "signedMinor": "-345660"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-028",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-057",
+            "signedMinor": "358005"
+          },
+          {
+            "accountId": "VIS-058",
+            "signedMinor": "-358005"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-029",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-059",
+            "signedMinor": "370350"
+          },
+          {
+            "accountId": "VIS-060",
+            "signedMinor": "-370350"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-030",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-061",
+            "signedMinor": "382695"
+          },
+          {
+            "accountId": "VIS-062",
+            "signedMinor": "-382695"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-031",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-063",
+            "signedMinor": "395040"
+          },
+          {
+            "accountId": "VIS-064",
+            "signedMinor": "-395040"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-032",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-065",
+            "signedMinor": "407385"
+          },
+          {
+            "accountId": "VIS-066",
+            "signedMinor": "-407385"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-033",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-067",
+            "signedMinor": "419730"
+          },
+          {
+            "accountId": "VIS-068",
+            "signedMinor": "-419730"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-034",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-069",
+            "signedMinor": "432075"
+          },
+          {
+            "accountId": "VIS-070",
+            "signedMinor": "-432075"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-035",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-071",
+            "signedMinor": "444420"
+          },
+          {
+            "accountId": "VIS-072",
+            "signedMinor": "-444420"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-036",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-073",
+            "signedMinor": "456765"
+          },
+          {
+            "accountId": "VIS-074",
+            "signedMinor": "-456765"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-037",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-075",
+            "signedMinor": "469110"
+          },
+          {
+            "accountId": "VIS-076",
+            "signedMinor": "-469110"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-038",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-077",
+            "signedMinor": "481455"
+          },
+          {
+            "accountId": "VIS-078",
+            "signedMinor": "-481455"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-039",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-079",
+            "signedMinor": "493800"
+          },
+          {
+            "accountId": "VIS-080",
+            "signedMinor": "-493800"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-040",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-081",
+            "signedMinor": "506145"
+          },
+          {
+            "accountId": "VIS-082",
+            "signedMinor": "-506145"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-041",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-083",
+            "signedMinor": "518490"
+          },
+          {
+            "accountId": "VIS-084",
+            "signedMinor": "-518490"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-042",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-085",
+            "signedMinor": "530835"
+          },
+          {
+            "accountId": "VIS-086",
+            "signedMinor": "-530835"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-043",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-087",
+            "signedMinor": "543180"
+          },
+          {
+            "accountId": "VIS-088",
+            "signedMinor": "-543180"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-044",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-089",
+            "signedMinor": "555525"
+          },
+          {
+            "accountId": "VIS-090",
+            "signedMinor": "-555525"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-045",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-091",
+            "signedMinor": "567870"
+          },
+          {
+            "accountId": "VIS-092",
+            "signedMinor": "-567870"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-046",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-093",
+            "signedMinor": "580215"
+          },
+          {
+            "accountId": "VIS-094",
+            "signedMinor": "-580215"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-047",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-095",
+            "signedMinor": "592560"
+          },
+          {
+            "accountId": "VIS-096",
+            "signedMinor": "-592560"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-048",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-097",
+            "signedMinor": "604905"
+          },
+          {
+            "accountId": "VIS-098",
+            "signedMinor": "-604905"
+          }
+        ]
+      },
+      {
+        "id": "SYN-J-049",
+        "date": "2026-06-15",
+        "posted": true,
+        "lines": [
+          {
+            "accountId": "VIS-099",
+            "signedMinor": "617250"
+          },
+          {
+            "accountId": "VIS-100",
+            "signedMinor": "-617250"
+          }
+        ]
+      }
+    ],
+    "openingBalances": [],
+    "priorPeriodEntries": []
+  }
+}

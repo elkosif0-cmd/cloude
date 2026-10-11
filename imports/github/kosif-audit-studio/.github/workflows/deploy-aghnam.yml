@@ -1,0 +1,115 @@
+name: Deploy Aghnam Alwadi + Jev
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deploy-aghnam.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_ACCOUNT_ID: 9ff3d8494afab356ecbf95a2a231a6b5
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    steps:
+      - name: Checkout Aghnam source
+        uses: actions/checkout@v4
+        with:
+          repository: kosif199022-jpg/cloude
+          ref: main
+
+      - name: Build password-locked full-data mobile + Jev release
+        run: |
+          python3 build.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("dist/index.html")
+          b=p.read_bytes()
+          head=b.lstrip()[:20].lower()
+          assert head.startswith(b"<!doctype html") or head.startswith(b"<html"), head
+          app=Path("dist/app-safe.html").read_text(encoding="utf-8")
+          for marker in ["mobile-v28.css?v=28","mobile-v28.js?v=28","jev-v1.css?v=1","jev-v1.js?v=1","jev-question-v1.css?v=1","jev-question-v1.js?v=1","v29-smart.css?v=29","v29-smart.js?v=29"]:
+              assert marker in app, marker
+          for f in ["mobile-v28.css","mobile-v28.js","jev-v1.css","jev-v1.js","jev-question-v1.css","jev-question-v1.js","v29-smart.css","v29-smart.js"]:
+              assert Path("dist",f).exists(), f
+          assert Path("dist/secure/crypto.json").exists()
+          assert len(list(Path("dist/secure").glob("seed.enc.b64.part*"))) == 6
+          assert Path("jev-api/worker.js").exists()
+          assert Path("wrangler.jev.toml").exists()
+          v29=Path("dist/v29-smart.js").read_text(encoding="utf-8")
+          for marker in ["محرك التسعير اليومي","مساعد المخزون","سجل قرارات Jev","jev:decision"]:
+              assert marker in v29, marker
+          print("V29 feature validation: OK")
+          print("Build validation: OK")
+          PY
+
+      - name: Prepare Jev bridge credentials securely
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRIDGE_SOURCE="$(curl --fail --silent --show-error             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/jev-claude-bridge/content/v2")"
+          JEV_BRIDGE_TOKEN="$(printf '%s' "$BRIDGE_SOURCE" | python3 -c 'import sys,re; s=sys.stdin.read(); m=re.search(r"const\s+ACCESS_TOKEN\s*=\s*[\x27\x22]([^\x27\x22]+)",s); print(m.group(1) if m else "")')"
+          test -n "$JEV_BRIDGE_TOKEN"
+          SESSION_SECRET="$(openssl rand -hex 32)"
+          echo "::add-mask::$JEV_BRIDGE_TOKEN"
+          echo "::add-mask::$SESSION_SECRET"
+          echo "JEV_BRIDGE_TOKEN=$JEV_BRIDGE_TOKEN" >> "$GITHUB_ENV"
+          echo "SESSION_SECRET=$SESSION_SECRET" >> "$GITHUB_ENV"
+
+      - name: Install Wrangler
+        run: npm install --no-save wrangler@4
+
+      - name: Deploy private Jev API worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx wrangler deploy --config wrangler.jev.toml
+          printf '%s' "$JEV_BRIDGE_TOKEN" | npx wrangler secret put JEV_BRIDGE_TOKEN --name aghnam-jev-api
+          printf '%s' "$SESSION_SECRET" | npx wrangler secret put SESSION_SECRET --name aghnam-jev-api
+          npx wrangler deploy --config wrangler.jev.toml --keep-vars
+          npx wrangler secret list --name aghnam-jev-api | grep -q 'JEV_BRIDGE_TOKEN'
+          npx wrangler secret list --name aghnam-jev-api | grep -q 'SESSION_SECRET'
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 9ff3d8494afab356ecbf95a2a231a6b5
+          wranglerVersion: "4"
+          command: pages deploy dist --project-name=aghnam-alwadi-iphone --branch=main
+
+      - name: Verify Jev API after propagation
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in {1..12}; do
+            if curl --fail --silent --show-error "https://aghnam-jev-api.kosif199022.workers.dev/health" -o /tmp/jev-health.json; then
+              break
+            fi
+            echo "Waiting for Workers.dev propagation ($i/12)..."
+            sleep 5
+          done
+          python3 -c 'import json; d=json.load(open("/tmp/jev-health.json")); assert d.get("ok") is True; print("Jev API health: OK")'
+          STATUS="$(curl --silent --output /tmp/jev-auth.json --write-out '%{http_code}'             -X POST "https://aghnam-jev-api.kosif199022.workers.dev/session"             -H "Origin: https://aghnam-alwadi.pages.dev"             -H "Content-Type: application/json"             --data '{"password":"__wrong_password_test__"}')"
+          echo "Jev auth test HTTP: $STATUS"
+          if [ "$STATUS" != "401" ]; then
+            cat /tmp/jev-auth.json || true
+            exit 1
+          fi
+          echo "Jev authentication gate: OK"
+
+# Jev session verifier refresh
+
+# Ask Jev section deploy refresh
+
+# V29 smart pricing inventory decision-log deploy
+
+# Redeploy Jev API for aghnam-alwadi.pages.dev origin
+
+# Verify Jev auth against current production origin

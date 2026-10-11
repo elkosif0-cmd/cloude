@@ -1,0 +1,49 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moon — نظام تشغيل المراجعة</title>
+<meta name="description" content="نظام تشغيل عربي لملف المراجعة مع محركات مالية حتمية، بوابات اعتماد بشرية، واختبارات ISA 240 ومسار رأي ISA 705.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<a class="skip" href="#view">تخطٍّ إلى المحتوى</a>
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="#182644" stroke="#2B3B5C"/><path d="M15 2 A13 13 0 0 1 15 28 A7 13 0 0 0 15 2 Z" fill="#EFEAD9"/></svg>
+      <div><h1>Moon</h1><small>نظام تشغيل المراجعة</small></div>
+    </div>
+    <nav id="rail-nav" aria-label="مراحل المهمة"></nav>
+    <div class="rail-foot">المبالغ بوحدات الهللة، والنتائج الحاسمة مشتقة بمحركات حتمية. الاعتماد والرأي والقفل النهائي قرارات بشرية مسجلة.</div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div><div class="eng" id="eng-name">مهمة بلا اسم</div><div class="meta" id="eng-meta"></div></div>
+      <div class="spacer"></div>
+      <div style="display:flex;gap:var(--s2);align-items:center">
+        <label for="u-name" class="sr">اسم المستخدم</label><input id="u-name" placeholder="اسمك" style="width:170px" autocomplete="name">
+        <label for="u-role" class="sr">الدور</label><select id="u-role" style="width:150px"><option value="partner">شريك</option><option value="manager">مدير مهمة</option><option value="senior">مراجع أول</option><option value="junior">مراجع</option><option value="quality">مراقب جودة</option></select>
+      </div>
+    </div>
+    <div class="view" id="view" tabindex="-1" role="region" aria-live="polite"></div>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="مجلس المراجعة"><header><h2>مجلس المراجعة</h2><button class="btn quiet" data-action="ai-close" aria-label="إغلاق">إغلاق</button></header><div class="body" id="drawer-body"></div></aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script defer src="./engine.js"></script>
+<script defer src="./audit-engines.js"></script>
+<script defer src="./state.js"></script>
+<script defer src="./views-dashboard.js"></script>
+<script defer src="./views-planning.js"></script>
+<script defer src="./views-review.js"></script>
+<script defer src="./render.js"></script>
+<script defer src="./actions.js"></script>
+<script defer src="./boot.js"></script>
+</body>
+</html>

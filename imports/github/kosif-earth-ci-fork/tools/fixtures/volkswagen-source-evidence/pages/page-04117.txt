@@ -1,0 +1,55 @@
+        Consolidated Financial Statements                                                                                                                                                    Statement of Changes in Equity
+
+
+
+
+                                                Statement of Changes in Equity
+                                                         of the Volkswagen Group for the period January 1 to December 31, 2025
+
+                                                                                OTHER RESERVES
+
+
+                                                                                                      HEDGING
+
+
+                                                                                                                                                                                               Equity
+                                                                                                                                                                           Equity     attributable to
+                                                                                                                                                                  attributable to    Volkswagen AG
+                                                                                     Currency    Cash flow    Deferred costs                           Equity-   Volkswagen AG         shareholders
+                                            Subscribed     Capital   Retained      translation     hedges        of hedging     Equity and debt     accounted      hybrid capital         and hybrid    Non-controlling
+€ million                                      capital     reserve   earnings          reserve      (OCI I)          (OCI II)      instruments    investments           investors   capital investors         interests       Total equity
+
+Balance at Jan. 1, 2024                         1,283      14,551    147,830          –3,431        1,472              –676              –966            476            15,155             175,694             14,218           189,912
+Prior-year corrections in accordance
+with IAS 8                                          –           –      –726                 –            –                 –                 –              –                  –               –726                  –              –726
+Adjusted balance at Jan. 1, 2024                1,283      14,551    147,104          –3,431        1,472              –676              –966            476            15,155             174,968             14,218           189,186
+Earnings after tax                                  –           –     10,721                –            –                 –                 –              –               630             11,351              1,043            12,394
+Other comprehensive income, net of tax              –           –      1,589           1,275       –1,006               409                 61          –174                   –              2,154              –183              1,971
+Total comprehensive income                          –           –     12,310           1,275       –1,006               409                 61          –174                630             13,505                860            14,365
+Disposal of equity instruments                      –           –          1                –            –                 –                –1              –                  –                   –                 –                  –
+Capital increases/Capital decreases                 –           –          –                –            –                 –                 –              –            –1,244             –1,244                106             –1,138
+Dividends payment                                   –           –     –4,524                –            –                 –                 –              –              –651             –5,175               –604             –5,779
+Capital transactions involving a change
+in ownership interest                               –           –         –4                0            –                 –                 –              –                  –                  –4                 4                  –
+Other changes                                       –           –       243                 –            –                 –                 –              1                  –                244              –147                 97
+Balance at Dec. 31, 2024                        1,283      14,551    155,130          –2,156          466              –267              –906            303            13,890             182,294             14,437           196,731
+
+
+Balance at Jan. 1, 2025                         1,283      14,551    155,130          –2,156          466              –267              –906            303            13,890             182,294             14,437           196,731
+Earnings after tax                                  –           –      6,673                –            –                 –                 –              –               650               7,323              –419              6,904
+Other comprehensive income, net of tax              –           –      3,216          –3,219        1,300               201             1,154           –161                   –              2,492               408              2,900
+Total comprehensive income                          –           –      9,888          –3,219        1,300               201             1,154           –161                650               9,815               –11              9,804
+Disposal of equity instruments                      –           –        –31                –            –                 –                31              –                  –                   –                 –                  –
+Capital increases/Capital decreases                 –           –          0                –            –                 –                 –              –               400                 400                 29               428
+Dividends payment                                   –           –     –3,171                –            –                 –                 –              –              –664             –3,835               –625             –4,460
+Capital transactions involving a change
+in ownership interest                               –           –      –430               48             0                 0                14              0                  –               –367               719                352
+Other changes                                       –           –        –30                –            –                 –                 –              1                  –                –30               229                199
+Balance at Dec. 31, 2025                        1,283      14,551    161,357          –5,326        1,766               –66               293            142            14,275             188,277             14,777           203,054
+
+Explanatory notes on equity are presented in the note relating to equity.
+
+
+
+
+                                                                                                    466

@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": false,
+    "noEmit": true,
+    "types": ["vitest"]
+  },
+  "include": ["src/engine/think/**/*.ts"]
+}

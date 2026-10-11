@@ -1,0 +1,12 @@
+{
+  "extends":"./tsconfig.json",
+  "compilerOptions":{
+    "strict":true,
+    "noUncheckedIndexedAccess":true,
+    "noUnusedLocals":true,
+    "noUnusedParameters":true,
+    "allowJs":false,
+    "types":["vite/client","vitest"]
+  },
+  "include":["src/engine/meatOps/**/*.ts"]
+}

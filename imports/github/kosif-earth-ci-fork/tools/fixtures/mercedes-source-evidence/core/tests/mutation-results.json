@@ -1,0 +1,1693 @@
+{
+  "suite": "real_candidate_mutation_controls",
+  "all_passed": true,
+  "cases": 154,
+  "results": [
+    {
+      "name": "valid_source",
+      "expected_valid": true,
+      "actual_valid": true,
+      "passed": true,
+      "candidate_sha256": "be86382ea66cfdcbb9b4e7671da65b7280488ea5dfcef9bd70a942570a5a17f5",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "name": "valid_reordered_tables",
+      "expected_valid": true,
+      "actual_valid": true,
+      "passed": true,
+      "candidate_sha256": "be86382ea66cfdcbb9b4e7671da65b7280488ea5dfcef9bd70a942570a5a17f5",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "name": "valid_equivalent_decimal_spelling",
+      "expected_valid": true,
+      "actual_valid": true,
+      "passed": true,
+      "candidate_sha256": "952ee6c07f94ba24b234bbd5ded78df2b52ce3856f8fe4e8ce09f509361f0c1d",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "name": "valid_numeric_json_value",
+      "expected_valid": true,
+      "actual_valid": true,
+      "passed": true,
+      "candidate_sha256": "92baca6fcaf05180bca890cb97e8f4c044cfe330f389e9263399b55160736ea9",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "name": "mutated_value.income.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "509546663e7f598549a32557c4fc9561112b0815c84d6fa872b02274ed62ddcd",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:income.revenue.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.income.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "ce46e2c2cc86c6047083bb6a7c2a62f62f8751782fb2d446ed03d91cc9d9aad6",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:income.revenue.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.oci.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "3c253080e8c547ff37b645ff07a30c9f65652891f7fc4dbd0c9e64151e34246d",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:oci.net_profit.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.oci.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "e4c4257f8fce90186dde4b17c7239acf60a4878f65aef1120cd1016e5520dcb3",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:oci.net_profit.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.assets.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "0b0211dcd23646670ae361fbdbc398da3a5cb9489d2448d8dd2121e99adfc0e1",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:assets.intangible.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.assets.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "06df8da930fb5e451dfc8ae9ea9bb0454fda4c7d4b0d74f2fc37d872e60f2b35",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:assets.intangible.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.equity_liabilities.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "a6f7e10d43ab06818c15768a40a4067585a70865707c3770b2beee3543c0cf8a",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:equity_liabilities.share_capital.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.equity_liabilities.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d5743da4f417a2d3f485e0a62629e2a2e46d53548aef8d99c82cf2c58f44f4f0",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:equity_liabilities.share_capital.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.cash_flow.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "010af1586fb53a90e75b39521d8fcd5ae59557d36e24fbac5290153707407f68",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:cash_flow.pretax.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.cash_flow.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "ed0cec33ca3de3b5ab644c2d984ec8314567def5bc2639302cb680b2e091dbe4",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:cash_flow.pretax.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.cash_bridge.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d8b49b1e328276ac3032ecd7c9112a43a0b0998d31ad788046f08f5de75b8f4d",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:cash_bridge.opening_total.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.cash_bridge.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "abce732ccc5ee16cce2d9b84fdda5389e6c298b9b52607b91eaa1c1486c94294",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:cash_bridge.opening_total.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.equity_rollforward.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "62bd02809a7c96997223344efd0a5d6b016692f9d446c0af4a8df4929024ee45",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:equity_rollforward.opening.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.equity_rollforward.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "c0abff9de66b35b4b6044fb7b7b8d2dc600ce941c12995455fbf203f9bfbf4c0",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:equity_rollforward.opening.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.tax_reconciliation.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "39b9979171883a47b7ba2993e804e7288d47f903d280d45a0f86db02c3b4c5ed",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:tax_reconciliation.current_tax.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.tax_reconciliation.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "01624f28b0bf6dc0c00f3cb3ce628e0b78476061b3dc723b958cd4959d3d2a6b",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:tax_reconciliation.current_tax.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.deferred_tax.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "7f959b76851a5298804a8e0906f668c157d1711bb8a57b13a315703f915c0a7c",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:deferred_tax.gross_assets.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.deferred_tax.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "5ba25f88676bb9316478cd182acca55a5c9fff640b2474bfaf0a64e032864050",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:deferred_tax.gross_assets.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.deferred_tax_rollforward.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "6a0a3dc18daded08c533af1bc28c1d5275fd0291001e17b4b036a6570772a1a9",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:deferred_tax_rollforward.opening.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.deferred_tax_rollforward.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "e544031e2092550db3b211e10d2b0c51641e9bd70088384136d4a7932c041e71",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:deferred_tax_rollforward.opening.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.operating_lease_assets.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "cf3e9f4e61fbc52c2fad70171a0890663391533cdaf0b705114f9d6084ebd3ec",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:operating_lease_assets.cost_opening.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.operating_lease_assets.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "1dc22436aa477847e903eec739d0e70a90f15082d1db5c1b42b088b9ee6b344f",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:operating_lease_assets.cost_opening.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.lease_maturity.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "742bc5d6ac6929b2f778d0008c3840651697e3c83c86c5fc2ebda375ca68f795",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:lease_maturity.within_1y.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.lease_maturity.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "3163f3c03d914813cec5016222a0db9293f58664ba203e07aff4b49dd566cb13",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:lease_maturity.within_1y.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.fs_receivables.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "3b91058ebbe920072b7c444a4b214bfac8af327556ec0943db00a94cbbd73c2f",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:fs_receivables.customer_current.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.fs_receivables.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "9558f57b16f5bff2db751bf372a0e02661a1b83c93d3c7c6bda493213b73d569",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:fs_receivables.customer_current.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.finance_lease.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "fb13618a84fae741587bb2591e1ed8968082dcc09e982604ccb6bfe64d9e93a4",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:finance_lease.payments.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.finance_lease.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "fc7ac61586c3dde9385351bf2b0c19c9a55b7cf9d1a4bcbf72a285916f9af8de",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:finance_lease.payments.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.ecl_total.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "ffdac55206cea78bce5ea888ca0cc82359f28eda69a58521d0efc6e87544353c",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:ecl_total.opening.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.ecl_total.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "bbd187ab8e78bd65f62b4759e7d7d9e45f3875a62a06f873d3511c25e332d914",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:ecl_total.opening.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.ecl_stage1.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "7cf22ac1a3a97ea1edcb683a96097882870e7fb93f58d90f3294fb5048d124d9",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:ecl_stage1.opening.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.ecl_stage1.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "fc424d0f57cafa2f49e1f8cb8d02469b2a0f0a9562b9408229a5966fdaa63e8b",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:ecl_stage1.opening.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.ecl_stage2.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "7d42c85628d0856912f507a01ad38ac25dfd8f0312f8e4e4a07edf208ea186c2",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:ecl_stage2.opening.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.ecl_stage2.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "6e0060a747744682af850ad0c7f2a8dfb00dd833a33637b23701f1d4a8a92e00",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:ecl_stage2.opening.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.ecl_stage3.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "90fecda786448b9f3cc20f710befb99521ecf6f314bc4bae222d44f60e9b7c54",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:ecl_stage3.opening.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.ecl_stage3.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "f808fcd60f015add04d6cd24ebd4f3b81f622e98050ae63a4aef11c9e636ea93",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:ecl_stage3.opening.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.credit_exposure.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "18b04e8027c39ffc9b882b825e30df0079fc23a5e081a62ff56e37de07b2b67d",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:credit_exposure.stage1.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.credit_exposure.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d38c8b07f819c500e2f57524bc503b1c32298ba7f3d79d94324bfde01637eb98",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:credit_exposure.stage1.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.segment_revenue.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "87ca919bfdd00ab23e0949097a1968d01f72c6f64a59ca0697462704a55c783c",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:segment_revenue.cars_external.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.segment_revenue.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "a9a5886f28c3375c9d6c691193f4c9d339c0082cd40c84b685c6c2436d0a1290",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:segment_revenue.cars_external.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.segment_ebit.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "646dda9bce95a66569da62165692b6445f5c14e68ffb54cb58bb42bb627774ec",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:segment_ebit.cars.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.segment_ebit.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "356b7095e46760331e8bd316893f127c64c551fcb178e78780f759e384f3d6d0",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:segment_ebit.cars.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.segment_assets_bridge.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "ea3fbd72e79c5198ec0c8d2b93b6bb89113f0101b8b0fc674e1003f353f71aec",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:segment_assets_bridge.segments.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.segment_assets_bridge.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d34b6019bdd23b07d1224d80c3ba8940b8baf1a682124206d72f9b0e5a15f216",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:segment_assets_bridge.segments.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.segment_liabilities_bridge.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "f3ea804f87f0ff706086574f1f4edfb7852391014fd4bf788df1dcad47aa81be",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:segment_liabilities_bridge.segments.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.segment_liabilities_bridge.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d75619137d57b562f34601cfcbfd9d945d911cabf4af5f94828bda9154f44aea",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:segment_liabilities_bridge.segments.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.regional_revenue.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "11f243f8492763351f9f724d231bf2cc9f2d56f2ae4aa4e63613bce88cf656ce",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:regional_revenue.europe.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.regional_revenue.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "cb5b4f10fabf4030782a4ba33df5519b5047126b1c9013539247c7152ac0483f",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:regional_revenue.europe.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.net_assets_average.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "a97ae243e97233bb22b62b41e8e2f594ef5acdd9f3e12bd5131549b53216de19",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:net_assets_average.cars.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.net_assets_average.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "b617aaef1e88678a53cc193d85639aa396dc1bad0c5d26b686b8fd3e7f6ef7cb",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:net_assets_average.cars.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.eps.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "2c27eaade24fd0a45e8b06eff657284f8dfde25cce370e2ab1fe5669a57eb269",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:eps.basic.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.eps.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "b274074b512af37fb04ac74d6e74d812f5eaa9acbbe1864e6b4458b60ab8e8b2",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:eps.basic.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.weighted_shares.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "92d85c0e9c2f5d0e446b1a81482f19162951ea67b11872940a7636d1f418b83c",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:weighted_shares.basic.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.weighted_shares.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "beca256298288c0b0c9870206819cbf3ee438468e310680c17070360272af2fb",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:weighted_shares.basic.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.pension_funding.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "bed5ba7ca3a8979054f6cdda3809b7212a64662e44bdc251fc8c5ccd45adb225",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:pension_funding.obligation.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.pension_funding.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "0173c8fc63495a40ebb1d7027f90231a6dfe564b8aef36c4a7d7d32bb377bcec",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:pension_funding.obligation.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.risk_provisions.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "91469338990792cf6781e4194657a92e8193cb232d67a1ab43947add91f7f1ff",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:risk_provisions.warranty.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.risk_provisions.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "f00e767cb2e7a0abf2b6be0284b13302b695e2fd3d54da927027fc58b3da4ee3",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:risk_provisions.warranty.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.financing_debt.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "eeef981e1a81749a89887dc785df6aad87093f38fe9d874b49d7418f402a9403",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:financing_debt.bonds.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.financing_debt.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "824fb925619dec15ed0fba8b5361e8d934af6b73afa90dcdebf40eb4d4c105a0",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:financing_debt.bonds.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.financial_instruments.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "80e57d4059413e2519b397c57a91fd22dc0af793d4992e4b1ee23e1f03878681",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:financial_instruments.fs_carrying.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.financial_instruments.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "9a8a4808289e334ec89acc44a0654ebed7ee6c2224aa8824a2eb98eb59698b87",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:financial_instruments.fs_carrying.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.fair_value_hierarchy.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "be7c47ed94127f818392659d54d5755465987402deccab57d8639e887335d0b3",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:fair_value_hierarchy.assets_level1.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.fair_value_hierarchy.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "0e468940d016e201452eb95035fa93ee0f62ad986ba21cc141feadf598699c86",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:fair_value_hierarchy.assets_level1.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.derivative_netting.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "4d122d314556da514d2974cbfe141244817d5b3261bfd44235191767807ff97b",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:derivative_netting.asset_gross_recognized.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.derivative_netting.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "5f79efcaa6187573b4edb2bb6b088b0d36b2919e6f90a076bee65a048aba1b44",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:derivative_netting.asset_gross_recognized.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.contract_refund.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "b694c4b1ffb0ead717dda5cf5c8936c509baba0c2765391008a67d41a6cd05f3",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:contract_refund.service.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.contract_refund.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "56c15606e591541569b99f5009d94ebfb6968d3c858fee975614223b2fe52589",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:contract_refund.service.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.contingencies.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "8e19c3f8737d227b71dcaeffef216d7b2404ab171bab3beb089577de2222c4c6",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:contingencies.legal.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.contingencies.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "fd2394793e2dbfe8dcc1b0037573e941ad3f40230c6f2be3f66d9dc9fc37810a",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:contingencies.legal.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.liquidity_runoff.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "e4c131cfef20ddca73ded46c1dcf55cf833fcb8ea6742639f420bf716bbbfb0c",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:liquidity_runoff.financing.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.liquidity_runoff.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "12eb142f5e2387a2a3c4104f52432057e6b31fd347175e63f09146eb0d7e09f5",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:liquidity_runoff.financing.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.daimler_truck_associate_income.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "eaa23f207818a4d8e25eede3e4a6ef7efa10f79500e2bef4cbe6798ad580e034",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:daimler_truck_associate_income.revenue.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.daimler_truck_associate_income.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "36acc41308c830a121d42e4e069526347181470614fdc82f4d5814f384a99e3d",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:daimler_truck_associate_income.revenue.2024"
+      ]
+    },
+    {
+      "name": "mutated_value.daimler_truck_associate_assets.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "27a99d18b39cda5050158a2fa635e9bb2cf9eded61dae12f866bea52ad19df9d",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:daimler_truck_associate_assets.noncurrent_assets.2025"
+      ]
+    },
+    {
+      "name": "mutated_value.daimler_truck_associate_assets.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "9e94b0cc8dbbb294c2efb04d9c226720cfb48bb79e080e6dc32380fec6ce5495",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:daimler_truck_associate_assets.noncurrent_assets.2024"
+      ]
+    },
+    {
+      "name": "precision_violation.income.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "c4dcdb36eabd8143347fbd1084679834a7b96935ba54d503d2bc007f1414c3bd",
+      "error_count": 2,
+      "errors": [
+        "source_value_mismatch:income.revenue.2025",
+        "precision_mismatch:income.revenue.2025"
+      ]
+    },
+    {
+      "name": "precision_violation.eps.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "082b2cd8c39ed6ad4c9e612e251ce18e937de48d6fa88b7af0b955d68402a9bc",
+      "error_count": 2,
+      "errors": [
+        "source_value_mismatch:eps.basic.2025",
+        "precision_mismatch:eps.basic.2025"
+      ]
+    },
+    {
+      "name": "precision_violation.weighted_shares.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "1ead51facf3f5cc9bb7066a3051561c331452699203f46a5661c01ed94e3c88a",
+      "error_count": 2,
+      "errors": [
+        "source_value_mismatch:weighted_shares.basic.2025",
+        "precision_mismatch:weighted_shares.basic.2025"
+      ]
+    },
+    {
+      "name": "wrong_eps_numerator.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d82731355169e4dad32c1739cfecea4e9a45cf4bd1faabfdb739fe4da470f4eb",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:eps.basic.2025"
+      ]
+    },
+    {
+      "name": "cash_including_hfs_used_as_bs.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "6cccbded501e1011413eb988a317c5234a0405a2716c594af32358050df3748a",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:assets.cash.2025"
+      ]
+    },
+    {
+      "name": "ecl_stage_scope_used_as_balance_sheet.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "1e38af07eba3f96da80044421ce83be8a18dd5ce1d77f87464bcacba8ff339ac",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:fs_receivables.allowance_total.2025"
+      ]
+    },
+    {
+      "name": "ecl_scope_relabelled.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "e46ccd06722b77da7cfc6b566734bb45cf65a8382990c0e3cb6f3f9138615405",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:fs_receivables.entity_scope"
+      ]
+    },
+    {
+      "name": "balanced_income_forgery.2025",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "41ffdc96794564209f68e9ab567d24fc5d42f11058901953f5af5fcef31f08b4",
+      "error_count": 2,
+      "errors": [
+        "source_value_mismatch:income.revenue.2025",
+        "source_value_mismatch:income.cost_sales.2025"
+      ]
+    },
+    {
+      "name": "precision_violation.income.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "99ad4f1cd34e67be1d33aac23321002029a98caffa1831f136a50d84c8985c11",
+      "error_count": 2,
+      "errors": [
+        "source_value_mismatch:income.revenue.2024",
+        "precision_mismatch:income.revenue.2024"
+      ]
+    },
+    {
+      "name": "precision_violation.eps.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "c8678fe0ffa59281f0788d1d722d962531866237ec2f9c410bc77612f500ab92",
+      "error_count": 2,
+      "errors": [
+        "source_value_mismatch:eps.basic.2024",
+        "precision_mismatch:eps.basic.2024"
+      ]
+    },
+    {
+      "name": "precision_violation.weighted_shares.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "82eb54cafbff004934b34d0d6e286bc5dcab29f4b03d539671cc1bbbd116e5f1",
+      "error_count": 2,
+      "errors": [
+        "source_value_mismatch:weighted_shares.basic.2024",
+        "precision_mismatch:weighted_shares.basic.2024"
+      ]
+    },
+    {
+      "name": "wrong_eps_numerator.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "919f1ce8655aedc41735ce48bf38233a807e05bef9052d6689a613e9716c8114",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:eps.basic.2024"
+      ]
+    },
+    {
+      "name": "cash_including_hfs_used_as_bs.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d8d1d111565876dd29aa617354a817317e581441327453870eac1648fe69629f",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:assets.cash.2024"
+      ]
+    },
+    {
+      "name": "ecl_stage_scope_used_as_balance_sheet.2024",
+      "expected_valid": true,
+      "actual_valid": true,
+      "passed": true,
+      "candidate_sha256": "be86382ea66cfdcbb9b4e7671da65b7280488ea5dfcef9bd70a942570a5a17f5",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "name": "ecl_scope_relabelled.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "e46ccd06722b77da7cfc6b566734bb45cf65a8382990c0e3cb6f3f9138615405",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:fs_receivables.entity_scope"
+      ]
+    },
+    {
+      "name": "balanced_income_forgery.2024",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "987f747b261a7b4d7537090c64585f9f05f4f6b2e9db817e596a40b2300234cc",
+      "error_count": 2,
+      "errors": [
+        "source_value_mismatch:income.revenue.2024",
+        "source_value_mismatch:income.cost_sales.2024"
+      ]
+    },
+    {
+      "name": "current_prior_swap",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "4b25e5cfe7fc08cd3f087166dc7e331c4d2c96c3a2939541cdee1627dd44692d",
+      "error_count": 2,
+      "errors": [
+        "source_value_mismatch:income.revenue.2025",
+        "source_value_mismatch:income.revenue.2024"
+      ]
+    },
+    {
+      "name": "parent_hgb_scope_leak",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d246c4486b2338a4065ef027a06639e81b2451f4a9f0d938e3c0987f2fc81bab",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:income.entity_scope"
+      ]
+    },
+    {
+      "name": "adjusted_in_ifrs",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "e6fbf79b8f750ac24cab2d550baba0565c54eb31974b8bcde8ef00cc97a9c5b7",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:income.standard"
+      ]
+    },
+    {
+      "name": "stock_as_flow",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "5c4eb52a867bea0c61d0b84510ca48a49a44bc59084549d7eb8352eb966522e6",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:assets.period_kind"
+      ]
+    },
+    {
+      "name": "average_as_closing",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "71fcb8a721e0d0e4bef0ca506b41ae0f6fd98e6f30e4dfb42749912517f696e2",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:weighted_shares.period_kind"
+      ]
+    },
+    {
+      "name": "EUR_million_as_billion",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "a191a870765a4ecb7d71c7a8ff6d8b47fe2557d9803cd66c136f6352b993eeca",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:income.unit"
+      ]
+    },
+    {
+      "name": "currency_changed",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "03db10701c9cbf9b5fdf44ea308d3d7c7e3f4e7f228b0d0feeac905b5666fdf5",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:income.currency"
+      ]
+    },
+    {
+      "name": "wrong_prior_date",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "9916bd4d4b021455eb934f4b06a8d61cf9cb0cc523d990e9b3e2de267c419bee",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:assets.periods"
+      ]
+    },
+    {
+      "name": "wrong_source_page",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "4d73f3d3c44b7a30f981c8742c2e0ce0dc3ecf3611db008a5659fd6eee7d80c4",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:income.source_physical_pages"
+      ]
+    },
+    {
+      "name": "wrong_company",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "8dc0467f2b92d87a873dfab211679a8f24dd5f24059520da47f220e5b22f8a95",
+      "error_count": 1,
+      "errors": [
+        "semantic_or_source_mismatch:company"
+      ]
+    },
+    {
+      "name": "wrong_source_hash",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "5abfed1ba72df618963df77046e0c08a5e85fb82f3c1c338f53e15c1ad546c83",
+      "error_count": 1,
+      "errors": [
+        "semantic_or_source_mismatch:source_pdf_sha256"
+      ]
+    },
+    {
+      "name": "false_whole_report_assurance",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "0d094f8123f30c2e676857e7b20a1d6f47f09480f31b9195e2c2b8d2dd928ff2",
+      "error_count": 1,
+      "errors": [
+        "semantic_or_source_mismatch:assurance"
+      ]
+    },
+    {
+      "name": "false_icfr_opinion",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "dc62c1f3b07ac6d6d2907df15c775fccc1ed7e6f48378786159c6059ff5352b4",
+      "error_count": 1,
+      "errors": [
+        "semantic_or_source_mismatch:assurance"
+      ]
+    },
+    {
+      "name": "false_sustainability_reasonable",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "2383e953af576994fc02263418022c8a3a6bac20f7b195bbf439302ead7100fb",
+      "error_count": 1,
+      "errors": [
+        "semantic_or_source_mismatch:assurance"
+      ]
+    },
+    {
+      "name": "false_esef_pdf_scope",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "522f6a1c49eabf22a5fc45ecc0de796849a6370fd58e7b0b002330f806e0a0a3",
+      "error_count": 1,
+      "errors": [
+        "semantic_or_source_mismatch:assurance"
+      ]
+    },
+    {
+      "name": "missing_prior_amount",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "ca1358210d24ed8283703da5372bc18e2f5eeffa631e5f3ee38e3cf1945973d8",
+      "error_count": 1,
+      "errors": [
+        "period_set_mismatch:income.revenue"
+      ]
+    },
+    {
+      "name": "missing_table",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "b895498f71e767d2e3867b50dae3f7be1ec21f8a2e9ba605b65863ce57f192af",
+      "error_count": 2,
+      "errors": [
+        "table_set_mismatch",
+        "missing_table:eps"
+      ]
+    },
+    {
+      "name": "nonfinite",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "a1d09776ab859e7f75fe8baec36841333cebd42a9071e11099a54e01e1241db3",
+      "error_count": 1,
+      "errors": [
+        "invalid_amount:income.revenue.2025"
+      ]
+    },
+    {
+      "name": "boolean",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "3c06dfb354bab41ecc70c28fedfa59d72e20a20b6b3a6197bac600460e2a5653",
+      "error_count": 1,
+      "errors": [
+        "invalid_amount:income.revenue.2025"
+      ]
+    },
+    {
+      "name": "arithmetic_detects_real_mutation.2025",
+      "passed": true,
+      "check": {
+        "check": "income.gross",
+        "year": "2025",
+        "actual": "22336",
+        "computed": "22333",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_rounding_budget_does_not_override_source.2025",
+      "passed": true,
+      "check": {
+        "check": "income.gross",
+        "year": "2025",
+        "actual": "22335",
+        "computed": "22333",
+        "residual": "2",
+        "tolerance": "2",
+        "passed": true
+      }
+    },
+    {
+      "name": "arithmetic_detects_real_mutation.2024",
+      "passed": true,
+      "check": {
+        "check": "income.gross",
+        "year": "2024",
+        "actual": "28579",
+        "computed": "28576",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_rounding_budget_does_not_override_source.2024",
+      "passed": true,
+      "check": {
+        "check": "income.gross",
+        "year": "2024",
+        "actual": "28578",
+        "computed": "28576",
+        "residual": "2",
+        "tolerance": "2",
+        "passed": true
+      }
+    },
+    {
+      "name": "false_review_status",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d6eadbd24bc9148f1a9ec469e5f7bd6061cdc8125d7dd098853b9c8f131dd074",
+      "error_count": 1,
+      "errors": [
+        "semantic_or_source_mismatch:status"
+      ]
+    },
+    {
+      "name": "unexpected_whole_report_claim",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "457f48c9b5d29a05becdd7d17501b5f911d7b8e83ed0baa9c1a5191c5884fbb3",
+      "error_count": 1,
+      "errors": [
+        "top_level_field_set_mismatch"
+      ]
+    },
+    {
+      "name": "tables_none",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d052b3a11c5a11e5d599e5430cc6f3e1698c697e79c100bdfe145d748b4e1584",
+      "error_count": 1,
+      "errors": [
+        "invalid_tables_type"
+      ]
+    },
+    {
+      "name": "tables_list",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "2ed0908f4a2d86f13a0d16907591ba5cfb16a774e8a5aca16e03285a3ca976c8",
+      "error_count": 1,
+      "errors": [
+        "invalid_tables_type"
+      ]
+    },
+    {
+      "name": "rows_none",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "1cbaf3192cee9a076042a7a31a94f172e45c1f1f3c598bdeae393985229fff4a",
+      "error_count": 1,
+      "errors": [
+        "row_set_mismatch:income"
+      ]
+    },
+    {
+      "name": "rows_list",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "9c0e546c543d1a209a977d9463ad2f9b05ccce55293073cdc97c39d7a576889c",
+      "error_count": 1,
+      "errors": [
+        "row_set_mismatch:income"
+      ]
+    },
+    {
+      "name": "unexpected_table_assertion",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "6ffb151e6eb4851dd3f4860f0b7b75102a9049cd6ceaf6745750e23a94bf8d1a",
+      "error_count": 1,
+      "errors": [
+        "table_field_set_mismatch:income"
+      ]
+    },
+    {
+      "name": "nine_months_relabelled_annual",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "20d829718a4fb6a2c77ef532f562ff2aea09f67ef3654dfd7e33cb4436501870",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:daimler_truck_associate_income.period_kind"
+      ]
+    },
+    {
+      "name": "september_balance_relabelled_december",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "589cadc9d7d3f78f21e14f25cd80c90d108fd8942a70ff248cc0b5f6e3183206",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:daimler_truck_associate_assets.periods"
+      ]
+    },
+    {
+      "name": "undiscounted_runoff_as_debt",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "268f14665db07ab072904d40adb6bd3f029eccdab6f34df3a5c07a7923d1ad3d",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:financing_debt.total.2025"
+      ]
+    },
+    {
+      "name": "hypothetical_netting_as_recognized",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "d55cf9b06fde3f7bb09445379d8d192ef04c14af4ee1c181cd3b92933b9d7268",
+      "error_count": 1,
+      "errors": [
+        "source_value_mismatch:derivative_netting.asset_gross_recognized.2025"
+      ]
+    },
+    {
+      "name": "malformed_root_NoneType",
+      "passed": true,
+      "errors": [
+        "invalid_root"
+      ]
+    },
+    {
+      "name": "malformed_root_list",
+      "passed": true,
+      "errors": [
+        "invalid_root"
+      ]
+    },
+    {
+      "name": "malformed_root_int",
+      "passed": true,
+      "errors": [
+        "invalid_root"
+      ]
+    },
+    {
+      "name": "malformed_root_str",
+      "passed": true,
+      "errors": [
+        "invalid_root"
+      ]
+    },
+    {
+      "name": "valid_annual_growth",
+      "passed": true,
+      "result_percent": "-9.189939145843922139648611890"
+    },
+    {
+      "name": "incomparable_annual_growth_daimler_truck_associate_income",
+      "passed": true,
+      "reason": "Incomparable period kind: annual flows required"
+    },
+    {
+      "name": "incomparable_annual_growth_assets",
+      "passed": true,
+      "reason": "Incomparable period kind: annual flows required"
+    },
+    {
+      "name": "incomparable_annual_growth_weighted_shares",
+      "passed": true,
+      "reason": "Incomparable period kind: annual flows required"
+    },
+    {
+      "name": "incomparable_annual_growth_liquidity_runoff",
+      "passed": true,
+      "reason": "Incomparable period kind: annual flows required"
+    },
+    {
+      "name": "arithmetic_only.cash_flow.2025",
+      "passed": true,
+      "check": {
+        "check": "cff",
+        "year": "2025",
+        "actual": "-10450",
+        "computed": "-10453",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.cash_flow.2024",
+      "passed": true,
+      "check": {
+        "check": "cff",
+        "year": "2024",
+        "actual": "-10749",
+        "computed": "-10752",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.segment_revenue.2025",
+      "passed": true,
+      "check": {
+        "check": "segments.revenue_bridge",
+        "year": "2025",
+        "actual": "132217",
+        "computed": "132214",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.segment_revenue.2024",
+      "passed": true,
+      "check": {
+        "check": "segments.revenue_bridge",
+        "year": "2024",
+        "actual": "145597",
+        "computed": "145594",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.ecl_total.2025",
+      "passed": true,
+      "check": {
+        "check": "ecl_total.rollforward",
+        "year": "2025",
+        "actual": "1006",
+        "computed": "1003",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.ecl_total.2024",
+      "passed": true,
+      "check": {
+        "check": "ecl_total.rollforward",
+        "year": "2024",
+        "actual": "1108",
+        "computed": "1105",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.risk_provisions.2025",
+      "passed": true,
+      "check": {
+        "check": "risk_provisions.categories",
+        "year": "2025",
+        "actual": "15461",
+        "computed": "15458",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.risk_provisions.2024",
+      "passed": true,
+      "check": {
+        "check": "risk_provisions.categories",
+        "year": "2024",
+        "actual": "15023",
+        "computed": "15020",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.finance_lease.2025",
+      "passed": true,
+      "check": {
+        "check": "finance_lease.investment",
+        "year": "2025",
+        "actual": "19525",
+        "computed": "19522",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.finance_lease.2024",
+      "passed": true,
+      "check": {
+        "check": "finance_lease.investment",
+        "year": "2024",
+        "actual": "21740",
+        "computed": "21737",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.liquidity_runoff.2025",
+      "passed": true,
+      "check": {
+        "check": "runoff.categories",
+        "year": "2025",
+        "actual": "131535",
+        "computed": "131532",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "arithmetic_only.liquidity_runoff.2024",
+      "passed": true,
+      "check": {
+        "check": "runoff.categories",
+        "year": "2024",
+        "actual": "147173",
+        "computed": "147170",
+        "residual": "3",
+        "tolerance": "2",
+        "passed": false
+      }
+    },
+    {
+      "name": "weighted_average_window_as_point",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "ae14527ab94fe4a26a751dc7e8131e119f2f3900999d692f2ad0a17c464da7a8",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:weighted_shares.periods"
+      ]
+    },
+    {
+      "name": "opening_cash_as_closing",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "8ebc01b455c8d46e53c77a6445f9f5cb9c282a91be6ca409f8cf7f46224ab899",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:cash_bridge.row_period_roles"
+      ]
+    },
+    {
+      "name": "ecl_closing_stock_as_flow",
+      "expected_valid": false,
+      "actual_valid": false,
+      "passed": true,
+      "candidate_sha256": "05fa412288c609d07eb9c5602c24a5915e885881808b1ea35282f7f49b6a253e",
+      "error_count": 1,
+      "errors": [
+        "metadata_mismatch:ecl_total.row_period_roles"
+      ]
+    }
+  ],
+  "limits": [
+    "Models and tests are source analytical checks, not independent audit or app tests.",
+    "Literal source anchors detect internally balanced forgeries.",
+    "Arithmetic tolerance is explicit and cannot legitimize a mismatching reported amount.",
+    "2024 ECL stage total equals balance-sheet ECL by coincidence; same-value replacement is a positive control, scope relabel is rejected."
+  ]
+}

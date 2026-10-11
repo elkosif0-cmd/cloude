@@ -1,0 +1,20 @@
+/* Product Flow Studio — what the product studio adds on top of the shared studio (components/studio.css):
+   the colours of its node types, the what-if cards, the margin drivers and the IAS 2 table */
+.pf-raw,.pf-box,.pf-purchase,.pf-waste,.pf-dish,.pf-overhead,.pf-expense,.pf-other,.pf-component,.pf-packaging{border-inline-start:4px solid var(--sk-info)}
+.pf-waste,.pf-expense{border-inline-start-color:var(--sk-warn)}
+.pf-price,.pf-margin,.pf-breakeven,.pf-vat{border-inline-start:4px solid var(--sk-ok)}
+.pf-wi{display:grid;gap:12px}
+.pf-wigrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pf-wcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.pf-wcard{border:1px solid var(--sk-line);border-radius:var(--sk-r-s);padding:10px;display:grid;gap:3px;background:var(--sk-surface-2);min-width:0}
+.pf-wcard span{font-size:11px;color:var(--sk-ink-3)}.pf-wcard b{font-size:15px;font-variant-numeric:tabular-nums}.pf-wcard small{font-size:10.5px;color:var(--sk-ink-3)}.pf-wcard .btn{justify-self:start;margin-top:3px}
+.pf-wcard em,.pf-kv em{font-style:normal;font-size:11px;font-weight:800}
+.pf-wifoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.pf-wifoot small{color:var(--sk-ink-3)}.pf-wifoot span{display:flex;gap:6px}
+.pf-tornado{display:grid;gap:6px}
+.pf-trow{display:grid;grid-template-columns:minmax(90px,170px) 1fr auto;gap:10px;align-items:center;border:0;background:transparent;padding:4px 2px;cursor:pointer;font:inherit;text-align:right;color:var(--sk-ink);border-radius:var(--sk-r-s)}
+.pf-trow:hover{background:var(--sk-surface-2)}.pf-trow span{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf-trow i{height:12px;width:var(--w);min-width:3px;border-radius:999px;background:var(--sk-bad)}.pf-trow i.pos{background:var(--sk-ok)}
+.pf-trow b{font-size:12px;font-variant-numeric:tabular-nums;min-width:74px;text-align:left}
+.pf-ias{width:100%;border-collapse:collapse;font-size:12.5px}.pf-ias td{padding:7px 8px;border-bottom:1px solid var(--sk-line)}.pf-ias td:last-child{text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pf-ias .pf-tot td{background:var(--sk-surface-2)}.pf-ias .pf-bad td:last-child{color:var(--sk-bad);font-weight:800}.pf-ias .pf-ok td:last-child{color:var(--sk-ok);font-weight:700}
+@media(max-width:520px){.pf-wigrid{grid-template-columns:1fr}.pf-wcards{grid-template-columns:1fr 1fr}.pf-trow{grid-template-columns:90px 1fr auto}}

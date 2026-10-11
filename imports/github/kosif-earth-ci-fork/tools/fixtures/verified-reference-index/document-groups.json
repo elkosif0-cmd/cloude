@@ -1,0 +1,682 @@
+[
+  {
+    "id": "reference-directory",
+    "title_en": "Reporting and auditing resource directory",
+    "title_ar": "دليل مصادر التقارير والمراجعة",
+    "from_page": 1,
+    "to_page": 1,
+    "page_count": 1,
+    "type": "reference_directory",
+    "confidence": "high",
+    "warnings_en": [
+      "Arabic text in this source page is rendered/extracted with missing-glyph boxes. English resource names and URLs remain available."
+    ],
+    "warnings_ar": [
+      "يظهر النص العربي في هذه الصفحة بمربعات حروف مفقودة؛ وتظل أسماء المصادر الإنجليزية وروابطها متاحة."
+    ]
+  },
+  {
+    "id": "amazon-2023",
+    "title_en": "Amazon.com, Inc. — FY2023",
+    "title_ar": "أمازون — FY2023",
+    "from_page": 2,
+    "to_page": 93,
+    "page_count": 92,
+    "type": "company_report",
+    "company_id": "amazon",
+    "confidence": "high"
+  },
+  {
+    "id": "apple-2024",
+    "title_en": "Apple Inc. — FY2024 (ended 2024-09-28)",
+    "title_ar": "آبل — FY2024 (ended 2024-09-28)",
+    "from_page": 94,
+    "to_page": 214,
+    "page_count": 121,
+    "type": "company_report",
+    "company_id": "apple",
+    "confidence": "high"
+  },
+  {
+    "id": "cisco-2024",
+    "title_en": "Cisco Systems, Inc. — FY2024",
+    "title_ar": "سيسكو سيستمز — FY2024",
+    "from_page": 215,
+    "to_page": 346,
+    "page_count": 132,
+    "type": "company_report",
+    "company_id": "cisco",
+    "confidence": "high"
+  },
+  {
+    "id": "walmart-2023",
+    "title_en": "Walmart Inc. — FY2023 (ended 2023-01-31)",
+    "title_ar": "وولمارت — FY2023 (ended 2023-01-31)",
+    "from_page": 347,
+    "to_page": 446,
+    "page_count": 100,
+    "type": "company_report",
+    "company_id": "walmart",
+    "confidence": "high"
+  },
+  {
+    "id": "adobe-2024",
+    "title_en": "Adobe Inc. — FY2024",
+    "title_ar": "أدوبي — FY2024",
+    "from_page": 447,
+    "to_page": 547,
+    "page_count": 101,
+    "type": "company_report",
+    "company_id": "adobe",
+    "confidence": "high"
+  },
+  {
+    "id": "jpmorgan-2023",
+    "title_en": "JPMorgan Chase & Co. — FY2023",
+    "title_ar": "جي بي مورغان تشيس — FY2023",
+    "from_page": 548,
+    "to_page": 911,
+    "page_count": 364,
+    "type": "company_report",
+    "company_id": "jpmorgan",
+    "confidence": "high"
+  },
+  {
+    "id": "apple-2020",
+    "title_en": "Apple Inc. — FY2020 (ended 2020-09-26)",
+    "title_ar": "آبل — FY2020 (ended 2020-09-26)",
+    "from_page": 912,
+    "to_page": 1016,
+    "page_count": 105,
+    "type": "company_report",
+    "company_id": "apple",
+    "confidence": "high"
+  },
+  {
+    "id": "amazon-2024",
+    "title_en": "Amazon.com, Inc. — FY2024",
+    "title_ar": "أمازون — FY2024",
+    "from_page": 1017,
+    "to_page": 1107,
+    "page_count": 91,
+    "type": "company_report",
+    "company_id": "amazon",
+    "confidence": "high"
+  },
+  {
+    "id": "apple-2023",
+    "title_en": "Apple Inc. — FY2023 (ended 2023-09-30)",
+    "title_ar": "آبل — FY2023 (ended 2023-09-30)",
+    "from_page": 1108,
+    "to_page": 1187,
+    "page_count": 80,
+    "type": "company_report",
+    "company_id": "apple",
+    "confidence": "high"
+  },
+  {
+    "id": "berkshire-2025",
+    "title_en": "Berkshire Hathaway Inc. — FY2025",
+    "title_ar": "بيركشاير هاثاواي — FY2025",
+    "from_page": 1188,
+    "to_page": 1341,
+    "page_count": 154,
+    "type": "company_report",
+    "company_id": "berkshire",
+    "confidence": "high"
+  },
+  {
+    "id": "jpmorgan-2025",
+    "title_en": "JPMorgan Chase & Co. — FY2025",
+    "title_ar": "جي بي مورغان تشيس — FY2025",
+    "from_page": 1342,
+    "to_page": 1705,
+    "page_count": 364,
+    "type": "company_report",
+    "company_id": "jpmorgan",
+    "confidence": "high"
+  },
+  {
+    "id": "bofa-2025",
+    "title_en": "Bank of America — FY2025",
+    "title_ar": "بنك أوف أمريكا — FY2025",
+    "from_page": 1706,
+    "to_page": 1818,
+    "page_count": 113,
+    "type": "company_report",
+    "company_id": "bofa",
+    "confidence": "high"
+  },
+  {
+    "id": "pepsico-2025",
+    "title_en": "PepsiCo, Inc. — FY2025",
+    "title_ar": "بيبسيكو — FY2025",
+    "from_page": 1819,
+    "to_page": 1962,
+    "page_count": 144,
+    "type": "company_report",
+    "company_id": "pepsico",
+    "confidence": "high"
+  },
+  {
+    "id": "pg-2026",
+    "title_en": "The Procter & Gamble Company — FY2026 (ended 2026-06-30)",
+    "title_ar": "بروكتر آند غامبل — FY2026 (ended 2026-06-30)",
+    "from_page": 1963,
+    "to_page": 2039,
+    "page_count": 77,
+    "type": "company_report",
+    "company_id": "pg",
+    "confidence": "high"
+  },
+  {
+    "id": "homedepot-2025",
+    "title_en": "The Home Depot, Inc. — FY2025 (ended 2026-02-01)",
+    "title_ar": "هوم ديبوت — FY2025 (ended 2026-02-01)",
+    "from_page": 2040,
+    "to_page": 2131,
+    "page_count": 92,
+    "type": "company_report",
+    "company_id": "homedepot",
+    "confidence": "high"
+  },
+  {
+    "id": "mcdonalds-2022",
+    "title_en": "McDonald’s Corporation — FY2022",
+    "title_ar": "ماكدونالدز — FY2022",
+    "from_page": 2132,
+    "to_page": 2204,
+    "page_count": 73,
+    "type": "company_report",
+    "company_id": "mcdonalds",
+    "confidence": "high"
+  },
+  {
+    "id": "nestle-2025",
+    "title_en": "Nestlé Group — FY2025",
+    "title_ar": "نستله — FY2025",
+    "from_page": 2205,
+    "to_page": 2342,
+    "page_count": 138,
+    "type": "company_report",
+    "company_id": "nestle",
+    "confidence": "high"
+  },
+  {
+    "id": "roche-2025",
+    "title_en": "Roche Group — FY2025",
+    "title_ar": "روش — FY2025",
+    "from_page": 2343,
+    "to_page": 2539,
+    "page_count": 197,
+    "type": "company_report",
+    "company_id": "roche",
+    "confidence": "high"
+  },
+  {
+    "id": "novartis-2025",
+    "title_en": "Novartis AG — FY2025",
+    "title_ar": "نوفارتس — FY2025",
+    "from_page": 2540,
+    "to_page": 2804,
+    "page_count": 265,
+    "type": "company_report",
+    "company_id": "novartis",
+    "confidence": "high"
+  },
+  {
+    "id": "ubs-2025",
+    "title_en": "UBS Group AG — FY2025",
+    "title_ar": "يو بي إس — FY2025",
+    "from_page": 2805,
+    "to_page": 3184,
+    "page_count": 380,
+    "type": "company_report",
+    "company_id": "ubs",
+    "confidence": "high"
+  },
+  {
+    "id": "allianz-2025",
+    "title_en": "Allianz SE — FY2025",
+    "title_ar": "أليانز إس إي — FY2025",
+    "from_page": 3185,
+    "to_page": 3240,
+    "page_count": 56,
+    "type": "company_report",
+    "company_id": "allianz",
+    "confidence": "high"
+  },
+  {
+    "id": "mercedes-2025",
+    "title_en": "Mercedes-Benz Group AG — FY2025",
+    "title_ar": "مجموعة مرسيدس بنز — FY2025",
+    "from_page": 3241,
+    "to_page": 3649,
+    "page_count": 409,
+    "type": "company_report",
+    "company_id": "mercedes",
+    "confidence": "high"
+  },
+  {
+    "id": "volkswagen-2025",
+    "title_en": "Volkswagen Group — FY2025",
+    "title_ar": "مجموعة فولكس فاغن — FY2025",
+    "from_page": 3650,
+    "to_page": 4322,
+    "page_count": 673,
+    "type": "company_report",
+    "company_id": "volkswagen",
+    "confidence": "high"
+  },
+  {
+    "id": "telekom-2025",
+    "title_en": "Deutsche Telekom AG — FY2025",
+    "title_ar": "دويتشه تيليكوم — FY2025",
+    "from_page": 4323,
+    "to_page": 4704,
+    "page_count": 382,
+    "type": "company_report",
+    "company_id": "telekom",
+    "confidence": "high"
+  },
+  {
+    "id": "bp-2025",
+    "title_en": "BP p.l.c. — FY2025",
+    "title_ar": "بي بي — FY2025",
+    "from_page": 4705,
+    "to_page": 5100,
+    "page_count": 396,
+    "type": "company_report",
+    "company_id": "bp",
+    "confidence": "high"
+  },
+  {
+    "id": "unilever-2025",
+    "title_en": "Unilever PLC — FY2025",
+    "title_ar": "يونيليفر — FY2025",
+    "from_page": 5101,
+    "to_page": 5385,
+    "page_count": 285,
+    "type": "company_report",
+    "company_id": "unilever",
+    "confidence": "high",
+    "children": [
+      {
+        "id": "unilever-disclaimer",
+        "title_en": "Unilever PDF-version disclaimer",
+        "title_ar": "إخلاء مسؤولية نسخة يونيليفر بصيغة PDF",
+        "from_page": 5101,
+        "to_page": 5101,
+        "page_count": 1,
+        "type": "issuer_disclaimer"
+      },
+      {
+        "id": "unilever-report-main",
+        "title_en": "Unilever report from front cover",
+        "title_ar": "تقرير يونيليفر بدءاً من الغلاف",
+        "from_page": 5102,
+        "to_page": 5385,
+        "page_count": 284,
+        "type": "annual_report"
+      }
+    ]
+  },
+  {
+    "id": "astrazeneca-2025",
+    "title_en": "AstraZeneca PLC — FY2025",
+    "title_ar": "أسترازينيكا — FY2025",
+    "from_page": 5386,
+    "to_page": 5617,
+    "page_count": 232,
+    "type": "company_report",
+    "company_id": "astrazeneca",
+    "confidence": "high"
+  },
+  {
+    "id": "gsk-2025",
+    "title_en": "GSK plc — FY2025",
+    "title_ar": "جي إس كيه — FY2025",
+    "from_page": 5618,
+    "to_page": 5948,
+    "page_count": 331,
+    "type": "company_report",
+    "company_id": "gsk",
+    "confidence": "high"
+  },
+  {
+    "id": "hsbc-2025",
+    "title_en": "HSBC Holdings plc — FY2025",
+    "title_ar": "إتش إس بي سي — FY2025",
+    "from_page": 5949,
+    "to_page": 6320,
+    "page_count": 372,
+    "type": "company_report",
+    "company_id": "hsbc",
+    "confidence": "high"
+  },
+  {
+    "id": "totalenergies-2024",
+    "title_en": "TotalEnergies SE — FY2024",
+    "title_ar": "توتال إنرجيز — FY2024",
+    "from_page": 6321,
+    "to_page": 6986,
+    "page_count": 666,
+    "type": "company_report",
+    "company_id": "totalenergies",
+    "confidence": "high"
+  },
+  {
+    "id": "airbus-2023",
+    "title_en": "Airbus SE — FY2023",
+    "title_ar": "إيرباص — FY2023",
+    "from_page": 6987,
+    "to_page": 7427,
+    "page_count": 441,
+    "type": "company_report",
+    "company_id": "airbus",
+    "confidence": "high"
+  },
+  {
+    "id": "loreal-2024",
+    "title_en": "L'Oréal — FY2024",
+    "title_ar": "لوريال — FY2024",
+    "from_page": 7428,
+    "to_page": 7446,
+    "page_count": 19,
+    "type": "company_report",
+    "company_id": "loreal",
+    "confidence": "high"
+  },
+  {
+    "id": "sanofi-2025",
+    "title_en": "Sanofi — FY2025",
+    "title_ar": "سانوفي — FY2025",
+    "from_page": 7447,
+    "to_page": 7746,
+    "page_count": 300,
+    "type": "company_report",
+    "company_id": "sanofi",
+    "confidence": "high"
+  },
+  {
+    "id": "toyota-2026",
+    "title_en": "Toyota Motor Corporation — FY2026 (ended 2026-03-31)",
+    "title_ar": "تويوتا موتور — FY2026 (ended 2026-03-31)",
+    "from_page": 7747,
+    "to_page": 8010,
+    "page_count": 264,
+    "type": "company_report",
+    "company_id": "toyota",
+    "confidence": "high"
+  },
+  {
+    "id": "honda-2023",
+    "title_en": "Honda Motor Co., Ltd. — FY2023 (ended 2023-03-31)",
+    "title_ar": "هوندا موتور — FY2023 (ended 2023-03-31)",
+    "from_page": 8011,
+    "to_page": 8257,
+    "page_count": 247,
+    "type": "company_report",
+    "company_id": "honda",
+    "confidence": "high"
+  },
+  {
+    "id": "softbank-2026",
+    "title_en": "SoftBank Group Corp. — FY2025 (ended 2026-03-31); report 2026",
+    "title_ar": "مجموعة سوفت بنك — FY2025 (ended 2026-03-31); report 2026",
+    "from_page": 8258,
+    "to_page": 8369,
+    "page_count": 112,
+    "type": "company_report",
+    "company_id": "softbank",
+    "confidence": "high"
+  },
+  {
+    "id": "panasonic-2024",
+    "title_en": "Panasonic Holdings Corporation — FY2024 (ended 2024-03-31)",
+    "title_ar": "باناسونيك القابضة — FY2024 (ended 2024-03-31)",
+    "from_page": 8370,
+    "to_page": 8443,
+    "page_count": 74,
+    "type": "company_report",
+    "company_id": "panasonic",
+    "confidence": "high"
+  },
+  {
+    "id": "mufg-2026",
+    "title_en": "Mitsubishi UFJ Financial Group — Year ended 2026-03-31",
+    "title_ar": "مجموعة ميتسوبيشي يو إف جي المالية — Year ended 2026-03-31",
+    "from_page": 8444,
+    "to_page": 8795,
+    "page_count": 352,
+    "type": "company_report",
+    "company_id": "mufg",
+    "confidence": "high"
+  },
+  {
+    "id": "smfg-2026",
+    "title_en": "Sumitomo Mitsui Financial Group — Year ended 2026-03-31",
+    "title_ar": "مجموعة سوميتومو ميتسوي المالية — Year ended 2026-03-31",
+    "from_page": 8796,
+    "to_page": 8914,
+    "page_count": 119,
+    "type": "company_report",
+    "company_id": "smfg",
+    "confidence": "high"
+  },
+  {
+    "id": "samsung-2025",
+    "title_en": "Samsung Electronics — FY2025",
+    "title_ar": "سامسونغ إلكترونيكس — FY2025",
+    "from_page": 8915,
+    "to_page": 9010,
+    "page_count": 96,
+    "type": "company_report",
+    "company_id": "samsung",
+    "confidence": "high"
+  },
+  {
+    "id": "honhai-2025",
+    "title_en": "Hon Hai Precision (Foxconn) — FY2025",
+    "title_ar": "هون هاي للصناعات الدقيقة «فوكسكون» — FY2025",
+    "from_page": 9011,
+    "to_page": 9185,
+    "page_count": 175,
+    "type": "company_report",
+    "company_id": "honhai",
+    "confidence": "high"
+  },
+  {
+    "id": "tencent-2025",
+    "title_en": "Tencent Holdings — FY2025",
+    "title_ar": "تنسنت — FY2025",
+    "from_page": 9186,
+    "to_page": 9467,
+    "page_count": 282,
+    "type": "company_report",
+    "company_id": "tencent",
+    "confidence": "high"
+  },
+  {
+    "id": "reliance-2026",
+    "title_en": "Reliance Industries — FY2025–26",
+    "title_ar": "ريلاينس إندستريز — FY2025–26",
+    "from_page": 9468,
+    "to_page": 9614,
+    "page_count": 147,
+    "type": "company_report",
+    "company_id": "reliance",
+    "confidence": "high"
+  },
+  {
+    "id": "infosys-2026",
+    "title_en": "Infosys Limited — FY2025–26",
+    "title_ar": "إنفوسيس — FY2025–26",
+    "from_page": 9615,
+    "to_page": 9997,
+    "page_count": 383,
+    "type": "company_report",
+    "company_id": "infosys",
+    "confidence": "high"
+  },
+  {
+    "id": "aramco-2025",
+    "title_en": "Saudi Arabian Oil Company (Aramco) — FY2025",
+    "title_ar": "أرامكو السعودية — FY2025",
+    "from_page": 9998,
+    "to_page": 10243,
+    "page_count": 246,
+    "type": "company_report",
+    "company_id": "aramco",
+    "confidence": "high"
+  },
+  {
+    "id": "emiratesnbd-2025",
+    "title_en": "Emirates NBD Bank — FY2025",
+    "title_ar": "بنك الإمارات دبي الوطني — FY2025",
+    "from_page": 10244,
+    "to_page": 10375,
+    "page_count": 132,
+    "type": "company_report",
+    "company_id": "emiratesnbd",
+    "confidence": "high"
+  },
+  {
+    "id": "eand-2025",
+    "title_en": "e& (Emirates Telecommunications Group) — FY2025",
+    "title_ar": "إي آند «مجموعة اتصالات» — FY2025",
+    "from_page": 10376,
+    "to_page": 10604,
+    "page_count": 229,
+    "type": "company_report",
+    "company_id": "eand",
+    "confidence": "high"
+  },
+  {
+    "id": "rbc-2025",
+    "title_en": "Royal Bank of Canada — FY2025 (ended 2025-10-31)",
+    "title_ar": "رويال بنك أوف كندا — FY2025 (ended 2025-10-31)",
+    "from_page": 10605,
+    "to_page": 10850,
+    "page_count": 246,
+    "type": "company_report",
+    "company_id": "rbc",
+    "confidence": "high"
+  },
+  {
+    "id": "bhp-2025",
+    "title_en": "BHP Group Limited — FY2025 (ended 2025-06-30)",
+    "title_ar": "مجموعة بي إتش بي — FY2025 (ended 2025-06-30)",
+    "from_page": 10851,
+    "to_page": 12299,
+    "page_count": 1449,
+    "type": "company_filing_with_exhibits",
+    "company_id": "bhp",
+    "confidence": "high",
+    "children": [
+      {
+        "id": "bhp-main-2025",
+        "title_en": "BHP Form 20-F: main report and financial statements",
+        "title_ar": "بي إتش بي: نموذج 20-F والتقرير والقوائم المالية",
+        "from_page": 10851,
+        "to_page": 11210,
+        "page_count": 360,
+        "type": "annual_filing"
+      },
+      {
+        "id": "bhp-early-exhibits",
+        "title_en": "BHP securities and employment exhibits",
+        "title_ar": "بي إتش بي: مرفقات الأوراق المالية والعمل",
+        "from_page": 11211,
+        "to_page": 11220,
+        "page_count": 10,
+        "type": "corporate_exhibits"
+      },
+      {
+        "id": "fundao-settlement-2024",
+        "title_en": "Fundão dam-collapse judicial settlement, 25 October 2024",
+        "title_ar": "التسوية القضائية لانهيار سد فونداؤ، 25 أكتوبر 2024",
+        "from_page": 11221,
+        "to_page": 11627,
+        "page_count": 407,
+        "type": "legal_settlement",
+        "document_date": "2024-10-25",
+        "source_pages": [
+          11221,
+          11227,
+          11627,
+          11628
+        ],
+        "scope_en": "Exhibit 4.3 within BHP’s filing; reproduced legal agreement and annexes, not an annual financial report."
+      },
+      {
+        "id": "bhp-other-exhibits",
+        "title_en": "BHP subsidiary list, dealing policy, certifications and consents",
+        "title_ar": "بي إتش بي: قائمة الشركات التابعة وسياسة التداول والشهادات والموافقات",
+        "from_page": 11628,
+        "to_page": 11664,
+        "page_count": 37,
+        "type": "corporate_exhibits"
+      },
+      {
+        "id": "escondida-technical-2022",
+        "title_en": "Escondida technical report summary",
+        "title_ar": "ملخص التقرير الفني لإسكونديدا",
+        "from_page": 11665,
+        "to_page": 11884,
+        "page_count": 220,
+        "type": "technical_report",
+        "report_period": "2022-06-30",
+        "source_pages": [
+          11665,
+          11666,
+          11884
+        ],
+        "scope_en": "Report title/footer dates are June 2022; qualified-person signatures/consents in this filing include 2025 dates."
+      },
+      {
+        "id": "waio-technical-2022",
+        "title_en": "Western Australia Iron Ore technical report summary",
+        "title_ar": "ملخص التقرير الفني لخام حديد غرب أستراليا",
+        "from_page": 11885,
+        "to_page": 12137,
+        "page_count": 253,
+        "type": "technical_report",
+        "report_period": "2022-06-30",
+        "source_pages": [
+          11885,
+          11886,
+          12137
+        ],
+        "scope_en": "Report title/footer dates are June 2022; qualified-person signatures/consents in this filing include 2025 dates."
+      },
+      {
+        "id": "jansen-technical-2024",
+        "title_en": "Jansen potash project technical report summary",
+        "title_ar": "ملخص التقرير الفني لمشروع يانسن للبوتاس",
+        "from_page": 12138,
+        "to_page": 12299,
+        "page_count": 162,
+        "type": "technical_report",
+        "report_period": "2024-06-30",
+        "source_pages": [
+          12138,
+          12140,
+          12299
+        ],
+        "scope_en": "The title states fiscal year ended 30 June 2024; qualified-person signatures include 30 June 2025."
+      }
+    ]
+  },
+  {
+    "id": "cba-2026",
+    "title_en": "Commonwealth Bank of Australia — FY2026 (ended 2026-06-30)",
+    "title_ar": "بنك الكومنولث الأسترالي — FY2026 (ended 2026-06-30)",
+    "from_page": 12300,
+    "to_page": 12506,
+    "page_count": 207,
+    "type": "company_report",
+    "company_id": "cba",
+    "confidence": "high"
+  }
+]

@@ -1,0 +1,202 @@
+/* S.kosif — أنماط التقارير التنفيذية والمالية والتشغيلية */
+
+.sk-reports-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Nav Sub-tabs */
+.sk-rep-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.sk-rep-nav button {
+  white-space: nowrap;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--line, #e2d8cc);
+  background: var(--surface, #fff);
+  color: var(--ink, #2b1a0f);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sk-rep-nav button:hover {
+  background: var(--surface-2, #fbf5ea);
+  border-color: var(--brand, #8a5a2b);
+}
+.sk-rep-nav button.active {
+  background: var(--brand, #8a5a2b);
+  color: #fff;
+  border-color: var(--brand, #8a5a2b);
+  box-shadow: 0 3px 10px rgba(138, 90, 43, 0.25);
+}
+
+/* P&L Distribution Meter */
+.sk-pl-meter {
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  background: var(--surface-3, #eee);
+  margin: 12px 0 6px;
+}
+.sk-pl-bar-cogs { background: var(--sk-bad); }
+.sk-pl-bar-waste { background: var(--sk-warn); }
+.sk-pl-bar-opex { background: var(--sk-brand); }
+.sk-pl-bar-profit { background: var(--sk-ok); }
+
+.sk-pl-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  margin-bottom: 12px;
+}
+.sk-pl-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.sk-pl-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+/* Leakage Warning Badge */
+.sk-leak-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.sk-leak-tag.high {
+  background: var(--sk-bad-soft);
+  color: var(--sk-bad);
+  border: 1px solid color-mix(in srgb,var(--sk-bad) 35%,var(--sk-line));
+}
+.sk-leak-tag.normal {
+  background: var(--sk-ok-soft);
+  color: var(--sk-ok);
+  border: 1px solid color-mix(in srgb,var(--sk-ok) 35%,var(--sk-line));
+}
+
+/* Customer churn radar: the sales engine's follow-up list (ui/features/reports.js) */
+.sk-churn td{white-space:nowrap}
+.sk-churn-city{display:block;font-size:var(--sk-fs-2xs);font-weight:600;color:var(--sk-ink-3)}
+.sk-churn-acts{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center}
+
+/* Executive Report Printable Styling */
+.sk-exec-sheet {
+  background: var(--sk-surface) !important;
+  color: #000 !important;
+  border: 1px solid var(--sk-line);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  font-family: var(--sk-font);
+  margin: 10px 0;
+}
+.sk-exec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--sk-brand);
+  margin-bottom: 16px;
+}
+.sk-exec-title h2 {
+  margin: 0 0 4px;
+  font-size: 1.3rem;
+  color: var(--sk-brand);
+}
+.sk-exec-title p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--sk-ink-2);
+}
+.sk-exec-meta {
+  text-align: left;
+  font-size: 0.82rem;
+  color: var(--sk-ink);
+}
+
+/* Visual Charts and Trends */
+.sk-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+.sk-chart-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #e2d8cc);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sk-chart-card h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink, #2b1a0f);
+}
+.sk-chart-svg {
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+}
+.sk-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.sk-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  flex: 1;
+}
+.sk-donut-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sk-donut-legend-item span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sk-donut-legend-item i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+@media print {
+  body * { visibility: hidden !important; }
+  .sk-print-report, .sk-print-report * { visibility: visible !important; }
+  .sk-print-report {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

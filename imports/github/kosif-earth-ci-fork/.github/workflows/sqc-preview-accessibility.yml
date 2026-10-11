@@ -1,0 +1,84 @@
+name: SQC Preview Accessibility
+
+on:
+  pull_request:
+    paths:
+      - 'ui/core/sk.js'
+      - 'ui/core/output.js'
+      - 'ui/core/a11y.js'
+      - 'ui/core/bus.js'
+      - 'ui/core/company.js'
+      - 'ui/core/helper-space.js'
+      - 'ui/core/perm.js'
+      - 'ui/layouts/topbar.js'
+      - 'ui/layouts/shell.js'
+      - 'ui/components/palette.js'
+      - 'ui/components/keys.js'
+      - 'ui/features/assistant.js'
+      - 'ui/features/report-pack.js'
+      - 'ui/features/management-report-source.js'
+      - 'build.py'
+      - 'ui/**/*.css'
+      - 'tools/report_output_guard.test.mjs'
+      - 'tools/output_focus*'
+      - 'tools/header_names.test.mjs'
+      - 'tools/shortcut_focus*'
+      - 'tools/preview-a11y-tests/**'
+      - '.github/workflows/sqc-preview-accessibility.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-accessibility-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview-accessibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SQC_TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      SQC_OUTPUT_ROOT: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact checkout and production syntax
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          test "$(git rev-parse HEAD)" = "$SQC_TESTED_SHA"
+          [[ "$SQC_TESTED_SHA" =~ ^[a-f0-9]{40}$ ]]
+          for source in ui/core/sk.js ui/core/output.js ui/core/a11y.js ui/layouts/topbar.js ui/components/palette.js ui/components/keys.js ui/features/assistant.js; do
+            node --check "$source"
+          done
+          node --check tools/preview-a11y-tests/preview_keyboard_ci.mjs
+      - name: Run output guard and named keyboard integration tests
+        run: |
+          set -euo pipefail
+          node --test tools/report_output_guard.test.mjs tools/output_focus.test.mjs tools/header_names.test.mjs tools/shortcut_focus.test.mjs tools/preview-a11y-tests/output_focus_lifecycle.test.mjs tools/preview-a11y-tests/mutation_controls.test.mjs tools/preview-a11y-tests/overlay_integration.test.mjs tools/preview-a11y-tests/workflow_wiring.test.mjs tools/preview-a11y-tests/browser_focus_races.test.mjs
+      - name: Install pinned CI-only browser tools
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          npm install --no-save --prefix /tmp/sqc-preview-a11y playwright@1.51.1
+          /tmp/sqc-preview-a11y/node_modules/.bin/playwright install --with-deps chromium
+      - name: Exercise real keyboard events in the isolated synthetic host
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          NODE_PATH=/tmp/sqc-preview-a11y/node_modules node tools/preview-a11y-tests/preview_keyboard_ci.mjs "$GITHUB_WORKSPACE"
+      - name: Retain exact-head synthetic keyboard evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-accessibility-${{ env.SQC_TESTED_SHA }}
+          path: artifacts/preview-keyboard/
+          if-no-files-found: warn
+          retention-days: 7

@@ -1,0 +1,42 @@
+Consolidated Financial Statements                                                          Income Statement
+
+
+
+
+                                    Income Statement
+                   of the Volkswagen Group for the period January 1 to December 31, 2025
+
+
+€ million                                                              Note         2025              2024
+
+Sales revenue                                                            1       321,913           324,656
+Cost of sales                                                            2      –270,671          –265,184
+Gross result                                                                      51,243            59,472
+Distribution expenses                                                    3       –22,804           –22,320
+Administrative expenses                                                  4       –12,541           –12,754
+Other operating income                                                   5        13,615            14,974
+Other operating expenses                                                 6       –20,644           –20,312
+Operating result                                                                   8,868            19,060
+Share of the result of equity-accounted investments                      7          930                375
+Interest income                                                          8         1,824             2,419
+Interest expenses                                                        8        –3,245            –3,446
+Other financial result                                                   9          930             –1,602
+Financial result                                                                    439             –2,255
+Earnings before tax                                                                9,307            16,806
+Income tax income/expense                                               10        –2,403            –4,411
+  Current                                                                         –3,837            –5,858
+  Deferred                                                                         1,434             1,447
+Earnings after tax                                                                 6,904            12,394
+of which attributable to
+  Non-controlling interests                                                        –419              1,043
+  Volkswagen AG hybrid capital investors                                            650                630
+  Volkswagen AG shareholders                                                       6,673            10,721
+
+
+Basic/diluted earnings per ordinary share in €                          11         13.29             21.36
+Basic/diluted earnings per preferred share in €                         11         13.35             21.42
+
+
+
+
+                                                      461

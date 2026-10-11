@@ -1,0 +1,59 @@
+name: SQC Council Readiness
+on:
+  pull_request:
+    paths:
+      - 'ui/audit/v5/**'
+      - 'ui/audit/council.js'
+      - 'tools/council_readiness*'
+      - 'tools/fixtures/council-readiness-browser.mjs'
+      - '.github/workflows/sqc-council-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  council-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify real Council and report gates
+        run: node --test tools/council_readiness.test.mjs tools/alpro-report-display-regression.test.mjs tools/alpro-report-implementation.test.mjs
+      - name: Prepare synthetic native component fixture
+        run: |
+          mkdir -p /tmp/council-preview/ui /tmp/council-preview/tools/fixtures
+          cp -R ui/audit /tmp/council-preview/ui/
+          cp tools/fixtures/council-readiness-browser.mjs /tmp/council-preview/tools/fixtures/
+          printf '%s' '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="ui/audit/app.css"><body><main><section class="report-panel"></section></main><script type="module" src="tools/fixtures/council-readiness-browser.mjs"></script></body></html>' > /tmp/council-preview/fixture.html
+          npm install --no-save --prefix /tmp/pw playwright@1
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+      - name: Verify native completion room and synthetic issuance
+        env:
+          SQC_TESTED_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 -m http.server 8767 --bind 127.0.0.1 --directory /tmp/council-preview >/tmp/council-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          python3 - <<'PY'
+          import time,urllib.request
+          for i in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8767/fixture.html',timeout=1) as r: assert r.status==200
+                  break
+              except (OSError,AssertionError):
+                  if i==29: raise
+                  time.sleep(1)
+          PY
+          NODE_PATH=/tmp/pw/node_modules node tools/council_readiness_e2e.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: council-readiness-evidence-${{ github.event.pull_request.head.sha }}
+          path: artifacts/council-readiness/
+          retention-days: 7

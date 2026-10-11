@@ -1,0 +1,870 @@
+{
+  "schema": "mercedes-narrative-reference-v1",
+  "company": "Mercedes-Benz Group",
+  "report_year": 2025,
+  "source_pdf_sha256": "8e28ceaac879a1066646152f6dcf567f02457242184068744c0bc37d31812802",
+  "purpose": "Selected source-specific quantitative narrative reference; not an audit or general validation engine",
+  "tables": {
+    "cars_unit_sales": {
+      "source_physical_page": 3288,
+      "source_report_page": 48,
+      "source_text_sha256": "3c418685306444cba5e4e18f8d6ecb236fb9f3d9df28d0264b6d9270a2711b90",
+      "entity_scope": "Mercedes-Benz Cars unit-sales perimeter including equity-accounted BBAC and non-consolidated subsidiaries",
+      "unit": "vehicles",
+      "period_kind": "annual_flow",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "total": {
+          "2025": "1801291",
+          "2024": "1983403"
+        },
+        "top_end": {
+          "2025": "268026",
+          "2024": "281492"
+        },
+        "s_class": {
+          "2025": "105564",
+          "2024": "127073"
+        },
+        "amg": {
+          "2025": "142319",
+          "2024": "140282"
+        },
+        "g_class": {
+          "2025": "48214",
+          "2024": "42260"
+        },
+        "maybach": {
+          "2025": "20033",
+          "2024": "21302"
+        },
+        "core": {
+          "2025": "1049830",
+          "2024": "1167119"
+        },
+        "e_class": {
+          "2025": "461201",
+          "2024": "512143"
+        },
+        "c_class": {
+          "2025": "667063",
+          "2024": "725129"
+        },
+        "entry": {
+          "2025": "483435",
+          "2024": "534792"
+        },
+        "b_class": {
+          "2025": "152185",
+          "2024": "183772"
+        },
+        "a_class": {
+          "2025": "354795",
+          "2024": "374033"
+        },
+        "smart": {
+          "2025": "40",
+          "2024": "5696"
+        },
+        "xev": {
+          "2025": "368700",
+          "2024": "367610"
+        },
+        "bev": {
+          "2025": "168823",
+          "2024": "185059"
+        },
+        "phev": {
+          "2025": "199877",
+          "2024": "182551"
+        }
+      },
+      "source_notes": [
+        "Unit sales include invoices for new vehicles to non-Group third parties, including non-Group dealers and non-consolidated subsidiaries, plus new-vehicle lease contracts including finance leases.",
+        "BBAC sales are included although its financial contribution is equity accounted.",
+        "S-Class, G-Class, E-Class, C-Class, B-Class and A-Class rows include AMG models and derivatives; S-Class also includes Maybach variants.",
+        "Only Top-End, Core and Entry form the mutually exclusive product-category partition. Brand and class rows overlap.",
+        "xEV is BEV plus PHEV, and is a subset of total sales."
+      ],
+      "mutually_exclusive_partition": [
+        "top_end",
+        "core",
+        "entry"
+      ],
+      "subset_partition": {
+        "xev": [
+          "bev",
+          "phev"
+        ]
+      }
+    },
+    "cars_regional_sales": {
+      "source_physical_page": 3289,
+      "source_report_page": 49,
+      "source_text_sha256": "05b1057983a96c15db81e46da1ac0ed1f4bf8733cc0d2e7dda66b5e886a7201e",
+      "entity_scope": "Same Cars unit-sales perimeter as cars_unit_sales",
+      "unit": "vehicles",
+      "period_kind": "annual_flow",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "total": {
+          "2025": "1801291",
+          "2024": "1983403"
+        },
+        "europe": {
+          "2025": "635072",
+          "2024": "641792"
+        },
+        "germany": {
+          "2025": "213672",
+          "2024": "213456"
+        },
+        "north_america": {
+          "2025": "320552",
+          "2024": "365358"
+        },
+        "united_states": {
+          "2025": "284650",
+          "2024": "324529"
+        },
+        "asia": {
+          "2025": "746981",
+          "2024": "892147"
+        },
+        "china": {
+          "2025": "551932",
+          "2024": "683568"
+        },
+        "other": {
+          "2025": "98686",
+          "2024": "84106"
+        }
+      },
+      "source_notes": [
+        "Europe is EU, UK, Switzerland and Norway. North America is US, Canada and Mexico.",
+        "Germany, US and China are thereof subsets; do not add them to regional totals. China includes BBAC."
+      ],
+      "mutually_exclusive_partition": [
+        "europe",
+        "north_america",
+        "asia",
+        "other"
+      ],
+      "subsets": {
+        "germany": "europe",
+        "united_states": "north_america",
+        "china": "asia"
+      }
+    },
+    "vans_customer_sales": {
+      "source_physical_page": 3289,
+      "source_report_page": 49,
+      "source_text_sha256": "05b1057983a96c15db81e46da1ac0ed1f4bf8733cc0d2e7dda66b5e886a7201e",
+      "entity_scope": "Mercedes-Benz Vans sales perimeter including joint venture FBAC and licensee Prestige Auto",
+      "unit": "vehicles",
+      "period_kind": "annual_flow",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "total": {
+          "2025": "359136",
+          "2024": "405610"
+        },
+        "commercial": {
+          "2025": "298655",
+          "2024": "343683"
+        },
+        "commercial_large": {
+          "2025": "188889",
+          "2024": "219127"
+        },
+        "commercial_mid": {
+          "2025": "86834",
+          "2024": "101205"
+        },
+        "commercial_small": {
+          "2025": "22932",
+          "2024": "23351"
+        },
+        "private": {
+          "2025": "60481",
+          "2024": "61926"
+        },
+        "private_mid": {
+          "2025": "53730",
+          "2024": "56809"
+        },
+        "private_small": {
+          "2025": "6751",
+          "2024": "5117"
+        },
+        "xev": {
+          "2025": "28488",
+          "2024": "19516"
+        }
+      },
+      "source_notes": [
+        "Unit-sales invoice/lease definition includes non-consolidated subsidiaries, FBAC and Prestige Auto.",
+        "Vans xEVs are exclusively BEVs. This differs from the Cars xEV composition.",
+        "Commercial and private partition total; each customer segment has its own size partition."
+      ],
+      "mutually_exclusive_partition": [
+        "commercial",
+        "private"
+      ],
+      "subset_partition": {
+        "commercial": [
+          "commercial_large",
+          "commercial_mid",
+          "commercial_small"
+        ],
+        "private": [
+          "private_mid",
+          "private_small"
+        ]
+      },
+      "known_reported_residuals": {
+        "2024_total_minus_commercial_and_private": "1 vehicle; independently visually checked; no source correction or rounding explanation assumed"
+      }
+    },
+    "vans_regional_sales": {
+      "source_physical_page": 3290,
+      "source_report_page": 50,
+      "source_text_sha256": "d920b78a0c68c26721dedeb6894576b8747a6face63450f55d5906c94d2ad88c",
+      "entity_scope": "Same Vans unit-sales perimeter as vans_customer_sales",
+      "unit": "vehicles",
+      "period_kind": "annual_flow",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "total": {
+          "2025": "359136",
+          "2024": "405610"
+        },
+        "europe": {
+          "2025": "248744",
+          "2024": "271500"
+        },
+        "germany": {
+          "2025": "102705",
+          "2024": "103247"
+        },
+        "north_america": {
+          "2025": "43410",
+          "2024": "59953"
+        },
+        "united_states": {
+          "2025": "35327",
+          "2024": "49538"
+        },
+        "asia": {
+          "2025": "28261",
+          "2024": "33993"
+        },
+        "china": {
+          "2025": "20006",
+          "2024": "26613"
+        },
+        "other": {
+          "2025": "38721",
+          "2024": "40164"
+        }
+      },
+      "source_notes": [
+        "Regional definitions match the Cars geographic table. Country rows are subsets.",
+        "Prestige Auto licensed vehicles continue to be included after subsidiary disposal."
+      ],
+      "mutually_exclusive_partition": [
+        "europe",
+        "north_america",
+        "asia",
+        "other"
+      ],
+      "subsets": {
+        "germany": "europe",
+        "united_states": "north_america",
+        "china": "asia"
+      }
+    },
+    "xev_share": {
+      "source_physical_page": 3288,
+      "source_report_page": 48,
+      "source_text_sha256": "3c418685306444cba5e4e18f8d6ecb236fb9f3d9df28d0264b6d9270a2711b90",
+      "entity_scope": "Segment-specific unit-sales perimeter; Vans values from physical3289",
+      "unit": "percent",
+      "period_kind": "annual_ratio",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "cars": {
+          "2025": "20.5",
+          "2024": "18.5"
+        },
+        "vans": {
+          "2025": "7.9",
+          "2024": "4.8"
+        }
+      },
+      "source_notes": [
+        "Reported shares are rounded to one decimal place.",
+        "Cars includes BEVs and PHEVs; Vans comprises exclusively BEVs."
+      ],
+      "additional_source_pages": [
+        3289
+      ],
+      "decimal_places": 1
+    },
+    "research_development": {
+      "source_physical_page": 3310,
+      "source_report_page": 70,
+      "source_text_sha256": "385d8ca055434d579dc36ba4670b2d78c3d26ba1b9df6a6afe853d50486e7cad",
+      "entity_scope": "Consolidated Group; Cars and Vans are disclosed thereof rows before reconciliation",
+      "unit": "EUR million",
+      "period_kind": "annual_flow",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "group_expenditure": {
+          "2025": "9680",
+          "2024": "9717"
+        },
+        "cars_expenditure": {
+          "2025": "8585",
+          "2024": "8744"
+        },
+        "vans_expenditure": {
+          "2025": "1129",
+          "2024": "1012"
+        },
+        "expensed": {
+          "2025": "6055",
+          "2024": "5580"
+        },
+        "capitalized": {
+          "2025": "3625",
+          "2024": "4137"
+        }
+      },
+      "source_notes": [
+        "Group expenditure equals expensed research and non-capitalized development plus capitalized development.",
+        "Cars plus Vans does not equal Group; do not treat thereof segment rows as an exhaustive additive set.",
+        "Capitalized annual flow is distinct from balance-sheet carrying amount of capitalized development."
+      ]
+    },
+    "ppe_investment": {
+      "source_physical_page": 3310,
+      "source_report_page": 70,
+      "source_text_sha256": "385d8ca055434d579dc36ba4670b2d78c3d26ba1b9df6a6afe853d50486e7cad",
+      "entity_scope": "Consolidated Group; automotive segments are disclosed thereof rows",
+      "unit": "EUR million",
+      "period_kind": "annual_flow",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "group": {
+          "2025": "5482",
+          "2024": "4039"
+        },
+        "cars": {
+          "2025": "4074",
+          "2024": "3392"
+        },
+        "vans": {
+          "2025": "1233",
+          "2024": "571"
+        }
+      },
+      "source_notes": [
+        "Investment corresponds to PPE additions in the Consolidated Statement of Cash Flows.",
+        "Cars and Vans are not an exhaustive partition of the Group."
+      ]
+    },
+    "parent_hgb_profit": {
+      "source_physical_page": 3343,
+      "source_report_page": 103,
+      "source_text_sha256": "c6b5e9a13a7a949d71ae90c9827fd7849495fa39f68a7a53795740d12b81d7fd",
+      "entity_scope": "Mercedes-Benz Group AG standalone legal entity, HGB and AktG",
+      "unit": "EUR million",
+      "period_kind": "annual_flow",
+      "periods": {
+        "2025": {
+          "start": "2025-01-01",
+          "end": "2025-12-31"
+        },
+        "2024": {
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "rows": {
+        "revenue": {
+          "2025": "1325",
+          "2024": "1395"
+        },
+        "cost_sales": {
+          "2025": "-1310",
+          "2024": "-1382"
+        },
+        "administration": {
+          "2025": "-770",
+          "2024": "-644"
+        },
+        "other_operating": {
+          "2025": "25",
+          "2024": "68"
+        },
+        "operating_profit": {
+          "2025": "-730",
+          "2024": "-563"
+        },
+        "financial_income": {
+          "2025": "2000",
+          "2024": "10584"
+        },
+        "tax": {
+          "2025": "264",
+          "2024": "-1449"
+        },
+        "net_profit": {
+          "2025": "1534",
+          "2024": "8572"
+        },
+        "retained_earnings_movement": {
+          "2025": "1817",
+          "2024": "-4286"
+        },
+        "cancel_open_treasury_deduction": {
+          "2025": "0",
+          "2024": "-83"
+        },
+        "treasury_acquisition_cancellation": {
+          "2025": "0",
+          "2024": "-4916"
+        },
+        "retained_earnings_offset": {
+          "2025": "0",
+          "2024": "4999"
+        },
+        "distributable_profit": {
+          "2025": "3351",
+          "2024": "4286"
+        }
+      },
+      "source_notes": [
+        "The source presents dashes for three 2025 treasury-related movements; numeric zero is an explicit arithmetic interpretation in this selected model, with the original dash retained below.",
+        "2025 retained-earnings movement is a withdrawal; 2024 is a transfer into retained earnings.",
+        "Parent net profit and distributable profit are not Group IFRS net income."
+      ],
+      "source_dash_cells": [
+        "cancel_open_treasury_deduction.2025",
+        "treasury_acquisition_cancellation.2025",
+        "retained_earnings_offset.2025"
+      ],
+      "row_measurement_roles": {
+        "net_profit": "Annual financial-year profit before appropriation",
+        "distributable_profit": "After-appropriation result in the annual statement, not an ordinary operating flow",
+        "retained_earnings_movement": "Appropriation movement",
+        "cancel_open_treasury_deduction": "Equity appropriation adjustment",
+        "treasury_acquisition_cancellation": "Equity appropriation adjustment",
+        "retained_earnings_offset": "Equity appropriation adjustment"
+      }
+    },
+    "parent_hgb_balance": {
+      "source_physical_page": 3344,
+      "source_report_page": 104,
+      "source_text_sha256": "4b21096ea281034c9a745836b2092a71d532aafa2db66d08961af1a3b48c9519",
+      "entity_scope": "Mercedes-Benz Group AG standalone legal entity, HGB and AktG",
+      "unit": "EUR million",
+      "period_kind": "closing_stock",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "noncurrent_assets": {
+          "2025": "39516",
+          "2024": "39637"
+        },
+        "receivables_securities_other": {
+          "2025": "19890",
+          "2024": "29719"
+        },
+        "cash": {
+          "2025": "6974",
+          "2024": "6552"
+        },
+        "current_assets": {
+          "2025": "26864",
+          "2024": "36271"
+        },
+        "prepaid": {
+          "2025": "179",
+          "2024": "189"
+        },
+        "assets": {
+          "2025": "66559",
+          "2024": "76097"
+        },
+        "share_capital": {
+          "2025": "3070",
+          "2024": "3070"
+        },
+        "treasury_calculated_value": {
+          "2025": "-18",
+          "2024": "0"
+        },
+        "capital_reserve": {
+          "2025": "11480",
+          "2024": "11480"
+        },
+        "retained_earnings": {
+          "2025": "18974",
+          "2024": "20956"
+        },
+        "distributable_profit": {
+          "2025": "3351",
+          "2024": "4286"
+        },
+        "equity": {
+          "2025": "36857",
+          "2024": "39792"
+        },
+        "pension_provisions": {
+          "2025": "224",
+          "2024": "256"
+        },
+        "other_provisions": {
+          "2025": "1630",
+          "2024": "1833"
+        },
+        "provisions": {
+          "2025": "1854",
+          "2024": "2089"
+        },
+        "bonds_commercial_paper": {
+          "2025": "11089",
+          "2024": "11041"
+        },
+        "other_liabilities": {
+          "2025": "16759",
+          "2024": "23175"
+        },
+        "liabilities": {
+          "2025": "27848",
+          "2024": "34216"
+        },
+        "equity_liabilities": {
+          "2025": "66559",
+          "2024": "76097"
+        }
+      },
+      "source_notes": [
+        "2024 treasury calculated value is shown as dash, represented as zero solely for the arithmetic bridge.",
+        "Parent cash, equity and assets must not be substituted into Group or industrial-business ratios."
+      ],
+      "source_dash_cells": [
+        "treasury_calculated_value.2024"
+      ]
+    },
+    "board_gender": {
+      "source_physical_page": 3349,
+      "source_report_page": 109,
+      "source_text_sha256": "1e4d4bda840a798622fedd6bb5aeb100c8c734b36a7761a8f58465285f3d7167",
+      "entity_scope": "Mercedes-Benz Group AG Board of Management and Supervisory Board",
+      "unit": "percent",
+      "period_kind": "point_in_time_ratio",
+      "periods": {
+        "2025": {
+          "as_of": "2025-12-31"
+        },
+        "2024": {
+          "as_of": "2024-12-31"
+        }
+      },
+      "rows": {
+        "management_men": {
+          "2025": "87.5",
+          "2024": "62.5"
+        },
+        "management_women": {
+          "2025": "12.5",
+          "2024": "37.5"
+        },
+        "supervisory_men": {
+          "2025": "55",
+          "2024": "60"
+        },
+        "supervisory_women": {
+          "2025": "45",
+          "2024": "40"
+        }
+      },
+      "source_notes": [
+        "Board of Management has eight members; Supervisory Board has twenty.",
+        "Age metrics from the same source are intentionally not merged here: the 2024 footnote uses a different threshold and age is at appointment/election, not necessarily reporting date."
+      ]
+    }
+  },
+  "assurance": "Analytical transcription and semantic review only. Source assurance must be assigned by the actual assurance report and the precise disclosed category, not inherited from a document-wide label.",
+  "forecast_comparative_bands": {
+    "source_physical_page": 3324,
+    "source_report_page": 84,
+    "measure": "Percentage change versus the previous reporting year",
+    "direction": "Above and below carry positive and negative signs; thresholds below use absolute change.",
+    "rows": {
+      "revenue_and_unit_sales": {
+        "flat_max_inclusive": "2",
+        "slight_min_exclusive": "2",
+        "slight_max_inclusive": "7.5",
+        "significant_min_exclusive": "7.5"
+      },
+      "ebit": {
+        "flat_max_inclusive": "5",
+        "slight_min_exclusive": "5",
+        "slight_max_inclusive": "15",
+        "significant_min_exclusive": "15"
+      },
+      "industrial_fcf": {
+        "flat_max_inclusive": "10",
+        "slight_min_exclusive": "10",
+        "slight_max_inclusive": "25",
+        "significant_min_exclusive": "25"
+      },
+      "ppe_investment_and_rd": {
+        "flat_max_inclusive": "2.5",
+        "slight_min_exclusive": "2.5",
+        "slight_max_inclusive": "10",
+        "significant_min_exclusive": "10"
+      }
+    }
+  },
+  "forecast_2026": {
+    "source_physical_pages": [
+      3321,
+      3323,
+      3324
+    ],
+    "status": "forecast_not_actual",
+    "planning_year": 2026,
+    "comparison_year": 2025,
+    "tariff_assumptions_as_of": "2026-02-19",
+    "scope_exclusions": [
+      "Potential M&A effects excluded from Group EBIT and industrial FCF.",
+      "Athlon disposal result excluded from Financial Services adjusted ROE."
+    ],
+    "rows": [
+      {
+        "scope": "group",
+        "metric": "revenue",
+        "unit": "EUR million",
+        "actual_2025": "132214",
+        "forecast": "at_prior_year_level",
+        "band_key": "revenue_and_unit_sales"
+      },
+      {
+        "scope": "group",
+        "metric": "reported_ebit",
+        "unit": "EUR million",
+        "actual_2025": "5820",
+        "forecast": "significantly_above",
+        "band_key": "ebit"
+      },
+      {
+        "scope": "industrial_business",
+        "metric": "reported_fcf",
+        "unit": "EUR million",
+        "actual_2025": "5414",
+        "forecast": "slightly_below",
+        "band_key": "industrial_fcf"
+      },
+      {
+        "scope": "cars",
+        "metric": "unit_sales",
+        "unit": "vehicles",
+        "actual_2025": "1801291",
+        "forecast": "at_prior_year_level",
+        "band_key": "revenue_and_unit_sales"
+      },
+      {
+        "scope": "cars",
+        "metric": "xev_share",
+        "unit": "percent",
+        "actual_2025": "20.5",
+        "forecast_range": [
+          "21",
+          "23"
+        ]
+      },
+      {
+        "scope": "cars",
+        "metric": "adjusted_ros",
+        "unit": "percent",
+        "actual_2025": "5.0",
+        "forecast_range": [
+          "3",
+          "5"
+        ]
+      },
+      {
+        "scope": "cars",
+        "metric": "adjusted_cash_conversion",
+        "unit": "ratio",
+        "actual_2025": "1.2",
+        "forecast_range": [
+          "1.0",
+          "1.2"
+        ]
+      },
+      {
+        "scope": "cars",
+        "metric": "ppe_investment",
+        "unit": "EUR million",
+        "actual_2025": "4074",
+        "forecast": "slightly_below",
+        "band_key": "ppe_investment_and_rd"
+      },
+      {
+        "scope": "cars",
+        "metric": "rd_expenditure",
+        "unit": "EUR million",
+        "actual_2025": "8585",
+        "forecast": "significantly_below",
+        "band_key": "ppe_investment_and_rd"
+      },
+      {
+        "scope": "vans",
+        "metric": "unit_sales",
+        "unit": "vehicles",
+        "actual_2025": "359136",
+        "forecast": "slightly_above",
+        "band_key": "revenue_and_unit_sales"
+      },
+      {
+        "scope": "vans",
+        "metric": "xev_share",
+        "unit": "percent",
+        "actual_2025": "7.9",
+        "forecast_range": [
+          "8",
+          "10"
+        ]
+      },
+      {
+        "scope": "vans",
+        "metric": "adjusted_ros",
+        "unit": "percent",
+        "actual_2025": "10.2",
+        "forecast_range": [
+          "8",
+          "10"
+        ]
+      },
+      {
+        "scope": "vans",
+        "metric": "adjusted_cash_conversion",
+        "unit": "ratio",
+        "actual_2025": "0.6",
+        "forecast_range": [
+          "0.1",
+          "0.3"
+        ]
+      },
+      {
+        "scope": "vans",
+        "metric": "ppe_investment",
+        "unit": "EUR million",
+        "actual_2025": "1233",
+        "forecast": "significantly_above",
+        "band_key": "ppe_investment_and_rd"
+      },
+      {
+        "scope": "vans",
+        "metric": "rd_expenditure",
+        "unit": "EUR million",
+        "actual_2025": "1129",
+        "forecast": "slightly_above",
+        "band_key": "ppe_investment_and_rd"
+      },
+      {
+        "scope": "financial_services",
+        "metric": "adjusted_roe",
+        "unit": "percent",
+        "actual_2025": "9.7",
+        "forecast_range": [
+          "10",
+          "12"
+        ]
+      }
+    ],
+    "numeric_range_endpoint_note": "Source provides reported ranges without expressly specifying mathematical endpoint inclusivity; no additional interpretation is asserted."
+  },
+  "governance_independence": {
+    "source_physical_page": 3349,
+    "as_of": "2025-12-31",
+    "shareholder_representatives_independent_percent": "100",
+    "all_supervisory_members_independent_percent": "50",
+    "basis": "The report conservatively does not classify employee representatives as independent under CSRD/ESRS because the interpretation remains unclear; it does not establish that employee representatives are personally conflicted."
+  }
+}

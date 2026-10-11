@@ -1,0 +1,41 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {harness,plain,root} from './apple-source-harness.mjs';
+const legacy=JSON.parse(fs.readFileSync(root+'/tools/fixtures/legacy-corpus-transports.json')).records;
+function unavailable(h,c){assert.equal(c.sourceOnly,true);assert.equal(c.sourceVerified,false);assert.equal(c.derived.opinion,'not-assessed');assert.equal(c.fsAfterAdj.cf,null);assert.equal(c.fsAfterAdj.checks.cashTies,null);assert.equal(h.context.__test.sourceCsv(c),null);assert.deepEqual(plain(h.context.SKosifTBReview.rows().rows),[]);}
+/* R16 — PRODUCT_MANDATE P5 replaces #143's lock: every bundle company with a corpus model opens as an audit file, labelled
+   pending review and simulation-only; only a company without statements in the bundle (L'Oréal, Panasonic) stays closed. */
+test('only companies without a model refuse every callable selection; every pending model opens on its corpus model',async()=>{
+ const h0=harness(),CC=h0.E.reports.corpusCompanies,catalog=CC.auditModelCatalog(),closed=catalog.filter(x=>!x.auditFile),pending=catalog.filter(x=>x.modelStatus==='pending-review'&&x.auditFile);
+ assert.deepEqual([...closed.map(x=>x.id)].sort(),['loreal-2024','panasonic-2024']);assert.equal(pending.length,42);
+ for(const c of closed){assert.equal(CC.companyTrialBalance(c.id),null,c.id);for(const fn of ['openClient','loadCorpus','showcase']){const h=harness();assert.ok(!await h.context.SKosifTBReview[fn](c.id),fn+':'+c.id);assert.equal(h.context.__test.compute(),null);}}
+ for(const c of pending){assert.equal(c.openable,false,c.id);assert.match(c.supportReason,/محاكاة على أرقام منشورة، لا تأكيد مهني/,c.id);
+  const h=harness();assert.ok(await h.context.SKosifTBReview.openClient(c.id),c.id);const x=h.context.__test.compute();assert.equal(x.sourceOnly,false,c.id);assert.equal(x.sourceVerified,false,c.id);assert.equal(h.state.skosif_tbreview_v1.sourceKind,undefined,c.id);}
+});
+test('a stale legacy transport is source-only even without metadata; one identical to today’s corpus model is that model (P5)',()=>{
+ const h=harness(),CC=h.E.reports.corpusCompanies;assert.equal(legacy.length,94);let model=0;
+ for(const r of legacy){const tb=h.E.reports.tbImport.parseTrialBalance(r.csv),f=h.E.reports.statements.buildStatements(tb,r.overrides);
+  if(r.csv.trim()===CC.corpusModelTrialBalance(r.id)?.csv.trim()){model++;assert.equal(r.route,'generic-f909',r.id);assert.equal(tb.sourceKind,undefined,r.id);assert.equal(f.reconstructionStatus,undefined,r.id);assert.ok(h.E.audit.tbReview.reviewTrialBalance(tb,{overrides:r.overrides}).materiality.overall>0,r.id);continue;}
+  assert.equal(tb.sourceKind,'published-statements',r.id);assert.equal(tb.sourceId,r.id);assert.equal(f.reconstructionStatus.status,'unavailable',r.id);assert.equal(f.cf,null);assert.equal(f.checks.cashTies,null);assert.deepEqual(plain(f.keys),{});assert.throws(()=>h.E.audit.tbReview.reviewTrialBalance(tb,{overrides:r.overrides}),/source|published|unavailable/i);}
+ assert.equal(model,46);
+});
+test('a pending company’s corpus model loads as its audit file under any provenance; an edited copy is never source-verified',async()=>{
+ const catalog=harness().E.reports.corpusCompanies.auditModelCatalog().filter(x=>x.modelStatus==='pending-review');assert.equal(catalog.length,43);
+ for(const c of catalog){const old=legacy.find(r=>r.id===(c.reference.legacy_id||c.id)&&r.route==='generic-f909')||(c.id==='panasonic-2024'?{csv:'# SQC source-only: panasonic-2024\n'+harness().E.reports.tbImport.SAMPLE_TB_CSV,ctx:{company:c.company,corpusId:c.id},overrides:{}}:null);assert.ok(old,c.id);
+  for(const ctx of [old.ctx,{corpusId:c.id}]){const h=harness();const accepted=await h.context.SKosifTBReview.load(old.csv,'legacy',ctx),x=h.context.__test.compute();
+   if(!c.auditFile){assert.ok(!accepted||x.sourceOnly,c.id);continue;}assert.equal(accepted,true,c.id);assert.equal(x.sourceVerified,false,c.id);}
+  {const h=harness();const accepted=await h.context.SKosifTBReview.load(old.csv,'legacy',{sourceModel:{id:c.id}});if(accepted)unavailable(h,h.context.__test.compute());else assert.equal(h.context.__test.compute(),null);}
+  for(const provenance of [{bundleId:c.id},{sourceId:c.id},{ctx:{corpusId:c.id}}]){const h=harness(),d={...h.context.__test.blank(),tbText:old.csv.replace(/,(\d+),/,(_,n)=>','+(Number(n)+1)+','),overrides:old.overrides,ctx:{company:old.ctx.company,country:old.ctx.country},...provenance};h.state.skosif_tbreview_v1=plain(d);const x=h.context.__test.compute();assert.equal(x.sourceVerified,false,c.id);if(provenance.sourceId||!c.auditFile)unavailable(h,x);}
+ }
+});
+test('names alone never quarantine legitimate ordinary ledger imports',async()=>{
+ for(const name of ['Saudi Arabian Oil Company (Aramco)','Toyota Motor Corporation',"L’Oréal"]){const h=harness(),W=h.context;assert.equal(await W.SKosifTBReview.load(h.E.reports.tbImport.SAMPLE_TB_CSV,'actual-ledger',{company:name,country:'SA'}),true);const c=W.__test.compute();assert.equal(c.sourceOnly,false);assert.notEqual(c.fsAfterAdj.cf,null);assert.equal(c.tb.sourceKind,undefined);}
+});
+async function analyzeThroughActualHandler(h,text){h.context.scrollTo??=()=>{};/* an accepted import scrolls to the result */const events={};const node={innerHTML:'',querySelector:selector=>selector==='[data-tbtext]'?{value:text}:null,querySelectorAll:()=>[],addEventListener:(type,fn)=>{events[type]=fn;}};h.context.__test.setTestRoot(node);h.context.__test.bind(node);await events.click({target:{closest:selector=>selector==='[data-a]'?{dataset:{a:'analyze'}}:null}});}
+test('actual file/paste Analyze handler: a pasted corpus model is an ordinary trial balance, a marked unreviewed source is refused before saving',async()=>{
+ const ids=harness().E.reports.corpusCompanies.auditModelCatalog().filter(x=>x.modelStatus==='pending-review').map(x=>x.id);
+ for(const id of ids){const h=harness(),ref=h.E.reports.referenceIndex.referenceReport(id),old=legacy.find(r=>r.id===(ref.legacy_id||id)&&r.route==='generic-f909');const csv=old?.csv||(id==='panasonic-2024'?'# SQC source-only: panasonic-2024\n'+h.E.reports.tbImport.SAMPLE_TB_CSV:null);assert.ok(csv,id);await analyzeThroughActualHandler(h,csv);
+  if(id==='panasonic-2024'){assert.equal(h.context.__test.compute(),null,id);assert.equal(h.state.skosif_tbreview_v1,undefined,id);continue;}
+  const x=h.context.__test.compute();assert.ok(x,id);assert.equal(x.sourceVerified,false,id);assert.equal(h.state.skosif_tbreview_v1.sourceKind,undefined,id);}
+});
+test('manual paste of a known reviewed carrier persists provenance across later edits',async()=>{
+ const h=harness(),t=h.E.reports.corpusCompanies.companyTrialBalance('pg-2026');await analyzeThroughActualHandler(h,t.csv);assert.equal(h.state.skosif_tbreview_v1.sourceKind,'published-statements');assert.equal(h.state.skosif_tbreview_v1.sourceId,'pg-2026');h.state.skosif_tbreview_v1.tbText=t.csv.replace(/^#.*\n/,'').replace('87032','87033');unavailable(h,h.context.__test.compute());
+});

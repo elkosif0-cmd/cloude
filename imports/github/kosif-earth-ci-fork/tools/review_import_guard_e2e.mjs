@@ -1,0 +1,97 @@
+// Synthetic-only browser gate. Browser execution is restricted to GitHub Actions and a data-free loopback preview.
+// Node-only preparation: node tools/review_import_guard_e2e.mjs --validate
+// CI: NODE_PATH=/tmp/pw/node_modules node tools/review_import_guard_e2e.mjs --ci http://127.0.0.1:8765/app-safe.html
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {createRequire} from 'node:module';
+import {pathToFileURL} from 'node:url';
+import {spawnSync} from 'node:child_process';
+const require=createRequire(import.meta.url);
+const {harness,oldReview,tick}=await import(process.env.SQC_GUARD_FIXTURE_MODULE?pathToFileURL(path.resolve(process.env.SQC_GUARD_FIXTURE_MODULE)).href:new URL('./review_import_fixture.mjs',import.meta.url).href);
+const KEY='skosif_tbreview_v1',ENG='skosif_engagements_v1',CO='skosif_companies_v1',LEDGER='skosif_ledger_v1',OTHER='skosif_eng_another-review',DOC_DB='skosif-tbreview-docs';
+const protectedKeys=[KEY,ENG,CO,LEDGER,OTHER];
+const impactFields=['engagement','checklists','exceptions','thOverrides','evidenceMeta','journalSource','journalMeta','letterResponses'];
+const timing='تُقرأ التفاصيل التشغيلية وقت الاستيراد بعد تأكيدك؛ راجع الأرصدة الناتجة قبل اعتمادها.';
+function fixture(){
+  const review=oldReview();review.ctx.company='شركة الهدف السابقة (اختبار مصطنع)';
+  review.ecl=[{label:'اختبار مصطنع',exposure:10000,rateBps:100}];
+  Object.assign(review.session,{ctx:{...review.ctx},model:'synthetic-offline',createdAt:'2026-01-01T00:00:00.000Z',unavailable:[]});
+  const data={
+    [KEY]:review,
+    [ENG]:{active:'target-review',list:[{id:'target-review',company:review.ctx.company},{id:'another-review',company:'شركة أخرى (اختبار مصطنع)'}]},
+    [OTHER]:{ctx:{company:'شركة أخرى (اختبار مصطنع)'},tbText:'OTHER-SYNTHETIC',session:{id:'other-session',uploads:[{requestId:'other',fileName:'other.txt'}]}},
+    [CO]:{active:{companyId:'source-co',periodId:'source-period'},companies:[{id:'source-co',name:'شركة المصدر الجديدة (اختبار مصطنع)',country:'SA',currency:'SAR'}],periods:[{id:'source-period',label:'فترة اختبار مصطنعة',startDate:'2026-02-01',endDate:'2026-08-31'}]},
+    [LEDGER]:{accounts:[{id:'cash',code:'1100',name:'النقدية',type:'asset',active:true},{id:'capital',code:'3000',name:'رأس المال',type:'equity',active:true}],entries:[{id:'synthetic-entry-1',date:'2026-03-01',reference:'SYNTHETIC',lines:[{accountId:'cash',debit:100,credit:0},{accountId:'capital',debit:0,credit:100}]}]},
+    skosif_demo_v1:{off:true,sections:{}},skosif_role_mode:'admin',skosif_prefs:{font:'system',look:'kosif'},
+    /* R17: the import reads the open company's books only inside a stable user/company scope (company isolation); without
+       the helper registry the app correctly refused with «تعذر تثبيت سياق المستخدم والشركة» and no confirmation ever showed */
+    sqc_helper_users_v1:{active:'synthetic-user',users:{'synthetic-user':{id:'synthetic-user',name:'Synthetic',pinHash:null,pinSalt:null,lastSpace:'source-co',spaces:{'source-co':{name:'شركة المصدر الجديدة (اختبار مصطنع)'}}}}},
+    sqc_helper_space_v1:{active:'source-co',spaces:{'source-co':{name:'شركة المصدر الجديدة (اختبار مصطنع)'}}}
+  };
+  const docs=[['synthetic-old-session|old-request|synthetic-evidence.pdf',{mime:'text/plain',data:'SYNTHETIC-EVIDENCE-ONLY'}],['other-session|other|other.txt',{mime:'text/plain',data:'SYNTHETIC-OTHER-ONLY'}]];
+  return{data,docs};
+}
+const protectedFrom=data=>Object.fromEntries(protectedKeys.map(k=>[k,data[k]??null]));
+function checkRetained(d,old){for(const k of ['fw','materiality','ecl','confirm','narrative'])assert.deepEqual(d[k],old[k],k+' retained');for(const k of impactFields)assert.equal(k in d,false,k+' reset');assert.equal(d.session,null);assert.deepEqual(d.accepted,[]);assert.deepEqual(d.rejected,[]);assert.deepEqual(d.overrides,{})}
+async function validateNodeFixture(){
+  const results=[];
+  for(const mode of ['cancel','escape','success','quota','changed-context']){
+    const h=harness({saveMode:mode==='quota'?'quota':'success'}),f=fixture();for(const[k,v]of Object.entries(f.data))h.data[k]=JSON.stringify(v);h.docs.clear();for(const[k,v]of f.docs)h.docs.set(k,v);
+    const initial=protectedFrom(h.data),docs=h.docSnapshot(),old=JSON.parse(h.data[KEY]);const pending=h.api.fromBooks();await tick();assert.ok(h.ui.dialog());assert.equal(h.ui.doc.activeElement.dataset.r,'0');assert.equal(h.calls.booksTB,0);assert.equal(h.calls.setItem,0);
+    let expected=initial;
+    if(mode==='changed-context'){const d=JSON.parse(h.data[CO]);d.active.periodId='different-period';h.data[CO]=JSON.stringify(d);expected=protectedFrom(h.data)}
+    if(mode==='escape')h.ui.key('Escape');else h.answer(mode!=='cancel');
+    const ok=await pending;if(mode==='success'){assert.equal(ok,true);checkRetained(h.stored(),old);assert.equal(h.stored().ctx.company,f.data[CO].companies[0].name);assert.deepEqual(h.navigation,['tbreview'])}else{assert.equal(ok,false);assert.deepEqual(protectedFrom(h.data),expected);assert.deepEqual(h.navigation,[]);assert.equal(h.audit.some(([type,e])=>type==='tbreview'&&e.act==='import'),false)}
+    assert.equal(h.docSnapshot(),docs);assert.equal(h.calls.docClear,0);assert.equal(h.calls.idbDelete,0);results.push({mode,status:'passed'})
+  }
+  console.log(JSON.stringify({status:'NODE_FIXTURE_VALIDATED_BROWSER_NOT_RUN',cases:results},null,2));
+}
+if(process.argv.includes('--validate')){await validateNodeFixture();process.exit(0)}
+assert.ok(process.argv.includes('--ci')&&process.env.CI==='true'&&process.env.GITHUB_ACTIONS==='true','Browser execution is CI-only; use --validate locally.');
+const input=process.argv.find(a=>/^http/.test(a));assert.ok(input,'An explicit controlled preview URL is required');
+const target=new URL(input);assert.ok(target.protocol==='http:'&&['localhost','127.0.0.1'].includes(target.hostname)&&target.port==='8765'&&target.pathname==='/app-safe.html'&&!target.search&&!target.hash,'Only the controlled loopback data-free preview is allowed');
+assert.match(process.env.SQC_TESTED_SHA||'',/^[0-9a-f]{40}$/,'Exact tested PR head SHA is required');
+const git=spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8'});assert.equal(git.status,0,git.stderr);assert.equal(git.stdout.trim(),process.env.SQC_TESTED_SHA,'Checkout must match actual PR head SHA');
+const out=process.env.GUARD_ARTIFACTS||'artifacts/review-import';fs.mkdirSync(out,{recursive:true});
+const pw=require('playwright'),pwPackage=require('playwright/package.json'),corePackagePath=require.resolve('playwright-core/package.json');
+const registry=JSON.parse(fs.readFileSync(path.join(path.dirname(corePackagePath),'browsers.json'),'utf8')).browsers.filter(b=>/chromium/.test(b.name)).map(({name,revision,browserVersion})=>({name,revision,browserVersion}));assert.ok(registry.length,'Installed Chromium revision metadata must be retained');
+const browser=await pw.chromium.launch({headless:true});
+const metadata={testedGitSHA:git.stdout.trim(),node:process.version,playwright:pwPackage.version,playwrightCore:JSON.parse(fs.readFileSync(corePackagePath,'utf8')).version,platform:process.platform,arch:process.arch,browser:'chromium',runtimeBrowserVersion:browser.version(),installedChromiumRegistry:registry,syntheticOnly:true,url:target.href,sourceFiles:fs.existsSync('artifacts/review-import/source-head.json')?JSON.parse(fs.readFileSync('artifacts/review-import/source-head.json','utf8')):null};
+console.log('REPRODUCIBLE_BROWSER_RUNTIME',JSON.stringify(metadata));
+const results=[],failures=[];
+async function check(name,run){try{await run();results.push({name,status:'passed'});console.log('PASS',name)}catch(e){results.push({name,status:'failed'});failures.push({name,error:String(e.stack||e)});console.error('FAIL',name,e.message)}}
+async function at(width=1280){
+  const context=await browser.newContext({viewport:{width,height:900},serviceWorkers:'block'}),blocked=[],f=fixture();
+  await context.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin===target.origin||u.protocol==='data:')return route.continue();blocked.push(u.href);return route.abort()});
+  await context.addInitScript(({data,origin,key,docDb,protectedKeys})=>{
+    if(location.origin!==origin)return;
+    for(const[k,v]of Object.entries(data))localStorage.setItem(k,JSON.stringify(v));sessionStorage.setItem('sqc_space_chosen','1');sessionStorage.setItem('sqc_helper_user_chosen','1');
+    const p=window.__guardProbe={writes:[],opens:[],docTransactions:[],docDeletes:0,toasts:[],quota:false,quotaAttempts:0};
+    new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes){if(node.nodeType!==1)continue;const items=node.matches('.toast')?[node]:[...node.querySelectorAll('.toast')];for(const el of items)p.toasts.push({text:el.textContent,type:el.className})}}).observe(document,{childList:true,subtree:true});
+    const set=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(this===localStorage){p.writes.push({key:String(k),protected:protectedKeys.includes(k)});if(p.quota&&k===key){p.quotaAttempts++;throw new DOMException('Synthetic review storage quota fault','QuotaExceededError')}}return set.call(this,k,v)};
+    const open=IDBFactory.prototype.open;IDBFactory.prototype.open=function(name,...args){p.opens.push(String(name));return open.call(this,name,...args)};
+    const tx=IDBDatabase.prototype.transaction;IDBDatabase.prototype.transaction=function(stores,mode,...rest){if(this.name===docDb)p.docTransactions.push(mode||'readonly');return tx.call(this,stores,mode,...rest)};
+    for(const action of ['delete','clear']){const original=IDBObjectStore.prototype[action];IDBObjectStore.prototype[action]=function(...args){if(this.transaction.db.name===docDb)p.docDeletes++;return original.apply(this,args)}}
+  },{data:f.data,origin:target.origin,key:KEY,docDb:DOC_DB,protectedKeys});
+  const page=await context.newPage(),pageErrors=[];page.on('pageerror',e=>pageErrors.push(String(e)));
+  await page.goto(target.href,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.SK&&window.SKosifTBReview&&window.SKosifLedger&&window.SKosifCore);
+  await page.evaluate(()=>window.SKosifLedger.open('tb'));await page.locator('[data-l="to-review"]').waitFor({state:'visible'});
+  await page.evaluate(({dbName,docs})=>new Promise((resolve,reject)=>{const q=indexedDB.open(dbName,1);q.onupgradeneeded=()=>q.result.createObjectStore('docs');q.onerror=()=>reject(q.error);q.onsuccess=()=>{const db=q.result,t=db.transaction('docs','readwrite');for(const[k,v]of docs)t.objectStore('docs').put(v,k);t.oncomplete=()=>{db.close();resolve()};t.onerror=()=>reject(t.error)} }),{dbName:DOC_DB,docs:f.docs});
+  return{context,page,pageErrors,blocked,old:f.data[KEY]};
+}
+async function docsSnapshot(page){return page.evaluate(dbName=>new Promise((resolve,reject)=>{const q=indexedDB.open(dbName,1);q.onerror=()=>reject(q.error);q.onsuccess=()=>{const db=q.result,t=db.transaction('docs','readonly'),s=t.objectStore('docs'),out=[];const c=s.openCursor();c.onsuccess=()=>{const v=c.result;if(v){out.push([v.key,v.value]);v.continue()}};t.oncomplete=()=>{db.close();resolve(out)};t.onerror=()=>reject(t.error)}}),DOC_DB)}
+async function state(page){return page.evaluate(keys=>({protected:Object.fromEntries(keys.map(k=>[k,localStorage.getItem(k)])),view:SKosifCore.view(),audit:structuredClone(SK.audit.all()),probe:structuredClone(window.__guardProbe)}),protectedKeys)}
+async function baseline(page){const docs=await docsSnapshot(page);await page.evaluate(()=>{const p=window.__guardProbe;p.writes=[];p.opens=[];p.docTransactions=[];p.docDeletes=0;p.quotaAttempts=0;p.toasts=[]});return{...await state(page),docs}}
+const importEvents=s=>s.audit.filter(e=>e.type==='tbreview'&&e.act==='import');
+function unchanged(s,b){assert.deepEqual(s.protected,b.protected,'protected review/source/other-client keys unchanged');assert.equal(s.view,b.view,'no navigation');assert.deepEqual(importEvents(s),importEvents(b),'no import success event');assert.equal(s.probe.toasts.some(t=>t.text.includes('استُلم ميزان')),false,'no import success toast');assert.equal(s.probe.docDeletes,0);assert.equal(s.probe.opens.includes(DOC_DB),false,'import never opens the document database');assert.equal(s.probe.docTransactions.includes('readwrite'),false)}
+async function openGate(page){await page.locator('[data-l="to-review"]').click();const dialog=page.getByRole('alertdialog',{name:'استبدال ميزان ملف المراجعة الحالي'});await dialog.waitFor({state:'visible'});assert.equal(await dialog.locator('[data-r="0"]').evaluate(el=>el===document.activeElement),true,'initial focus is Cancel');const text=await dialog.innerText();for(const part of ['شركة المصدر الجديدة','شركة الهدف السابقة','2026-02-01','2026-08-31','2025-01-01','2025-12-31','الجولات: 0','المستندات المرتبطة: 1','لا يوجد تراجع تلقائي مضمون'])assert.ok(text.includes(part),part);return dialog}
+async function closed(page){await page.getByRole('alertdialog').waitFor({state:'hidden'});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))}
+try{
+  for(const width of [320,390,1280])for(const dismissal of ['cancel','escape','backdrop'])await check(`${width} zero-round ${dismissal} preserves active file and evidence`,async()=>{const h=await at(width);try{const b=await baseline(h.page),d=await openGate(h.page),box=await d.boundingBox();assert.ok(box.x>=-1&&box.x+box.width<=width+1,'dialog fits viewport');assert.equal(await d.evaluate(el=>el.scrollWidth<=el.clientWidth+1),true,'dialog has no horizontal clipping');await h.page.screenshot({path:path.join(out,`guard-${width}-${dismissal}.png`),fullPage:true});const pending=await state(h.page);assert.equal(pending.probe.writes.some(e=>e.protected),false);assert.equal(pending.probe.opens.length,0,'zero DB open before confirmation');if(dismissal==='cancel')await d.locator('[data-r="0"]').click();else if(dismissal==='escape')await h.page.keyboard.press('Escape');else{const size=h.page.viewportSize();let point;if(box.y>2)point={x:size.width/2,y:box.y/2};else if(box.x>2)point={x:box.x/2,y:box.y+box.height/2};else if(box.x+box.width<size.width-2)point={x:(box.x+box.width+size.width)/2,y:box.y+box.height/2};else if(box.y+box.height<size.height-2)point={x:size.width/2,y:(box.y+box.height+size.height)/2};assert.ok(point,'an exposed backdrop point is required');assert.equal(await h.page.evaluate(({x,y})=>document.elementFromPoint(x,y)===document.querySelector('.skd-wrap'),point),true,'observed point hits the actual backdrop');await h.page.mouse.click(point.x,point.y);}await closed(h.page);const after=await state(h.page);unchanged(after,b);assert.equal(after.probe.writes.some(e=>e.protected),false);assert.deepEqual(await docsSnapshot(h.page),b.docs);assert.deepEqual(h.pageErrors,[])}finally{await h.context.close()}});
+  await check('acknowledged import uses actual ledger button and retains source/other file/blob bytes',async()=>{const h=await at();try{const b=await baseline(h.page),d=await openGate(h.page);await d.locator('[data-r="1"]').click();await h.page.waitForFunction(()=>SKosifCore.view()==='tbreview'&&JSON.parse(localStorage.getItem('skosif_tbreview_v1')).session===null);const after=await state(h.page),review=JSON.parse(after.protected[KEY]);checkRetained(review,h.old);assert.equal(review.ctx.company,'شركة المصدر الجديدة (اختبار مصطنع)');for(const k of [CO,LEDGER,OTHER])assert.equal(after.protected[k],b.protected[k],k);assert.equal(importEvents(after).length,importEvents(b).length+1);assert.equal(after.probe.toasts.some(t=>t.text.includes('استُلم ميزان')),true,'acknowledged success toast');assert.equal(await h.page.evaluate(()=>document.body.innerText.includes('تعذر تحليل الميزان')),false,'valid synthetic review renders without a compute error');assert.equal(after.probe.docDeletes,0);assert.equal(after.probe.opens.includes(DOC_DB),false);assert.deepEqual(await docsSnapshot(h.page),b.docs);assert.deepEqual(h.pageErrors,[]);await h.page.screenshot({path:path.join(out,'acknowledged-import.png'),fullPage:true})}finally{await h.context.close()}});
+  await check('actual SK.save quota failure preserves protected state/documents without import success or navigation',async()=>{const h=await at();try{const b=await baseline(h.page),d=await openGate(h.page);await h.page.evaluate(()=>window.__guardProbe.quota=true);await d.locator('[data-r="1"]').click();await closed(h.page);await h.page.waitForFunction(()=>window.__guardProbe.quotaAttempts===1&&SK.errors.list().some(e=>e.where==='storage:skosif_tbreview_v1'));const after=await state(h.page);unchanged(after,b);assert.equal(after.probe.quotaAttempts,1);assert.equal(after.audit.some(e=>e.type==='assistant'&&e.ok===true),false);assert.equal(after.audit.some(e=>e.type==='error'&&e.where==='storage:'+KEY),true,'legitimate diagnostic error event remains allowed');assert.deepEqual(await docsSnapshot(h.page),b.docs);assert.equal(await h.page.evaluate(()=>document.body.innerText.includes('لم يُحفظ الميزان')),true,'truthful failure toast');await h.page.screenshot({path:path.join(out,'quota-failure.png'),fullPage:true});assert.deepEqual(h.pageErrors,[])}finally{await h.context.close()}});
+  for(const changed of ['target','source-period'])await check(`${changed} change while confirmation waits invalidates old acceptance`,async()=>{const h=await at();try{const b=await baseline(h.page),d=await openGate(h.page);await h.page.evaluate(({changed,key,co})=>{const k=changed==='target'?key:co,value=JSON.parse(localStorage.getItem(k));if(changed==='target')value.ctx.company='هدف مختلف (اختبار مصطنع)';else value.active.periodId='changed-synthetic-period';localStorage.setItem(k,JSON.stringify(value))},{changed,key:KEY,co:CO});const expected=await state(h.page);await h.page.evaluate(()=>{window.__guardProbe.writes=[]});await d.locator('[data-r="1"]').click();await closed(h.page);const after=await state(h.page);unchanged(after,expected);assert.equal(after.probe.writes.some(e=>e.protected),false);assert.deepEqual(await docsSnapshot(h.page),b.docs);assert.deepEqual(h.pageErrors,[])}finally{await h.context.close()}});
+  await check('operational fallback visibly qualifies period, AR and post-confirmation reads',async()=>{const h=await at(390);try{await h.page.evaluate(key=>{const l=JSON.parse(localStorage.getItem(key));l.entries=[];localStorage.setItem(key,JSON.stringify(l))},LEDGER);const b=await baseline(h.page);await h.page.evaluate(()=>{window.__guardResult=null;SKosifLedger.sendToReview().then(value=>window.__guardResult=value)});const d=h.page.getByRole('alertdialog'),text=await d.innerText();for(const part of ['السجلات التشغيلية','المبيعات والمشتريات والمدفوعات: السنة 2026','ذمم العملاء: الأرصدة الحالية',timing])assert.ok(text.includes(part),part);const pending=await state(h.page);assert.equal(pending.probe.opens.length,0,'no operational database open before acceptance');await h.page.screenshot({path:path.join(out,'operational-disclosure.png'),fullPage:true});await d.locator('[data-r="0"]').click();await closed(h.page);await h.page.waitForFunction(()=>window.__guardResult===false);unchanged(await state(h.page),b);assert.deepEqual(await docsSnapshot(h.page),b.docs)}finally{await h.context.close()}});
+}finally{await browser.close();fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({metadata,results,failures,status:failures.length?'FAILED':'PASSED'},null,2)+'\n')}
+if(failures.length)process.exitCode=1;
