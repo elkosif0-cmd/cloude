@@ -1,0 +1,55 @@
+name: Claude API - secure connection verification
+
+# This workflow makes no paid Claude generation requests.
+# It reads only the repository's encrypted secret named MOON.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - name: Verify Anthropic API key without printing it
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.error
+          import urllib.request
+
+          key = os.getenv("ANTHROPIC_API_KEY", "")
+          if not key:
+              print("CLAUDE_KEY_STATUS: MISSING_SECRET_MOON")
+              sys.exit(1)
+          req = urllib.request.Request(
+              "https://api.anthropic.com/v1/models?limit=1",
+              headers={
+                  "Authorization": "Bearer " + key,
+                  "anthropic-version": "2023-06-01",
+                  "User-Agent": "KOSIF-EARTH-connection-check",
+              },
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=25) as response:
+                  parsed = json.load(response)
+              models = parsed.get("data", [])
+              print("CLAUDE_KEY_STATUS: VALID" if models else "CLAUDE_KEY_STATUS: NO_MODELS_RETURNED")
+              if models:
+                  print("CLAUDE_MODEL_AVAILABLE:", str(models[0].get("id", "unknown"))[:85])
+              else:
+                  sys.exit(1)
+          except urllib.error.HTTPError as error:
+              print("CLAUDE_KEY_STATUS: HTTP_" + str(error.code))
+              sys.exit(1)
+          except Exception:
+              print("CLAUDE_KEY_STATUS: CONNECTION_ERROR")
+              sys.exit(1)
+          PY
