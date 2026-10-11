@@ -260,44 +260,56 @@ html.sk-theme-trans .maincol{
    buttons (17:1 on cream), and one saffron accent #D9530E for marks, highlights and the active state — saffron text uses
    #A53E07 (5.9:1). Status colours stay semantic and separate from the accent. The cobalt identity of 2026-10-08 stays
    selectable as «كوبالت وجليد» (the base kosif tokens); navy & gold stays as [data-brand="navygold"]. */
+/* KOSIF EARTH warm-sunlit office: one palette for accounting/audit/tools.
+   Green belongs to controls; the original office photography has natural daylight. */
 :root[data-look="kosif"][data-brand="ledger"]{
-  --sk-orb:#d9530e;--sk-orb-hi:#f6c39b;
-  --sk-bg:#fbf8f3;--sk-surface:#fffdf9;--sk-surface-2:#f8f3ec;--sk-surface-3:#f1e9de;--sk-line:#e3d9cc;--sk-line-2:#cbbfb0;
-  --sk-ink:#1d1814;--sk-ink-2:#4b4139;--sk-ink-3:#6f6358;
-  --sk-brand:#1d1814;--sk-brand-2:#d9530e;--sk-brand-soft:#fbe9dc;--sk-on-brand:#fbf8f3;
-  --sk-navy:#1d1814;--sk-gold:#d9530e;--sk-gold-ink:#a53e07;--sk-gold-soft:#fbe9dc;--sk-ivory:#fbf8f3;
-  --sk-ok:#2c7a4b;--sk-ok-soft:#e1f0e6;--sk-ok-mark:#33995c;
-  --sk-warn:#a76a10;--sk-warn-soft:#f8ead0;--sk-warn-mark:#d99a1e;
+  --sk-orb:#176b4b;--sk-orb-hi:#a7e9bc;
+  --sk-bg:#f4f7f2;--sk-surface:#ffffff;--sk-surface-2:#f8faf7;--sk-surface-3:#eaf1e9;--sk-line:#dfe8de;--sk-line-2:#c5d7c9;
+  --sk-ink:#132b20;--sk-ink-2:#354d40;--sk-ink-3:#64776b;
+  --sk-brand:#176b4b;--sk-brand-2:#248e65;--sk-brand-soft:#e5f4e9;--sk-on-brand:#ffffff;
+  --sk-navy:#092b20;--sk-gold:#bc9451;--sk-gold-ink:#8a6730;--sk-gold-soft:#faf4e7;--sk-ivory:#f9fbf7;
+  --sk-ok:#176b4b;--sk-ok-soft:#e5f4e9;--sk-ok-mark:#279367;
+  --sk-warn:#926208;--sk-warn-soft:#fcf0cf;--sk-warn-mark:#c88715;
   --sk-bad:#b3261e;--sk-bad-soft:#f8e0dd;--sk-bad-mark:#d9473d;--sk-bad-row:#fdf3f1;
-  --sk-info:#2f5f8f;--sk-info-soft:#e3ebf4;--sk-info-mark:#3f74aa;
+  --sk-info:#276d84;--sk-info-soft:#e2eff3;--sk-info-mark:#2f8bab;
   --sk-violet:#6b5bd6;--sk-violet-soft:#efedfd;--sk-violet-line:#d9d4f7;
-  --sk-rail:#f3ece2;--sk-rail-2:rgba(29,24,20,.05);--sk-rail-ink:#1d1814;--sk-rail-mute:#6f6358;--sk-rail-active:rgba(217,83,14,.13);
-  --sk-grid:#eee5d9;--sk-axis:#cbbfb0;--sk-s1:#d9530e;--sk-s2:#1d1814;--sk-s3:#2c7a4b;--sk-focus:#d9530e;
-  --sk-shadow-1:0 1px 2px rgba(29,24,20,.05),0 12px 30px -24px rgba(29,24,20,.30);
-  --sk-shadow-2:0 18px 40px -22px rgba(29,24,20,.26);
-  --sk-shadow-3:0 32px 80px -28px rgba(29,24,20,.40);
-  --sk-grad-brand:linear-gradient(135deg,#d9530e 0%,#a53e07 52%,#1d1814 100%);
-  --sk-grad-rail:linear-gradient(180deg,#f3ece2 0%,#efe6da 100%);
+  --sk-rail:#092b20;--sk-rail-2:rgba(255,255,255,.05);--sk-rail-ink:#f2fdf4;--sk-rail-mute:#adccba;--sk-rail-active:rgba(138,224,172,.17);
+  --sk-grid:#e4ebe4;--sk-axis:#baccbd;--sk-s1:#176b4b;--sk-s2:#318f71;--sk-s3:#6ca77b;--sk-focus:#176b4b;
+  --sk-shadow-1:0 1px 2px rgba(10,43,28,.035),0 12px 32px -25px rgba(12,52,30,.23);
+  --sk-shadow-2:0 18px 40px -24px rgba(9,43,27,.24);
+  --sk-shadow-3:0 32px 80px -28px rgba(8,36,23,.36);
+  --sk-grad-brand:linear-gradient(135deg,#248e65 0%,#176b4b 65%,#0c4934 100%);
+  --sk-grad-rail:linear-gradient(180deg,#092b20 0%,#103e2e 100%);
   --sk-heat-1:#d7ead9;--sk-heat-2:#f2e3b0;--sk-heat-3:#f0bf95;--sk-heat-4:#e3928a;
-  --sk-c1:#1d1814;--sk-c2:#d9530e;
+  --sk-c1:#176b4b;--sk-c2:#248e65;
+  --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --sk-font-display:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --sk-font-latin:"Montserrat","Segoe UI",system-ui,sans-serif;
+  --sk-r-s:10px;--sk-r:14px;--sk-r-l:18px;--sk-rail-w:264px;
 }
+/* The same brand in low-glare nighttime surfaces. Keep status semantics independent. */
 :root[data-look="kosif"][data-brand="ledger"][data-theme="dark"]{
-  --sk-orb:#f2732d;--sk-orb-hi:#f6c39b;
-  /* dark: saffron leads on warm charcoal (buttons and the active state), cream text */
-  --sk-bg:#161310;--sk-surface:#1c1814;--sk-surface-2:#221d19;--sk-surface-3:#2b2520;--sk-line:#39312a;--sk-line-2:#4a4038;
-  --sk-ink:#f5ede3;--sk-ink-2:#d4c6b6;--sk-ink-3:#a8998a;
-  --sk-brand:#f2732d;--sk-brand-2:#f5ede3;--sk-brand-soft:#3a2316;--sk-on-brand:#161310;
-  --sk-navy:#0f0d0b;--sk-gold:#f2732d;--sk-gold-ink:#ff9a5f;--sk-gold-soft:#3a2316;--sk-ivory:#fbf8f3;
-  --sk-ok:#6fcf97;--sk-ok-soft:#17301f;--sk-warn:#f0b85a;--sk-warn-soft:#33270f;--sk-bad:#ff8a80;--sk-bad-soft:#3a1714;--sk-bad-row:#2a1512;
-  --sk-info:#8fbfee;--sk-info-soft:#152434;
-  --sk-rail:#110f0d;--sk-rail-2:rgba(255,255,255,.05);--sk-rail-ink:#f5ede3;--sk-rail-mute:#a8998a;--sk-rail-active:rgba(242,115,45,.18);
-  --sk-grid:#2b2520;--sk-axis:#4a4038;--sk-focus:#f2732d;--sk-s1:#f2732d;--sk-s2:#d4c6b6;
+  --sk-orb:#88dbad;--sk-orb-hi:#b8efd0;
+  --sk-bg:#0c1712;--sk-surface:#14231b;--sk-surface-2:#1b2b22;--sk-surface-3:#24352a;--sk-line:#334a3b;--sk-line-2:#496252;
+  --sk-ink:#f0f8f1;--sk-ink-2:#cfdfd3;--sk-ink-3:#a6bfae;
+  --sk-brand:#8adaab;--sk-brand-2:#b9ebc8;--sk-brand-soft:#193e29;--sk-on-brand:#0b281a;
+  --sk-navy:#081f16;--sk-gold:#dcbf86;--sk-gold-ink:#f2d59e;--sk-gold-soft:#3a3423;--sk-ivory:#f7faf5;
+  --sk-ok:#89e2ac;--sk-ok-soft:#173b25;--sk-warn:#efc577;--sk-warn-soft:#302914;--sk-bad:#ff938b;--sk-bad-soft:#391c1c;--sk-bad-row:#301c19;
+  --sk-info:#9bcddb;--sk-info-soft:#17313a;
+  --sk-rail:#081e16;--sk-rail-2:rgba(255,255,255,.05);--sk-rail-ink:#f0f8f1;--sk-rail-mute:#b0ccbb;--sk-rail-active:rgba(137,226,172,.18);
+  --sk-grid:#2d4636;--sk-axis:#466251;--sk-focus:#92e4b2;--sk-s1:#7fd8a0;--sk-s2:#b5e0ba;--sk-s3:#ddbb7f;
   --sk-violet:#b3a8ff;--sk-violet-soft:#241f4a;--sk-violet-line:#3a3470;
-  --sk-grad-brand:linear-gradient(135deg,#ff9a5f 0%,#f2732d 45%,#a53e07 100%);
-  --sk-grad-rail:linear-gradient(180deg,#110f0d,#171410);
+  --sk-grad-brand:linear-gradient(135deg,#b9ebc8 0%,#8adaab 60%,#5ac58f 100%);
+  --sk-grad-rail:linear-gradient(180deg,#081e16,#102b20);
   --sk-heat-1:#1f5a3b;--sk-heat-2:#6b5a17;--sk-heat-3:#7a4219;--sk-heat-4:#7f2626;
-  --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);--sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.7);--sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
-  --sk-c1:#f2732d;--sk-c2:#d4c6b6;
+  --sk-shadow-1:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -16px rgba(0,0,0,.7);
+  --sk-shadow-2:0 16px 36px -16px rgba(0,0,0,.7);
+  --sk-shadow-3:0 30px 70px -20px rgba(0,0,0,.8);
+  --sk-c1:#8adaab;--sk-c2:#b9ebc8;
+  --sk-font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --sk-font-display:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --sk-font-latin:"Montserrat","Segoe UI",system-ui,sans-serif;
+  --sk-r-s:10px;--sk-r:14px;--sk-r-l:18px;--sk-rail-w:264px;
 }
 :root[data-look="kosif"][data-brand="navygold"][data-theme="dark"]{--sk-c1:#8fb3e8;--sk-c2:#d4af37}
 

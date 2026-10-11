@@ -35,7 +35,15 @@ const byId=Object.fromEntries(caps.map(c=>[c.id,c]));
 const sectorNow=()=>{try{return(SK.company&&SK.company.current().sector)||""}catch{return""}};
 const fits=c=>{if(!c)return false;const h=byId[c.hub]||c,s=(c.sectors&&c.sectors.length?c.sectors:h.sectors)||[];const now=s.length?sectorNow():"";return!s.length||!now||s.includes(now)};
 /* a screen belongs to an entry when it is the screen's own entry or one it is shared with */
-const inGw=(c,gid)=>!!c&&(c.gateway===gid||c.also.includes(gid));
+/* Only a company that explicitly installed a Tools hub may use that hub
+   inside its accounting workspace. No corresponding entitlement is granted
+   to AUDIT_ONLY, and tool records are never copied between workspaces. */
+const inGw=(c,gid)=>{
+  if(!c)return false;
+  if(c.gateway===gid||c.also.includes(gid))return true;
+  if(gid!=="accounting"||c.gateway!=="tools")return false;
+  return installedNow().includes(c.id)||installedNow().includes(c.hub);
+};
 /* the pages of a hub: its parent first, then its pages in registry order */
 const members=id=>{const c=byId[id];if(!c)return[];const h=byId[c.hub];return[h,...caps.filter(x=>x.hub===h.id&&x.id!==h.id&&!x.hidden)].filter(fits)};
 /* R3 (docs/rebuild/DEEP_REVIEW_20261007_ar.md): each entry's menu in the constitution's order, declared on the gateway
@@ -65,7 +73,7 @@ function menu(gid){
   const g=gwById[gid];if(!g||!Array.isArray(g.menu)||!g.menu.length)return null;
   const all=hubsOf(gid),seen=new Set(),listed=new Set();
   const out=g.menu.map(s=>{
-    const raw=(s.hubs||[]).flatMap(x=>x&&x.installed?inst.map(id=>byId[id]).filter(c=>c&&c.hub===c.id&&!c.hidden&&fits(c)&&!listed.has(c.id)).map(c=>Object.freeze({...c,installed:true})):[itemOf(x,gid,all)]);
+    const raw=(s.hubs||[]).flatMap(x=>x&&x.installed?inst.map(id=>byId[id]).filter(Boolean).map(c=>byId[c.hub]||c).filter(c=>c&&!c.hidden&&fits(c)&&!listed.has(c.id)).map(c=>Object.freeze({...c,installed:true})):[itemOf(x,gid,all)]);
     const hubs=raw.filter(c=>c&&!seen.has(c.id)&&seen.add(c.id));hubs.forEach(c=>listed.add(c.link?c.view:c.id));
     return {id:s.id,label:s.label,icon:s.icon,hubs};
   }).filter(s=>s.hubs.length);

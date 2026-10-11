@@ -1060,3 +1060,15 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Cloudflare Pages source remains linked to former owner kosif199022-jpg for repo ID 1352281400 (new owner elkosif0-cmd). Source connect POST failed because existing connection; PATCH accepted but did not change source. The existing subdomain, production deployment and production secrets remain unchanged.
 - Rollback: previously successful production deployment ID 3d4e0540-7f1c-4634-9503-e479f4ed4e03 is retained and can be restored if a future release fails, subject to verification.
 - Unfinished: Owner fixes GitHub billing/Actions availability (or explicitly authorizes a reviewed manual production release), then PR #236 can be merged and main published from the verified safe production package. Do not replace the protected production with an unencrypted/no-private-data preview dist.
+
+### TASK EARTH-PREVIEW-PROMOTION-20261012 — Promote a6eb2e47 preview as canonical KOSIF EARTH
+- Agent: ChatGPT
+- Status: ACTIVE
+- Goal: Owner explicitly requested that the capabilities from https://a6eb2e47.s-kosif.pages.dev/ become the official site at https://earth.kosif.pp.ua/.
+- Scope: Merge the preview's pinned Git commit fe29de32b6961f825d1ad8f0e1de60bd0c7ab146 with latest canonical main eb0718bb9696ce2c462a267431629125c7f16565. Preserve newer brand, security and existing data.
+- Branch / PR: release/earth-a6eb2e47-canonical-20261012; backup/earth-before-a6eb2e47-20261012 anchors prior main. No relation to separate draft PR254 repository imports.
+- Current progress: Non-FF two-parent local merge staged with no conflicts; 31 files changed, 2121 insertions, 89 deletions. Test suites: navigation search 3/3; goals 9/9; quiet navigation 8/8; company scope 7/7; canonical identity 5/5; npm app build and engine tests successful; preview Python build 195 entries.
+- Evidence / tests: Cloudflare deployment a6eb2e47 was a preview from fe29de32 with commit_dirty=true; cannot prove source-tree merger exactly reproduces unpublished build deltas. Full production live smoke is pending.
+- Risks / conflicts: Merge retains current production security/branding; verify the rendered site and deploy logs after promotion. Do not expose private preview payloads. Maintain rollback branch.
+- Unfinished: Publish branch, verify preview deployment, advance main after green gates, validate Cloudflare production and canonical URL; update status.
+- NEXT ACTION: Finish verified staged promotion with rollback available.
