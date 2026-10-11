@@ -30,13 +30,30 @@ try{
       localStorage.setItem(SKosifEntrySim.memoryKey(),JSON.stringify(m))},{cash});
     const counts=()=>p.evaluate(()=>({e:SKosifLedger.entries().length,a:SKosifLedger.accounts().length}));
     const diag=()=>p.evaluate(()=>{const r=document.querySelector('.js-res');return JSON.stringify({view:SKosifCore.view(),tab:(document.querySelector('[data-js-tab][aria-selected="true"]')||{}).textContent,text:(document.querySelector('[data-jd="text"]')||{}).value,res:r?r.innerText.replace(/\s+/g,' ').slice(0,200):null,post:document.querySelectorAll('[data-js="post"]').length})});
+    // Check genuine pointer reachability: never force-click through the phone tab bar.
+    const assertMobileTapTarget=async(selector)=>{
+      if(label!=='phone')return;
+      const btn=p.locator(selector);
+      await btn.scrollIntoViewIfNeeded();
+      const check=await btn.evaluate(el=>{
+        el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});
+        const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+        const hit=document.elementFromPoint(x,y);
+        return{reachable:r.width>0&&r.height>0&&y>0&&y<window.innerHeight&&!!hit&&(hit===el||el.contains(hit)),
+          buttonTop:Math.round(r.top),buttonBottom:Math.round(r.bottom),
+          navbarTop:Math.round(document.querySelector('.skb')?.getBoundingClientRect().top||0),hitTag:hit?.tagName||'none'};
+      });
+      assert(check.reachable,'phone action obstructed: '+selector+' '+JSON.stringify(check));
+      console.log('[jesim-e2e] phone tap reachable',selector,JSON.stringify(check));
+    };
     const suggestAndPost=async(text,amount)=>{
       await p.evaluate(()=>SKosifCore.go('jesim'));await p.waitForSelector('[data-js-tab="suggest"]',{timeout:15000});
       await p.click('[data-js-tab="suggest"]');await p.waitForSelector('[data-jd="text"]',{timeout:15000});
-      await p.fill('[data-jd="text"]',text);await p.fill('[data-jd="amount"]',String(amount));await p.click('[data-js="run"]');
+      await p.fill('[data-jd="text"]',text);await p.fill('[data-jd="amount"]',String(amount));
+      await assertMobileTapTarget('[data-js="run"]');await p.click('[data-js="run"]');
       try{await p.waitForSelector('.js-res [data-js="post"]',{state:'visible',timeout:15000})}
       catch(e){console.log('[jesim-e2e]',label,'no post button after suggesting — state',await diag());throw e}
-      await p.click('.js-res [data-js="post"]');
+      await assertMobileTapTarget('.js-res [data-js="post"]');await p.click('.js-res [data-js="post"]');
       try{await p.waitForSelector('form.skd',{state:'attached',timeout:15000})}
       catch(e){console.log('[jesim-e2e]',label,'no decision dialog after posting — state',await diag());throw e}
       await p.waitForTimeout(300)};
@@ -61,7 +78,7 @@ try{
     await suggestAndPost('رسوم تصميم خارجي للهوية',300);
     await p.keyboard.press('Escape');await p.waitForTimeout(300);c1=await counts();
     assert(c1.e===c0.e&&c1.a===c0.a,'cancelling the decision mutated the books');
-    await p.click('.js-res [data-js="post"]');await p.waitForSelector('form.skd',{state:'attached',timeout:15000});await p.waitForTimeout(300);
+    await assertMobileTapTarget('.js-res [data-js="post"]');await p.click('.js-res [data-js="post"]');await p.waitForSelector('form.skd',{state:'attached',timeout:15000});await p.waitForTimeout(300);
     await p.selectOption('form.skd select[name="choice"]',expense);await submit();await p.waitForTimeout(600);c1=await counts();
     const mapped=await p.evaluate(({expense})=>{const e=SKosifLedger.entries().at(-1),a=SKosifLedger.accounts().find(x=>String(x.code)===expense);
       return{uses:e.lines.some(l=>l.accountId===a.id),notOpened:!SKosifLedger.accounts().some(x=>String(x.code)==='6397')}},{expense});
