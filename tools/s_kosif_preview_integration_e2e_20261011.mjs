@@ -20,6 +20,12 @@ try{
    await p.waitForFunction(()=>window.SK?.demo?.settled?.()===true&&!window.SKosifSpace?.busy?.(),null,{timeout:30000});
    await p.waitForFunction(()=>document.querySelector('#skn-q')!==null,{timeout:15000});
    assert.equal(await p.locator('#skn-q').count(),1);
+   if(v.width>900){
+     await p.evaluate(()=>window.SKosifShell.toggleRail(true));
+     const miniWidth=await p.locator('#rail').evaluate(el=>el.getBoundingClientRect().width);
+     assert.ok(miniWidth>=60&&miniWidth<100,'compact rail should reclaim width: '+miniWidth);
+     await p.evaluate(()=>window.SKosifShell.toggleRail(false));
+   }
    await p.evaluate(()=>{
      if(document.documentElement.dataset.rail==='mini')window.SKosifShell?.toggleRail(false);
      const rail=document.querySelector('#rail');

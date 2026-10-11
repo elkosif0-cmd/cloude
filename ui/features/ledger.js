@@ -1348,7 +1348,9 @@ function ensureAccounts(list){const d=db(),has=c=>d.accounts.find(x=>String(x.co
 window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().accounts,lockDate:()=>db().lockDate,ensureAccounts,postEntry,saleEntry:(d,x)=>saleEntry(d,x,costResolver()),
   open:(t,o={})=>{
     invalidateReview();tab=t||"accounts";if(o.q)vatQ=o.q;
-    const C=window.SKosifCore,root=document.querySelector('#view .sk-view[data-bound="1"]');
+    const C=window.SKosifCore;
+    const root=typeof document!=="undefined"&&typeof document.querySelector==="function"
+      ?document.querySelector('#view .sk-view[data-bound="1"]'):null;
     // The view renderer owns the nested .sk-view, not the #view shell. Core.go
     // to an already-open ledger leaves it intact: repaint the real owner node.
     if(C?.view?.()==="ledger"&&root){

@@ -13,6 +13,11 @@
 :root[data-look="kosif"][data-brand="ledger"] .app{
   background:var(--sk-bg);
 }
+/* Keep the user's compact-rail preference: branded token specificity must not
+   override the 78px desktop rail chosen with Ctrl+B / the mini control. */
+@media (min-width:901px){
+  :root[data-look="kosif"][data-brand="ledger"][data-rail="mini"]{--sk-rail-w:78px}
+}
 :root[data-look="kosif"][data-brand="ledger"] .maincol{
   background:linear-gradient(180deg,var(--sk-surface-2),var(--sk-bg) 330px);
 }

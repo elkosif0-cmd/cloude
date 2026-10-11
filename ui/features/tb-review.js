@@ -355,7 +355,9 @@ function canonicalStatements(c){
 window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,
   /* R20: the audit menu opens a stage of the open file (FOUNDATION §3.12 «داخل ملف المراجعة»); with no file open the
      register shows, and no stage is current */
-  open:t=>{if(TABS.some(([k])=>k===t))tab=t;window.SKosifCore.go("tbreview");paint()},current:()=>compute()?tab:"",
+  /* The public open method is openTab (declared once below); avoid duplicate
+     object keys that shadow the stage handler and fail production ESLint. */
+  current:()=>compute()?tab:"",
   openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();if(c&&c.sourceOnly)return {sourceOnly:true,sourceKind:"published-statements",rows:[],sig:c.sig,label:c.sourceModel?c.sourceModel.issuer:"source model",ctx:{...c.d.ctx,sourceKind:"published-statements"},unavailableReason:"The embedded studio does not support source provenance; no ledger or audit-evidence transport is permitted."};return c&&c.tb.ok?{mappingUnsupported:!!(c.d.ctx.corpusId&&Object.keys(c.d.overrides||{}).length),canonicalStatements:canonicalStatements(c),rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});
 
 /* ---------- computation (memoized) ---------- */
