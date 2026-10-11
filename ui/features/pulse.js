@@ -47,7 +47,7 @@ function readiness(steps,opts={}){
 /* ---------- the data ---------- */
 let cache=null,at=0,loading=null;
 async function loadAll(){
-  const idb=s=>SK.store&&SK.store.idbAll?SK.store.idbAll(s).catch(()=>[]):Promise.resolve([]);
+  const idb=s=>SK.legacyCompanyData?.read?SK.legacyCompanyData.read(s).catch(()=>[]):Promise.resolve([]);
   const [orders,payments,res]=await Promise.all([idb("orders"),idb("payments"),window.SKosifSalesIntel?SKosifSalesIntel.snapshot("all").catch(()=>null):null]);
   const t=today(),fig=todayFigures(orders,payments,t),calls=callList(res&&!res.empty?res.followup:[]);
   let close=null;

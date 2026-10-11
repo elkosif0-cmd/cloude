@@ -24,9 +24,9 @@ const activeRequestStatuses = new Set(['draft','requested','received','under-rev
 const unresolvedIssueStatuses = new Set(['open','investigating','management-response','challenged']);
 const pendingAdjustmentStatuses = new Set(['proposed','challenged','modified']);
 
-export function createEngagement({ id=`ENG-${Date.now()}`, entity='منشأة غير محددة', period=null, jurisdiction='SA', framework='IFRS', engagementType='audit', currency='SAR', createdAt=nowIso() }={}) {
-  return { id:String(id), entity:String(entity), period, jurisdiction, framework, engagementType, currency,
-    stage:ENGAGEMENT_STAGES.INTAKE, createdAt, updatedAt:createdAt, documents:[], evidence:[], issues:[], requests:[], councilRounds:[], adjustments:[], reports:[], decisions:[], events:[] };
+export function createEngagement({ id=`ENG-${Date.now()}`, entity='منشأة غير محددة', period=null, jurisdiction='SA', framework='IFRS', engagementType='audit', currency='SAR', companyId=null, workspaceId=null, createdAt=nowIso() }={}) {
+  return { id:String(id), entity:String(entity), period, jurisdiction, framework, engagementType, currency, companyId, workspaceId,
+    stage:ENGAGEMENT_STAGES.INTAKE, createdAt, updatedAt:createdAt, documents:[], evidence:[], issues:[], requests:[], councilRounds:[], aiSessionReceipts:[], adjustments:[], reports:[], decisions:[], events:[] };
 }
 
 export function appendDomainEvent(engagement,{type,actor='system',payload={},at=nowIso()}={}){

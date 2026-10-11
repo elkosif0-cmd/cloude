@@ -1,0 +1,16 @@
+﻿export_id,legacy_source,source_module,consumer_module,ownership_finding,current_export_decision,before_release_requirement,source_code_inspected
+customers,IndexedDB:aghnam-app-v7/customers,ui/core/legacy-company-data.js,ui/features/customer-flow.js,explicit companyId,limited-company-local-export,identity server attestation; nested owner review,paths-and-key-verified
+sales,IndexedDB:aghnam-app-v7/sales_lines,ui/core/legacy-company-data.js,ui/features/sales-lab.js,explicit companyId,limited-company-local-export,payment reconciliation and source lineage,paths-and-key-verified
+orders,IndexedDB:aghnam-app-v7/orders,ui/core/legacy-company-data.js,ui/features/sales-map.js,explicit companyId,limited-company-local-export,"parent and child owner checks, return/refund linking",paths-and-key-verified
+items,catalog/current company core,ui/core/company-platform.js,ui/features/workspace.js,catalog company scope not validated in legacy export,hold,current catalog read may include derived/unscoped cache; canonical owner API required,paths-verified-key-indirect
+manual-sales,localStorage:aghnam-v12-manual-sales,ui/features/ledger.js,ui/features/workspace.js,global unpartitioned localStorage,hold,"non-destructive per-record mapping, source date and ledger reconciliation",paths-and-key-verified
+suppliers,localStorage:skosif_v31_supplier_batches,ui/features/purchasing.js,ui/features/workspace.js,global unpartitioned localStorage,hold,supplier master ID and receipts tenant mapping,paths-and-key-verified
+purchase-orders,localStorage:skosif_purchasing_v1,ui/features/purchasing.js,ui/features/workspace.js,global object orders/receipts/prices,hold,parent order + receipt + supplier price tenant IDs,paths-and-key-verified
+receipts,localStorage:skosif_purchasing_v1,ui/features/purchasing.js,ui/features/workspace.js,global object orders/receipts/prices,hold,map and verify parent PO and document owner,paths-and-key-verified
+credit,localStorage:skosif_v38_ledger,ui/features/workspace.js,ui/features/workspace.js,global / legacy accounting ledger,hold,journal trace and verified authority,paths-and-key-verified
+inventory,localStorage:aghnam_v29_inventory,ui/features/inventory.js,ui/features/workspace.js,global unpartitioned localStorage,hold,"warehouse and branch IDs, batch owner and quantities",paths-and-key-verified
+journal,localStorage:skosif_ledger_v1,ui/features/ledger.js,ui/features/workspace.js,global object accounts/entries,hold,"journal seals, account tree and company posting balances",paths-and-key-verified
+followup,localStorage:skosif_followup_v1,ui/features/followup.js,ui/features/workspace.js,global followup object,hold,linked customer companyId and consent,paths-and-key-verified
+tasks,localStorage:skosif_tasks_v1,ui/features/workspace.js,ui/features/workspace.js,global task collection,hold,owner identity and active company binding,paths-and-key-verified
+audit-trail,app-global SK.audit all,ui/core/audit.js,ui/features/workspace.js,multiple company and engagement events,hold,company/engagement authorization and retention,paths-verified-key-indirect
+device-full-backup,all matching localStorage + all aghnam-app-v7 stores,ui/core/store.js,ui/features/devices.js,unbounded device scope,blocked-from-company-and-device-ui,separate signed server admin role and secure restore workflow,paths-verified-key-indirect

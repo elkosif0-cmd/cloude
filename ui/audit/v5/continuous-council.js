@@ -1,21 +1,75 @@
 import { convene, councilVerdictLabel, stanceLabel } from '../council.js';
 import { evidenceRequestMetrics } from './evidence-requests.js';
 import { recordCouncilRound, ingestEvidenceBatch, buildCouncilDelta } from './review-loop.js';
+import { createCouncilReceipt, attachCouncilReceipt } from './ai-session-receipts.js';
+import { installCouncilRoundExport, refreshCouncilExport } from './council-round-export-ui.js';
 import { documentRiskSignals, analysisRequestsAsCouncilAsks, buildDocumentCouncilPositions } from './document-intelligence.js';
 import { recommendSpecialists, specialistAdvisoryPositions } from './specialist-registry.js';
 import { store, esc, analyses } from './continuous-store.js';
 import { registerFile } from './continuous-documents.js';
 
 const $=s=>__kxRoot().querySelector(s); let refresh=()=>{};
-function ensureCouncilUi(){const summary=$('#councilSummary');if(summary&&!$('#roundDelta'))summary.insertAdjacentHTML('afterend','<div id="roundDelta" class="round-delta"></div><div id="specialistRecommendations" class="specialist-recs"></div>')}
-export function initCouncil({renderAll}){refresh=renderAll;ensureCouncilUi();$('#runCouncilButton').onclick=runCouncil;$('#evidenceForm').onsubmit=saveEvidence;}
+function ensureCouncilUi(){const summary=$('#councilSummary');if(summary&&!$('#roundDelta'))summary.insertAdjacentHTML('afterend','<div id="roundDelta" class="round-delta"></div><div id="specialistRecommendations" class="specialist-recs"></div>'); if(summary&&!$('#councilSessionInfo'))summary.insertAdjacentHTML('afterend','<small id="councilSessionInfo" role="status" aria-live="polite"></small>')}
+export function initCouncil({renderAll}){refresh=renderAll;ensureCouncilUi();installCouncilRoundExport({root:__kxRoot(),getEngagement:()=>store.engagement});$('#runCouncilButton').onclick=runCouncil;$('#evidenceForm').onsubmit=saveEvidence;}
 function councilInput(){return{analysis:store.analysis,materiality:store.materiality,risks:[...store.tbRisks,...store.engagement.documents.flatMap(d=>{const a=store.documentAnalyses.get(d.id);return a?documentRiskSignals(d,a):[]})],findings:store.engagement.issues.map(i=>({id:i.id,title:i.title,severity:i.severity,status:i.status,amountMinor:i.amountMinor||'0'})),workpapers:[],pbc:store.engagement.requests.map(r=>({id:r.id,title:r.title,status:r.status,riskIds:r.riskIds||[]})),evidence:store.engagement.evidence.map(e=>({id:e.id,title:e.title,status:e.reviewStatus==='reviewed'?'reviewed':'received',sourceType:e.sourceType,obtainedDirectly:e.sourceType==='external',fileHash:e.provenance?.sha256||'',documentDate:e.documentDate||new Date().toISOString().slice(0,10),riskIds:e.riskIds||[]})),journalReview:null,analytics:null,opinion:null,gates:[],graph:null,currency:store.engagement.currency}}
 function currentSpecialists(){return recommendSpecialists(store.engagement,analyses())}
-export function runCouncil(){store.engagement.evidence=store.engagement.evidence.map(e=>e.reviewStatus==='unreviewed'?{...e,reviewStatus:'received'}:e);let session;if(store.analysis){session=convene(councilInput());const isa=session.positions.find(p=>p.seatId==='isa'),asks=analyses().flatMap(analysisRequestsAsCouncilAsks);if(isa&&asks.length)isa.asks=[...(isa.asks||[]),...asks]}else{const positions=buildDocumentCouncilPositions(analyses(),{documentCount:store.engagement.documents.length,evidenceCount:store.engagement.evidence.length});session={positions,conflicts:[],verdict:'needs-evidence',verdictText:analyses().length?'تمت مراجعة التحليل المستندي؛ تستمر الحلقة حسب الأدلة المطلوبة.':'لا توجد بيانات منظمة أو تحليل مستندي كافٍ.',consensus:0}}const specialistPositions=specialistAdvisoryPositions(currentSpecialists());if(specialistPositions.length)session.positions=[...(session.positions||[]),...specialistPositions];store.engagement=recordCouncilRound(store.engagement,session).engagement;refresh()}
+let councilRecording = false;
+export async function runCouncil() {
+  if (councilRecording) return;
+  councilRecording = true;
+  const initial = store.engagement;
+  try {
+    store.engagement = structuredClone(initial);
+    store.engagement.evidence = store.engagement.evidence.map(e => e.reviewStatus === 'unreviewed' ? {...e, reviewStatus:'received'} : e);
+    let session;
+    if (store.analysis) {
+      session = convene(councilInput());
+      const isa = session.positions.find(p => p.seatId === 'isa'), asks = analyses().flatMap(analysisRequestsAsCouncilAsks);
+      if (isa && asks.length) isa.asks = [...(isa.asks || []), ...asks];
+    } else {
+      const positions = buildDocumentCouncilPositions(analyses(), {documentCount:store.engagement.documents.length,evidenceCount:store.engagement.evidence.length});
+      session = {positions, conflicts:[], verdict:'needs-evidence', verdictText:'المراجعة الاستشارية تحتاج أدلة إضافية.', consensus:0};
+    }
+    const specialists = specialistAdvisoryPositions(currentSpecialists());
+    if (specialists.length) session.positions = [...(session.positions || []), ...specialists];
+    const recorded = recordCouncilRound(store.engagement, session);
+    let next = recorded.engagement;
+    // No company+workspace binding: preserve the old local demo behavior,
+    // but NEVER generate an apparently authenticated or cross-company receipt.
+    if (next.companyId || next.workspaceId) {
+      if (!next.companyId || !next.workspaceId) throw new Error('COUNCIL_SCOPE_INCOMPLETE');
+      const deterministic = {
+        kind:'deterministic', seatId:'rules-council', status:'completed',
+        claims:[{text:String(session.verdictText || session.verdict || 'Advisory result').slice(0,3000),evidenceIds:[]}]
+      };
+      const receipt = await createCouncilReceipt({
+        engagement:next, companyId:next.companyId, roundId:recorded.round.id,
+        responses:[deterministic]
+      });
+      next = await attachCouncilReceipt(next, receipt);
+    }
+    store.engagement = next;
+    refresh();
+  } catch (error) {
+    store.engagement = initial;
+    refresh();
+    globalThis.alert?.('تعذر تسجيل جولة المجلس بأمان: ' + String(error?.message || error));
+  } finally {
+    councilRecording = false;
+  }
+}
 function deltaCount(value){return Array.isArray(value)?value.length:Number(value||0)}
 function renderDelta(last){const el=$('#roundDelta');if(!el)return;if(!last){el.innerHTML='';return}const rounds=store.engagement.councilRounds,previous=rounds.at(-2)||null,d=buildCouncilDelta(previous,last,store.engagement);const cards=d?.initial?[['أدلة الجولة',deltaCount(d.evidenceAdded)],['قضايا نوقشت',d.issuesConsidered||0],['طلبات مفتوحة',d.requestsOpen||0]]:[['أدلة جديدة',deltaCount(d?.evidenceAdded)],['قضايا جديدة',deltaCount(d?.issuesAdded)],['قضايا أغلقت',deltaCount(d?.issuesClosedOrRemoved)],['طلبات مفتوحة',d?.requests?.open||0]];el.innerHTML=`<div class="delta-label">${d?.initial?'بداية خط الأساس':'التغير منذ الجولة السابقة'}</div><div class="delta-cards">${cards.map(([label,value])=>`<div><strong>${value}</strong><small>${esc(label)}</small></div>`).join('')}</div>`}
 function renderSpecialists(){const el=$('#specialistRecommendations');if(!el)return;const recs=currentSpecialists();if(!recs.length){el.innerHTML='<div class="specialist-empty">لا توجد حاليًا إشارات تتطلب اقتراح خبير إضافي.</div>';return}el.innerHTML=`<div class="specialist-title"><strong>خبراء إضافيون مقترحون</strong><small>اقتراح مشاركة فقط — لا توجد خلاصة تخصصية مفترضة</small></div><div class="specialist-grid">${recs.map(r=>`<article><span>Specialist</span><strong>${esc(r.title)}</strong><small>${esc(r.domain)}</small><p>${esc(r.reason)}</p><em>${esc(r.deliverable)}</em></article>`).join('')}</div>`}
-export function renderCouncil(){ensureCouncilUi();const last=store.engagement.councilRounds.at(-1);$('#councilSummary').innerHTML=last?`<strong>${esc(last.verdict?(councilVerdictLabel(last.verdict)||last.verdict):last.label)}</strong><br>${esc(last.verdictText||'تم تسجيل الجولة.')}`:'لم تُعقد أي جولة.';$('#roundTimeline').innerHTML=store.engagement.councilRounds.map((r,i)=>`<div class="round ${i===store.engagement.councilRounds.length-1?'current':''}"><strong>R${String(r.number).padStart(2,'0')}</strong><small>${(r.evidenceIds||[]).length} دليل<br>${(r.issueIds||[]).length} قضية</small></div>`).join('');$('#seatList').innerHTML=last?.positions?.map(s=>`<article class="seat" data-stance="${esc(s.stance)}"><header><strong>${esc(s.title)}</strong><span>${esc(stanceLabel(s.stance))}</span></header><small>${esc(s.domain||'')}</small><p>${esc(s.statement)}</p>${s.asks?.length?`<small>${s.asks.length} طلب/سؤال</small>`:''}</article>`).join('')||'';renderDelta(last);renderSpecialists()}
+export function renderCouncil(){ensureCouncilUi();refreshCouncilExport({root:__kxRoot(),engagement:store.engagement});const last=store.engagement.councilRounds.at(-1);$('#councilSummary').innerHTML=last?`<strong>${esc(last.verdict?(councilVerdictLabel(last.verdict)||last.verdict):last.label)}</strong><br>${esc(last.verdictText||'تم تسجيل الجولة.')}`:'لم تُعقد أي جولة.';const info=$('#councilSessionInfo');if(info){const receipts=store.engagement.aiSessionReceipts||[],lastReceipt=receipts.at(-1);info.textContent=lastReceipt?('سجل جلسة استشارية '+lastReceipt.scope.roundId+' · SHA-256: '+lastReceipt.receiptHash.slice(0,12)+'… · اعتماد بشري مطلوب'):(store.engagement.companyId&&store.engagement.workspaceId?'لم تُسجل جلسة بعد':'لا يوجد ربط موثق بالشركة ومساحة العمل؛ الجلسة الحالية استشارية محلية فقط');if(lastReceipt?.responseIndependence){
+    const quality=lastReceipt.responseIndependence;
+    info.textContent+=' | حتمي: '+quality.deterministicCount+
+      ' | ردود مزود معلنة: '+quality.declaredProviderResponses+
+      ' | هويات مزود/نموذج مميزة: '+quality.uniqueDeclaredProviderModelPairs+
+      ' | تكرارات مترابطة محتملة: '+quality.potentiallyCorrelatedResponses+
+      ' | الاستقلال والتشغيل الحي غير موثقين';
+  }}
+  $('#roundTimeline').innerHTML=store.engagement.councilRounds.map((r,i)=>`<div class="round ${i===store.engagement.councilRounds.length-1?'current':''}"><strong>R${String(r.number).padStart(2,'0')}</strong><small>${(r.evidenceIds||[]).length} دليل<br>${(r.issueIds||[]).length} قضية</small></div>`).join('');$('#seatList').innerHTML=last?.positions?.map(s=>`<article class="seat" data-stance="${esc(s.stance)}"><header><strong>${esc(s.title)}</strong><span>${esc(stanceLabel(s.stance))}</span></header><small>${esc(s.domain||'')}</small><p>${esc(s.statement)}</p>${s.asks?.length?`<small>${s.asks.length} طلب/سؤال</small>`:''}</article>`).join('')||'';renderDelta(last);renderSpecialists()}
 export function renderRequests(){const m=evidenceRequestMetrics(store.engagement.requests);$('#requestMetrics').innerHTML=`<div><strong>${m.open}</strong><small>مفتوح</small></div><div><strong>${m.criticalOpen}</strong><small>حرج</small></div><div><strong>${m.satisfied}</strong><small>مستوفى</small></div>`;const el=$('#requestList');if(!store.engagement.requests.length){el.className='stack empty';el.textContent='لا توجد طلبات مفتوحة.';return}el.className='stack';el.innerHTML=store.engagement.requests.map(r=>`<article class="request"><header><strong>${esc(r.id)} · ${esc(r.title)}</strong><span class="priority-${esc(r.priority)}">${esc(r.status)}</span></header><small>التغطية ${r.coverage||0}% · ${(r.requestedBy||[]).map(esc).join('، ')}</small>${['requested','partial','received','under-review'].includes(r.status)?`<button class="secondary evidence-button" data-id="${esc(r.id)}">رفع دليل لهذا الطلب</button>`:''}</article>`).join('');__kxRoot().querySelectorAll('.evidence-button').forEach(b=>b.onclick=()=>openEvidence(b.dataset.id))}
 function openEvidence(id){store.activeRequestId=id;const r=store.engagement.requests.find(x=>x.id===id);$('#evidenceRequestTitle').textContent=`${r.id} — ${r.title}`;$('#evidenceFile').value='';$('#evidenceDialog').showModal()}
 async function saveEvidence(event){event.preventDefault();const file=$('#evidenceFile').files[0];if(!file||!store.activeRequestId)return;const req=store.engagement.requests.find(r=>r.id===store.activeRequestId),doc=await registerFile(file,{requestId:store.activeRequestId}),criteria=[];if($('#criterionRelevance').checked)criteria.push('relevance');if($('#criterionPeriod').checked)criteria.push('period');store.engagement=ingestEvidenceBatch(store.engagement,[{title:file.name,documentIds:[doc.id],requestIds:[store.activeRequestId],issueIds:req.issueId?[req.issueId]:[],reviewStatus:'received',criteriaSatisfied:criteria,sourceType:$('#evidenceSource').value}]).engagement;$('#evidenceDialog').close();refresh()}

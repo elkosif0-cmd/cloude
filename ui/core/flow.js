@@ -52,7 +52,7 @@ const actions=(o)=>{const a=' data-title="'+esc(o.title)+'" data-detail="'+esc(o
   return '<span class="skflow-acts"><button type="button" class="linkish" data-flow-task'+a+'>+ مهمة</button><button type="button" class="linkish" data-flow-finding'+a+'>+ سجل الملاحظات</button></span>'};
 /* ---------- «رحلة العمل» on the command centre: how the whole app works, stage by stage, with live status ---------- */
 const L=(k,d)=>{const v=load(k,d);return v==null?d:v};
-function idbCount(store){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res(0)}q.onerror=()=>res(0);q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains(store)){db.close();return res(0)}const c=db.transaction(store).objectStore(store).count();c.onsuccess=()=>{db.close();res(c.result)};c.onerror=()=>{db.close();res(0)}}})}
+function idbCount(store){return SK.legacyCompanyData.read(store).then(rows=>rows.length)}
 async function journey(root){
   /* the dashboard can render twice in a row: one journey per render (flag before the awaits, re-check after them) */
   if(!root||root.querySelector(".skjr")||root.dataset.skjrBusy)return;

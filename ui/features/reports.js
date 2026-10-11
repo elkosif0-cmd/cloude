@@ -37,9 +37,39 @@ function yieldData(){
 }
 
 /* بيانات فعلية من قاعدة التطبيق (العملاء وأسطر المبيعات) — لا أرقام ثابتة */
-const REAL={loaded:false,loading:false,customers:[],lines:[]};
-function idbAll(store){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}q.onerror=()=>res([]);q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains(store)){db.close();return res([])}const g=db.transaction(store,"readonly").objectStore(store).getAll();g.onsuccess=()=>{db.close();res(g.result||[])};g.onerror=()=>{db.close();res([])}}})}
-function loadReal(){if(REAL.loaded||REAL.loading)return;REAL.loading=true;Promise.all([idbAll("customers"),idbAll("sales_lines")]).then(([c,l])=>{REAL.customers=c;REAL.lines=l;REAL.loaded=true;REAL.loading=false;if(roots.reports&&roots.reports.isConnected)paintReports()})}
+/* Legacy IndexedDB is device-wide, not a tenant database. Never infer ownership
+   of untagged real records from whichever company happens to be open. */
+const reportCompanyId=()=>String(window.SK?.company?.current?.()?.id||"").trim();
+function companyOwnedRows(rows,companyId){
+  if(!companyId||!Array.isArray(rows))return[];
+  return rows.filter(r=>r&&typeof r==="object"&&(
+    (typeof r.companyId==="string"&&r.companyId===companyId)||
+    /* The explicit demo fixture predates companyId. Only allow marked demo data in its own workspace. */
+    (companyId==="demo-co"&&r.demo===true&&!r.companyId)
+  ));
+}
+const REAL={loaded:false,loading:false,companyId:"",generation:0,customers:[],lines:[]};
+function idbAll(store){return SK.legacyCompanyData.read(store)}
+function loadReal(){
+  const companyId=reportCompanyId();
+  if(REAL.companyId===companyId&&(REAL.loaded||REAL.loading))return;
+  /* Invalidate any outstanding asynchronous read when switching companies. */
+  const generation=++REAL.generation;
+  REAL.companyId=companyId;REAL.customers=[];REAL.lines=[];REAL.loaded=false;REAL.loading=false;
+  if(!companyId)return;
+  REAL.loading=true;
+  Promise.all([idbAll("customers"),idbAll("sales_lines")]).then(([customers,lines])=>{
+    if(generation!==REAL.generation||reportCompanyId()!==companyId)return;
+    REAL.customers=companyOwnedRows(customers,companyId);
+    REAL.lines=companyOwnedRows(lines,companyId);
+    REAL.loaded=true;REAL.loading=false;
+    if(roots.reports&&roots.reports.isConnected)paintReports();
+  }).catch(()=>{
+    if(generation!==REAL.generation||reportCompanyId()!==companyId)return;
+    REAL.loaded=true;REAL.loading=false;
+    if(roots.reports&&roots.reports.isConnected)paintReports();
+  });
+}
 const lineAmt=l=>Number(l.amountHalalas)?Number(l.amountHalalas)/100:(Number(l.amount)||0);
 /* the device's calendar day: toISOString() still gives yesterday in Riyadh until 03:00 */
 const localDay=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -398,7 +428,7 @@ function eodToday(){
   return {today,total,cust,orders,lines:lines.length,coldToday,breaks};
 }
 function eodHTML(){
-  if(!REAL.loaded){loadReal();return '<div class="sk-empty">جارٍ قراءة مبيعات اليوم…</div>'}
+  if(REAL.companyId!==reportCompanyId()||!REAL.loaded){loadReal();return '<div class="sk-empty">جارٍ قراءة مبيعات اليوم…</div>'}
   const d=eodToday(),biz=((document.getElementById("biz-name")||{}).textContent||"SQC").trim(),now=new Date();
   return [
     '<div class="sk-stack">',
@@ -411,7 +441,7 @@ function eodHTML(){
           '<div class="sk-kpi"><span>العملاء</span><b>'+d.cust+'</b></div>',
           '<div class="sk-kpi '+(d.breaks?'bad':'')+'"><span>قراءات التبريد اليوم</span><b>'+d.coldToday.length+(d.breaks?' ('+d.breaks+' تجاوز)':'')+'</b></div>',
         '</div>',
-        (d.lines?'':'<div class="sk-note">لا توجد مبيعات مسجلة بتاريخ اليوم. تُحتسب الأرقام من المبيعات المستوردة أو المسجلة يدوياً.</div>'),
+        (d.lines?'':'<div class="sk-note">لا توجد مبيعات مؤكدة الملكية للشركة الحالية اليوم. البيانات القديمة غير المربوطة بشركة محفوظة دون عرض حتى يتم التحقق من ملكيتها وترحيلها بأمان.</div>'),
       '</div>',
       '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">',
         '<button type="button" id="sk-eod-wa" class="btn" style="background:#25D366;color:#fff;">إرسال الملخص عبر واتساب</button>',
@@ -440,9 +470,9 @@ function bindEOD(){
    Tab 6: Visual Charts & Analytics (SVG Zero-Dependency)
    ========================================================================== */
 function trendsHTML(){
-  if(!REAL.loaded){loadReal();return '<div class="sk-empty">جارٍ قراءة المبيعات…</div>'}
+  if(REAL.companyId!==reportCompanyId()||!REAL.loaded){loadReal();return '<div class="sk-empty">جارٍ قراءة المبيعات…</div>'}
   const lines=REAL.lines.filter(l=>l&&l.date);
-  if(!lines.length)return '<div class="sk-empty">لا توجد مبيعات مستوردة بعد — استورد ملف المبيعات من «العملاء» لتظهر الرسوم هنا.</div>';
+  if(!lines.length)return '<div class="sk-empty">لا توجد مبيعات مرتبطة بمعرّف الشركة الحالية. بيانات الشركات الأخرى والسجلات القديمة غير محددة الملكية محجوبة عن التقرير، ولم تُحذف.</div>';
   const amt=l=>Number(l.amount)||(Number(l.amountHalalas)||0)/100;
   const dayKey=d=>String(d).slice(0,10);
   const last=lines.map(l=>dayKey(l.date)).sort().pop();
@@ -558,7 +588,8 @@ window.SK.view("execreports",{
 
 window.SKosifReports=Object.freeze({
   getPL:()=>load(PL_KEY,defaultPL),
-  getYieldData:yieldData
+  getYieldData:yieldData,
+  scopedLegacyRows:rows=>companyOwnedRows(rows,reportCompanyId())
 });
 
 })();

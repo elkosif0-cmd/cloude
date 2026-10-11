@@ -21,11 +21,15 @@ const rules=()=>{const r=SK.load(RK,[]);return Array.isArray(r)?r:[]};
 const imported=()=>{const d=SK.load(LK,null);return d&&Array.isArray(d.lines)?d:{lines:[],catalog:[]}};
 const CH_ICON={"المعرض":"commerce","الجملة":"suppliers","المتجر":"catalog","هنغرستيشن":"customers"};
 
-function appLines(){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}q.onerror=()=>res([]);
-  q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains("sales_lines")){db.close();return res([])}const g=db.transaction("sales_lines").objectStore("sales_lines").getAll();
-    g.onsuccess=()=>{db.close();res((g.result||[]).map((l,i)=>({id:"a"+i,date:String(l.date||"").slice(0,10),amount:Number.isFinite(+l.amountHalalas)?+l.amountHalalas:Math.round((+l.amount||0)*100),qty:+l.qty||1,
-      product:String(l.descriptionOriginal||l.product||"غير محدد"),channel:l.source||l.channel||"",invoice:l.ref||l.externalOrderId||"",paymentMethod:l.paymentMethod||l.payment||"",customerType:l.customerType||"",freeShipping:!!l.freeShipping,src:"app"})))};
-    g.onerror=()=>{db.close();res([])}}})}
+async function appLines(){
+  const rows=await SK.legacyCompanyData.read("sales_lines");
+  return rows.map((l,i)=>({id:"a"+i,date:String(l.date||"").slice(0,10),
+    amount:Number.isFinite(+l.amountHalalas)?+l.amountHalalas:Math.round((+l.amount||0)*100),
+    qty:+l.qty||1,product:String(l.descriptionOriginal||l.product||"صنف غير محدد"),
+    channel:l.source||l.channel||"",invoice:l.ref||l.externalOrderId||"",
+    paymentMethod:l.paymentMethod||l.payment||"",customerType:l.customerType||"",
+    freeShipping:!!l.freeShipping,src:"app"}));
+}
 /* imported lines carry their catalog: codes, the approved name and aliases (v16 «شجرة الأصناف») */
 function importedLines(){const d=imported(),cat=new Map((d.catalog||[]).map(c=>[String(c.code),c]));
   return d.lines.map((l,i)=>{const c=cat.get(String(l.code||""));return{...l,id:"i"+i,product:c?c.name:l.product,category:c?c.category:l.category||"",src:"import"}})}

@@ -1,0 +1,225 @@
+{
+  "summary": {
+    "generated_utc": "2026-10-10T17:28:00.004693+00:00",
+    "accounts": [
+      "kosif199022-jpg",
+      "elkosif0-cmd"
+    ],
+    "repos": 21,
+    "branch_records": 342,
+    "failed": [],
+    "note": "Metadata only. No branch was merged or certified; capability code still requires review."
+  },
+  "repositories": [
+    {
+      "repo": "kosif199022-jpg/mafateeh-al-tharwa",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 67853,
+      "pushed_at": "2026-08-23T10:34:41Z",
+      "branch_count": 3,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/mafateeh-al-tharwa2",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 1259,
+      "pushed_at": "2026-08-15T19:54:54Z",
+      "branch_count": 2,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/-",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 7419,
+      "pushed_at": "2026-10-08T15:15:07Z",
+      "branch_count": 7,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/CLOUDFLARE_API_TOKEN",
+      "default_branch": "claude/nice-carson-511m0j",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 1484,
+      "pushed_at": "2026-10-01T04:14:14Z",
+      "branch_count": 6,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/moon",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 147,
+      "pushed_at": "2026-10-09T06:38:17Z",
+      "branch_count": 5,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/kosif-audit-studio",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 5127,
+      "pushed_at": "2026-09-28T08:30:31Z",
+      "branch_count": 51,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/smart-trial-balance-review",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 43,
+      "pushed_at": "2026-08-27T13:34:36Z",
+      "branch_count": 1,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/kosif-audit-pro",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 443,
+      "pushed_at": "2026-08-31T20:38:34Z",
+      "branch_count": 3,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/new",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 146,
+      "pushed_at": "2026-09-04T14:34:43Z",
+      "branch_count": 3,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/see",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 404,
+      "pushed_at": "2026-10-09T09:51:22Z",
+      "branch_count": 10,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/whatsapp-personal-bridge",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 23,
+      "pushed_at": "2026-09-27T07:21:08Z",
+      "branch_count": 3,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/think",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 496,
+      "pushed_at": "2026-10-09T09:42:30Z",
+      "branch_count": 10,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/kosif-omni",
+      "default_branch": "main",
+      "visibility": "private",
+      "archived": false,
+      "size_kb": 80681,
+      "pushed_at": "2026-10-07T11:45:22Z",
+      "branch_count": 3,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/kosif-atlas-private",
+      "default_branch": "main",
+      "visibility": "private",
+      "archived": false,
+      "size_kb": 133936,
+      "pushed_at": "2026-10-03T16:37:49Z",
+      "branch_count": 1,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/kosif-atlas",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 175844,
+      "pushed_at": "2026-10-03T20:13:50Z",
+      "branch_count": 1,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/100-superskills",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 122813,
+      "pushed_at": "2026-10-09T12:16:01Z",
+      "branch_count": 1,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/kosif-studio",
+      "default_branch": "main",
+      "visibility": "private",
+      "archived": false,
+      "size_kb": 301863,
+      "pushed_at": "2026-10-10T13:02:02Z",
+      "branch_count": 6,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/kosif-render-lab",
+      "default_branch": "main",
+      "visibility": "private",
+      "archived": false,
+      "size_kb": 1693,
+      "pushed_at": "2026-10-09T09:51:24Z",
+      "branch_count": 2,
+      "status": "OK"
+    },
+    {
+      "repo": "kosif199022-jpg/kosif-one",
+      "default_branch": "main",
+      "visibility": "private",
+      "archived": false,
+      "size_kb": 81268,
+      "pushed_at": "2026-10-09T20:52:14Z",
+      "branch_count": 1,
+      "status": "OK"
+    },
+    {
+      "repo": "elkosif0-cmd/cloude",
+      "default_branch": "main",
+      "visibility": "private",
+      "archived": false,
+      "size_kb": 49764,
+      "pushed_at": "2026-10-10T16:57:26Z",
+      "branch_count": 223,
+      "status": "OK"
+    },
+    {
+      "repo": "elkosif0-cmd/moon",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 0,
+      "pushed_at": "2026-10-07T08:53:50Z",
+      "branch_count": 0,
+      "status": "OK"
+    }
+  ]
+}

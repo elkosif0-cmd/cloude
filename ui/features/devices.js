@@ -11,6 +11,17 @@
 const {$,$$,esc,toast}=SK;
 const D=()=>SK.device;
 const FORMAT="skosif-transfer",ITER=250000,LOG="sk-device-log";
+/* Device-wide old store includes every company's keys and IndexedDB rows.
+   Until a trusted server grants tenant/admin scope and validates restoration,
+   keep the old encrypted transfer implementation for later migration, but
+   never enable it in a tenant-facing browser. Local role toggles are forgeable. */
+const DEVICE_WIDE_TRANSFER_PAUSED=true;
+const transferAllowed=()=>!DEVICE_WIDE_TRANSFER_PAUSED;
+const blockedTransfer=()=>{
+  toast("نقل جميع بيانات الجهاز موقوف لحين تفعيل صلاحيات خادم موثوقة. استخدم تصدير الشركة المحدود من شاشة التصدير.","warn");
+  return false;
+};
+const guardTransfer=()=>{if(!transferAllowed())throw new Error("DEVICE_WIDE_TRANSFER_REQUIRES_SERVER_AUTHORIZATION")};
 const ALPHA="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 let root=null,code="",incoming=null,info=null;
 
@@ -28,6 +39,7 @@ async function keyFor(c,salt,iterations){
   return crypto.subtle.deriveKey({name:"PBKDF2",hash:"SHA-256",salt,iterations},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
 }
 async function seal(c){
+  guardTransfer();
   const backup=await SK.store.data(),plain=new TextEncoder().encode(JSON.stringify(backup));
   const gz=gzipOk(),body=gz?await pipe(plain,new CompressionStream("gzip")):plain;
   const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
@@ -72,9 +84,11 @@ function deviceCard(){
     '</div></div></section>';
 }
 function transferCard(){
-  const canOut=SK.perm.can("settings","export"),canIn=SK.perm.can("settings","import"),u=SK.store.usage(),log=logList(),d=D();
+  const canOut=transferAllowed()&&SK.perm.can("settings","export"),
+    canIn=transferAllowed()&&SK.perm.can("settings","import"),u=SK.store.usage(),log=logList(),d=D();
   const shareHint=d.os==="ios"||d.os==="ipados"?"تظهر ورقة المشاركة: اختر AirDrop إلى الماك، أو «حفظ في الملفات»، أو أرسلها لنفسك في واتساب.":
     d.canShareFiles&&d.canShareFiles([new File(["x"],"x.json",{type:"application/json"})])?"تظهر ورقة المشاركة، أو يُنزَّل الملف إن أغلقتها.":"يُنزَّل الملف؛ أرسله للآيفون عبر AirDrop أو واتساب أو iCloud Drive.";
+  if(!transferAllowed())return '<section class="card" id="dv-sync"><div class="card-h"><div><h3>نقل الجهاز بالكامل</h3><p>هذه الوظيفة قد تنقل بيانات شركات متعددة ولا تملك تفويض خادم موثقًا.</p></div></div><div class="card-b"><div class="sk-note" role="status" id="dv-transfer-locked">نقل ونسخ بيانات الجهاز الشاملان موقوفان مؤقتًا لحماية عزل الشركات. تصدير الشركة المحدود متاح من قسم «التصدير»، ولا يصلح للاستعادة الكاملة. لم تُحذف أي بيانات.</div></div></section>';
   return '<section class="card" id="dv-sync"><div class="card-h"><div><h3>النقل بين الآيفون واللابتوب</h3><p>انقل كل بياناتك من جهاز إلى آخر في حزمة مشفرة: لا خادم، ولا حساب، ولا تُفتح الحزمة إلا برمز النقل.</p></div></div><div class="card-b">'+
     '<div class="dv-sync">'+
       '<div class="dv-pane"><h4>'+SK.icon("share")+' إرسال من هذا الجهاز</h4>'+
@@ -134,6 +148,7 @@ async function refreshInfo(){
 /* two steps where a share sheet exists: iOS only opens it straight from a tap, and sealing takes a moment */
 let ready=null;
 async function send(btn){
+  if(!transferAllowed())return blockedTransfer();
   const out=$("#dv-send-out",root);btn.disabled=true;ready=null;out.textContent="جارٍ تجميع البيانات وتشفيرها…";
   try{
     const {pkg,counts}=await seal(code);
@@ -145,6 +160,7 @@ async function send(btn){
   finally{btn.disabled=false}
 }
 async function deliver(mode){
+  if(!transferAllowed())return blockedTransfer();
   const out=$("#dv-send-out",root);if(!ready)return;
   const {file,counts}=ready;
   const how=mode==="share"?await D().share({files:[file],title:"SQC — حزمة نقل",text:"حزمة نقل مشفرة من SQC ("+D().label()+"). افتحها من «الأجهزة والمزامنة» بالرمز الذي أرسلته لك منفصلاً."}):(SK.download(file.name,file),"downloaded");
@@ -156,6 +172,7 @@ async function deliver(mode){
   toast("حزمة النقل جاهزة","ok");
 }
 async function openIncoming(btn){
+  if(!transferAllowed())return blockedTransfer();
   const out=$("#dv-in-out",root),f=$("#dv-file",root).files[0],c=$("#dv-in-code",root).value;
   if(!f){out.textContent="اختر ملف النقل أولاً.";return}
   if(normCode(c).length<6){out.textContent="اكتب رمز النقل كما ظهر على الجهاز المرسل.";return}
@@ -172,6 +189,7 @@ async function openIncoming(btn){
   finally{btn.disabled=false}
 }
 async function apply(){
+  if(!transferAllowed())return blockedTransfer();
   const out=$("#dv-in-out",root);if(!incoming)return;
   if(!await SK.confirm("ستُستبدل بيانات هذا الجهاز بما في الحزمة (مع الاحتفاظ بنقطة رجوع). متابعة؟",{title:"استيراد حزمة النقل",ok:"استيراد"}))return;
   try{
@@ -198,6 +216,9 @@ function bind(node){
     const r=e.target.closest("[data-railmode]");if(r){SKosifShell.toggleRail(r.dataset.railmode==="mini");$$("#dv-rail button",node).forEach(b=>b.setAttribute("aria-pressed",String(b===r)));return}
     const b=e.target.closest("[data-dv]");if(!b)return;
     const a=b.dataset.dv;
+    if(["send","share-now","download-now","open","apply","rollback","snap"].includes(a)&&!transferAllowed()){
+      blockedTransfer();return;
+    }
     if(a==="install"){if(await D().install())refreshInfo()}
     else if(a==="persist"){const ok=await D().persist();toast(ok?"سيحتفظ المتصفح ببيانات هذا الجهاز":"رفض المتصفح الطلب — التثبيت كتطبيق يحمي البيانات",ok?"ok":"info");refreshInfo()}
     else if(a==="keys")window.SKosifKeys&&SKosifKeys.help();

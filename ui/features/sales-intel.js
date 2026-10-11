@@ -22,9 +22,7 @@ let raw=null,res=null,resKey="",seq=0;
 const DL='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>';
 
 /* ---------- data: the core's stores, read only ---------- */
-function idbAll(store){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}q.onerror=()=>res([]);
-  q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains(store)){db.close();return res([])}const g=db.transaction(store).objectStore(store).getAll();
-    g.onsuccess=()=>{db.close();res(g.result||[])};g.onerror=()=>{db.close();res([])}}})}
+function idbAll(store){return SK.legacyCompanyData.read(store)}
 async function load(){
   const [L,C]=await Promise.all([idbAll("sales_lines"),idbAll("customers")]);
   const lines=L.map(l=>({date:String(l.date||"").slice(0,10),amount:Number.isFinite(+l.amountHalalas)&&l.amountHalalas!==""&&l.amountHalalas!=null?+l.amountHalalas:Math.round((+l.amount||0)*100),

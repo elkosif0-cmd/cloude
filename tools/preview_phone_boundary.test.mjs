@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 const phone='0512345678',hash='a'.repeat(20)+phone+'b'.repeat(34);
 function phones(text){
-  return JSON.parse(execFileSync('python3',['-c','import json,sys; from tools.preview_build_check import public_phone_numbers; print(json.dumps(sorted(public_phone_numbers(json.load(sys.stdin)))))'],{input:JSON.stringify(text),encoding:'utf8'}));
+  return JSON.parse(execFileSync(process.platform==='win32'?'python':'python3',['-c','import json,sys; from tools.preview_build_check import public_phone_numbers; print(json.dumps(sorted(public_phone_numbers(json.load(sys.stdin)))))'],{input:JSON.stringify(text),encoding:'utf8'}));
 }
 test('verified-shape sourceLineSha256 digest is not classified as a real phone',()=>{
   assert.equal(hash.length,64);assert.deepEqual(phones(JSON.stringify({sourceLineSha256:hash})),[]);

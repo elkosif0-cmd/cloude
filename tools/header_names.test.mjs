@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import {fileURLToPath} from 'node:url';
 import {harness} from './output_focus_fixture.mjs';
 function setup(){
- const h=harness({root:new URL('..',import.meta.url).pathname}),d=h.document,{SK}=h.context;
+ const h=harness({root:fileURLToPath(new URL('..',import.meta.url))}),d=h.document,{SK}=h.context;
  const proto=Object.getPrototypeOf(d.body);
  Object.defineProperties(proto,{firstChild:{get(){return this.firstElementChild}},childNodes:{get(){return this.children}}});
  proto.insertBefore=function(node,ref){node.parentElement?.removeChild(node);node.parentElement=this;const i=this.children.indexOf(ref);this.children.splice(i<0?this.children.length:i,0,node);return node};

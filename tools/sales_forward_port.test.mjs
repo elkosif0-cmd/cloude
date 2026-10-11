@@ -44,7 +44,7 @@ function ui(records,{includeHub=true}={}){
  const ctx={console,setTimeout,clearTimeout,queueMicrotask,Intl,Date,Promise,TextEncoder,Blob,scrollY:0,scrollTo(){},
  CustomEvent:class {constructor(type,opts){this.type=type;this.detail=opts?.detail}},
  document:{addEventListener(type,fn){(events.get(type)||events.set(type,[]).get(type)).push(fn)},dispatchEvent(e){for(const f of events.get(e.type)||[])f(e)},querySelector:q=>q==='[data-si-host]'?si:q==='[data-slab-host]'?slab:null},
- SK:{esc:s=>String(s??''),load:()=>({}),save(...a){saved.push(a)},toast(...a){notices.push(a)},errors:{report(e){errors.push(e)}}},
+ SK:{esc:s=>String(s??''),load:()=>({}),save(...a){saved.push(a)},toast(...a){notices.push(a)},errors:{report(e){errors.push(e)}},legacyCompanyData:{read:async store=>structuredClone(records[store]||[])}},
  SKCharts:new Proxy({compact:v=>String(v)},{get:(o,k)=>o[k]||(()=> '')}),SKosifCore:{onView(v,fn){hooks.push(fn)}}};ctx.window=ctx;
  ctx.indexedDB={open(){const q={};queueMicrotask(()=>{q.result={objectStoreNames:{contains:s=>s in records},close(){},transaction(s){return{objectStore(){return{getAll(){const g={};queueMicrotask(()=>{g.result=structuredClone(records[s]);g.onsuccess()});return g}}}}}};q.onsuccess()});return q}};
  vm.createContext(ctx);vm.runInContext(fs.readFileSync(root+'/ui/core/engines.js','utf8'),ctx);if(process.env.USE_SHIPPED_ENGINE!=='1')ctx.SKEngines.sales.salesInsights=S;

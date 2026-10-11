@@ -11,10 +11,13 @@ const sar=h=>SKCharts.compact(Math.round((Number(h)||0)/100));
 let tab="pulse",paintSeq=0;
 const TABS=[["pulse","النبض الزمني"],["invoices","الفواتير والشرائح"],["momentum","سباق الزخم"],["maps","الخرائط الحرارية"],["stats","المختبر الإحصائي"],["profit","الربحية والقنوات"],["tree","شجرة الأصناف"],["ideas","أفكار النمو"]];
 
-function lines(){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}q.onerror=()=>res([]);
-  q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains("sales_lines")){db.close();return res([])}const g=db.transaction("sales_lines").objectStore("sales_lines").getAll();
-    g.onsuccess=()=>{db.close();res((g.result||[]).map(l=>({date:String(l.date||"").slice(0,10),amount:Number.isFinite(+l.amountHalalas)?+l.amountHalalas:Math.round((+l.amount||0)*100),qty:+l.qty||1,product:String(l.descriptionOriginal||l.product||"غير محدد"),customerId:l.customerId||"",invoice:l.ref||l.externalOrderId||"",channel:l.source||""})))};g.onerror=()=>{db.close();res([])}}})}
-
+async function lines(){
+  const rows=await SK.legacyCompanyData.read("sales_lines");
+  return rows.map(l=>({date:String(l.date||"").slice(0,10),
+    amount:Number.isFinite(+l.amountHalalas)?+l.amountHalalas:Math.round((+l.amount||0)*100),
+    qty:+l.qty||1,product:String(l.descriptionOriginal||l.product||"صنف غير محدد"),
+    customerId:l.customerId||"",invoice:l.ref||l.externalOrderId||"",channel:l.source||""}));
+}
 async function lab(){
   const hub=window.SKosifSalesIntel,context=hub&&hub.context?hub.context():null;
   /* Share the hub forecast, channel and asOf. Keep earlier history for the lab's own 30/30 and 60/60 comparisons. */

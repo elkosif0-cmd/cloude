@@ -36,9 +36,7 @@ function mountHero(box){
 }
 
 /* ---------- data ---------- */
-function idbAll(store){return new Promise(res=>{let q;try{q=indexedDB.open("aghnam-app-v7")}catch{return res([])}
-  q.onupgradeneeded=e=>{try{e.target.transaction.abort()}catch{}};q.onerror=()=>res([]);
-  q.onsuccess=()=>{const db=q.result;if(!db.objectStoreNames.contains(store)){db.close();return res([])}const g=db.transaction(store,"readonly").objectStore(store).getAll();g.onsuccess=()=>{db.close();res(g.result||[])};g.onerror=()=>{db.close();res([])}}})}
+function idbAll(store){return SK.legacyCompanyData.read(store)}
 const monthOf=d=>{const s=String(d||"");if(/^\d{4}-\d{2}/.test(s))return s.slice(0,7);const t=new Date(s);return isNaN(t)?"":t.toISOString().slice(0,7)};
 function monthsBack(n,end){const out=[],d=end?new Date(+end.slice(0,4),+end.slice(5,7)-1,1):new Date();d.setDate(1);for(let i=n-1;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);out.push(x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0"))}return out}
 /* same sources as «التدفق النقدي»: sales lines in, supplier shipments + monthly opex out */
