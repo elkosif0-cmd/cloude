@@ -134,7 +134,7 @@ jobs:
           KOSIF_UNLOCK_PASSWORD: ${{ secrets.KOSIF_UNLOCK_PASSWORD }}
         run: python3 build.py
 
-      - name: Product identity is audit-first SQC (أغنام الوادي stays the demo company)
+      - name: KOSIF EARTH product identity, three sections and isolated demo
         run: python3 tools/identity_check.py
 
       - name: Validate production bundle
@@ -154,9 +154,9 @@ jobs:
           import re as _re
           _b=_re.search(r'<meta name="sqc-build" content="([0-9a-f]{10})">',app)
           assert _b and "./skosif.js?v="+_b.group(1) in app, "build number missing or not the bundle's"
-          assert "<title>SQC — Smart Quality Control</title>" in app
-          assert "SQC" in unlock and "sqc-logo.svg" in unlock
-          assert '"name":"SQC — Smart Quality Control"' in manifest
+          assert "<title>KOSIF EARTH — المحاسبة والمراجعة والأدوات الذكية</title>" in app
+          assert "KOSIF EARTH" in unlock and "art/brand/kosif-earth-icon.svg" in unlock
+          assert json.loads(manifest).get("name", "").startswith("KOSIF EARTH")
           assert "const SEED_B64 = \"\";" in app
           assert len(list(Path("dist/secure").glob("seed.enc.b64.part*"))) == 6
           assert "SEED_RAWS=[{" not in app, "price catalog left in plaintext"
