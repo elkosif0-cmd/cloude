@@ -56,6 +56,8 @@ head,tail=text[:head_end],text[head_end:]
 # so browser precedence cannot resurrect favicon-32x32.png, kosif-cloud.svg or manifest.json.
 head=re.sub(r"<link\b(?=[^>]*\brel=['\"](?:shortcut\s+)?icon['\"])[^>]*>\s*", "", head, flags=re.I)
 head=re.sub(r"<link\b(?=[^>]*\brel=['\"]manifest['\"])[^>]*>\s*", "", head, flags=re.I)
+# Normalize references left in other legacy head tags to the canonical mark.
+head=head.replace('kosif-cloud.svg','sqc-icon.svg')
 head += '<link rel="icon" type="image/svg+xml" href="./art/sqc-icon.svg">'
 head += '<link rel="icon" type="image/png" href="./icon-192.png">'
 head += '<link rel="manifest" href="./manifest.webmanifest">'
