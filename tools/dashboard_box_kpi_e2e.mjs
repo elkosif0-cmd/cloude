@@ -55,6 +55,7 @@ try{
    assert.deepEqual(errors,[]);results.push({name,status:'pass',stats});
    }catch(e){
    const state=await page.evaluate(()=>({scope:window.SKosifSpace?.scopeSnapshot?.(),company:window.SK?.company?.current?.(),business:window.SK?.org?.().biz,previewCount:document.querySelectorAll('.skout').length,notices:[...document.querySelectorAll('.toast,.sk-toast,[role="alert"]')].map(n=>n.textContent.trim()).slice(-8)})).catch(err=>({unavailable:err.message}));
+   console.error('KPI_SCOPE_FAILURE_DIAGNOSTICS',name,JSON.stringify({error:e.message,state}));
    fs.writeFileSync(`${out}/${name}-failure-context.json`,JSON.stringify({error:e.message,state},null,2));await page.screenshot({path:`${out}/${name}-failure.png`,fullPage:true}).catch(()=>{});
    results.push({name,status:'fail',error:e.stack});console.error(name,e.stack);
   }
