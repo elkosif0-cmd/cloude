@@ -261,7 +261,9 @@ jobs:
               assert marker in js, "luxe marker missing: "+marker
           for marker in ["--sk-heat-1",".sk-ph",".skk4",".sktb-bar",".skhm-cell",".sksev"]:
               assert marker in css, "luxe style missing: "+marker
-          assert "AI-Powered Audit &amp; Assurance Platform" in unlock, "sign-in page lost the SQC claim"
+          # Enforce the actual Arabic audit-first product identity, not a legacy
+          # marketing slogan implying an externally verified AI assurance claim.
+          assert "KOSIF EARTH" in unlock and 'name="description"' in unlock and "المراجعة" in unlock, "sign-in page lost the audit-first KOSIF EARTH description"
           # live assistant, theme studio, charts v2, tables v2 (Excel), print preview
           for marker in ["SKosifAssistant","functionDeclarations","accentTokens","waterfall","exportXlsx","rightToLeft","skp-bar","__skRealPrint"]:
               assert marker in js, "marker missing: "+marker
