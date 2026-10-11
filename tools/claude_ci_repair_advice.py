@@ -9,14 +9,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ALLOWED = {
-    "tools/identity_check.py": 11000,
-    "manifest.webmanifest": 6500,
-    "build.py": 11000,
-    ".github/workflows/S.kosif.yml": 10000,
-    "tools/earth_brand_canonical.test.mjs": 6500,
+    "tools/identity_check.py": 8500,
+    "manifest.webmanifest": 2200,
+    "build.py": 4700,
+    ".github/workflows/S.kosif.yml": 4000,
+    "tools/earth_brand_canonical.test.mjs": 1600,
 }
 TIERS = {"economy": "haiku", "standard": "sonnet", "expert": "opus"}
-TIER_LIMIT = {"economy": 1900, "standard": 2500, "expert": 3200}
+TIER_LIMIT = {"economy": 1250, "standard": 2000, "expert": 2700}
 
 def api_json(url, key, body=None):
     headers = {"x-api-key": key, "anthropic-version": "2023-06-01", "accept": "application/json"}
@@ -80,8 +80,9 @@ def main():
     }
     result = api_json("https://api.anthropic.com/v1/messages", key, request)
     msg = "\n".join(part.get("text","") for part in result.get("content",[]) if part.get("type") == "text")
+    print("CLAUDE_RESPONSE_META=" + json.dumps({"stop_reason": result.get("stop_reason"), "usage": result.get("usage", {}), "content_types": [part.get("type") for part in result.get("content", [])], "text_length": len(msg)}, ensure_ascii=False))
     if len(msg.strip()) < 60:
-        raise RuntimeError("Claude returned an insufficient diagnosis")
+        raise RuntimeError("Claude returned an insufficient diagnosis; see response metadata")
     report = f"## Claude CI diagnosis — {tier}\n**Actual model:** `{result.get('model')}`\n" + msg[:17000]
     path = os.environ.get("GITHUB_STEP_SUMMARY")
     if path:
