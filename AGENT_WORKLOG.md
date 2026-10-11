@@ -1067,5 +1067,6 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Scope deliberately limited to repo development workflow (`.github/workflows/claude-earth-development.yml`), owner-initiated issue template, and Arabic setup runbook; no app UI, data, engine, account/password, deployment, or production change.
 - Workflow gates: only `elkosif0-cmd` or `kosif199022-jpg`, explicit `@claude` in issue/PR comment, scoped GitHub token, no automatic main merge, no full output, `--max-turns 12`.
 - Prerequisites not performed: user must create and save `ANTHROPIC_API_KEY` in repository Actions secrets and install official Claude GitHub App. API connectivity and live billing are **NOT TESTED**.
-- Branch: `chatgpt/claude-api-dev-github-20261011` (isolated from main); PR pending creation/review. No publish.
-- Follow-up: review GitHub Action security, confirm Action billing/availability, merge by owner, add secret locally, then test with an owner `@claude` issue and inspect resulting PR/CI before publishing.
+- Branch: `chatgpt/claude-api-dev-github-20261011` (isolated from main); draft PR #253 open and mergeable; no publish.
+- Validation: Foundation Guard and Windows production-build smoke succeeded on PR head. Existing S.kosif CI fails ESLint `no-dupe-keys` in **unchanged** `ui/features/tb-review.js:359` (`open` duplicate); do not attribute to workflow. Live Claude API remains untested.
+- Follow-up: review GitHub Action security, resolve unrelated lint blocker, merge by owner, add secret locally, then test with an owner `@claude` issue and inspect resulting PR/CI before publishing.
