@@ -110,3 +110,19 @@ test('records are scoped without deleting legacy data or fetching content',()=>{
  const h=harness();h.api.log('data',{key:'synthetic'});h.api.flush();
  assert.equal(h.writes(),1);
 });
+
+test('ledger-initiated review import is filed under the registered audit engagement, not the accounting company',()=>{
+ const h=harness();
+ assert.equal(h.state.gate,'accounting');
+ assert.equal(h.api.log('tbreview',{act:'import',source:'synthetic trial balance'}),true);
+ const auditKey=h.api.scopeKey('tbreview');
+ assert.match(auditKey,/audit:audit-A$/);
+ assert.equal(h.api.all().length,0,'accounting bucket does not inherit audit import events');
+ h.state.view='tbreview';
+ assert.equal(h.api.scopeKey(),auditKey,'audit screen uses its registered file regardless of the original gate');
+ assert.equal(h.api.all()[0].act,'import');
+ h.registry.active='audit-B';
+ assert.equal(h.api.all().length,0,'a different audit file cannot read the prior import');
+ h.registry.active='missing';
+ assert.equal(h.api.log('tbreview',{act:'import'}),false,'missing audit engagement is fail-closed');
+});

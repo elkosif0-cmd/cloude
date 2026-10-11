@@ -11,11 +11,15 @@ const role=()=>SK.perm?.role?.()||"admin";
 /* Audit engagements are independent client files; the accounting company must
    never decide where their events are recorded. A missing/invalid context fails
    closed rather than silently reusing another file's or company's history. */
-function scopeKey(){
+function scopeKey(type){
   const gate=SK.gate?.current?.();
   if(!["accounting","audit","tools"].includes(gate))return "";
-  if(gate==="audit"){
-    // Only the audit workspace owns its engagement registry.
+  // Review imports may be initiated while the ledger is still the visible screen.
+  // Explicit review actions and an opened review screen belong to the registered
+  // AUDIT file, never the previous accounting company's activity bucket.
+  const reviewView=window.SKosifCore?.view?.()==="tbreview";
+  if(gate==="audit"||reviewView||type==="tbreview"){
+    // Only a registered audit engagement can receive this event.
     const active=window.SKosifTBReview?.activeEngagementId?.();
     if(!active)return "";
     return KEY+"audit:"+encodeURIComponent(active);
@@ -56,7 +60,7 @@ function schedule(key){
   if(!timer)timer=setTimeout(flush,800);
 }
 function log(type,detail={}){
-  const key=scopeKey();
+  const key=scopeKey(type);
   if(!key)return false;
   const e={at:new Date().toISOString(),type,role:role(),
     view:window.SKosifCore?.view?.()||"",...detail};

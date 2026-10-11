@@ -397,6 +397,9 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 @media (max-width:900px){.sk-rail-mini{display:none}}
 @media (min-width:901px){
   :root[data-rail="mini"]{--sk-rail-w:78px}
+  /* Theme-scoped rail width tokens have higher specificity than the generic
+     compact rule; the compact preference must still reclaim desktop space. */
+  :root[data-rail="mini"][data-look="kosif"][data-brand="ledger"]{--sk-rail-w:78px}
   :root[data-rail="mini"]:not(#x):not(#y) .rail{padding:0 8px var(--sk-4);background-image:none;overflow-x:hidden}
   :root[data-rail="mini"]:not(#x):not(#y) .rail .brand{display:flex;justify-content:center;padding:var(--sk-4) 0 var(--sk-3)}
   :root[data-rail="mini"]:not(#x):not(#y) .rail .brand>div{display:none}
