@@ -26,7 +26,7 @@ ok('الجولات السابقة','المساعد المباشر ولوحة ا�
 ok('الجولات السابقة','استوديو المظهر: خطوط وألوان تمييز',E.fonts>=8&&E.accents>=9);
 await go('ledger');ok('الجولات السابقة','جداول مطورة (بحث، تصدير، أعمدة)',await has('.sktb-bar,.sk-tb-bar,[data-sktb],.sktbl-bar')||await p.evaluate(()=>!!window.SKosifTable));
 // ---------- research: council ----------
-await go('tbreview');await p.click('[data-tab="conf"]');await p.waitForTimeout(1500);
+await go('tbreview');await p.locator('[data-tab="conf"]:visible').first().click();await p.waitForTimeout(1500);
 const C=await p.evaluate(()=>{const t=document.body.innerText;return{states:document.querySelectorAll('.tbc-states li').length,apps:document.querySelectorAll('.tbc-apps article').length,matrix:document.querySelectorAll('.tbc-mx tbody tr').length,checks:document.querySelectorAll('.tbc-checks>div').length,reg:t.includes('سجل الأدلة المرقمة'),ranked:t.includes('الطلبات مرتبة بالقيمة'),exc:t.includes('سجل الاستثناءات'),isa:t.includes('خريطة الربط بمعايير المراجعة'),ready:t.includes('جاهزية المكتب'),journal:t.includes('اختبارات القيود على كامل المجتمع')}});
 ok('البحث: مجلس المراجعة','حالات الملف الثماني',C.states===8);ok('البحث: مجلس المراجعة','نقاط الاعتماد البشرية الأربع',C.apps===4);
 ok('البحث: مجلس المراجعة','درجة الثقة لكل بند × تأكيد مع العتبات',C.matrix>0);ok('البحث: مجلس المراجعة','فحوص السلامة الست',C.checks===6);
@@ -36,8 +36,8 @@ ok('البحث: مجلس المراجعة','بنفورد والقيود غير �
 const K=await p.evaluate(()=>({members:SKEngines.audit.council.MEMBERS.length,council:JSON.stringify(SKEngines.audit.council.COUNCIL),stop:!!SKEngines.audit.confidence.stopRule,verify:!!SKEngines.audit.council.verifyOpinion,checklist:SKEngines.audit.confidence.ROUND_CHECKLIST.length}));
 ok('البحث: مجلس المراجعة','خمسة أعضاء (المتشكك، المحلل، المعايير، الضرائب، الرئيس)',K.members===5);ok('البحث: مجلس المراجعة','مجلس 1 أو 3 أو 5',K.council.includes('"5"'));
 ok('البحث: مجلس المراجعة','قاعدة الإيقاف والتصعيد',K.stop);ok('البحث: مجلس المراجعة','رفض الرأي المستشهد بدليل غير موجود',K.verify);ok('البحث: مجلس المراجعة','قائمة فحص المراجع (الملحق د)',K.checklist===6);
-await p.click('[data-tab="ai"]');await p.waitForTimeout(500);ok('البحث: مجلس المراجعة','اختيار تشكيل المجلس في جولات المراجعة',await has('[data-cc="size"][data-v="5"]'));
-await p.click('[data-tab="fs"]');await p.waitForTimeout(700);const L=await p.evaluate(()=>[...document.querySelectorAll('.tbr-li dt')].map(x=>x.textContent).join('|'));
+await p.locator('[data-tab="ai"]:visible').first().click();await p.waitForTimeout(500);ok('البحث: مجلس المراجعة','اختيار تشكيل المجلس في جولات المراجعة',await has('[data-cc="size"][data-v="5"]'));
+await p.locator('[data-tab="fs"]:visible').first().click();await p.waitForTimeout(700);const L=await p.evaluate(()=>[...document.querySelectorAll('.tbr-li dt')].map(x=>x.textContent).join('|'));
 ok('البحث: مجلس المراجعة','خطاب الإدارة: الملاحظة/الأثر/التوصية/رد الإدارة (الملحق ج)',L.includes('الأثر')&&L.includes('رد الإدارة'));
 // ---------- fusion ----------
 const F=await p.evaluate(()=>({hub:SK.caps.members('tbreview').map(x=>x.id),hidden:SK.caps.all().filter(c=>c.hidden&&c.hub==="tbreview").length,feeds:SK.caps.all().filter(c=>c.feeds).length,flow:!!SK.flow,tabs:[...document.querySelectorAll('.tbr-tabs [data-tab]')].map(x=>x.dataset.tab)}));
