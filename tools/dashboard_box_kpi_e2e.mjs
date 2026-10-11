@@ -23,6 +23,9 @@ try{
  for(const user of Object.values(seed.sqc_helper_users_v1.users))for(const space of Object.values(user.spaces))space.name=companyName;
  for(const space of Object.values(seed.sqc_helper_space_v1.spaces))space.name=companyName;
   seed['aghnam-pricing-v3']=pricing(rawLoss);
+  // The synthetic pricing profile must name the SAME verified company as the
+  // seeded ledger, company, user space, and active reporting period.
+  seed['aghnam-pricing-v3'].settings.biz=companyName;
   const origin=new URL(url).origin;
   await context.route('**/*',r=>{const u=r.request().url();return u.startsWith('http://127.0.0.1:8765/')||u.startsWith('https://fonts.googleapis.com/')||u.startsWith('https://fonts.gstatic.com/')||u.startsWith('data:')||u.startsWith('blob:')?r.continue():r.abort();});
   await context.addInitScript(({seed,origin})=>{
@@ -55,6 +58,7 @@ try{
    assert.deepEqual(errors,[]);results.push({name,status:'pass',stats});
    }catch(e){
    const state=await page.evaluate(()=>({scope:window.SKosifSpace?.scopeSnapshot?.(),company:window.SK?.company?.current?.(),business:window.SK?.org?.().biz,previewCount:document.querySelectorAll('.skout').length,notices:[...document.querySelectorAll('.toast,.sk-toast,[role="alert"]')].map(n=>n.textContent.trim()).slice(-8)})).catch(err=>({unavailable:err.message}));
+   console.error('KPI_SCOPE_FAILURE_DIAGNOSTICS',name,JSON.stringify({error:e.message,state}));
    fs.writeFileSync(`${out}/${name}-failure-context.json`,JSON.stringify({error:e.message,state},null,2));await page.screenshot({path:`${out}/${name}-failure.png`,fullPage:true}).catch(()=>{});
    results.push({name,status:'fail',error:e.stack});console.error(name,e.stack);
   }

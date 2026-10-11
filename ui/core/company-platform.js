@@ -3,7 +3,11 @@
 (()=>{
 "use strict";
 const {load,save}=SK;
-const KEY="skosif_company_platform_v1";
+const KEY="skosif_company_platform_v1"; // legacy single-company key: read-only migration source
+/* Scope this entire company platform record to an exact, encoded company id.
+   Old single-key records migrate only when their explicit companyId matches;
+   no guessing, no assignment to a different company, no destructive deletion. */
+const companyKey=id=>KEY+"::"+encodeURIComponent(String(id||""));
 const DOC_DB="skosif-company-documents-v1",DOC_STORE="documents";
 const TYPES=Object.freeze({
   products:{label:"المنتجات",icon:"catalog"},
@@ -31,7 +35,17 @@ const cur=()=>window.SK&&SK.company&&SK.company.current?SK.company.current():{id
 const blank=id=>({version:1,companyId:id,profile:{activity:"",country:cur().country||"SA",currency:cur().currency||"SAR",framework:(cur().country==="EG"?"EAS":"IFRS"),fiscalYearStart:"01-01",taxMode:(cur().country==="EG"?"income":"zakat"),vatRegistered:null,vatRate:null,vatNo:"",crNo:"",address:"",notes:""},definitions:Object.fromEntries(Object.keys(TYPES).map(k=>[k,[]])),installedTools:[],documents:[],reporting:{target:"full",lastTrialBalance:null,lastStatements:null,suggestedMeasures:[]},mpms:[],lineage:[],auditHandoffs:[],standardTraces:[],aiExceptions:[],updatedAt:null});
 function state(){
   const id=cur().id||"";
-  const v=load(KEY,null);
+  if(!id)return blank(id);
+  const key=companyKey(id);
+  let v=load(key,null);
+  if(!v){
+    const legacy=load(KEY,null);
+    if(legacy&&legacy.version===1&&legacy.companyId===id){
+      // The only safe migration is an exact owner match; retain old bytes.
+      if(save(key,legacy)!==true)throw new Error("تعذر ترحيل بيانات الشركة إلى التخزين المستقل");
+      v=legacy;
+    }
+  }
   if(!v||v.version!==1||v.companyId!==id)return blank(id);
   if(!v.profile||typeof v.profile!=="object")v.profile=blank(id).profile;
   for(const k of Object.keys(TYPES))if(!Array.isArray(v.definitions?.[k]))(v.definitions||(v.definitions={}))[k]=[];
@@ -48,8 +62,11 @@ function state(){
 }
 function commit(v,act,payload={}){
   const c=cur();if(!c.id)throw new Error("اختر شركة أولاً");
-  v.version=1;v.companyId=c.id;v.updatedAt=new Date().toISOString();
-  if(save(KEY,v)!==true)throw new Error("تعذر حفظ بيانات الشركة");
+  // Reject stale records BEFORE any field is modified: company A's object
+  // must never be relabelled and written to company B after a scope change.
+  if(v.companyId!==c.id)throw new Error("اختلاف سياق الشركة أثناء الحفظ");
+  v.version=1;v.updatedAt=new Date().toISOString();
+  if(save(companyKey(c.id),v)!==true)throw new Error("تعذر حفظ بيانات الشركة");
   try{SK.audit&&SK.audit.log("company-platform",{act,companyId:c.id,...payload})}catch{}
   try{SK.bus&&SK.bus.emit("company-platform",{act,companyId:c.id})}catch{}
   return v;
@@ -365,5 +382,5 @@ function searchCompany(query){
   const limited=hits.slice(0,20),text=limited.length?("نتائج داخل «"+c.name+"»:\n"+limited.map(x=>"• "+x.title+(x.detail?" — "+x.detail:"")).join("\n")):"لم أجد نتيجة مطابقة داخل بيانات الشركة الحالية.";
   return{text,matches:limited};
 }
-window.SKosifCompanyPlatform=Object.freeze({key:KEY,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,vatPolicy,sectorPack,applySectorPack,ensureSectorPack,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,capabilityProfile,capEnabled,capMode,coreTools,aiEnabled,setAI,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,aiExceptions,addAIException,resolveAIException,saveReportResult,search:searchCompany,setDocumentRemote});
+window.SKosifCompanyPlatform=Object.freeze({key:KEY,storageKey:companyKey,types:()=>TYPES,reportTargets:()=>REPORT_TARGETS,state,profile,setProfile,vatPolicy,sectorPack,applySectorPack,ensureSectorPack,definitions,addDefinition,removeDefinition,assetDepreciation,fixedAssetSummary,fixedAssetJournal,installed,setTool,capabilityProfile,capEnabled,capMode,coreTools,aiEnabled,setAI,reportingTarget,reportingStatus,mpms,registerMpm,removeMpm,approveMpm,mpmReconciliation,mpmSubtotals:()=>MPM_SUBTOTALS,lineage,lineageFor,addLineage,inferType,ingestFiles,documents,readDocument,setDocumentType,removeDocument,requestAuditHandoff,auditHandoffs,markAuditHandoff,setAuditHandoffStatus,addStandardTrace,aiExceptions,addAIException,resolveAIException,saveReportResult,search:searchCompany,setDocumentRemote});
 })();

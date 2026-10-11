@@ -1,0 +1,146 @@
+/* KOSIF EARTH — an optional, company-owned add-on shelf.
+   Typography and color come from the shared daylight-office tokens.
+   Native <dialog> owns focus and overlay; the results scroll, not the page. */
+.earth-addon-entry{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;margin-top:16px;padding:16px 20px;
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:var(--sk-r-l);
+  background:rgba(5,24,18,.62);
+  color:var(--sk-rail-ink);
+  backdrop-filter:blur(8px);
+}
+.earth-addon-entry__text{
+  display:grid;gap:4px;min-width:0;flex:1 1 260px;
+}
+.earth-addon-entry__text b{font-size:16px;line-height:1.5}
+.earth-addon-entry__sub{font-size:12px;line-height:1.7;color:var(--sk-rail-mute)}
+.earth-addon-entry__action{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:8px 20px;
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:var(--sk-r);
+  background:var(--sk-surface);color:var(--sk-brand);
+  font:700 13px var(--sk-font);cursor:pointer;
+}
+.earth-addon-entry__action:hover{background:var(--sk-brand-soft)}
+.earth-addon-dialog{
+  position:fixed;inset:0;margin:auto;
+  width:min(92vw,780px);
+  max-height:min(86dvh,790px);
+  padding:0;
+  overflow:auto;
+  background:var(--sk-surface);
+  color:var(--sk-ink);
+  border:1px solid var(--sk-line-2);
+  border-radius:var(--sk-r-l);
+  box-shadow:var(--sk-shadow-3);
+  font:400 14px/1.7 var(--sk-font);
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+.earth-addon-dialog::backdrop{
+  background:rgba(8,23,18,.67);
+  backdrop-filter:blur(5px);
+}
+.earth-addon-dialog__shell{padding:clamp(20px,3vw,32px);display:grid;gap:16px}
+.earth-addon-dialog__head{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:16px;border-bottom:1px solid var(--sk-line);padding-bottom:16px;
+}
+.earth-addon-dialog__kicker{
+  display:block;margin-bottom:8px;
+  color:var(--sk-brand);font:700 12px/1.6 var(--sk-font);
+}
+.earth-addon-dialog__head h2{
+  font-size:clamp(21px,3vw,29px);
+  line-height:1.45;font-weight:700;
+  margin:0 0 8px;color:var(--sk-ink);
+}
+.earth-addon-dialog__head p{margin:0;color:var(--sk-ink-2);font-size:13px}
+.earth-addon-dialog__close{
+  flex:none;border:1px solid var(--sk-line);
+  background:var(--sk-surface-2);color:var(--sk-ink);
+  border-radius:var(--sk-r);cursor:pointer;
+  min-height:44px;padding:8px 16px;
+  font:600 13px var(--sk-font);
+}
+.earth-addon-dialog__close:hover{background:var(--sk-brand-soft)}
+.earth-addon-search{
+  display:grid;gap:8px;
+  font:600 13px var(--sk-font);
+}
+.earth-addon-search input{
+  width:100%;min-height:47px;padding:8px 16px;
+  border:1px solid var(--sk-line-2);
+  background:var(--sk-surface-2);color:var(--sk-ink);
+  border-radius:var(--sk-r);
+  font:400 14px var(--sk-font);
+}
+.earth-addon-dialog__count{font-size:12px;color:var(--sk-ink-3);margin:0}
+.earth-addon-dialog__results{
+  display:grid;gap:12px;
+  max-height:min(42dvh,390px);
+  overflow-y:auto;overflow-x:hidden;
+  padding:4px 4px 8px;
+  overscroll-behavior:contain;
+}
+.earth-addon-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;min-width:0;
+  padding:16px;
+  background:var(--sk-surface-2);
+  border:1px solid var(--sk-line);border-radius:var(--sk-r-l);
+}
+.earth-addon-row__info{display:grid;gap:4px;flex:1 1 240px;min-width:0}
+.earth-addon-row__info small{color:var(--sk-brand);font-size:11px;font-weight:700}
+.earth-addon-row__info b{font-size:16px;font-weight:700;line-height:1.55}
+.earth-addon-row__info p{font-size:12px;color:var(--sk-ink-3);line-height:1.6;margin:0}
+.earth-addon-row__info .earth-addon-row__warning{color:var(--sk-warn)}
+.earth-addon-row__action{
+  flex:0 0 auto;
+  background:var(--sk-brand);color:var(--sk-on-brand);
+  border:1px solid var(--sk-brand);border-radius:var(--sk-r);
+  min-height:44px;padding:8px 16px;
+  font:700 12px var(--sk-font);cursor:pointer;
+}
+.earth-addon-row__action.is-installed{
+  background:var(--sk-brand-soft);color:var(--sk-brand);
+}
+.earth-addon-row__action[data-confirm="yes"]{
+  background:var(--sk-warn-soft);color:var(--sk-warn);border-color:var(--sk-warn);
+}
+.earth-addon-row__action:hover{filter:brightness(.97)}
+.earth-addon-dialog__empty{
+  padding:24px;margin:0;text-align:center;
+  background:var(--sk-surface-2);
+  color:var(--sk-ink-3);border-radius:var(--sk-r);
+}
+.earth-addon-dialog__note{
+  margin:0;padding:16px;
+  border:1px solid var(--sk-line);
+  border-radius:var(--sk-r);
+  background:var(--sk-surface-2);
+  font-size:12px;line-height:1.8;color:var(--sk-ink-2);
+}
+@media(max-width:650px){
+  .earth-addon-entry{gap:12px;padding:12px 16px}
+  .earth-addon-entry__action{width:100%}
+  .earth-addon-dialog{
+    width:calc(100vw - 24px);
+    max-height:calc(100dvh - 52px);
+    border-radius:var(--sk-r-l);
+  }
+  .earth-addon-dialog__shell{gap:12px;padding:16px}
+  .earth-addon-dialog__results{max-height:calc(100dvh - 388px);min-height:96px}
+  .earth-addon-dialog__head h2{font-size:21px}
+  .earth-addon-row__action{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  .earth-addon-dialog,.earth-addon-dialog *{scroll-behavior:auto;transition:none;animation:none}
+}
+
+.earth-addon-entry__action:disabled{
+  opacity:.6;
+  cursor:wait;
+}

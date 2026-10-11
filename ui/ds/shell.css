@@ -729,3 +729,22 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 .sk-stabs{margin:0 0 var(--sk-3)}
 .sk-stabs .sk-hub-nav{margin-bottom:0}
 #view [data-st-off]{display:none}
+
+/* Search feedback only appears while the user is filtering the current
+   gateway. It never adds a permanent extra bar to the compact rail. */
+.skn-search-status{
+  position:absolute;
+  inset-inline-end:12px;
+  color:var(--sk-rail-mute);
+  background:var(--sk-rail-2);
+  border-radius:var(--sk-r-s);
+  padding:4px 8px;
+  font-size:var(--sk-fs-2xs);
+  line-height:1.5;
+  white-space:nowrap;
+  pointer-events:none;
+}
+.skn-search-status[hidden]{display:none}
+.skn-search:has(.skn-search-status:not([hidden])) input{
+  padding-inline-end:96px;
+}

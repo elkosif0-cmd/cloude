@@ -1,0 +1,371 @@
+/* KOSIF EARTH — Sunlit Office identity (2026-10-10).
+   The tokens in ds/tokens.css are the ONLY color source. The approved art direction
+   is warm natural daylight + forest-green UI, NOT a global green filter.
+   Every gateway uses the same visual system and the same typography.
+*/
+:root[data-look="kosif"][data-brand="ledger"] body{
+  font-family:var(--sk-font);
+  background:var(--sk-bg);
+  color:var(--sk-ink);
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+}
+:root[data-look="kosif"][data-brand="ledger"] .app{
+  background:var(--sk-bg);
+}
+/* Keep the user's compact-rail preference: branded token specificity must not
+   override the 78px desktop rail chosen with Ctrl+B / the mini control. */
+@media (min-width:901px){
+  :root[data-look="kosif"][data-brand="ledger"][data-rail="mini"]{--sk-rail-w:78px}
+}
+:root[data-look="kosif"][data-brand="ledger"] .maincol{
+  background:linear-gradient(180deg,var(--sk-surface-2),var(--sk-bg) 330px);
+}
+:root[data-look="kosif"][data-brand="ledger"] .main{
+  max-width:1580px;
+  gap:var(--sk-5);
+  padding-block-start:var(--sk-5);
+}
+:root[data-look="kosif"][data-brand="ledger"]:not(#x) .rail{
+  background:linear-gradient(175deg,var(--sk-navy),color-mix(in srgb,var(--sk-navy) 82%,var(--sk-brand)) 70%,var(--sk-navy));
+  box-shadow:inset -1px 0 0 color-mix(in srgb,var(--sk-brand) 15%,transparent);
+  border:0;
+}
+:root[data-look="kosif"][data-brand="ledger"]:not(#x) .rail .brand{
+  padding-block:24px 24px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+:root[data-look="kosif"][data-brand="ledger"]:not(#x) .rail .brand::before{
+  background-image:url(./art/brand/kosif-earth-mark.svg);
+  filter:none;
+  width:45px;height:45px;
+}
+:root[data-look="kosif"][data-brand="ledger"]:not(#x) .rail #app-name::before{
+  content:"KOSIF";
+  font-family:"Montserrat",system-ui,sans-serif;
+  font-size:26px;
+  letter-spacing:.025em;
+}
+:root[data-look="kosif"][data-brand="ledger"]:not(#x) .rail #biz-name::after{
+  content:"E A R T H";
+  color:var(--sk-rail-mute);
+  letter-spacing:.24em;
+  font-family:"Montserrat",system-ui,sans-serif;
+  font-size:10px;
+}
+:root[data-look="kosif"][data-brand="ledger"] .nav .nav-group{color:var(--sk-rail-mute);letter-spacing:0}
+:root[data-look="kosif"][data-brand="ledger"] .nav-btn{
+  border-radius:var(--sk-r);
+  font-weight:600;
+  color:var(--sk-rail-ink);
+  min-height:44px;
+}
+:root[data-look="kosif"][data-brand="ledger"] .nav-btn svg{color:var(--sk-rail-mute)}
+:root[data-look="kosif"][data-brand="ledger"] .nav-btn:hover{
+  background:rgba(255,255,255,.09);color:var(--sk-rail-ink);
+}
+:root[data-look="kosif"][data-brand="ledger"] .nav-btn[aria-current="page"]{
+  background:linear-gradient(100deg,color-mix(in srgb,var(--sk-brand) 60%,transparent),color-mix(in srgb,var(--sk-brand) 15%,transparent));
+  box-shadow:inset -3px 0 0 var(--sk-brand-2);
+  color:var(--sk-rail-ink);
+}
+:root[data-look="kosif"][data-brand="ledger"] .nav-btn[aria-current="page"] svg{
+  color:var(--sk-rail-ink);
+}
+:root[data-look="kosif"][data-brand="ledger"]:not(#x) .rail::after{
+  content:"KOSIF EARTH\Aكل شركة عالم مستقل.";
+  font:600 12px/1.9 var(--sk-font);
+  white-space:pre-line;
+  color:var(--sk-rail-mute);
+  min-height:90px;
+  background:none;
+  letter-spacing:0;
+}
+:root[data-look="kosif"][data-brand="ledger"] .topbar{
+  min-height:68px;
+  padding-inline:20px;
+  background:color-mix(in srgb,var(--sk-surface) 94%,transparent);
+  backdrop-filter:blur(18px) saturate(1.06);
+  -webkit-backdrop-filter:blur(18px) saturate(1.06);
+  border-bottom:1px solid var(--sk-line);
+}
+:root[data-look="kosif"][data-brand="ledger"] .topbar h2{
+  font-weight:700;
+  letter-spacing:-.015em;
+}
+:root[data-look="kosif"][data-brand="ledger"] .skt-search{
+  background:var(--sk-surface-2);
+  border-radius:var(--sk-r);
+}
+:root[data-look="kosif"][data-brand="ledger"] .card,
+:root[data-look="kosif"][data-brand="ledger"] .skc-card,
+:root[data-look="kosif"][data-brand="ledger"] .stat,
+:root[data-look="kosif"][data-brand="ledger"] .v12-kpi,
+:root[data-look="kosif"][data-brand="ledger"] .bento .bk{
+  border-color:var(--sk-line);
+  border-radius:var(--sk-r-l);
+  background:var(--sk-surface);
+  box-shadow:var(--sk-shadow-1);
+}
+:root[data-look="kosif"][data-brand="ledger"] .card h3,
+:root[data-look="kosif"][data-brand="ledger"] .card-h h3{
+  font-weight:700;
+}
+:root[data-look="kosif"][data-brand="ledger"] .btn.primary{
+  background:var(--sk-brand);
+  color:var(--sk-on-brand);
+  border-color:var(--sk-brand);
+  box-shadow:0 10px 25px -18px var(--sk-brand);
+}
+:root[data-look="kosif"][data-brand="ledger"] :is(button,a,input,select,textarea):focus-visible{
+  outline:3px solid var(--sk-focus);outline-offset:2px
+}
+
+/* One purposeful, actionable journey replaces several competing introduction cards.
+   No company data is read, stored, or mirrored by this component. */
+.earth-journey{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  border-radius:var(--sk-r-l);
+  border:1px solid var(--sk-line);
+  background:var(--sk-navy);
+  box-shadow:var(--sk-shadow-2);
+  color:var(--sk-rail-ink);
+  min-height:306px;
+}
+.earth-journey::before{
+  content:"";
+  position:absolute;inset:0;z-index:-2;
+  background:url(./art/brand/earth-office-sunlit-4k.webp) 58% center/cover no-repeat;
+}
+.earth-journey::after{
+  content:"";
+  position:absolute;inset:0;z-index:-1;
+  /* This gradient only protects text; it does not recolor the office photograph. */
+  background:linear-gradient(270deg,rgba(6,31,26,.94),rgba(7,38,30,.82) 47%,rgba(8,47,32,.23) 100%);
+}
+.earth-journey__inner{
+  max-width:1090px;
+  padding:clamp(24px,3.5vw,40px);
+}
+.earth-journey__eyebrow{
+  margin:0 0 8px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.07em;
+  color:var(--sk-rail-mute);
+}
+.earth-journey__heading{
+  font-size:clamp(24px,2.7vw,36px);
+  line-height:1.4;
+  font-weight:700;
+  margin:0;
+  color:var(--sk-rail-ink);
+  text-wrap:balance;
+}
+.earth-journey__lead{
+  font-size:clamp(13px,1.1vw,15px);
+  color:var(--sk-rail-ink);
+  line-height:1.9;
+  max-width:740px;
+  margin:8px 0 20px;
+}
+.earth-journey__choices{
+  display:flex;flex-wrap:wrap;
+  gap:8px;
+  margin:0 0 16px;
+}
+.earth-journey__choice{
+  font:600 13px var(--sk-font);
+  color:var(--sk-rail-ink);
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(239,255,245,.42);
+  padding:8px 16px;
+  border-radius:var(--sk-r-pill);
+  min-height:42px;
+  cursor:pointer;
+}
+.earth-journey__choice:hover{
+  background:rgba(255,255,255,.17);
+}
+.earth-journey__choice[aria-pressed="true"]{
+  background:var(--sk-rail-ink);
+  color:var(--sk-navy);
+  border-color:var(--sk-rail-ink);
+}
+.earth-journey__plan{
+  background:var(--sk-surface);
+  color:var(--sk-ink);
+  border-radius:var(--sk-r-l);
+  padding:20px 24px 16px;
+  box-shadow:0 12px 35px -20px rgba(0,0,0,.3);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.earth-journey__plan-heading{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.earth-journey__plan-heading b{font-size:16px;font-weight:700}
+.earth-journey__plan-heading small{font-size:12px;color:var(--sk-ink-3)}
+.earth-journey__steps{
+  list-style:none;
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  margin:0;padding:0;gap:8px;
+}
+.earth-journey__steps li{
+  display:flex;align-items:flex-start;gap:8px;line-height:1.65;
+  font-size:13px;min-width:0;color:var(--sk-ink-2);
+}
+.earth-journey__steps li > span:first-child{
+  display:grid;place-items:center;flex:0 0 24px;
+  width:24px;height:24px;border-radius:50%;
+  background:var(--sk-brand-soft);color:var(--sk-brand);
+  font:700 12px "Montserrat",sans-serif;
+}
+.earth-journey__steps li > span:last-child{
+  display:block;flex:1;min-width:0;width:auto;height:auto;
+  white-space:normal;overflow-wrap:break-word;
+  font:400 13px/1.8 var(--sk-font);
+  color:var(--sk-ink-2);
+}
+.earth-journey__outcome{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-top:16px;padding-top:16px;border-top:1px solid var(--sk-line);
+}
+.earth-journey__result{
+  display:flex;gap:8px;align-items:flex-start;
+  max-width:690px;color:var(--sk-ink-2);
+  font-size:13px;line-height:1.75;
+}
+.earth-journey__result strong{color:var(--sk-brand);white-space:nowrap}
+.earth-journey__go{
+  display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  padding:8px 16px;min-height:42px;
+  border:1px solid var(--sk-brand);
+  color:var(--sk-on-brand);
+  background:var(--sk-brand);
+  border-radius:var(--sk-r);
+  font:700 13px var(--sk-font);
+  white-space:nowrap;cursor:pointer;
+}
+.earth-journey__go:disabled{cursor:not-allowed;opacity:.52}
+.earth-journey__go:not(:disabled):hover{background:var(--sk-brand-2)}
+.earth-journey__go:focus-visible,.earth-journey__choice:focus-visible{outline:3px solid var(--sk-focus);outline-offset:2px}
+@media(max-width:900px){
+  .earth-journey{border-radius:var(--sk-r-l);min-height:0}
+  .earth-journey::before{background-image:url(./art/brand/earth-office-sunlit-mobile.webp);background-position:57% center}
+  .earth-journey::after{background:linear-gradient(180deg,rgba(7,38,31,.83),rgba(5,34,26,.93) 61%,rgba(6,43,32,.92))}
+  .earth-journey__inner{padding:24px}
+  .earth-journey__steps{grid-template-columns:1fr;gap:8px}
+  .earth-journey__outcome{flex-wrap:wrap}
+  .earth-journey__go{width:100%;min-height:48px}
+  :root[data-look="kosif"][data-brand="ledger"] .main{padding:var(--sk-3) var(--sk-3) var(--sk-6)}
+}
+@media(prefers-reduced-motion:reduce){
+  .earth-journey *, .earth-journey *::before,.earth-journey *::after{animation:none;transition:none;scroll-behavior:auto}
+}
+
+/* Final layering: legacy SQC rules carry #rail / two :not() IDs; beat them
+   without forcing specificity or changing other user-selected appearance presets. */
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail{
+  color:var(--sk-rail-ink);
+  background:var(--sk-grad-rail);
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail .nav-btn{
+  color:var(--sk-rail-ink);
+  background:transparent;
+  font-weight:600;
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail .nav-btn svg{
+  color:var(--sk-rail-mute);
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail .nav-btn[aria-current="page"]{
+  color:var(--sk-rail-ink);
+  background:var(--sk-rail-active);
+  box-shadow:inset -3px 0 0 var(--sk-brand-2);
+  font-weight:700;
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail .nav-btn[aria-current="page"] svg{
+  color:var(--sk-rail-ink);
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail .nav-group,
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail .skn-note{
+  color:var(--sk-rail-mute);
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail #app-name::before{
+  content:"KOSIF";
+  font:800 27px/1 "Montserrat",system-ui,sans-serif;
+  color:var(--sk-rail-ink);
+  letter-spacing:.02em;
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail #app-name::after{
+  content:"E A R T H";
+  display:block;
+  font:700 10px/1.4 "Montserrat",system-ui,sans-serif;
+  color:var(--sk-rail-mute);
+  letter-spacing:.26em;
+  margin-top:4px;
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail #biz-name{
+  color:var(--sk-rail-ink);
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme]:not(#x):not(#y) #rail #biz-name::after{
+  content:none;
+}
+/* Soft charcoal falloff only behind text, preserving daylight and true
+   neutral colors in the rest of the photographic office image. */
+.earth-journey::after{
+  background:linear-gradient(270deg,rgba(24,29,25,.85),rgba(32,36,29,.56) 52%,rgba(37,39,31,.06) 100%);
+}
+
+/* Brand icons follow KOSIF EARTH instead of the legacy SQC artwork.
+   On mobile the navigation button retains its real click handler and
+   accessible label (managed by ui/layouts/topbar.js). */
+:root[data-look="kosif"][data-brand="ledger"]:not(#x):not(#y) #rail .brand::before{
+  background:url(./art/brand/kosif-earth-mark.svg) center/contain no-repeat;
+  filter:none;
+}
+:root[data-look="kosif"][data-brand="ledger"] .sk-tb-brand .sk-tb-sqc{
+  display:none;
+}
+:root[data-look="kosif"][data-brand="ledger"] .sk-tb-brand::before{
+  content:"";
+  flex:0 0 36px;
+  width:36px;
+  height:36px;
+  background:url(./art/brand/kosif-earth-mark.svg) center/contain no-repeat;
+}
+
+/* One visible owner scope, never a selector listing other companies. */
+.earth-journey__scope{
+  display:inline-flex;
+  max-width:100%;
+  margin:0 0 16px;
+  padding:8px 12px;
+  border:1px solid rgba(255,255,255,.27);
+  border-radius:var(--sk-r);
+  background:rgba(18,43,31,.48);
+  color:var(--sk-rail-ink);
+  font:600 13px/1.7 var(--sk-font);
+  overflow-wrap:anywhere;
+}
+
+/* Small preparation row inside the existing goal panel; no additional card. */
+.earth-journey__requirements{
+  display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;
+  padding:12px 0 16px;
+  margin:0 0 16px;
+  border-bottom:1px solid var(--sk-line);
+  font:400 13px/1.8 var(--sk-font);
+  color:var(--sk-ink-2);
+}
+.earth-journey__requirements strong{
+  color:var(--sk-brand);font-weight:700;
+  white-space:nowrap;
+}
+.earth-journey__requirements span{min-width:0;overflow-wrap:anywhere}
+@media(max-width:650px){
+  .earth-journey__requirements{align-items:flex-start;gap:4px;padding-bottom:12px}
+}

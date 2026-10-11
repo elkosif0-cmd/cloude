@@ -116,10 +116,14 @@ try{
   for(const role of ['baseline','candidate']){
    const {context,page,errors,build}=await open(role,kind);
    try{
-    if(role==='candidate'&&kind==='empty'){
-     await page.evaluate(()=>window.SKosifCore.go('execreports'));await page.locator('[data-rp="print"]').click();
+    if(kind==='empty'){
+     // Safety is symmetrical: neither production baseline nor candidate may
+     // claim a financial report when the current company's journal is empty.
+     // Previous CI incorrectly waited for a fabricated report from baseline.
+     await page.evaluate(()=>window.SKosifCore.go('execreports'));
+     await page.locator('[data-rp="print"]').click();
      await page.waitForFunction(()=>!document.querySelector('.skout'));
-     assert.equal(await page.locator('.skout-f').count(),0,'Empty journal must not produce fabricated zero report');
+     assert.equal(await page.locator('.skout-f').count(),0,'Empty journal must not produce fabricated zero report on '+role);
      captured[role]={build,blocked:true};assert.deepEqual(errors,[]);continue;
     }
     const frame=await report(page),tables=await frame.evaluate(()=>[...document.querySelectorAll('table')].map(t=>[...t.rows].map(r=>[...r.cells].map(c=>c.textContent.replace(/\s+/g,' ').trim()))));

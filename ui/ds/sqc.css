@@ -253,47 +253,70 @@ bdi,[dir=ltr],a[href^="tel:"],a[href^="mailto:"],.sk-number{unicode-bidi:isolate
   :root[data-look="kosif"][data-theme="light"] :is(.skc-luxe button,.rp button){transition:background-color 140ms ease,border-color 140ms ease,box-shadow 140ms ease}
 }
 
-/* ---------- «دفتر KOSIF» (data-brand="ledger", the default from 2026-10-09) ----------
-   The calm light layer above pins neutral greys on the chrome and the command center; the ledger re-asserts its cream paper
-   and charcoal ink there, gives cards KOSIF's ink edge, and puts the one saffron accent on the active state. */
+/* ---------- KOSIF EARTH · warm-sunlit office brand on ALL three gateways ----------
+   The canonical palette lives in tokens.css. This layer only maps it to legacy
+   shell aliases, not cream/charcoal variables from the earlier brand.
+   No menu should read dark on the forest green rail.
+*/
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] :is(.rail,.topbar,.skc-luxe,.sk-reports-wrap,.sk-ph[data-view="dash"],.sk-ph[data-view="execreports"]){
-  --sk-surface:#fffdf9;--sk-surface-2:#f8f3ec;--sk-surface-3:#f1e9de;--sk-line:#e3d9cc;--sk-line-2:#cbbfb0;
-  --sk-ink:#1d1814;--sk-ink-2:#4b4139;--sk-ink-3:#6f6358;--sk-on-brand:#fbf8f3;--sk-shadow-1:0 1px 2px rgba(29,24,20,.05);
-  --surface:var(--sk-surface);--surface-2:var(--sk-surface-2);--surface-3:var(--sk-surface-3);--line:var(--sk-line);--line-2:var(--sk-line-2);
-  --ink:var(--sk-ink);--ink-2:var(--sk-ink-2);--ink-3:var(--sk-ink-3);--brand-ink:var(--sk-on-brand);
+  --surface:var(--sk-surface);
+  --surface-2:var(--sk-surface-2);
+  --surface-3:var(--sk-surface-3);
+  --line:var(--sk-line);
+  --line-2:var(--sk-line-2);
+  --ink:var(--sk-ink);
+  --ink-2:var(--sk-ink-2);
+  --ink-3:var(--sk-ink-3);
+  --brand-ink:var(--sk-on-brand);
 }
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .maincol{background:var(--sk-bg)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail{
-  --sk-rail:#f3ece2;--sk-rail-ink:#1d1814;--sk-rail-mute:#6f6358;--sk-rail-2:rgba(29,24,20,.05);--sk-rail-active:var(--sk-brand-soft);
-  background:#f3ece2;border-inline-end:1.5px solid var(--sk-ink)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn{color:var(--sk-ink-2)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn svg{color:var(--sk-ink-3)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn:hover{background:var(--sk-surface-3);color:var(--sk-ink)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn[aria-current="page"]{background:var(--sk-surface);color:var(--sk-ink);box-shadow:inset 0 0 0 1.5px var(--sk-ink);font-weight:700}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn[aria-current="page"] svg{color:var(--sk-brand-2)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav :is(.nav-group,.skn-gh,.skn-note){color:var(--sk-ink-3)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav .skn-group.here>.skn-gh{color:var(--sk-ink)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .status-card{background:var(--sk-surface);border-color:var(--sk-line);color:var(--sk-ink)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .status-card .row{color:var(--sk-ink-3)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .status-card .row b{color:var(--sk-ink)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .sk-rail-close{background:var(--sk-surface-3);color:var(--sk-ink)}
+  /* The older Mercury skin defines dark custom-property values directly on #rail.
+     Reassert all readable KOSIF EARTH rail values here, not only the background. */
+  --sk-rail:#092b20;--sk-rail-ink:#f2fdf4;--sk-rail-mute:#adccba;
+  --sk-rail-2:rgba(255,255,255,.05);--sk-rail-active:rgba(138,224,172,.17);
+  --sk-ink:#f2fdf4;--sk-ink-2:#e1f5e6;--sk-ink-3:#adccba;
+  background:var(--sk-grad-rail);
+  border-inline-end:1px solid var(--sk-line);
+  color:var(--sk-rail-ink);
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn{color:var(--sk-rail-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn svg{color:var(--sk-rail-mute)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn:hover{background:var(--sk-rail-active);color:var(--sk-rail-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn[aria-current="page"]{
+  background:var(--sk-rail-active);
+  color:var(--sk-rail-ink);
+  box-shadow:inset -3px 0 0 var(--sk-brand-2);
+  font-weight:700;
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn[aria-current="page"] svg{color:var(--sk-rail-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav :is(.nav-group,.skn-gh,.skn-note){color:var(--sk-rail-mute)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav .skn-group.here>.skn-gh{color:var(--sk-rail-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .status-card{background:var(--sk-rail-2);border-color:var(--sk-rail-active);color:var(--sk-rail-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .status-card .row{color:var(--sk-rail-mute)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .status-card .row b{color:var(--sk-rail-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .sk-rail-close{background:var(--sk-rail-active);color:var(--sk-rail-ink)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail #app-name::before,
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail #biz-name{color:var(--sk-ink)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail #biz-name::after{color:var(--sk-ink-3)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail::after{color:var(--sk-ink-3);background-color:var(--sk-surface-3);border-color:var(--sk-line)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail #biz-name{color:var(--sk-rail-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail #biz-name::after{color:var(--sk-rail-mute)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail::after{color:var(--sk-rail-mute);background-color:var(--sk-rail-2);border-color:var(--sk-rail-active)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .topbar{background:var(--sk-surface);border-color:var(--sk-line)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] :is(.skc-luxe,.sk-reports-wrap){color:var(--sk-ink)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skc-luxe .skc-card{background:var(--sk-surface);border-color:var(--sk-line-2)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skc-luxe .skk4-t{border:1.5px solid var(--sk-ink);background:var(--sk-surface)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skc-luxe .skk4-t{border:1px solid var(--sk-line-2);background:var(--sk-surface)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-hero{color:var(--sk-ink);border-bottom-color:var(--sk-line)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-hero h3{color:var(--sk-ink)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-hero p{color:var(--sk-ink-3)}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-hero .btn.primary{color:var(--sk-on-brand)!important}
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp .sk-kpi{border:1.5px solid var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-hero .btn.primary{color:var(--sk-on-brand)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp .sk-kpi{border:1px solid var(--sk-line)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-opts{background:var(--sk-surface);border-color:var(--sk-line)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .sk-rep-nav button.active,
-:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp .sk-seg button[aria-pressed="true"]{background:var(--sk-surface);color:var(--sk-ink);border-color:var(--sk-ink);box-shadow:inset 0 -3px 0 var(--sk-brand-2)}
-:root[data-look="kosif"][data-brand="ledger"]:not([data-theme="dark"]) .sk-av{background:linear-gradient(135deg,#d9530e,#a53e07)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp .sk-seg button[aria-pressed="true"]{
+  background:var(--sk-brand-soft);
+  color:var(--sk-brand);
+  border-color:var(--sk-brand);
+  box-shadow:inset 0 -3px 0 var(--sk-brand);
+}
+:root[data-look="kosif"][data-brand="ledger"]:not([data-theme="dark"]) .sk-av{background:var(--sk-grad-brand)}
 /* dark ledger: the cobalt rail gradient and the cyan active bar of the base look become warm charcoal and saffron */
 :root[data-look="kosif"][data-brand="ledger"][data-theme="dark"]:not(#x) .rail{background:var(--sk-grad-rail);border-inline-end:1px solid var(--sk-line)}
 :root[data-look="kosif"][data-brand="ledger"][data-theme="dark"] .nav-btn[aria-current="page"]{background:linear-gradient(90deg,rgba(242,115,45,.06),rgba(242,115,45,.18));box-shadow:inset -3px 0 0 var(--sk-brand)}
@@ -305,5 +328,5 @@ bdi,[dir=ltr],a[href^="tel:"],a[href^="mailto:"],.sk-number{unicode-bidi:isolate
 :root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skbrief-t.tone-bad{border-inline-start-color:var(--sk-bad)}
 /* R20 (FOUNDATION §3.11.2, one identity): the command centre's band — its banner and film are the navy-and-gold Higgsfield art;
    in «دفتر KOSIF» they are toned to ink and saffron, as the door's film, and the crystals turn to amber glass (crystal-world.js) */
-:root[data-look="kosif"][data-brand="ledger"] .skc-world{background:linear-gradient(160deg,rgba(217,83,14,.55),rgba(29,24,20,.9)),url(./art/brand/banner.webp) center/cover no-repeat,#1d1814;background-blend-mode:color,normal,normal}
-:root[data-look="kosif"][data-brand="ledger"] .skc-world video{filter:grayscale(1) sepia(.5) saturate(1.35) hue-rotate(-8deg) contrast(1.05) brightness(.82)}
+:root[data-look="kosif"][data-brand="ledger"] .skc-world{background:linear-gradient(90deg,rgba(18,33,28,.66),rgba(18,33,28,.20)),url(./art/brand/earth-office-sunlit-4k.webp) center/cover no-repeat}
+:root[data-look="kosif"][data-brand="ledger"] .skc-world video{filter:none}
