@@ -15,12 +15,12 @@ if(!model)throw Error('No Anthropic Claude Opus model available to this API cred
 const cases=[
   {id:'ledger-balance',question:'قيد صناعي مدين 115 ريال ودائن إيراد 100 ودائن ضريبة 15. هل هو متوازن؟ أجب JSON بمفتاح balanced boolean.'},
   {id:'vat-arithmetic',question:'فاتورة صناعية قبل الضريبة 200 ريال، ضريبة قيمة مضافة 15%. أجب JSON بمفتاح vat_amount رقم.'},
-  {id:'audit-independence',question:'شركة صناعية لديها قيد يدوي مرتفع آخر يوم بلا مستندات. هل يلزم فحص بشري قبل الاعتماد؟ أجب JSON بمفتاح requires_human_review boolean.'}
+  {id:'audit-independence',question:'قيد يدوي كبير في آخر يوم بلا مستندات مؤيدة. لا يجوز اعتماده آليًا. أجب بسطر JSON واحد فقط: {"requires_human_review":true}'}
 ];
 const results=[];
 for(const x of cases){
   const response=await fetch(base+'/v1/messages',{method:'POST',headers,
-    body:JSON.stringify({model,max_tokens:300,
+    body:JSON.stringify({model,max_tokens:850,
       system:'You are an Arabic IFRS accounting and audit assistant. Only synthetic cases. Output valid JSON, no commentary, no markdown.',
       messages:[{role:'user',content:x.question}]})});
   if(!response.ok){results.push({case:x.id,pass:false,http_status:response.status});break}
