@@ -4168,7 +4168,7 @@ window.SKEngines = (function() {
 		const hasPrior = rows.some((r) => r.prior !== null);
 		const priorDifference = hasPrior ? rows.reduce((a, r) => a + (r.prior ?? 0), 0) : null;
 		return {
-			ok: rows.length > 0,
+			ok: rows.length > 0 && errors.length === 0,
 			rows,
 			errors,
 			totals: {
