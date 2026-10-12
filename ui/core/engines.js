@@ -25593,9 +25593,17 @@ window.SKEngines = (function() {
 		const issues = [];
 		let totalDebit = 0;
 		let totalCredit = 0;
-		entry.lines.forEach((line, lineIndex) => {
+		if (!Array.isArray(entry.lines) || entry.lines.length < 2) issues.push({ code: "JOURNAL_TOO_FEW_LINES" });
+		(Array.isArray(entry.lines) ? entry.lines : []).forEach((line, lineIndex) => {
 			const debit = Number(line.debit);
 			const credit = Number(line.credit);
+			if (!Number.isFinite(debit) || !Number.isFinite(credit)) {
+				issues.push({
+					code: "LINE_NON_FINITE_AMOUNT",
+					lineIndex
+				});
+				return;
+			}
 			if (debit < 0 || credit < 0) issues.push({
 				code: "LINE_NEGATIVE_AMOUNT",
 				lineIndex
@@ -25611,6 +25619,7 @@ window.SKEngines = (function() {
 			if (Number.isFinite(debit)) totalDebit += debit;
 			if (Number.isFinite(credit)) totalCredit += credit;
 		});
+		if (totalDebit <= 0 || totalCredit <= 0) issues.push({ code: "JOURNAL_EMPTY_TOTAL" });
 		if (Math.abs(totalDebit - totalCredit) > MONEY_TOLERANCE) issues.push({ code: "JOURNAL_UNBALANCED" });
 		return {
 			valid: issues.length === 0,
