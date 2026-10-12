@@ -99,7 +99,20 @@ for (const [tag, opts, screensToo] of [['phone', { viewport: { width: 390, heigh
   const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   p.on('popup', (w) => w.close().catch(() => {}));
   step(tag + ' · load');
-  await p.goto(URL_); await p.waitForFunction(() => window.SKosifCore && window.SKosifLedger && SKosifLedger.accounts().length > 3, { timeout: 45000 }); await p.waitForTimeout(1500);
+  await p.goto(URL_);
+  // A first-run demo seed intentionally reloads the app. Waiting once is not
+  // sufficient: the first ready document may vanish during its reload.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    await p.waitForFunction(() =>
+      window.SKosifCore && window.SKosifLedger && SKosifLedger.accounts().length > 3,
+      null, { timeout: 45000 });
+    await p.waitForTimeout(1400);
+    const stable = await p.evaluate(() =>
+      !!(window.SKosifCore && window.SKosifLedger && SKosifLedger.accounts().length > 3)
+    ).catch(() => false);
+    if (stable) break;
+    if (attempt === 3) throw new Error('Demo source never reached stable boot after reload');
+  }
   const listeners = async () => {
     const { result } = await cdp.send('Runtime.evaluate', { expression: "document.querySelector('#view .sk-view:not([hidden])') || document.querySelector('#view')" });
     if (!result.objectId) return -1;

@@ -4168,7 +4168,7 @@ window.SKEngines = (function() {
 		const hasPrior = rows.some((r) => r.prior !== null);
 		const priorDifference = hasPrior ? rows.reduce((a, r) => a + (r.prior ?? 0), 0) : null;
 		return {
-			ok: rows.length > 0,
+			ok: rows.length > 0 && errors.length === 0,
 			rows,
 			errors,
 			totals: {
@@ -4267,8 +4267,28 @@ window.SKEngines = (function() {
 				return;
 			}
 			let prior = null;
-			if (columns.priorDebit !== void 0 || columns.priorCredit !== void 0) prior = (cell("priorDebit") ?? 0) - (cell("priorCredit") ?? 0);
-			else if (columns.prior !== void 0) prior = cell("prior");
+			if (columns.priorDebit !== void 0 || columns.priorCredit !== void 0) {
+				const pd = cell("priorDebit"), pc = cell("priorCredit");
+				if (pd === null || pc === null) {
+					errors.push({
+						line: lineNo,
+						code: "AMOUNT_NOT_NUMERIC",
+						message: `مبلغ المقارنة غير صالح في السطر ${lineNo}`
+					});
+					return;
+				}
+				prior = pd - pc;
+			} else if (columns.prior !== void 0) {
+				prior = cell("prior");
+				if (prior === null) {
+					errors.push({
+						line: lineNo,
+						code: "AMOUNT_NOT_NUMERIC",
+						message: `رصيد السنة السابقة غير صالح في السطر ${lineNo}`
+					});
+					return;
+				}
+			}
 			if (seen.has(code) && code) errors.push({
 				line: lineNo,
 				code: "DUPLICATE_ACCOUNT",

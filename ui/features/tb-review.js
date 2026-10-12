@@ -256,7 +256,7 @@ function sourceImportBlock(tb,ctx){
 function commitTB(text,label,ctx,overrides,stillCurrent,tb){
   try{if(!tb)tb=TI().parseTrialBalance(text)}catch{toast("تعذرت قراءة ميزان المصدر — لم يُستورد الميزان","bad");return false}
   const sourceBlock=sourceImportBlock(tb,ctx);if(sourceBlock){toast(sourceBlock,"warn");return false;}
-  if(!tb.ok){toast(tb.errors.find(e=>e.code==="SOURCE_REPORT_REIMPORT_UNSUPPORTED")?.message||"لم أتعرف على أعمدة الميزان","bad");return false}
+  if(!tb.ok){toast(tb.errors.find(e=>e.code==="SOURCE_REPORT_REIMPORT_UNSUPPORTED")?.message||tb.errors[0]?.message||"لم أتعرف على أعمدة الميزان","bad");return false}
   if(!stillCurrent()){toast("تغيّر ملف المراجعة أو مصدر الميزان — أعد الاستيراد لتأكيد البيانات الحالية","warn");return false}
   const d=st();
   if(!(ctx&&ctx.corpusId))["corpusId","curSym","taxKind","sector","reportingFramework","auditStandard"].forEach(k=>delete d.ctx[k]);
@@ -276,7 +276,7 @@ function commitTB(text,label,ctx,overrides,stillCurrent,tb){
 async function loadTB(text,label,ctx,overrides){
   let tb;try{tb=TI().parseTrialBalance(text)}catch{toast("تعذرت قراءة ميزان المصدر — لم يُستورد الميزان","bad");return false}
   const sourceBlock=sourceImportBlock(tb,ctx);if(sourceBlock){toast(sourceBlock,"warn");return false;}
-  if(!tb.ok){toast(tb.errors.find(e=>e.code==="SOURCE_REPORT_REIMPORT_UNSUPPORTED")?.message||"لم أتعرف على أعمدة الميزان","bad");return false}
+  if(!tb.ok){toast(tb.errors.find(e=>e.code==="SOURCE_REPORT_REIMPORT_UNSUPPORTED")?.message||tb.errors[0]?.message||"لم أتعرف على أعمدة الميزان","bad");return false}
   const target=[localStorage.getItem(KEY),localStorage.getItem(ENG)],d=st();
   if(d.tbText&&d.session&&d.session.rounds&&d.session.rounds.length&&!await SK.confirm("توجد مراجعة جارية بجولات المراجع الذكي — استبدالها بميزان «"+label+"»؟",{danger:true,ok:"استبدال"}))return false;
   return commitTB(text,label,ctx,overrides,()=>target[0]===localStorage.getItem(KEY)&&target[1]===localStorage.getItem(ENG),tb);
