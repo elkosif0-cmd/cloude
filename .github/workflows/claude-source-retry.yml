@@ -1,4 +1,4 @@
-name: KOSIF Claude Output Repair Review
+name: KOSIF Claude Output Repair Review V2
 on:
   push:
     branches:
