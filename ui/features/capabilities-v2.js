@@ -12,9 +12,9 @@ const LOCAL_KEY="skosif_cap_v2_local_workspace";
 const ROLE_KEY="skosif_cap_v2_preview_role";
 const MAX_BYTES=131072;
 const PERMISSIONS={
-  owner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"],
+  owner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read","ai:run"],
   partner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"],
-  manager:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"],
+  manager:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read","ai:run"],
   senior:["providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"],
   viewer:["providers:read","session:read","workspace:list","workspace:read","document:list","document:read","integrity:read"]
 };
@@ -169,7 +169,7 @@ async function deleteRemoteDocument(documentId){
   return api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/documents/"+encodeURIComponent(documentId),{method:"DELETE",timeoutMs:15000});
 }
 
-let root=null,state={tab:"overview",busy:false,session:null,providers:null,workspace:null,remoteError:""};
+let root=null,state={tab:"overview",busy:false,session:null,providers:null,workspace:null,remoteError:"",claudeResult:null};
 const workspaceRole=()=>state.workspace?.workspace_role||state.session?.session?.role||rolePreview();
 function badge(ok,label){return '<span class="skv2-badge '+(ok?"ok":"muted")+'">'+esc(label)+'</span>'}
 function overviewHTML(){
@@ -199,7 +199,7 @@ function overviewHTML(){
 }
 function rolesHTML(){
   const tenantRole=state.session?.session?.role||rolePreview(),r=workspaceRole(),perms=PERMISSIONS[r]||[];
-  const names=["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"];
+  const names=["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read","ai:run"];
   return '<div class="skv2-role-head"><div><b>دور الشركة المفتوحة</b><span>'+(state.session?badge(true,ROLE_AR[r]||r):badge(false,"معاينة محلية: "+(ROLE_AR[r]||r)) )+'</span>'+(state.session&&tenantRole!==r?'<small>دور الـtenant: '+esc(ROLE_AR[tenantRole]||tenantRole)+'</small>':'')+'</div>'+
     (!state.session?'<label class="sk-field"><span>دور المعاينة</span><select id="skv2-role">'+Object.keys(PERMISSIONS).map(x=>'<option value="'+x+'"'+(r===x?" selected":"")+'>'+ROLE_AR[x]+'</option>').join("")+'</select></label>':'')+'</div>'+
     '<div class="skv2-matrix"><table><thead><tr><th>الصلاحية</th>'+Object.keys(PERMISSIONS).map(x=>'<th>'+ROLE_AR[x]+'</th>').join("")+'</tr></thead><tbody>'+names.map(p=>'<tr><td><code>'+p+'</code></td>'+Object.keys(PERMISSIONS).map(x=>'<td class="'+(authorizeRole(x,p)?"yes":"no")+'">'+(authorizeRole(x,p)?"✓":"—")+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'+
@@ -208,12 +208,22 @@ function rolesHTML(){
 function providersHTML(){
   const remote=state.providers?.providers||[];
   const local=[
-    {id:"kosif-local",name:"SQC المحلي",status:"ready",dataPolicy:"local-only"},
+    {id:"kosif-local",name:"KOSIF المحلي",status:"ready",dataPolicy:"local-only"},
     {id:"jev",name:"Jev",status:sessionStorage.getItem("aghnamJevSession")?"ready":"session-required",dataPolicy:"summary-only"}
   ];
-  const rows=(remote.length?remote:local);
+  const rows=remote.length?remote:local;
+  const claude=rows.find(p=>p.id==="claude");
+  const canRun=Boolean(cfg().apiBase && state.workspace && claude?.configured &&
+    state.session && ["owner","partner","manager","senior"].includes(workspaceRole()));
   return '<div class="skv2-providers">'+rows.map(p=>'<div><span class="skv2-provider-dot '+(p.status==="ready"||p.status==="configured"?"ok":"")+'"></span><div><b>'+esc(p.name||p.id)+'</b><small>'+esc(p.id)+' · '+esc(p.dataPolicy||"summary-only")+'</small></div>'+badge(p.status==="ready"||p.status==="configured",p.status||"unknown")+'</div>').join("")+'</div>'+
-    '<p class="skv2-note">مفاتيح OpenAI/Gemini/Claude لا تُخزن ولا تُدخل في المتصفح. سجل المزودات يعرض حالة الإعداد فقط.</p>';
+    '<section class="skv2-panel"><h4>عقل Claude للحسابات والمراجعة</h4>'+
+    '<p class="skv2-note">يراجع Claude ملخصات رقمية مجمعة من مساحة الشركة المتصلة فقط، ولا يطلع على القيود الخام أو ملفات العملاء. النتائج استشارية وتتطلب اعتماد المحاسب. يلزم Cloudflare Access وربط D1 وتهيئة المفتاح السري داخل Worker.</p>'+
+    '<label class="sk-field"><span>المهمة</span><select id="skv2-claude-task"><option value="accounting-analysis">تحليل الحسابات</option><option value="audit-review">تخطيط المراجعة والمخاطر</option><option value="reconciliation">اقتراح خطوات المطابقة</option></select></label>'+
+    '<label class="sk-field"><span>سؤال اختياري (بدون أسماء عملاء أو بيانات بنكية)</span><input id="skv2-claude-question" maxlength="800" placeholder="ما أهم المؤشرات التي تحتاج المراجعة؟"></label>'+
+    '<div class="skv2-actions"><button type="button" class="btn primary" id="skv2-claude-run" '+(canRun?'':'disabled')+'>تحليل آمن بواسطة Claude</button></div>'+
+    (state.claudeResult?'<div class="skv2-okbox" role="status"><b>رد Claude — مراجعة بشرية مطلوبة</b><p style="white-space:pre-wrap">'+esc(state.claudeResult.answer||"")+'</p><small>'+esc(state.claudeResult.model||"")+' · ملخصات الشركة فقط</small></div>':'')+
+    (!canRun?'<p class="skv2-note">غير متاح حاليًا: اربط Worker واحفظ Snapshot للشركة، وتحقق من صلاحياتك وتكوين خدمة Claude.</p>':'')+
+    '</section>';
 }
 function integrityHTML(){
   const d=localData();
@@ -258,6 +268,20 @@ async function testRemote(){
 }
 function bind(){
   $$("[data-skv2-tab]",root).forEach(b=>b.onclick=()=>{state.tab=b.dataset.skv2Tab;paint()});
+  const claudeRun=$("#skv2-claude-run",root);
+  if(claudeRun)claudeRun.onclick=async()=>{
+    if(!state.workspace || !state.session){toast("اربط مساحة الشركة أولاً","err");return}
+    claudeRun.disabled=true;
+    try{
+      const task=$("#skv2-claude-task",root).value,question=$("#skv2-claude-question",root).value.trim();
+      const result=await api("/api/capabilities-v2/workspaces/"+
+        encodeURIComponent(state.workspace.id)+"/ai/claude",
+        {method:"POST",body:JSON.stringify({task,question}),timeoutMs:45000});
+      if(!result.requiresHumanApproval||result.scope!=="workspace-aggregates-only")throw new Error("استجابة Claude لا تلتزم بسياسة المراجعة");
+      state.claudeResult=result;
+      toast("اكتمل تحليل Claude، ويحتاج مراجعة بشرية","ok");paint();
+    }catch(e){toast("تعذر تشغيل Claude: "+e.message,"err");claudeRun.disabled=false}
+  };
   const sl=$("#skv2-save-local",root);if(sl)sl.onclick=async()=>{const r=await saveLocalSnapshot(safeSummary());if(r.error)return toast(r.error,"err");toast("تم حفظ Revision "+r.workspace.revision,"ok");paint()};
   const pv=$("#skv2-push",root);if(pv)pv.onclick=async()=>{pv.disabled=true;try{const r=await pushRemote();toast("تمت المزامنة إلى D1 — Revision "+r.workspace.revision,"ok");await testRemote()}catch(e){toast(e.status===409?"تعارض Revision — أعد المحاولة بعد تحديث الحالة":"فشل المزامنة: "+e.message,"err");pv.disabled=false}};
   const sh=$("#skv2-share",root);if(sh)sh.onclick=async()=>{const v=await SK.form("مشاركة الشركة",[{key:"subject",label:"بريد المستخدم",type:"email",required:true,placeholder:"user@example.com"},{key:"role",label:"الدور",type:"select",value:"viewer",options:[["partner","شريك"],["manager","مدير"],["senior","محاسب أول"],["viewer","مشاهدة فقط"]]}],{ok:"منح الوصول",message:"في المساحات الحساسة مثل تصيف لن تظهر الشركة للمستخدم أصلًا قبل هذا المنح الصريح."});if(!v)return;sh.disabled=true;try{await shareRemote(v.subject,v.role);toast("تم منح الوصول للشركة","ok")}catch(e){toast("تعذر المشاركة: "+e.message,"err")}finally{sh.disabled=false}};
