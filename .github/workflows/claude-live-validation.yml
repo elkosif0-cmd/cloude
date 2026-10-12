@@ -1,4 +1,4 @@
-name: KOSIF Claude Opus Live Accounting Audit Test
+name: KOSIF Claude Opus Accounting and Audit Retest
 on:
   push:
     branches:
