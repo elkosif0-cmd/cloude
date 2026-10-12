@@ -239,10 +239,12 @@ function providerRegistry(env) {
         const configured = Boolean(env?.JEV_SERVICE || env?.JEV_MODEL);
         return {id:provider.id,name:provider.name,execution:"server",providerType:"decision",status:configured?"configured":"unconfigured",configured,canRun:configured,model:env?.JEV_MODEL||null,dataPolicy:"summary-only",lastCheckedAt:checkedAt};
       }
-      const configured = Boolean(env?.[provider.keyName] && env?.[provider.modelName]);
-      return {id:provider.id,name:provider.name,execution:provider.execution,providerType:provider.providerType,status:configured?"configured":"unconfigured",configured,canRun:false,model:configured?String(env[provider.modelName]).slice(0,120):null,dataPolicy:"summary-only",lastCheckedAt:checkedAt};
+      const configured = provider.id==="claude"
+        ? Boolean(env?.ANTHROPIC_API_KEY && env?.AI_LIMITER?.limit && normalizeAccessConfig(env) && env?.DB?.prepare)
+        : Boolean(env?.[provider.keyName] && env?.[provider.modelName]);
+      return {id:provider.id,name:provider.name,execution:provider.execution,providerType:provider.providerType,status:configured?"configured":"unconfigured",configured,canRun:provider.id==="claude"&&configured,model:configured?String(provider.id==="claude"?(env?.ANTHROPIC_MODEL||"claude-sonnet-5"):env[provider.modelName]).slice(0,120):null,dataPolicy:"summary-only",lastCheckedAt:checkedAt};
     }),
-    limitation:"LLM execution stays disabled here until a separately authenticated and rate-limited execution route is configured.",
+    limitation:"Claude execution is permitted only through signed Cloudflare Access, workspace ACL and the bound AI_LIMITER; other remote models remain disabled.",
   };
 }
 
