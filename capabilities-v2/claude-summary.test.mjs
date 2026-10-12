@@ -43,8 +43,9 @@ async function json(r){return [r.status,await r.json()]}
 test('task allowlist refuses unsolicited context or ledger data',()=>{
   assert.equal(validateClaudeTask({task:'audit-review',rawTransactions:[1]}).error,'invalid_request');
   assert.equal(validateClaudeTask({task:'post-journal'}).error,'invalid_task');
-  assert.equal(validateClaudeTask({task:'reconciliation',question:'SA1234567890123456789012'}).error,'sensitive_or_oversize_question');
-  assert.deepEqual(validateClaudeTask({task:'accounting-analysis',question:'راجع النسب'}),{task:'accounting-analysis',question:'راجع النسب'});
+  assert.equal(validateClaudeTask({task:'reconciliation',question:'SA1234567890123456789012'}).error,'invalid_request');
+  assert.equal(validateClaudeTask({task:'accounting-analysis',question:'راجع النسب'}).error,'invalid_request');
+  assert.deepEqual(validateClaudeTask({task:'accounting-analysis'}),{task:'accounting-analysis'});
 });
 test('all non-aggregate records and personal details are stripped before model calls',()=>{
   const s=JSON.stringify(allowedAggregate(aggregate));
@@ -91,7 +92,7 @@ test('valid authenticated accounting analysis uses server secret and only numeri
     return new Response(JSON.stringify({content:[{type:'text',text:'المبيعات بحاجة لمطابقة إضافية.'}],
       usage:{input_tokens:134,output_tokens:37}}),{status:200,headers:{'content-type':'application/json'}});
   };
-  const [status,r]=await json(await runClaudeSummary(req({task:'accounting-analysis',question:'ما مخاطر هذا الشهر؟'}),env(),auth,{fetchImpl}));
+  const [status,r]=await json(await runClaudeSummary(req({task:'accounting-analysis'}),env(),auth,{fetchImpl}));
   assert.equal(status,200);assert.equal(r.provider,'claude');assert.equal(r.requiresHumanApproval,true);
   assert.equal(r.scope,'workspace-aggregates-only');assert.equal(r.usage.input_tokens,134);
   assert.equal(seen.url,'https://api.anthropic.com/v1/messages');
