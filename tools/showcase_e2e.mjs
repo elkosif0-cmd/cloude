@@ -1,6 +1,6 @@
 // SQC — the showcase: any company of the research bundle, audited end to end, then toured (regression test).
 // On a laptop, a 390px phone and a 320px phone, from a first start:
-//   • «▶ نموذج عرض القدرات» in the audit files bar opens the picker with all 47 statement sets (43 companies); the search and the sector
+//   • «▶ نموذج عرض القدرات» opens the picker with every audit-file model in the current catalog; search and sector
 //     filter narrow it; every visible control of the picker stays on the screen;
 //   • «عرض القدرات» on a company opens its own engagement file (its trial balance from its published statements), runs
 //     the full audit without an AI key (rounds, documents, adjustments, final report) and shows the tour;
@@ -49,15 +49,20 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   phase = 'picker';
   await p.click('#view .tbr-files [data-bundle-open]');
   await p.waitForSelector('#tbr-bundle [data-bundle-show]', { timeout: 15000 });
-  const all = await p.locator('#tbr-bundle [data-bundle-show]').count();
-  ok(tag, 'the picker lists every company of the bundle', all === 47, `${all}`);
+  // The published-source catalog changes as verified models are added: assert identities, not a stale fixed count.
+  const expected = await p.evaluate(() => (window.SKEngines?.reports?.corpusCompanies?.auditModelCatalog?.() || [])
+    .filter((c) => c.auditFile).map((c) => c.id).sort());
+  const actual = await p.locator('#tbr-bundle [data-bundle-show]').evaluateAll((buttons) =>
+    buttons.map((b) => b.getAttribute('data-bundle-show')).sort());
+  const all = actual.length;
+  ok(tag, 'the picker lists every auditable company in the current catalog', expected.length > 0 && JSON.stringify(actual) === JSON.stringify(expected), `${all}/${expected.length}`);
   const pf = await p.evaluate(FITS, '#tbr-bundle'); if (pf.length) { failures.push(`${tag} ✗ picker controls off screen — ${pf.join('; ')}`); console.log(failures.at(-1)); }
   await p.fill('#tbr-bundle [data-bundle-q]', 'Aramco');
   const q = await p.locator('#tbr-bundle [data-bundle-show]').count();
-  ok(tag, 'the search narrows the list', q >= 1 && q < 47, `${q}`);
+  ok(tag, 'the search narrows the list', q >= 1 && q < all, `${q}`);
   await p.fill('#tbr-bundle [data-bundle-q]', '');
   const sec = await p.evaluate(() => { const s = document.querySelector('#tbr-bundle [data-bundle-sector]'); const o = [...s.options].find((x) => x.value === 'banking'); if (!o) return null; s.value = 'banking'; s.dispatchEvent(new Event('change', { bubbles: true })); return document.querySelectorAll('#tbr-bundle [data-bundle-show]').length; });
-  ok(tag, 'the sector filter narrows the list', sec !== null && sec >= 1 && sec < 47, `${sec}`);
+  ok(tag, 'the sector filter narrows the list', sec !== null && sec >= 1 && sec < all, `${sec}`);
   await p.evaluate(() => { const s = document.querySelector('#tbr-bundle [data-bundle-sector]'); s.value = ''; s.dispatchEvent(new Event('change', { bubbles: true })); });
   await p.fill('#tbr-bundle [data-bundle-q]', 'Aramco');
 

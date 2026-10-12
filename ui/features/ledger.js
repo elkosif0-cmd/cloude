@@ -14,7 +14,7 @@ const BASIC=[["1100","النقدية والبنوك","asset"],["1200","الذم�
 /* the chart a company starts from: its sector pack (system/sector-pack-engine) — the base chart plus what the sector posts to */
 const packAccounts=()=>{try{const P=window.SKosifCompanyPlatform&&SKosifCompanyPlatform.sectorPack&&SKosifCompanyPlatform.sectorPack();return P?P.accounts:BASIC}catch{return BASIC}};
 const packLabel=()=>{try{const s=SK.company.current().sector,c=SK.caps&&SK.caps.sector&&SK.caps.sector(s);return c?c.label:""}catch{return ""}};
-const ISSUE={JOURNAL_UNBALANCED:"القيد غير متزن: المدين لا يساوي الدائن",LINE_BOTH_SIDES:"سطر فيه مدين ودائن معاً",LINE_NEGATIVE_AMOUNT:"مبلغ سالب",LINE_ZERO_AMOUNT:"سطر بلا مبلغ"};
+const ISSUE={JOURNAL_UNBALANCED:"القيد غير متزن: المدين لا يساوي الدائن",LINE_BOTH_SIDES:"سطر فيه مدين ودائن معاً",LINE_NEGATIVE_AMOUNT:"مبلغ سالب",LINE_ZERO_AMOUNT:"سطر بلا مبلغ",LINE_ACCOUNT_REQUIRED:"لا يمكن ترحيل سطر بدون حساب صحيح"};
 let tab="",draft=null,glAcc="",vatQ="",reviewVersion=0;
 /* A delayed advisory result belongs to one draft and company context. Even an away/back
    transition invalidates it; no trace, queue record or dialog may outlive that context. */
