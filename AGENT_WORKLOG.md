@@ -1086,3 +1086,14 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Release blocker: `Pages deploy` workflow's Cloudflare publish step was **skipped** due to absent `CLOUDFLARE_API_TOKEN` secret; its successful *build* is not proof of production publish. Cloudflare account `9ff3d8494afab356ecbf95a2a231a6b5`, project `s-kosif`, custom domain `earth.kosif.pp.ua`: latest observed production deployment `ddf7706f-003e-44f3-8691-c7debdfd1054`, created 2026-10-12 18:04:57 UTC, predates the two commits. The owner specifically requires canonical production, not alternate previews.
 - Safety and limitations: exported Python file is a development context/contract and is NOT a full Python translation of the JS/TS accounting application; imported proposals are REVIEW-ONLY until a trusted sandboxed patch engine, diff/approval gate, snapshot and rollback is implemented. Do not claim complete edit or deployment. Remote laptop `LAPTOP-5T3VFM48` was offline during this iteration.
 - NEXT ACTION: (1) Confirm new tests and full CI pass, fix any failures; (2) configure Cloudflare Pages token by the owner through GitHub Actions secret or a sanctioned protected-release method, rebuild and verify the exact new commit on the canonical production domain; (3) inspect and reconcile remaining branches/repos deeply, tracking provenance/licenses and rejecting duplicates; (4) implement governed patch backend and multi-tenant schema migration/rollback, then extend from accounting to audit and tools workspaces with independent access rules.
+
+
+### TASK CHATGPT-20261013-DEMOboot-MAIN-PORT — Safe port of verified demo/company handoff retry
+- Agent: ChatGPT
+- Status: ACTIVE; narrow-scope safe forward-port on official `main`, no separate integration branch.
+- Owner directive: Resume prior branch/Claude audit, reuse verified functionality from prior work on main; keep company records and protected production intact.
+- Reused source: PR #245, `chatgpt/kosif-earth-qa-handoff-20261010`: `ui/core/demo.js` bounded, fail-closed bootstrap retry and `tools/earth_demo_boot_retry.test.mjs`.
+- Evidence / preflight: main lacks bounded retry and its regression test; PR #242 navigation and PR #239 company platform already have matching functional source in main. Cloudflare latest production was 4a3d3d2, while main was 9825802; a passing Pages build is not proof of Cloudflare publish.
+- Planned files: only `ui/core/demo.js`, `tools/earth_demo_boot_retry.test.mjs`, and append-only `AGENT_WORKLOG.md`.
+- Guards: Never seed company demo until workspace handoff no longer busy; bounded retry timeout, no cross-tenant writes or AI model changes; verify GitHub CI before claiming stable.
+- NEXT ACTION: Port exactly reviewed bounded boot retry with regression tests to main, check actions and report; leave broader branch review pending explicit coverage evidence.
