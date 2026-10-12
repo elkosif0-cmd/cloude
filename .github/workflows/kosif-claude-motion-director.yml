@@ -1,0 +1,60 @@
+name: KOSIF Claude Motion Director
+on:
+  workflow_dispatch:
+    inputs:
+      brief:
+        description: "Public, non-secret motion design brief (never include source footage or credentials)"
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: kosif-claude-motion-director
+  cancel-in-progress: false
+jobs:
+  design:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+      CREATIVE_BRIEF: ${{ inputs.brief }}
+    steps:
+      - name: Claude motion direction - bounded Haiku generation
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, urllib.request, urllib.error
+          key = os.getenv("ANTHROPIC_API_KEY", "")
+          if not key:
+              print("MOTION_STATUS: MISSING_MOON_SECRET")
+              sys.exit(1)
+          headers={"x-api-key":key,"anthropic-version":"2023-06-01","content-type":"application/json"}
+          def request(url, body=None):
+              req=urllib.request.Request(url, headers=headers, method="POST" if body else "GET",data=json.dumps(body).encode() if body else None)
+              try:
+                  with urllib.request.urlopen(req,timeout=45) as response:
+                      return json.load(response)
+              except urllib.error.HTTPError as e:
+                  print("MOTION_STATUS: ANTHROPIC_HTTP_"+str(e.code))
+                  sys.exit(1)
+          models=request("https://api.anthropic.com/v1/models?limit=100").get("data",[])
+          haiku=sorted((m for m in models if "haiku" in m.get("id","").lower()),key=lambda m:m.get("created_at",""),reverse=True)
+          if not haiku:
+              print("MOTION_STATUS: NO_HAIKU_MODEL")
+              sys.exit(1)
+          brief=os.getenv("CREATIVE_BRIEF","")[:1500]
+          prompt=("You are the video motion director. Provide a concise Arabic production brief for a vertical 9:16 video. "
+                  "Suggest 5 exact timed lower-third title moments, Arabic copy in natural phrasing, readable screen placement, "
+                  "color palette, 2-3 restrained animation techniques, and a quality-control checklist. "
+                  "Source footage and speech must remain unchanged; do not fabricate spoken transcript or factual claims. "
+                  "Budget: respond within 650 words. BRIEF: "+brief)
+          body={"model":haiku[0]["id"],"max_tokens":1100,"messages":[{"role":"user","content":prompt}]}
+          data=request("https://api.anthropic.com/v1/messages",body)
+          text="\n".join(p.get("text","") for p in data.get("content",[]) if p.get("type")=="text")
+          print("MOTION_STATUS: SUCCESS")
+          print("MOTION_MODEL:",data.get("model","unknown"))
+          print("MOTION_CLAUDE_BEGIN")
+          print(text[:8500])
+          print("MOTION_CLAUDE_END")
+          print("MOTION_USAGE:",json.dumps(data.get("usage",{})))
+          PY
