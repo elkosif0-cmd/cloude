@@ -7,6 +7,7 @@ not a claim that Anthropic Managed Agents spun up 1,000 native subagents.
 """
 import concurrent.futures
 import base64
+import hashlib
 import collections
 import json
 import os
@@ -100,6 +101,21 @@ def request(url, token=None, *, payload=None, retry=4, timeout=36):
 
 def get_github(path):
     return request(API_ROOT + path)
+
+def read_public_raw(url):
+    if not url.startswith("https://raw.githubusercontent.com/"):
+        raise RuntimeError("Not an allowed public source host")
+    req = urllib.request.Request(url, headers={"User-Agent": "KOSIF-public-source-verifier"})
+    for n in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=40) as resp:
+                return resp.read(MAX_SOURCE_BYTES + 1)
+        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError):
+            if n == 3:
+                raise RuntimeError("Public Git source download unavailable") from None
+            time.sleep(2 ** n)
+    raise RuntimeError("Source download retries exhausted")
+
 
 
 def public_repos():
@@ -242,11 +258,19 @@ def review(item):
     repo = item["repo"]
     slug = urllib.parse.quote(repo, safe="/")
     try:
-        encoded = get_github(f"/repos/{slug}/git/blobs/{item['blob_sha']}")
-        if encoded.get("encoding") != "base64":
+        commit = item.get("branch_commit")
+        if not commit or not re.fullmatch(r"[0-9a-f]{40}", commit):
             return {"status": "not_read", "repo": repo, "path": item["path"],
-                    "sha": item["blob_sha"], "reason": "unsupported blob encoding"}
-        source = base64.b64decode(encoded["content"])
+                    "sha": item["blob_sha"], "reason": "branch commit unavailable"}
+        public_raw_url = ("https://raw.githubusercontent.com/" + repo + "/" +
+                          commit + "/" + urllib.parse.quote(item["path"], safe="/"))
+        source = read_public_raw(public_raw_url)
+        # Reject any source that differs from Git's pinned blob identity.
+        git_blob_sha = hashlib.sha1(
+            b"blob " + str(len(source)).encode() + b"\\x00" + source).hexdigest()
+        if git_blob_sha != item["blob_sha"]:
+            return {"status": "not_read", "repo": repo, "path": item["path"],
+                    "sha": item["blob_sha"], "reason": "raw source SHA mismatch"}
         if len(source) > MAX_SOURCE_BYTES or SECRET_RX.search(source) or b"\x00" in source:
             return {"status": "excluded", "repo": repo, "path": item["path"],
                     "sha": item["blob_sha"], "reason": "sensitive/binary/oversized"}
@@ -309,9 +333,34 @@ def main():
         raise RuntimeError("Wrong repository; no AI calls")
     if "--dry-run" not in sys.argv and not os.getenv("ANTHROPIC_API_KEY"):
         raise RuntimeError("MOON secret not available; no AI calls")
-    scopes = discover()
+    # Prebuilt and verified on the authorized laptop. GitHub Actions' scoped
+    # token is not authorized to enumerate public user accounts (HTTP 403), so
+    # we use exact pinned public refs rather than requesting a more powerful key.
+    directory = Path("tools/claude-scope-data")
+    if not directory.is_dir():
+        raise RuntimeError("Pinned scope manifest absent; fail closed")
+    scopes = json.loads((directory / "scope-manifest.json").read_text(encoding="utf-8"))
+    ref_list = json.loads((directory / "branches.json").read_text(encoding="utf-8"))
+    if len(scopes) != MAX_JOBS or len({(s["repo"], s["blob_sha"]) for s in scopes}) != MAX_JOBS:
+        raise RuntimeError("Audit tasks must be 1000 unique public Git blobs")
+    ref_index = {(r["repo"], r["branch"]): r["sha"] for r in ref_list}
+    for scope in scopes:
+        if not any(scope["repo"].startswith(owner + "/") for owner in OWNERS):
+            raise RuntimeError("Unauthorized repository in scope manifest")
+        scope["branch_commit"] = ref_index.get((scope["repo"], scope["branch"]))
+        if not scope["branch_commit"]:
+            raise RuntimeError("Missing pinned branch commit")
+    checkpoint("coverage.json", json.loads((directory / "coverage.json").read_text(encoding="utf-8")))
     if "--dry-run" in sys.argv:
-        logger("DRY_RUN_NO_MODEL_CHARGES " + str(len(scopes)))
+        first = scopes[0]
+        public_raw_url = ("https://raw.githubusercontent.com/" + first["repo"] + "/" +
+                          first["branch_commit"] + "/" +
+                          urllib.parse.quote(first["path"], safe="/"))
+        sample = read_public_raw(public_raw_url)
+        sha = hashlib.sha1(b"blob " + str(len(sample)).encode() + b"\\x00" + sample).hexdigest()
+        if sha != first["blob_sha"]:
+            raise RuntimeError("Preflight public-source blob SHA mismatch")
+        logger("DRY_RUN_VALIDATED_1000_UNIQUE_JOBS_AND_RAW_BLOB " + sha)
         return
     # Test one actual call before scheduling the rest: catches invalid key or
     # unavailable model with minimal expense. Avoid launching in case of error.
