@@ -79,7 +79,7 @@ def check_preview(tmp, label, samples, placeholders):
     head = app.split("</head>", 1)[0]
     ok(f"{label}: each private block ({len(placeholders)}) is replaced by its placeholder", all(ph in app for ph in placeholders))
     ok(f"{label}: SQC theme color is canonical", 'name="theme-color" content="#f3ece2"' in head)  # the «دفتر KOSIF» paper rail (build.py, tokens --sk-rail of data-brand="ledger")
-    ok(f"{label}: SQC favicon replaces legacy cloud mark", 'href="./art/sqc-icon.svg"' in head and "kosif-cloud.svg" not in head)
+    ok(f"{label}: KOSIF EARTH favicon replaces legacy cloud mark", 'href="./art/brand/kosif-earth-icon.svg"' in head and "kosif-cloud.svg" not in head)
     ok(f"{label}: app shell advertises the PWA manifest", 'rel="manifest" href="./manifest.webmanifest"' in head)
     phones = public_phone_numbers(blob)
     ok(f"{label}: no real mobile numbers", not phones, f"{len(phones)} found")
