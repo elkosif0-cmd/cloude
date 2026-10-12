@@ -4098,6 +4098,44 @@ window.SKEngines = (function() {
 		}
 		return best;
 	}
+	/** RFC-4180 CSV/TSV logical rows, including quoted account names with line breaks.
+	* Retain the original physical line number for reproducible import diagnostics. */
+	function logicalRecords(text) {
+		const rows = [];
+		let raw = "", quoted = false, start = 1, line = 1, quoteStart = 1;
+		for (let i = 0; i < text.length; i++) {
+			const ch = text[i];
+			if (ch === "\"") {
+				if (quoted && text[i + 1] === "\"") {
+					raw += "\"\"";
+					i++;
+					continue;
+				}
+				if (!quoted) quoteStart = line;
+				quoted = !quoted;
+				raw += ch;
+			} else if (ch === "\n") {
+				if (quoted) raw += "\n";
+				else {
+					rows.push({
+						raw: raw.replace(/\r$/, ""),
+						line: start
+					});
+					raw = "";
+					start = line + 1;
+				}
+				line++;
+			} else raw += ch;
+		}
+		if (raw) rows.push({
+			raw: raw.replace(/\r$/, ""),
+			line: start
+		});
+		return {
+			rows,
+			unclosedQuoteLine: quoted ? quoteStart : null
+		};
+	}
 	function makeRow(line, code, name, debit, credit, prior, override) {
 		if (debit < 0) {
 			credit += -debit;
@@ -4165,7 +4203,17 @@ window.SKEngines = (function() {
 		const marked = raw.split(/\r?\n/).find((l) => l.startsWith(SOURCE_MARKER));
 		const knownSourceId = marked ? marked.slice(SOURCE_MARKER.length).trim() : identifyLegacyCorpusTransport(raw) ?? identifyReviewedSourceTransport(raw);
 		const source = raw.split(/\r?\n/).filter((l) => !l.startsWith(SOURCE_MARKER)).join("\n");
-		const lines = source.split(/\r?\n/).filter((l) => l.trim());
+		const logical = logicalRecords(source);
+		if (logical.unclosedQuoteLine !== null) return {
+			...finish([], [{
+				line: logical.unclosedQuoteLine,
+				code: "UNCLOSED_QUOTED_FIELD",
+				message: "Unclosed quoted CSV field; import rejected without partial data."
+			}], {}, ","),
+			balanced: false
+		};
+		const records = logical.rows.filter((r) => r.raw.trim());
+		const lines = records.map((r) => r.raw);
 		if (!lines.length) return finish([], [{
 			line: 0,
 			code: "EMPTY_INPUT",
@@ -4196,8 +4244,8 @@ window.SKEngines = (function() {
 			credit: 3
 		});
 		const errors = [], rows = [], seen = /* @__PURE__ */ new Map();
-		(hasHeader ? lines.slice(1) : lines).forEach((raw, i) => {
-			const lineNo = i + (hasHeader ? 2 : 1), cells = splitLine(raw, delimiter);
+		(hasHeader ? records.slice(1) : records).forEach(({ raw, line: lineNo }) => {
+			const cells = splitLine(raw, delimiter);
 			const code = String(cells[columns.code] ?? "").trim(), name = String(cells[columns.name] ?? "").trim() || code;
 			if (!code && !name) return;
 			if ([code, name].some((v) => /^(الاجمالي|الإجمالي|المجموع|total|totals)$/i.test(v))) return;

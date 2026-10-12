@@ -15,7 +15,7 @@ export type TbRow = {
   /** in the account's natural direction (credit-positive for liabilities, equity, revenue) */ net: Minor;
   /** prior-year debit − credit, or null when no comparative column */ prior: Minor | null;
 };
-export type TbError = { line: number; code: 'EMPTY_INPUT' | 'AMOUNT_NOT_NUMERIC' | 'DUPLICATE_ACCOUNT' | 'SOURCE_REPORT_REIMPORT_UNSUPPORTED'; message: string };
+export type TbError = { line: number; code: 'EMPTY_INPUT' | 'AMOUNT_NOT_NUMERIC' | 'DUPLICATE_ACCOUNT' | 'SOURCE_REPORT_REIMPORT_UNSUPPORTED' | 'UNCLOSED_QUOTED_FIELD'; message: string };
 export type TrialBalance = {
   /** Origin survives adjustments and never establishes audit evidence. */
   sourceKind?: 'published-statements'; sourceId?: string;
@@ -101,6 +101,32 @@ export function detectDelimiter(text: string): string {
   return best;
 }
 
+/** RFC-4180 CSV/TSV logical rows, including quoted account names with line breaks.
+ * Retain the original physical line number for reproducible import diagnostics. */
+function logicalRecords(text: string): { rows: { raw: string; line: number }[]; unclosedQuoteLine: number | null } {
+  const rows: { raw: string; line: number }[] = [];
+  let raw = '', quoted = false, start = 1, line = 1, quoteStart = 1;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      if (quoted && text[i + 1] === '"') { raw += '""'; i++; continue; }
+      if (!quoted) quoteStart = line;
+      quoted = !quoted;
+      raw += ch;
+    } else if (ch === '\n') {
+      if (quoted) raw += '\n';
+      else {
+        rows.push({ raw: raw.replace(/\r$/, ''), line: start });
+        raw = '';
+        start = line + 1;
+      }
+      line++;
+    } else raw += ch;
+  }
+  if (raw) rows.push({ raw: raw.replace(/\r$/, ''), line: start });
+  return { rows, unclosedQuoteLine: quoted ? quoteStart : null };
+}
+
 function makeRow(line: number, code: string, name: string, debit: Minor, credit: Minor, prior: Minor | null, override?: AccountType): TbRow {
   if (debit < 0) { credit += -debit; debit = 0; }
   if (credit < 0) { debit += -credit; credit = 0; }
@@ -126,7 +152,14 @@ export function parseTrialBalance(text: string, opts: { delimiter?: string; over
   const marked = raw.split(/\r?\n/).find(l => l.startsWith(SOURCE_MARKER));
   const knownSourceId=marked?marked.slice(SOURCE_MARKER.length).trim():identifyLegacyCorpusTransport(raw)??identifyReviewedSourceTransport(raw);
   const source = raw.split(/\r?\n/).filter(l => !l.startsWith(SOURCE_MARKER)).join('\n');
-  const lines = source.split(/\r?\n/).filter((l) => l.trim());
+  const logical = logicalRecords(source);
+  if (logical.unclosedQuoteLine !== null) {
+    return { ...finish([], [{ line: logical.unclosedQuoteLine, code: 'UNCLOSED_QUOTED_FIELD',
+      message: 'Unclosed quoted CSV field; import rejected without partial data.' }], {}, ','),
+      balanced: false };
+  }
+  const records = logical.rows.filter((r) => r.raw.trim());
+  const lines = records.map((r) => r.raw);
   if (!lines.length) return finish([], [{ line: 0, code: 'EMPTY_INPUT', message: 'لا توجد بيانات للاستيراد' }], {}, ',');
   const delimiter = opts.delimiter || detectDelimiter(source);
   const head = splitLine(lines[0], delimiter), columns: Record<string, number> = {};
@@ -142,8 +175,8 @@ export function parseTrialBalance(text: string, opts: { delimiter?: string; over
   const hasHeader = Object.keys(columns).length >= 2;
   if (!hasHeader) Object.assign(columns, { code: 0, name: 1, debit: 2, credit: 3 });
   const errors: TbError[] = [], rows: TbRow[] = [], seen = new Map<string, number>();
-  (hasHeader ? lines.slice(1) : lines).forEach((raw, i) => {
-    const lineNo = i + (hasHeader ? 2 : 1), cells = splitLine(raw, delimiter);
+  (hasHeader ? records.slice(1) : records).forEach(({ raw, line: lineNo }) => {
+    const cells = splitLine(raw, delimiter);
     const code = String(cells[columns.code] ?? '').trim(), name = String(cells[columns.name] ?? '').trim() || code;
     if (!code && !name) return;
     if ([code, name].some((v) => /^(الاجمالي|الإجمالي|المجموع|total|totals)$/i.test(v))) return;
