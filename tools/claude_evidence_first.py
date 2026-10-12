@@ -311,7 +311,6 @@ def run_paid(groups, counts):
                        "mount_path": "/review-scopes.json"},
                       {"type": "github_repository",
                        "url": "https://github.com/elkosif0-cmd/cloude",
-                       "branch": "audit/claude-1000-20261012",
                        "mount_path": "/workspace/cloude",
                        "authorization_token": os.environ["GITHUB_TOKEN"]}]
     })
