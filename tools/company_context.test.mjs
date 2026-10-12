@@ -7,7 +7,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 const src=readFileSync(new URL('../ui/core/company.js',import.meta.url),'utf8');
-function app({space,books,biz='أغنام الوادي',rail=true}={}){
+function app({space,books,biz='أغنام الوادي',rail=true,gate='accounting'}={}){
   const store=new Map();if(books)store.set('skosif_companies_v1',JSON.stringify(books));
   const org={biz};const events=[],setOrgCalls=[];
   const railEl={textContent:biz};
@@ -15,7 +15,7 @@ function app({space,books,biz='أغنام الوادي',rail=true}={}){
     localStorage:{getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)},
     document:{getElementById:id=>id==='biz-name'&&rail?railEl:null},
     addEventListener(){},
-    SK:{load:(k,d)=>{try{const v=JSON.parse(store.get(k)??'null');return v==null?d:v}catch{return d}},save:(k,v)=>{store.set(k,JSON.stringify(v));return true},bus:{on(){},emit:(n,d)=>events.push([n,d])},ui:{uid:p=>p+'-x1'}},
+    SK:{gate:{current:()=>gate},load:(k,d)=>{try{const v=JSON.parse(store.get(k)??'null');return v==null?d:v}catch{return d}},save:(k,v)=>{store.set(k,JSON.stringify(v));return true},bus:{on(){},emit:(n,d)=>events.push([n,d])},ui:{uid:p=>p+'-x1'}},
     SKosifSpace:space,
     SKosifCore:{setOrg:(f,v)=>{setOrgCalls.push([f,v]);if(f==='biz'&&v&&v!==org.biz){org.biz=v;return true}return false}}};
   ctx.window=ctx;vm.createContext(ctx);vm.runInContext(src,ctx);
@@ -68,4 +68,47 @@ test('the private company is listed locked and opens only through the front door
   const l=a.ctx.SK.company.list();const priv=l.find(x=>x.id==='space-main');
   assert.ok(priv&&priv.locked,'the private space is a locked entry');
   assert.equal(await a.ctx.SK.company.open('space-main'),false);assert.equal(a.ctx.location.href,'./','sent to the front door');
+});
+
+test('a brand-new tools space is registered TOOLS_ONLY, not silently upgraded to accounting',async()=>{
+  const a=app({space:spaceOf('space-tools','أدوات فريق المراجعة'),books:undefined,gate:'tools'});
+  await tick();await tick();
+  assert.equal(a.ctx.SK.company.current().ownerScope,'TOOLS_ONLY');
+  assert.equal(a.books().companies.find(c=>c.id==='space-tools')?.ownerScope,'TOOLS_ONLY');
+  assert.equal(a.ctx.SK.company.list().find(c=>c.id==='space-tools')?.ownerScope,'TOOLS_ONLY');
+});
+
+test('existing explicit ownerScope survives opening via a different gate and a company rename',async()=>{
+  const a=app({space:spaceOf('co-audit','شركة المراجعة'),gate:'accounting',
+    books:{active:{companyId:'co-audit'},companies:[{id:'co-audit',name:'شركة المراجعة',ownerScope:'AUDIT_ONLY'}],periods:[]}});
+  await tick();await tick();
+  assert.equal(a.ctx.SK.company.current().ownerScope,'AUDIT_ONLY');
+  assert.equal(a.ctx.SK.company.rename('ملف المراجعة الجديد'),true);
+  assert.equal(a.books().companies[0].ownerScope,'AUDIT_ONLY');
+  assert.equal(a.ctx.SK.company.current().ownerScope,'AUDIT_ONLY');
+});
+
+test('legacy reserved tools-home record without ownerScope is narrowly migrated to TOOLS_ONLY',async()=>{
+  const a=app({space:spaceOf('space-tools','الأدوات'),gate:'tools',
+    books:{active:{companyId:'space-tools'},companies:[{id:'space-tools',name:'الأدوات'}],periods:[]}});
+  await tick();await tick();
+  assert.equal(a.books().companies[0].ownerScope,'TOOLS_ONLY');
+  assert.equal(a.ctx.SK.company.current().ownerScope,'TOOLS_ONLY');
+});
+
+test('reserved tools ID with explicit FULL_ACCOUNTING is never downgraded by opening tools',async()=>{
+  const a=app({space:spaceOf('space-tools','ملف رئيسي'),gate:'tools',
+    books:{active:{companyId:'space-tools'},companies:[{id:'space-tools',name:'ملف رئيسي',ownerScope:'FULL_ACCOUNTING'}],periods:[]}});
+  await tick();await tick();
+  assert.equal(a.books().companies[0].ownerScope,'FULL_ACCOUNTING');
+  assert.equal(a.ctx.SK.company.current().ownerScope,'FULL_ACCOUNTING');
+});
+
+test('audit-only unregistered company remains audit-only when metadata creates its books record',async()=>{
+  const a=app({space:spaceOf('co-audit','ملف مراجعة'),gate:'audit',books:undefined});
+  await tick();await tick();
+  assert.equal(a.ctx.SK.company.current().ownerScope,'AUDIT_ONLY');
+  const next=a.books();next.companies=[];a.store.set('skosif_companies_v1',JSON.stringify(next));
+  assert.equal(a.ctx.SK.company.updateMeta({currency:'EGP',country:'EG'}),true);
+  assert.equal(a.books().companies.find(x=>x.id==='co-audit')?.ownerScope,'AUDIT_ONLY');
 });

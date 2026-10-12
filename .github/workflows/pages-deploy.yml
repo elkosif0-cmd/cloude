@@ -26,6 +26,8 @@ permissions:
 
 jobs:
   deploy:
+    # Protect independent tenant-scope review branch from Pages previews.
+    if: github.ref_name != 'fix/company-owner-scope-20261012'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
