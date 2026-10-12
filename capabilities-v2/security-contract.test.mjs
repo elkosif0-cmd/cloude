@@ -58,7 +58,7 @@ test('client mirrors document permissions and exposes guarded vault methods',()=
   assert.match(client,/timeoutMs:45000/);
 });
 
-const accessModule=import('data:text/javascript;base64,'+Buffer.from(worker+'\nexport {workspaceAccessContext,validateWorkspaceInput};\n').toString('base64'));
+const accessModule=import(new URL('../capabilities-v2/worker.js',import.meta.url).href);
 function accessDb({tenant='tenant-a',mode='explicit',tenantRole='owner',workspaceRole=null}={}){
   const queries=[];
   return {queries,prepare(sql){return {bind(...params){queries.push({sql,params});return {async first(){
