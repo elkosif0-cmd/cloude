@@ -1,0 +1,4594 @@
+[
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "a1990-sales-intel-port-20261004",
+    "sha": "dc895004d3dee8fc14e69286dfca07eb104c87dc",
+    "source_candidates": 386,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "audit/claude-1000-20261012",
+    "sha": "e17f515b1caca18ba7951ee98fd25ca22cfc53aa",
+    "source_candidates": 604,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "audit/claude-deep50-public-20261012",
+    "sha": "4b4f3aa51afffd4f134150024de2b3bdc1e6030f",
+    "source_candidates": 603,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "audit/claude-direct-workers-20261012",
+    "sha": "edb442045a6970f70e461fa76eac96c243338735",
+    "source_candidates": 601,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "audit/claude-source-fanout-20261012",
+    "sha": "279dfe563b532dda619f4837aad25144636115c8",
+    "source_candidates": 601,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "audit/claude-source-retry-20261012",
+    "sha": "7632f8df0ff89c1ff49e4ecc544f5d832c384e2e",
+    "source_candidates": 602,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "backup/cutover-pre-rebase-20260925",
+    "sha": "98795700dcb77852e4e16cb63d264876a365c069",
+    "source_candidates": 142,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "backup/earth-before-a6eb2e47-20261012",
+    "sha": "eb0718bb9696ce2c462a267431629125c7f16565",
+    "source_candidates": 585,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "backup/pre-grand-fusion-20260925-1358",
+    "sha": "fcdad4806704b84f475f280162d5a7ee006236bc",
+    "source_candidates": 117,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "backup/pre-major-fusion-20260925",
+    "sha": "842c43d61eea559965a412c5319b9bca78e8ef39",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "backup/pre-total-rebuild-20260925-1356",
+    "sha": "fba64a652090555e1653287af96ab5a24e3e636c",
+    "source_candidates": 117,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "backup/pre-zero-legacy-cutover-20260925-1244",
+    "sha": "a90f74daa1f7e85b61bdb818561f3f8ef3f7f7b9",
+    "source_candidates": 142,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "backup/react-rebuild-before-merge",
+    "sha": "842c43d61eea559965a412c5319b9bca78e8ef39",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/claude-api-dev-github-20261011",
+    "sha": "9e7c37ce91bcb5a2131a7e531530e415a176b04f",
+    "source_candidates": 585,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/earth-handdrawn-goal-path-20261011",
+    "sha": "93c020ca114730f4b8180886e49d9739ba90c1f5",
+    "source_candidates": 585,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/fix-tb-open-duplicate-main-20261011",
+    "sha": "ae62b41cf5273f6edcec7b5c9ffd841a191b4136",
+    "source_candidates": 584,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-cinematic-entry-20261009",
+    "sha": "2572cc364a78a8102b2fe838f56890da4d42f2d0",
+    "source_candidates": 582,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-company-addons-20261010",
+    "sha": "e210769038c3e8e29493c603ce10becf9e90506b",
+    "source_candidates": 591,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-door-main-ready-20261011",
+    "sha": "a2b86f4f7c9657e9a76ac5c48454a87858ab63c6",
+    "source_candidates": 584,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-goal-first-ux-20261009",
+    "sha": "bd9fab1178ff83cef660b5e9ccc00cce79d545b9",
+    "source_candidates": 580,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-guided-screen-workflows-20261010",
+    "sha": "27573b2cb94e058f1ca303bccff8b75e4a85ef97",
+    "source_candidates": 596,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-intelligent-ui-20261010",
+    "sha": "e156cf48fa186787c125d2eb6cd6e0ce438e08c2",
+    "source_candidates": 609,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-main-lint-repair-20261011",
+    "sha": "bbd5fec51dc03ab718f8fd539c2af10eaee4ae3c",
+    "source_candidates": 584,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-manual-merge-20261010",
+    "sha": "f0229478d828ace94e21d1976fa01fe832821600",
+    "source_candidates": 623,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-nav-search-accessible-20261010",
+    "sha": "27573b2cb94e058f1ca303bccff8b75e4a85ef97",
+    "source_candidates": 596,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-office-native4k-20261010",
+    "sha": "d7558cddf5a82ec20f22277c6659ef183a28d85b",
+    "source_candidates": 583,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-official-domain-20261011",
+    "sha": "ee3b22d035fc96c8ab4240ee3f90929b3e28bbd1",
+    "source_candidates": 585,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-owner-scope-20261010",
+    "sha": "a973a5c57e1ee994b7dc65ce52295dab6c22f295",
+    "source_candidates": 597,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-qa-handoff-20261010",
+    "sha": "7be19a7e1eba8feb7f173b35fb4cea9a710fdffe",
+    "source_candidates": 601,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-quiet-navigation-20261010",
+    "sha": "fd32f1a29f04928972028a7742ba5b30e95121e4",
+    "source_candidates": 594,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-sunlit-office-journeys-20261010",
+    "sha": "79351c51d9b8fbd73f8d3f6aecf1d3626b88d31b",
+    "source_candidates": 586,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/kosif-earth-true-goal-workflows-20261010",
+    "sha": "50bf3f5a9fffd7a3cb37a621313b8997e14e9343",
+    "source_candidates": 591,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chatgpt/s-kosif-preview-integration-20261011",
+    "sha": "54da7c3ad99a80a9738a00795c5ea562c31c70a9",
+    "source_candidates": 599,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "chore/agent-worklog-20261004",
+    "sha": "0babfb1892f44c7591d7e355ac456b058670bacc",
+    "source_candidates": 395,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "ci/cloudflare-pages-deploy-20260925",
+    "sha": "037acb0a7a109d957fef28e60d93f7bc718226a8",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/agriculture-pack-20261006",
+    "sha": "1cc84777148462e3d3da5ee9cad0fafac885de5b",
+    "source_candidates": 539,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/capability-profile-20261009",
+    "sha": "6ad96051f5de2f68d75377e3e9f16ad0e2a3a0a9",
+    "source_candidates": 573,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/channel-costing-20261008",
+    "sha": "f5fba4296b05c4f735e48cde222dcf55569a7266",
+    "source_candidates": 570,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/chatgpt-computer-control-0notj5",
+    "sha": "6f538af8c5d8daa03d35a589d385e006dbd7de3d",
+    "source_candidates": 319,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/company-first-20261005",
+    "sha": "2c4cbc1a6f25f644ed79079d0dd542078b8f5b82",
+    "source_candidates": 398,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/constitution-restructure-20261009",
+    "sha": "00b09e3b96d5fbb36c91bc068bb9b1dab9db8305",
+    "source_candidates": 580,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/construction-pack-20261006",
+    "sha": "0e60b6fb2473f09f6d82759e9141c19622a8ba40",
+    "source_candidates": 482,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/cycle-proof-20261006",
+    "sha": "2c421c00e82815c2bc28d4bfe2dafb4ce9df25e8",
+    "source_candidates": 492,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/cycle-proof-types-20261006",
+    "sha": "e00f93599e8762b21c6a10922dcecff61abdcea1",
+    "source_candidates": 492,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/deploy-artifact-20261007",
+    "sha": "c4485f2aba0968aeb999db4314c5876e5d8d923c",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/determined-bardeen-pr0fcw",
+    "sha": "0999c37ca2048519978706e4a99baa65ea953074",
+    "source_candidates": 301,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/digital-pack-20261006",
+    "sha": "d74f314c756afdd46d99a8973007331209c4231b",
+    "source_candidates": 488,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/document-vault-20261006",
+    "sha": "bcba0d2fe18466c3971cdb0419292080427d0fab",
+    "source_candidates": 457,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/education-pack-20261006",
+    "sha": "86320cb2bd74968d8d4dd37bc568612c5005e8e1",
+    "source_candidates": 520,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/fix-main-types-20261006",
+    "sha": "01c40c5a0a1124d784f8a3329e97f2aa1384e7b9",
+    "source_candidates": 517,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/health-case-cost-20261006",
+    "sha": "fc549f661a180a16479287e01bb87b65b35874dd",
+    "source_candidates": 479,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/health-vat-20261006",
+    "sha": "158fe87c6b11dd1d23bf4b4cd07dbdf76ea2f7a6",
+    "source_candidates": 479,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/higgsfield-visuals-20261007",
+    "sha": "a9a9a03e3c1512a14e0462762685cb8a992f67a9",
+    "source_candidates": 553,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/hospitality-pack-20261006",
+    "sha": "be3074e6d0db6a691e6dc9bfcb967dd22852d0a6",
+    "source_candidates": 485,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/identity-20261005",
+    "sha": "cf7c974eec2ff383530a281b0c4d320c430f3b0a",
+    "source_candidates": 409,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/identity-constitution-20261008",
+    "sha": "48f75eff87f563a1dca25b9e6ba3b04a37114ae3",
+    "source_candidates": 566,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/identity-navy-gold-20261007",
+    "sha": "e1010b10aaa07bf0ada0b6dea2f46beecc441dc6",
+    "source_candidates": 549,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/kind-hawking-t7fhl9",
+    "sha": "8c960769c435e1aed9f3993032426b0fe751207c",
+    "source_candidates": 218,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/live-verification-20261007",
+    "sha": "d1bcc3ece5af6827b53e1be16faf0b445a33ab7f",
+    "source_candidates": 548,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/m1-gates-20261006",
+    "sha": "323467b6a4bcbb0ac850d089031c74414caa64c2",
+    "source_candidates": 442,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/magical-maxwell-taj9xe",
+    "sha": "a9ad67cf4634edd8f4f340ea3ced26a1a62dfb5d",
+    "source_candidates": 326,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/magical-maxwell-taj9xe-release",
+    "sha": "6e266c2168c779b874382b1b7ba17e84c99eaad1",
+    "source_candidates": 338,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/magical-maxwell-taj9xe-restore-safety",
+    "sha": "946aee0aa63d8dc2fd374f8661f4ee1c54bf82d5",
+    "source_candidates": 348,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/magical-maxwell-taj9xe-v17-stale-errors",
+    "sha": "7b8fdbf197f930118cf622f083c328d8d44453df",
+    "source_candidates": 328,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/meat-receipts-1310-20261006",
+    "sha": "ed97670aa21d2808ab8a4b8adde22450345d6476",
+    "source_candidates": 455,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/merge-all-20261009",
+    "sha": "c26f132829c309160f870d2e9cc2a883322b44e1",
+    "source_candidates": 576,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/model-companies-20261006",
+    "sha": "85ee1abd22e4de1f86e6bb4c4eb9fe69879232c4",
+    "source_candidates": 490,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/motion-layer-20261005",
+    "sha": "a963b9bfacec973667761e695977ad37b9219297",
+    "source_candidates": 406,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/next-20261009",
+    "sha": "17c231b5c7cbe9fdcd617596d02ddba276b646be",
+    "source_candidates": 574,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/one-company-context-20261005",
+    "sha": "40171cd519c0f5b58688edacc08a66283db5a90e",
+    "source_candidates": 403,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/p2-definitions-pickers-20261006",
+    "sha": "e084b594db8e5017d29e61d69fac652ed47dd775",
+    "source_candidates": 450,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/p2-ledger-integrity-20261006",
+    "sha": "a0313522792aeaac99ebb68ec6fbc574f83ea94a",
+    "source_candidates": 449,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/p3-health-claims-20261006",
+    "sha": "eeda2d6a14371121bf788ff2e756c4f1bdb7f4a1",
+    "source_candidates": 458,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/p3-meat-pack-20261006",
+    "sha": "c1fb4d057afadfd959267ecd19a8e9b655e6c08b",
+    "source_candidates": 455,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/p5-corpus-scorecard-20261006",
+    "sha": "72e2032ec75f2dc30c083b131c19d89ef27cbdc4",
+    "source_candidates": 445,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/page-review-20261007",
+    "sha": "56c3810ca739a90fb288802a7b8de823ba0cb67d",
+    "source_candidates": 549,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/pages-deploy-actions-20261007",
+    "sha": "9f9de169b02361edab584b9fdb40fff7d52c093e",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/production-packs-20261006",
+    "sha": "a45205d5e6ad05da08d744de2b240948d07fd432",
+    "source_candidates": 536,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/public-demo-admission-20261006",
+    "sha": "15fbbdb32a66ff59a5e548076826395772202f6f",
+    "source_candidates": 479,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r1-one-head-20261007",
+    "sha": "43823af5f21e729bfa9b39e3ad8aae5ddb17cfff",
+    "source_candidates": 554,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r2-book-families-20261007",
+    "sha": "ed1ae2bbf0371b1240c22a0b37143db14553b4f1",
+    "source_candidates": 555,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r3-menu-by-constitution-20261007",
+    "sha": "84f9f00e7c183a0a03bad5b9d2793f8eea5e9cb5",
+    "source_candidates": 555,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r4-light-bundle-20261007",
+    "sha": "08f37f9d8661542fc41f911f447ce4b9086c1e75",
+    "source_candidates": 557,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r5-clarity-20261007",
+    "sha": "91afdbde6b67f803da68da3fa8486e194c531e06",
+    "source_candidates": 556,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r7-command-center-20261007",
+    "sha": "4cc95cb38a10c0c6e340a1a27539081e1009d0ad",
+    "source_candidates": 557,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r8-long-screens-20261007",
+    "sha": "a960629452c123a802728df696179f4e87f6bd77",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r9-screen-tabs-20261007",
+    "sha": "2b84cab4a0351ae690fca4a5974f9537748ba13e",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r10-harsh-review-20261008",
+    "sha": "575a2d3ea27c9b0cf2e787026ddf829f68e04582",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r12-capabilities-20261008",
+    "sha": "d3b64b0806a2596d56c738ff735a8ca502724c15",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r13-phone-head-20261008",
+    "sha": "0febeecf59c427fb8e0d2dc8100575784c379464",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r14-audit-studios-20261008",
+    "sha": "4ca98ecf52a0d897814f6ddf4467ec25f877bfc9",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r15-code-review-20261008",
+    "sha": "a2f2e5c6bcaf65bcddf4f23f5558eb93ac7f14e1",
+    "source_candidates": 559,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r16-merge-pr143-20261008",
+    "sha": "82c3b15bb83bfce96c7204a7a3e88340a3577780",
+    "source_candidates": 560,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r17-full-review-20261008",
+    "sha": "7092bf431652c9dfbd44bd99b4b26b12a981f73c",
+    "source_candidates": 576,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/r19-kosif-ledger-20261009",
+    "sha": "7cf82916d85e6fdc30c42d04de21f61dab90417d",
+    "source_candidates": 575,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/relationship-health-20261007",
+    "sha": "20c6a306a4b6134f057d65b8a9711a480e5a13cd",
+    "source_candidates": 548,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/report-a11y-rebuilt-20261006",
+    "sha": "23ad32485d2bc4b41c9edacda219a4e25e0e8603",
+    "source_candidates": 476,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/review-screens-20261007",
+    "sha": "81a1da782407377f62733b24de78497238ff7b0d",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/sales-intel-v2",
+    "sha": "8f8fd881420003383ada31c4ae5ad1e9982b41d3",
+    "source_candidates": 358,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/setorg-no-rerender-20261005",
+    "sha": "eb1c8c2f40e140f6f7b2267493add5b3c9e4faa4",
+    "source_candidates": 404,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/statement-trace-20261007",
+    "sha": "fd54dfffdd397eb0142a58af32aec8e81d3f0256",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/trade-pack-20261007",
+    "sha": "32983e7fd79dd04c72bc2056f0e33796a19e11a5",
+    "source_candidates": 545,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/vat-policy-everywhere-20261006",
+    "sha": "41ab8001294d9948d61b18f0ef1ae4cb43e2be5c",
+    "source_candidates": 449,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/vat-return-boxes-20261006",
+    "sha": "346e8d9fbc90d2480cb644d8a77e7a019f9ff7e3",
+    "source_candidates": 479,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/wa-send-bundle",
+    "sha": "0479358374b98e67c2320e3ac010bdc691d917a0",
+    "source_candidates": 117,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/whatsapp-integration-messaging-mvdnxr",
+    "sha": "8af05ac9e3378a9a82d9b876f9450d8d0c87ba08",
+    "source_candidates": 127,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-a11y",
+    "sha": "1bae260da6b0c77024c8da2a746c50951c24a93e",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-assistant",
+    "sha": "b208db53cc0c9f799c4205cfc604c9b46eaeb9dd",
+    "source_candidates": 321,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-benchmarks",
+    "sha": "8abdad20630e44d58f9c2ef97edab87866162c39",
+    "source_candidates": 331,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-core-stats",
+    "sha": "12cdcfbe0c788b868d65c307fef69de0b5f81e7a",
+    "source_candidates": 340,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-identity",
+    "sha": "a5cc5e781dd8fd7a596b0842a0b78e474b1d417b",
+    "source_candidates": 326,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-integration",
+    "sha": "7efda16678549bfffd649746cf802c47ad2a9c3e",
+    "source_candidates": 338,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-jev-page",
+    "sha": "a3d69dbd24f003e357d400e8a1d63fdb578bc60e",
+    "source_candidates": 326,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-modal320",
+    "sha": "7b583f3498089bf9b9a56bcafa8851d9fe04fd33",
+    "source_candidates": 339,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-present",
+    "sha": "9d076d239d464d4e0d55c434b54abbea48b80c5f",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-rc",
+    "sha": "fedf4cd90a4ee5380ba002ba8ad22dd395ce3439",
+    "source_candidates": 328,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-restore",
+    "sha": "7c67c17de55f55784149ae0c5b78c127ee6969b8",
+    "source_candidates": 347,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-round2",
+    "sha": "86b9c94c0d78ea61cf2f9e9e102e558af58c8d43",
+    "source_candidates": 327,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-showcase",
+    "sha": "dfba3290523b512945a7d27df7a86ab52201e62b",
+    "source_candidates": 341,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986-sim-governance",
+    "sha": "0c4580987a6a172b1e2826bd634d0480dcbac451",
+    "source_candidates": 327,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "claude/zealous-maxwell-sgg986",
+    "sha": "1b060b742d25b19383fbe55af36ff499379b351c",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/a1990-root-cache-freshness-20261004",
+    "sha": "6381f906224d5885ed9e3802715c1455ce82aa55",
+    "source_candidates": 363,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/a1990-s-kosif-entry-ux-20261004",
+    "sha": "a184f17ffb6445af97e7ee5792eb6d549187e731",
+    "source_candidates": 361,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/audit-first-helper-separation",
+    "sha": "a9bfa78890fed24bee344b1f81c02ce37cd24686",
+    "source_candidates": 297,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/audit-fusion-spec-20260925",
+    "sha": "b702c996164ded65bf5eb4a003ed709ccdae2cad",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/canonical-audit-preview-20261007",
+    "sha": "0583ec2c3ae456f069556004a3a6c28a0072b7fc",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/clean-architecture-daily-advanced",
+    "sha": "230d6182b97c1de32ed1ff257ec1f66697ba0393",
+    "source_candidates": 87,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/company-context-vat-20261007",
+    "sha": "949e0d170ab98fe7320095375b87575201284225",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/erp-centers-20260925",
+    "sha": "e8962437fd319e21960d243e702f63826ca0e93f",
+    "source_candidates": 70,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/final-semantic-cleanup",
+    "sha": "8f5ba9698ce77f4f6e77058006999426fc0d30d0",
+    "source_candidates": 101,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/fullmode-login-performance-20261004",
+    "sha": "af6f083374244e937819df6fda90d7de6608f71d",
+    "source_candidates": 361,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/fullmode-text-finalizer-20261004",
+    "sha": "877d932e2c600bf1565108163174d993229b101d",
+    "source_candidates": 362,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/fusion-audit-visual-unification",
+    "sha": "160606f1d3310330fd4666fdbd207cbdd3c93ab1",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/fusion-audit-visual-unification-r2",
+    "sha": "d1e9c8e2cad62d3aca10ea6b73d2d3d0a7c9b92c",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/global-financial-intelligence",
+    "sha": "86e837c18fd23724a72061a2dd653793497fe798",
+    "source_candidates": 271,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/global-research-round2",
+    "sha": "5918f9c47b5f403a280e0745c7e5f33fde2dcdea",
+    "source_candidates": 270,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/integrate-53-mobile-preview-20260928",
+    "sha": "bc5578c1f45477138b2e990aa8dbc679d2b5caa0",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/kosif-four-portals-vision-20261005",
+    "sha": "2056f573cf145dc06386cc4d76a09179eaf03016",
+    "source_candidates": 421,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/kosif-think-public-safe-mcp-v0.5.1",
+    "sha": "914d22db1ed83db3fe03bd81839692a56c2c9840",
+    "source_candidates": 338,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/kosif-think-tool-router-v0.5-main",
+    "sha": "c1492e82771cae73bba6698067eeba9c5f5e4aa0",
+    "source_candidates": 338,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/kosif-think-tool-router-v0.5",
+    "sha": "fb3d608ab5c0ef17e5ef516dddc76e6dc8f92501",
+    "source_candidates": 329,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/kosif-think-v0.5.1-private-plugin-auth",
+    "sha": "aeb1a34b934e6da7f04e260b01709d0a46ca028d",
+    "source_candidates": 339,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/kosif-think-v0.5.1-public-router",
+    "sha": "aeb1a34b934e6da7f04e260b01709d0a46ca028d",
+    "source_candidates": 339,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/kosif-whatsapp-vnext-20260926",
+    "sha": "2fe3e6ad3c0215d73cc9fdfef6409c64f7a4b14f",
+    "source_candidates": 126,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/port-stable-capabilities-v2-20260925",
+    "sha": "7dc971e226c04c91c6d91773d8ed33feccaf362d",
+    "source_candidates": 69,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/port-stable-capabilities-v2-final",
+    "sha": "5de9aa0579701d38bb49ccb3d50adaa5bbeb6490",
+    "source_candidates": 69,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/product-flow-cleanup",
+    "sha": "98e444049bbfa3c21503cd6efd8ad551b6c6d6a6",
+    "source_candidates": 270,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/report-compatibility-49",
+    "sha": "e69573af17a7ed87058d4e197a8fe5ed1819abb6",
+    "source_candidates": 297,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/s-kosif-maintenance-20260928",
+    "sha": "cbdb7a7d42552626e81f49d7fc5e6aa97d25df3e",
+    "source_candidates": 320,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-all-periods-context-20261005",
+    "sha": "a5ecf79e1fa5c46c510bb99cbcf6812095d3b053",
+    "source_candidates": 418,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-all-periods-main-20261005",
+    "sha": "bc773c947e5e9042d82a1c3ded14498eb63ebab3",
+    "source_candidates": 416,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-audit-readability-20261004",
+    "sha": "2330e5bb897dfb325f5c4c90c48c1f08b6ff7000",
+    "source_candidates": 362,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-box-kpi-consistency-20261004",
+    "sha": "69d60c820fd9d033970af9fb05e3f5a42d84c84e",
+    "source_candidates": 397,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-company-scope-20261004",
+    "sha": "5aca4e621c2010ad156c90b5799c7dc34f82786a",
+    "source_candidates": 395,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-council-readiness-20261004",
+    "sha": "be1d7504fd2d97a1f1cb39875e26920d247d191b",
+    "source_candidates": 399,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-executive-context-guard-20261005",
+    "sha": "684f6240eb04cb835ab66cb226055252f0853f65",
+    "source_candidates": 418,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-five-audit-source-models-20261005",
+    "sha": "7da550d6debc90a3d0012b6e96cf99ab39a7cd96",
+    "source_candidates": 469,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-focus-diagnostic-20261005",
+    "sha": "e9bf860af07019af74f76312861e4129af5d6082",
+    "source_candidates": 438,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-management-report-20261004",
+    "sha": "1a54ed9555c51632f083c3c41a51973928d87368",
+    "source_candidates": 385,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-mercury-presentation-20261004",
+    "sha": "f4523616e41653b36680a027c3c3b58e9006b60e",
+    "source_candidates": 392,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-native-focus-completion-20261005",
+    "sha": "c047cb34b77ba08fda7cefd072a1c25929366f33",
+    "source_candidates": 438,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-preview-accessibility-20261005",
+    "sha": "e926d4974c5d7dab5716791f0c679a7c4e46a994",
+    "source_candidates": 431,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-pwa-theme-consistency-20261004",
+    "sha": "94d2ba7deb8b71bd3952840a310f5b2eb791b184",
+    "source_candidates": 361,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-report-a11y-main-20261005-r2",
+    "sha": "775ac9f5cf476efbed7920523e490d679991a936",
+    "source_candidates": 437,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-reports-receipts-20261004",
+    "sha": "661a0d5d7b54192a0908dc228bb401550151373d",
+    "source_candidates": 366,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-review-import-guard-20261004",
+    "sha": "b05a1246f42e1c2dda8a74762eb83db42eff9008",
+    "source_candidates": 395,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-sales-forward-fixes-20261004",
+    "sha": "94c2894a44122ead340da08596ff165d8949c5ac",
+    "source_candidates": 388,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-sidebar-visibility-20261004",
+    "sha": "dd1dd1f373493dd0159585a1f087aa1e671c8d96",
+    "source_candidates": 371,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-trial-balance-footer-20261004",
+    "sha": "9e7d71707b79fb3728264c2ad99689d54b5f7b53",
+    "source_candidates": 369,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-unlock-focus-20261004",
+    "sha": "6a4c819c7b35e81971f12de2eddee72466848d2b",
+    "source_candidates": 368,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-workspace-validation-20261005",
+    "sha": "7271c995070ed47e7984e4dbb91771b9b96815ec",
+    "source_candidates": 418,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/sqc-workspace-validation-main-20261005-r2",
+    "sha": "f04088b96c4e64c7b625c96893cf1a1d72d6e0dc",
+    "source_candidates": 420,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/standards-2025-round3",
+    "sha": "74c1c0102cd6fcdcec386e7361ac9d9ef82f3cbc",
+    "source_candidates": 270,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/three-entry-mandate-evidence-20261005",
+    "sha": "a911c113050aa760c8499e965f560a991583e7c5",
+    "source_candidates": 440,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/zero-legacy-capability-fusion",
+    "sha": "5c54a99c4b3db15182cef0053c0f8a5f4315977b",
+    "source_candidates": 143,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "codex/zero-legacy-capability-fusion-r2",
+    "sha": "bbff36360ff5264606c85d47cc4333a384800931",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "consolidate/accounting-repositories-20261011",
+    "sha": "6a3becd96ba854cd3b74e7fc4cf4db7ee2e6770f",
+    "source_candidates": 1659,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "docs/rule-zero-checkpoint-20261005-r2",
+    "sha": "66ed51216c0862c035762a0003f1ed0fe3bfaafe",
+    "source_candidates": 440,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/accountant-user-workspaces",
+    "sha": "dfae3678c85b4594b921f6fa06befd46477618a2",
+    "source_candidates": 340,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/four-finance-gateways-20261005",
+    "sha": "62dd47b8553c941cec829cfa29fe8bcb1b45bd61",
+    "source_candidates": 421,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/jev-tool-router-v080",
+    "sha": "129eb4462cae8b1c31a0750cc772e6f920a82aa6",
+    "source_candidates": 350,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-ai-exception-queue-20261005",
+    "sha": "4b1bcf11514b20a661a9a420008cdf075d82bb83",
+    "source_candidates": 440,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-computer-jev-runtime-v1",
+    "sha": "25fcf4cb63e723cb09b24b70e991d4dda1307d3b",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-platform-vision-contract-20261005",
+    "sha": "4e7eeb47bebf397c4c2befd2455b394ee5baf9c0",
+    "source_candidates": 441,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-standards-company-layer-20261005",
+    "sha": "5fe83f3cb401b04f07c5b800f02e62adfdc5ddfd",
+    "source_candidates": 439,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-think-browser-jev-routing-20260929",
+    "sha": "ff9eaa0c587e0b1a3ce17665d8051f0e04e86e6e",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-think-v054-browserjev-apply-decision",
+    "sha": "49916e10df8f9f66849aeb80fb510a08f013ec7c",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-think-v055-evidence-cognition",
+    "sha": "e0597fd63fde6ceeb1f70fc876a7547a327fa699",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-unified-financial-os-20261005",
+    "sha": "03777bd7b43dea02ac7466778c443943ee189630",
+    "source_candidates": 428,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-unified-financial-os-main-20261005-r2",
+    "sha": "a6f83aa50e7cfb73bb7b892bca6a2bf3d4bc829a",
+    "source_candidates": 437,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-unified-financial-os-main-20261005-r3",
+    "sha": "bf83bbfc94a7e860d38144a663eed732de6c797d",
+    "source_candidates": 436,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feat/kosif-unified-financial-os-main-20261005-r4",
+    "sha": "143acf235c69ceb27a5759fdb1f43bb59646adaf",
+    "source_candidates": 436,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feature/corpus-audit-round2",
+    "sha": "9f6997067eb8be25e60977c7d6a78df79737243a",
+    "source_candidates": 319,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feature/kosif-think-cleanapis-v2",
+    "sha": "587695682e2c3d05db44708ad74657ae927bc94a",
+    "source_candidates": 320,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "feature/kosif-think-orchestrator-v1",
+    "sha": "836dd2a8711a754789a794de254879789f7288b5",
+    "source_candidates": 320,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/company-owner-scope-20261012",
+    "sha": "e34f6877317d9cd97c064a824a5bbdb44af88621",
+    "source_candidates": 598,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/kosif-journal-validation-20261012",
+    "sha": "42e4e104ed8658e8a2d4e1533b686f2be80693fb",
+    "source_candidates": 599,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/kosif-think-auth-gate-and-tool-merge",
+    "sha": "35040c4381bea66edf20e7fcb66c2b454628c970",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/kosif-think-browserjev-v052-20260929",
+    "sha": "584277eebc62a9cd2758e754dc59621ef622fd5c",
+    "source_candidates": 350,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/kosif-think-browserjev-v053-20260929",
+    "sha": "5d5ce2b8c7cac64b85b672fd689dadc8a57fb103",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/kosif-think-public-preflight-fallback-20260929",
+    "sha": "3b5b5730870b3e0a93720da2ab837fe41e176648",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/kosif-think-v051-public-preflight-20260928",
+    "sha": "558ede6d58c32e216c2f5668334d9353242f9e1a",
+    "source_candidates": 350,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/kosif-think-v057-jev-browser-reliability-20260929",
+    "sha": "a4d5d31d3da53ee94ffc03579bfdbd6c3aebe1ff",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/kosif-think-v058-packet-binding-status",
+    "sha": "e29f8560290fd439c2764440e9f3fae861a7db18",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/kosif-think-v081-evidence-consistency",
+    "sha": "276c9b98fda3827926ec009f728b6b458aeacfd8",
+    "source_candidates": 350,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/mobile-helper-actions-320",
+    "sha": "09018488185a74112b6dab04385c4b71d5e3f6ff",
+    "source_candidates": 339,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/preview-safe-responsive-20260928",
+    "sha": "f335625e9a05820b4b59e167bcae483a78e098cd",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/tb-prior-numeric-validation-20261012",
+    "sha": "e761a768d052a50e896c9c10114746f10ef10c5a",
+    "source_candidates": 601,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/tb-quoted-csv-20261012",
+    "sha": "a10cf8880c42d99eff4f5f7a8ab7eaa657bca16a",
+    "source_candidates": 600,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/tbreview-duplicate-open-20261012",
+    "sha": "b9de50add5f1848645f2092d9e3bcfcb4b79bf06",
+    "source_candidates": 598,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "fix/wa-mcp-owner-auth",
+    "sha": "c803db71652036be359c9410be76e741c7b57f31",
+    "source_candidates": 127,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "handoff/kosif-think-complete-source-20260930",
+    "sha": "7b53f3367ef1712037d7dbc0e0d1d0b7402fa3a1",
+    "source_candidates": 360,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "hotfix/idempotent-view-listeners",
+    "sha": "710ec94c453df1da69a88b45096912ca2997813f",
+    "source_candidates": 316,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/all-work-20261006",
+    "sha": "f6453813d8916739accd845ccfc7e169bce826c1",
+    "source_candidates": 542,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/claude-api-accounting-20261012",
+    "sha": "f7be678f388ad4d5af87a63a7153ad61ac2fcec6",
+    "source_candidates": 598,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/claude-parallel-branch-audit-20261012",
+    "sha": "9c824a1e9135ef8f5deeb2040149b51316184b0f",
+    "source_candidates": 600,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/earth-accounting-verified-20261012",
+    "sha": "d43aa321d4a4c272e9e9204fef652e7e26cc9171",
+    "source_candidates": 599,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/grand-fusion-knowledge-20261007",
+    "sha": "bf588e990fb567bae9cd33fc691c64d6a8011011",
+    "source_candidates": 553,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/journal-account-guard-20261012",
+    "sha": "8d6e8c6fadd70757d3f5d6e8a04e87c50a6e7501",
+    "source_candidates": 600,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/knowledge-sweep-20261007",
+    "sha": "4ce0f8b0201e16ca937e8871884520ccc37a9476",
+    "source_candidates": 554,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/kosif199022-account-harvest-20261007",
+    "sha": "fd7fb9b7fc38ab320e34b7ad36cbe8ba61a35525",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/kosif-deep-audit-50-20261012",
+    "sha": "e0edd955241fa62ef9b1e34adbaff9e14559a868",
+    "source_candidates": 599,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/pr67-pr58-review-20261006",
+    "sha": "a6c131acb522374916923712ae8ddb2a7551ed21",
+    "source_candidates": 533,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/pr77-pr68-review-20261006",
+    "sha": "285c9ac6cfb6f66d76f4e1de84e8e76a469b7f2a",
+    "source_candidates": 533,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/pr87-pr78-review-20261006",
+    "sha": "fc5d4714bcc8992fd4cd702a3fca679714c4294f",
+    "source_candidates": 533,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/pr94-calibration-recover-20261006",
+    "sha": "d68c9c335c0c734022ff6d8a94bca506893a7066",
+    "source_candidates": 532,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/pr96-whatsapp-recover-20261006",
+    "sha": "c8ca0efcde0f1b6b1c243651f59d01331cb74677",
+    "source_candidates": 528,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "integration/pr97-runtime-slices-20261006",
+    "sha": "21653e04638aeb214bfcb30dccd72c5721c49691",
+    "source_candidates": 531,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "kosif-see/foundation-rule-zero-20261006",
+    "sha": "c4fb6a65a9ca02fbd369642401d01e331f17eef6",
+    "source_candidates": 440,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "kosifsee/audit-context-separation-20261006",
+    "sha": "a56ddf27cb76096a70e509f0a1beece41d72edb3",
+    "source_candidates": 486,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "kosifsee/tools-context-safety-20261006",
+    "sha": "2f5f506b670a2b359a207fc50cf38eef4e164d73",
+    "source_candidates": 486,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "kosifsee/ux-clarity-20261006",
+    "sha": "d4b1724cc75c419c078dfa2d26aea843802de76e",
+    "source_candidates": 482,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "legacy-before-zero-ui-rebuild",
+    "sha": "ccd155f9bd2cbe74632607a9fcdf3d12956595d4",
+    "source_candidates": 140,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "legacy-before-zero-ui-rebuild-20260925",
+    "sha": "ccd155f9bd2cbe74632607a9fcdf3d12956595d4",
+    "source_candidates": 140,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "main",
+    "sha": "8d6e8c6fadd70757d3f5d6e8a04e87c50a6e7501",
+    "source_candidates": 600,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "rebuild/grand-fusion-clean-slate-20260925",
+    "sha": "5482976f137b0bb7659637d69bfe05977516d7d8",
+    "source_candidates": 96,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "rebuild/grand-fusion-complete-sol-20260925",
+    "sha": "ba91238aeb7546000015cdba2b59889219b3d082",
+    "source_candidates": 223,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "rebuild/grand-fusion-finance-wave1-20260925",
+    "sha": "07844a9a22f8059ab9ad170ce65bd5863c6d22aa",
+    "source_candidates": 24,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "rebuild/major-capability-fusion-20260925",
+    "sha": "842c43d61eea559965a412c5319b9bca78e8ef39",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "rebuild/major-from-zero-20260925",
+    "sha": "af3e6a3b9a74f0a3cb0f0d3d0c6e64887aaedbbb",
+    "source_candidates": 117,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "rebuild/zero-legacy-cutover-20260925",
+    "sha": "3f9ae53e661cd16e6f923d6c52341c4b9e515dd4",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "rebuild/zero-legacy-jev-continuation-20260925",
+    "sha": "fc1f7e6a904ab6e042d24fdbbfbed3e35a1bb96a",
+    "source_candidates": 140,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "rebuild/zero-legacy-main-sync-20260925",
+    "sha": "64a96c36577b766ede11e6e2c5a10827f66359ba",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "rebuild/zero-legacy-ui-20260925",
+    "sha": "def0db3ef5c135fa8daf15e782dbf770b2df64fc",
+    "source_candidates": 140,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "release/earth-a6eb2e47-canonical-20261012",
+    "sha": "13a4bb684e76faf3bdd87d04f8dbbed376e9a756",
+    "source_candidates": 597,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "sales-intel-integration-20261004",
+    "sha": "755c750abdaf525b2fd2533bfd6205ec56d26127",
+    "source_candidates": 387,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "sqc/incremental-ui-20261003",
+    "sha": "aea7f6e2ea4ba3833a8cc185adfd469756833e39",
+    "source_candidates": 360,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "sync/kosif-think-0.7.0-capability-mesh",
+    "sha": "18b63caf39feeaca96cce61058f6874bb22537de",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "sync/kosif-think-live-0.27.3",
+    "sha": "08c02bf12bb2a30bd155129549e3189dbbac865b",
+    "source_candidates": 356,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "elkosif0-cmd/cloude",
+    "branch": "sync/kosif-think-v059-live-20260929",
+    "sha": "f4a68054e151146bc584b25303cebe3f3395e6b1",
+    "source_candidates": 352,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/-",
+    "branch": "claude/awesome-ramanujan-98fohx",
+    "sha": "98416d3a56d507da314b7b6e8b2ec3a4407e4bdc",
+    "source_candidates": 9,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/-",
+    "branch": "claude/kosif-montage-motion-uk4i2e",
+    "sha": "0c99c0bc37abe4c69f6ddce2d3e8da9c270f313a",
+    "source_candidates": 42,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/-",
+    "branch": "claude/zealous-maxwell-sgg986",
+    "sha": "a48db7e95373f72a504ac818a3e361b2f0bdd2e2",
+    "source_candidates": 0,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/-",
+    "branch": "codex/altareeq-cloudflare-mcp",
+    "sha": "c2a060f749c806a68b8d6cc00e0370c43289d6e0",
+    "source_candidates": 54,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/-",
+    "branch": "codex/altareeq-foundation",
+    "sha": "2301d03546462b72a4e2f959e8f907811a3e9186",
+    "source_candidates": 48,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/-",
+    "branch": "json-export-run",
+    "sha": "329a3245b9d19a1be30ca0db8a718d8cb09c7381",
+    "source_candidates": 0,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/-",
+    "branch": "main",
+    "sha": "a48db7e95373f72a504ac818a3e361b2f0bdd2e2",
+    "source_candidates": 0,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/100-superskills",
+    "branch": "main",
+    "sha": "af7a5dc3778c0e68ef935349a5c1650d15688277",
+    "source_candidates": 208,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-atlas",
+    "branch": "main",
+    "sha": "7aa515ddad0edfc9f20c7ca84615f6adcb076fb4",
+    "source_candidates": 3140,
+    "truncated": true,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-pro",
+    "branch": "codex/cinematic-ui-v3-20260831",
+    "sha": "920f0e580b3110c2c9015a652779cbb929f0b7ce",
+    "source_candidates": 95,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-pro",
+    "branch": "main",
+    "sha": "1be540e2b397ea2106b931a0fbde1c174e6558a9",
+    "source_candidates": 95,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-pro",
+    "branch": "unified-audit-os",
+    "sha": "7a5139ffccbeb16431c5e16c20438e21cc086496",
+    "source_candidates": 92,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "arena/01a0cea7-kosif-audit-studio",
+    "sha": "52dac80636c09ebd40c1a0f0f83967896c686ca9",
+    "source_candidates": 152,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "chatgpt/kosif-earth-server-tenant-guard-20261010",
+    "sha": "0b6a7895ff005ad7a2e3883e875312a25f4845c7",
+    "source_candidates": 159,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "claude/jev-worker-syntax-baseline",
+    "sha": "c8531aef1177196fa3fd998541645d24f75a45f6",
+    "source_candidates": 150,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "claude/whatsapp-integration-messaging-mvdnxr",
+    "sha": "a683a92f9cb03be8b9d61710caac58ddc0cda2ac",
+    "source_candidates": 154,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "claude/zealous-maxwell-sgg986-baseline-tests",
+    "sha": "51a22ea7aee0c4d41ffbc9ad0973a256407fdbe7",
+    "source_candidates": 150,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "claude/zealous-maxwell-sgg986-realtime-cors",
+    "sha": "b13fc9aa1bc6e61a21bceb7555ef08e2f9e677b5",
+    "source_candidates": 152,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "claude/zealous-maxwell-sgg986",
+    "sha": "b8dd9b942cb7d46569d3aa3e82255855197c7dd1",
+    "source_candidates": 155,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/cloud-evidence-r2",
+    "sha": "9bdc3f41e2f8d65c5b56988ee6e15be08eef1178",
+    "source_candidates": 111,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/cloud-foundation-v1",
+    "sha": "4bdb5a73d6159fff6a3366039335d78af79d7ca8",
+    "source_candidates": 104,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/cloudflare-access-auth-v1",
+    "sha": "fc63f59c11d0fce6cfb0e7f3857d18d0cf590b6b",
+    "source_candidates": 105,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/kosif-unified-foundation",
+    "sha": "e6ab90357ae8694679e0b8c08e4f3513e5ba212b",
+    "source_candidates": 101,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/kosif-v4-agent-studio",
+    "sha": "9dd1328a294564bcf15d515db127768a7e65658f",
+    "source_candidates": 18,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/preserve-theme-cloudflare",
+    "sha": "2f1cd8e843bd9386f135a025a9c4994d216666ce",
+    "source_candidates": 166,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/react-cloud-autosave-v1",
+    "sha": "32bce1fdc6d6c58d66221b6a39dc5ae5a787877a",
+    "source_candidates": 108,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/restore-v2-mahmoud-capabilities",
+    "sha": "e27a4fd195fd10ce0a812a402b62256d3655784d",
+    "source_candidates": 74,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/sites-v1-1-audit-intelligence",
+    "sha": "a48793c1f3feae3dc087a2ad58f3564672221521",
+    "source_candidates": 2,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "codex/wa-container-receipts-20260926",
+    "sha": "77e956b43587564c02c460bec7c8e16e9e675ac4",
+    "source_candidates": 147,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "copilot/tqwrh-dv",
+    "sha": "ef12d94bd1fbdc3ee19a25095010e0096067cc71",
+    "source_candidates": 18,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/continuous-audit-core-v5-ci",
+    "sha": "1dc9523317d3652b70654d37987f4c5c27b98241",
+    "source_candidates": 41,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/continuous-audit-core-v5",
+    "sha": "11a7cbb5ef52ae5145811f5fb1dc14df58eddd5a",
+    "source_candidates": 41,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/dashboard-theme-capabilities",
+    "sha": "aa9aa3409473cf15084c7d2ce98160ea1d17284f",
+    "source_candidates": 139,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/document-intelligence-v5",
+    "sha": "ec927b3ad6578ced35379cdd3a1e07fb7fcb37e2",
+    "source_candidates": 53,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/kosif-primary-modernization",
+    "sha": "04c22c9d764d307d7a173b6abab162752bb66f7e",
+    "source_candidates": 5,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/moon-command-center-phase-1",
+    "sha": "60c09f7708ffab07f4fe9a503fcf45eb56c89da1",
+    "source_candidates": 6,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/realtime-webrtc-cloudflare",
+    "sha": "cdeef92e6e837fc9648f2550bb83c411a37e3a04",
+    "source_candidates": 26,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-adaptive-report-intake",
+    "sha": "5c6711baf502a9a3278597991be2fa97ec6ecc00",
+    "source_candidates": 91,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-authenticated-document-upload",
+    "sha": "23611020aad35f927dded49f3bbf6644cb5cc360",
+    "source_candidates": 73,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-cash-flow-workbench",
+    "sha": "5ae99f84ba2d621f7c38be91242adf99a7b1ad23",
+    "source_candidates": 104,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-completion-issuance",
+    "sha": "94dc624b47d8494b52878e07db63c1f6cbadc050",
+    "source_candidates": 67,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-council-delta-coverage",
+    "sha": "6893d75a746114e6e8d74146cd0180400f199547",
+    "source_candidates": 81,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-disclosure-engine",
+    "sha": "4411822dcd8e1307745410e96039b27c38d75491",
+    "source_candidates": 98,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-equity-workbench",
+    "sha": "b4dbe4ac31f4f3bab68751e99c8541500390fade",
+    "source_candidates": 111,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-freshness-specialists",
+    "sha": "baf78ea4aa018266dfd1dffaec0c516252c5defc",
+    "source_candidates": 71,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-interface-declutter",
+    "sha": "8dfee79e0adc0f294a8e9bca8e398ff99d57a1e1",
+    "source_candidates": 128,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-issue-workspace",
+    "sha": "5edff8b638968cafa30c4461ffb6a0778998052f",
+    "source_candidates": 80,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-persistence-report-model",
+    "sha": "29ef1b735e63861e6627662d9e871207fbe38749",
+    "source_candidates": 63,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-primary-entry",
+    "sha": "cb558879dce91f8178dcff9157f56037ce45a8bd",
+    "source_candidates": 72,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-primary-shell",
+    "sha": "fb999b35d052021ec3482a061f81e84ac831d9e9",
+    "source_candidates": 75,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-report-depth",
+    "sha": "12f48b6a15ece5d0fa3a9d441fbdcc7c86002cbb",
+    "source_candidates": 87,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-report-publication",
+    "sha": "613de10acd7f74ebd00b0896f658143de23187c3",
+    "source_candidates": 115,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-secure-document-inspector",
+    "sha": "0e1a1e87e198fa60277554a671487a0b7a3c6147",
+    "source_candidates": 76,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-spreadsheet-intake",
+    "sha": "23402389402aa7741f12f11ececca29c3eed2ea2",
+    "source_candidates": 125,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-statement-comparison",
+    "sha": "30b19f681028083b0dbb1928acf690d5c75d0080",
+    "source_candidates": 85,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-statement-lineage",
+    "sha": "942f85f341546aa2ac2e644d4b162304b7bcd766",
+    "source_candidates": 123,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "feat/v5-trace-inspector",
+    "sha": "4542e457211b3bbc942b6b3c07ca775158286cd1",
+    "source_candidates": 119,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "fix/jev-empty-analysis-fallback",
+    "sha": "07aeb7057b7e279a1a959a5aad0ed20010769214",
+    "source_candidates": 150,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "fix/jev-image-lock-test-20260927",
+    "sha": "cd176e98075113938c3c41c1f689974b0c1f20f2",
+    "source_candidates": 150,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "main",
+    "sha": "60352af4dd095b7def57dfa32f5a20f74b7fc003",
+    "source_candidates": 159,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "ops/cloudflare-pages-deploy",
+    "sha": "2927c885b761f928051904129c23344f0c17256d",
+    "source_candidates": 128,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "rebuild/kosif-audit-studio-next",
+    "sha": "b0f3b7f266cba5b0846b302f7f6bdd89c8239eb3",
+    "source_candidates": 168,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "release-v1.1.0",
+    "sha": "8bece9540a4852612427a4c088d26722b4456a3f",
+    "source_candidates": 2,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-audit-studio",
+    "branch": "research-bundle-audit-intelligence",
+    "sha": "d8e638b4091b4b69e00f97576266df8676c1cc13",
+    "source_candidates": 31,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "a1990-sales-intel-port-20261004",
+    "sha": "dc895004d3dee8fc14e69286dfca07eb104c87dc",
+    "source_candidates": 386,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "backup/cutover-pre-rebase-20260925",
+    "sha": "98795700dcb77852e4e16cb63d264876a365c069",
+    "source_candidates": 142,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "backup/pre-grand-fusion-20260925-1358",
+    "sha": "fcdad4806704b84f475f280162d5a7ee006236bc",
+    "source_candidates": 117,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "backup/pre-major-fusion-20260925",
+    "sha": "842c43d61eea559965a412c5319b9bca78e8ef39",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "backup/pre-total-rebuild-20260925-1356",
+    "sha": "fba64a652090555e1653287af96ab5a24e3e636c",
+    "source_candidates": 117,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "backup/pre-zero-legacy-cutover-20260925-1244",
+    "sha": "a90f74daa1f7e85b61bdb818561f3f8ef3f7f7b9",
+    "source_candidates": 142,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "backup/react-rebuild-before-merge",
+    "sha": "842c43d61eea559965a412c5319b9bca78e8ef39",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-cinematic-entry-20261009",
+    "sha": "2572cc364a78a8102b2fe838f56890da4d42f2d0",
+    "source_candidates": 582,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-company-addons-20261010",
+    "sha": "e210769038c3e8e29493c603ce10becf9e90506b",
+    "source_candidates": 591,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-door-main-ready-20261011",
+    "sha": "a2b86f4f7c9657e9a76ac5c48454a87858ab63c6",
+    "source_candidates": 584,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-goal-first-ux-20261009",
+    "sha": "bd9fab1178ff83cef660b5e9ccc00cce79d545b9",
+    "source_candidates": 580,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-guided-screen-workflows-20261010",
+    "sha": "27573b2cb94e058f1ca303bccff8b75e4a85ef97",
+    "source_candidates": 596,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-intelligent-ui-20261010",
+    "sha": "e156cf48fa186787c125d2eb6cd6e0ce438e08c2",
+    "source_candidates": 609,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-manual-merge-20261010",
+    "sha": "c432720f0b317b7f8e43bdb47f615bdff9a886d6",
+    "source_candidates": 623,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-nav-search-accessible-20261010",
+    "sha": "27573b2cb94e058f1ca303bccff8b75e4a85ef97",
+    "source_candidates": 596,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-office-native4k-20261010",
+    "sha": "d7558cddf5a82ec20f22277c6659ef183a28d85b",
+    "source_candidates": 583,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-owner-scope-20261010",
+    "sha": "a973a5c57e1ee994b7dc65ce52295dab6c22f295",
+    "source_candidates": 597,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-qa-handoff-20261010",
+    "sha": "7be19a7e1eba8feb7f173b35fb4cea9a710fdffe",
+    "source_candidates": 601,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-quiet-navigation-20261010",
+    "sha": "fd32f1a29f04928972028a7742ba5b30e95121e4",
+    "source_candidates": 594,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-sunlit-office-journeys-20261010",
+    "sha": "79351c51d9b8fbd73f8d3f6aecf1d3626b88d31b",
+    "source_candidates": 586,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chatgpt/kosif-earth-true-goal-workflows-20261010",
+    "sha": "50bf3f5a9fffd7a3cb37a621313b8997e14e9343",
+    "source_candidates": 591,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "chore/agent-worklog-20261004",
+    "sha": "0babfb1892f44c7591d7e355ac456b058670bacc",
+    "source_candidates": 395,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "ci/cloudflare-pages-deploy-20260925",
+    "sha": "037acb0a7a109d957fef28e60d93f7bc718226a8",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/agriculture-pack-20261006",
+    "sha": "1cc84777148462e3d3da5ee9cad0fafac885de5b",
+    "source_candidates": 539,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/capability-profile-20261009",
+    "sha": "6ad96051f5de2f68d75377e3e9f16ad0e2a3a0a9",
+    "source_candidates": 573,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/channel-costing-20261008",
+    "sha": "f5fba4296b05c4f735e48cde222dcf55569a7266",
+    "source_candidates": 570,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/chatgpt-computer-control-0notj5",
+    "sha": "6f538af8c5d8daa03d35a589d385e006dbd7de3d",
+    "source_candidates": 319,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/company-first-20261005",
+    "sha": "2c4cbc1a6f25f644ed79079d0dd542078b8f5b82",
+    "source_candidates": 398,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/constitution-restructure-20261009",
+    "sha": "00b09e3b96d5fbb36c91bc068bb9b1dab9db8305",
+    "source_candidates": 580,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/construction-pack-20261006",
+    "sha": "0e60b6fb2473f09f6d82759e9141c19622a8ba40",
+    "source_candidates": 482,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/cycle-proof-20261006",
+    "sha": "2c421c00e82815c2bc28d4bfe2dafb4ce9df25e8",
+    "source_candidates": 492,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/cycle-proof-types-20261006",
+    "sha": "e00f93599e8762b21c6a10922dcecff61abdcea1",
+    "source_candidates": 492,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/deploy-artifact-20261007",
+    "sha": "c4485f2aba0968aeb999db4314c5876e5d8d923c",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/determined-bardeen-pr0fcw",
+    "sha": "0999c37ca2048519978706e4a99baa65ea953074",
+    "source_candidates": 301,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/digital-pack-20261006",
+    "sha": "d74f314c756afdd46d99a8973007331209c4231b",
+    "source_candidates": 488,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/document-vault-20261006",
+    "sha": "bcba0d2fe18466c3971cdb0419292080427d0fab",
+    "source_candidates": 457,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/education-pack-20261006",
+    "sha": "86320cb2bd74968d8d4dd37bc568612c5005e8e1",
+    "source_candidates": 520,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/fix-main-types-20261006",
+    "sha": "01c40c5a0a1124d784f8a3329e97f2aa1384e7b9",
+    "source_candidates": 517,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/health-case-cost-20261006",
+    "sha": "fc549f661a180a16479287e01bb87b65b35874dd",
+    "source_candidates": 479,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/health-vat-20261006",
+    "sha": "158fe87c6b11dd1d23bf4b4cd07dbdf76ea2f7a6",
+    "source_candidates": 479,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/higgsfield-visuals-20261007",
+    "sha": "a9a9a03e3c1512a14e0462762685cb8a992f67a9",
+    "source_candidates": 553,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/hospitality-pack-20261006",
+    "sha": "be3074e6d0db6a691e6dc9bfcb967dd22852d0a6",
+    "source_candidates": 485,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/identity-20261005",
+    "sha": "cf7c974eec2ff383530a281b0c4d320c430f3b0a",
+    "source_candidates": 409,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/identity-constitution-20261008",
+    "sha": "48f75eff87f563a1dca25b9e6ba3b04a37114ae3",
+    "source_candidates": 566,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/identity-navy-gold-20261007",
+    "sha": "e1010b10aaa07bf0ada0b6dea2f46beecc441dc6",
+    "source_candidates": 549,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/kind-hawking-t7fhl9",
+    "sha": "8c960769c435e1aed9f3993032426b0fe751207c",
+    "source_candidates": 218,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/live-verification-20261007",
+    "sha": "d1bcc3ece5af6827b53e1be16faf0b445a33ab7f",
+    "source_candidates": 548,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/m1-gates-20261006",
+    "sha": "323467b6a4bcbb0ac850d089031c74414caa64c2",
+    "source_candidates": 442,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/magical-maxwell-taj9xe",
+    "sha": "a9ad67cf4634edd8f4f340ea3ced26a1a62dfb5d",
+    "source_candidates": 326,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/magical-maxwell-taj9xe-release",
+    "sha": "6e266c2168c779b874382b1b7ba17e84c99eaad1",
+    "source_candidates": 338,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/magical-maxwell-taj9xe-restore-safety",
+    "sha": "946aee0aa63d8dc2fd374f8661f4ee1c54bf82d5",
+    "source_candidates": 348,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/magical-maxwell-taj9xe-v17-stale-errors",
+    "sha": "7b8fdbf197f930118cf622f083c328d8d44453df",
+    "source_candidates": 328,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/meat-receipts-1310-20261006",
+    "sha": "ed97670aa21d2808ab8a4b8adde22450345d6476",
+    "source_candidates": 455,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/merge-all-20261009",
+    "sha": "c26f132829c309160f870d2e9cc2a883322b44e1",
+    "source_candidates": 576,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/model-companies-20261006",
+    "sha": "85ee1abd22e4de1f86e6bb4c4eb9fe69879232c4",
+    "source_candidates": 490,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/motion-layer-20261005",
+    "sha": "a963b9bfacec973667761e695977ad37b9219297",
+    "source_candidates": 406,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/next-20261009",
+    "sha": "17c231b5c7cbe9fdcd617596d02ddba276b646be",
+    "source_candidates": 574,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/one-company-context-20261005",
+    "sha": "40171cd519c0f5b58688edacc08a66283db5a90e",
+    "source_candidates": 403,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/p2-definitions-pickers-20261006",
+    "sha": "e084b594db8e5017d29e61d69fac652ed47dd775",
+    "source_candidates": 450,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/p2-ledger-integrity-20261006",
+    "sha": "a0313522792aeaac99ebb68ec6fbc574f83ea94a",
+    "source_candidates": 449,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/p3-health-claims-20261006",
+    "sha": "eeda2d6a14371121bf788ff2e756c4f1bdb7f4a1",
+    "source_candidates": 458,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/p3-meat-pack-20261006",
+    "sha": "c1fb4d057afadfd959267ecd19a8e9b655e6c08b",
+    "source_candidates": 455,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/p5-corpus-scorecard-20261006",
+    "sha": "72e2032ec75f2dc30c083b131c19d89ef27cbdc4",
+    "source_candidates": 445,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/page-review-20261007",
+    "sha": "56c3810ca739a90fb288802a7b8de823ba0cb67d",
+    "source_candidates": 549,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/pages-deploy-actions-20261007",
+    "sha": "9f9de169b02361edab584b9fdb40fff7d52c093e",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/production-packs-20261006",
+    "sha": "a45205d5e6ad05da08d744de2b240948d07fd432",
+    "source_candidates": 536,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/public-demo-admission-20261006",
+    "sha": "15fbbdb32a66ff59a5e548076826395772202f6f",
+    "source_candidates": 479,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r1-one-head-20261007",
+    "sha": "43823af5f21e729bfa9b39e3ad8aae5ddb17cfff",
+    "source_candidates": 554,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r2-book-families-20261007",
+    "sha": "ed1ae2bbf0371b1240c22a0b37143db14553b4f1",
+    "source_candidates": 555,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r3-menu-by-constitution-20261007",
+    "sha": "84f9f00e7c183a0a03bad5b9d2793f8eea5e9cb5",
+    "source_candidates": 555,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r4-light-bundle-20261007",
+    "sha": "08f37f9d8661542fc41f911f447ce4b9086c1e75",
+    "source_candidates": 557,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r5-clarity-20261007",
+    "sha": "91afdbde6b67f803da68da3fa8486e194c531e06",
+    "source_candidates": 556,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r7-command-center-20261007",
+    "sha": "4cc95cb38a10c0c6e340a1a27539081e1009d0ad",
+    "source_candidates": 557,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r8-long-screens-20261007",
+    "sha": "a960629452c123a802728df696179f4e87f6bd77",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r9-screen-tabs-20261007",
+    "sha": "2b84cab4a0351ae690fca4a5974f9537748ba13e",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r10-harsh-review-20261008",
+    "sha": "575a2d3ea27c9b0cf2e787026ddf829f68e04582",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r12-capabilities-20261008",
+    "sha": "d3b64b0806a2596d56c738ff735a8ca502724c15",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r13-phone-head-20261008",
+    "sha": "0febeecf59c427fb8e0d2dc8100575784c379464",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r14-audit-studios-20261008",
+    "sha": "4ca98ecf52a0d897814f6ddf4467ec25f877bfc9",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r15-code-review-20261008",
+    "sha": "a2f2e5c6bcaf65bcddf4f23f5558eb93ac7f14e1",
+    "source_candidates": 559,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r16-merge-pr143-20261008",
+    "sha": "82c3b15bb83bfce96c7204a7a3e88340a3577780",
+    "source_candidates": 560,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r17-full-review-20261008",
+    "sha": "7092bf431652c9dfbd44bd99b4b26b12a981f73c",
+    "source_candidates": 576,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/r19-kosif-ledger-20261009",
+    "sha": "7cf82916d85e6fdc30c42d04de21f61dab90417d",
+    "source_candidates": 575,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/relationship-health-20261007",
+    "sha": "20c6a306a4b6134f057d65b8a9711a480e5a13cd",
+    "source_candidates": 548,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/report-a11y-rebuilt-20261006",
+    "sha": "23ad32485d2bc4b41c9edacda219a4e25e0e8603",
+    "source_candidates": 476,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/review-screens-20261007",
+    "sha": "81a1da782407377f62733b24de78497238ff7b0d",
+    "source_candidates": 558,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/sales-intel-v2",
+    "sha": "8f8fd881420003383ada31c4ae5ad1e9982b41d3",
+    "source_candidates": 358,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/setorg-no-rerender-20261005",
+    "sha": "eb1c8c2f40e140f6f7b2267493add5b3c9e4faa4",
+    "source_candidates": 404,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/statement-trace-20261007",
+    "sha": "fd54dfffdd397eb0142a58af32aec8e81d3f0256",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/trade-pack-20261007",
+    "sha": "32983e7fd79dd04c72bc2056f0e33796a19e11a5",
+    "source_candidates": 545,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/vat-policy-everywhere-20261006",
+    "sha": "41ab8001294d9948d61b18f0ef1ae4cb43e2be5c",
+    "source_candidates": 449,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/vat-return-boxes-20261006",
+    "sha": "346e8d9fbc90d2480cb644d8a77e7a019f9ff7e3",
+    "source_candidates": 479,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/wa-send-bundle",
+    "sha": "0479358374b98e67c2320e3ac010bdc691d917a0",
+    "source_candidates": 117,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/whatsapp-integration-messaging-mvdnxr",
+    "sha": "8af05ac9e3378a9a82d9b876f9450d8d0c87ba08",
+    "source_candidates": 127,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-a11y",
+    "sha": "1bae260da6b0c77024c8da2a746c50951c24a93e",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-assistant",
+    "sha": "b208db53cc0c9f799c4205cfc604c9b46eaeb9dd",
+    "source_candidates": 321,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-benchmarks",
+    "sha": "8abdad20630e44d58f9c2ef97edab87866162c39",
+    "source_candidates": 331,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-core-stats",
+    "sha": "12cdcfbe0c788b868d65c307fef69de0b5f81e7a",
+    "source_candidates": 340,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-identity",
+    "sha": "a5cc5e781dd8fd7a596b0842a0b78e474b1d417b",
+    "source_candidates": 326,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-integration",
+    "sha": "7efda16678549bfffd649746cf802c47ad2a9c3e",
+    "source_candidates": 338,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-jev-page",
+    "sha": "a3d69dbd24f003e357d400e8a1d63fdb578bc60e",
+    "source_candidates": 326,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-modal320",
+    "sha": "7b583f3498089bf9b9a56bcafa8851d9fe04fd33",
+    "source_candidates": 339,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-present",
+    "sha": "9d076d239d464d4e0d55c434b54abbea48b80c5f",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-rc",
+    "sha": "fedf4cd90a4ee5380ba002ba8ad22dd395ce3439",
+    "source_candidates": 328,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-restore",
+    "sha": "7c67c17de55f55784149ae0c5b78c127ee6969b8",
+    "source_candidates": 347,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-round2",
+    "sha": "86b9c94c0d78ea61cf2f9e9e102e558af58c8d43",
+    "source_candidates": 327,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-showcase",
+    "sha": "dfba3290523b512945a7d27df7a86ab52201e62b",
+    "source_candidates": 341,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986-sim-governance",
+    "sha": "0c4580987a6a172b1e2826bd634d0480dcbac451",
+    "source_candidates": 327,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "claude/zealous-maxwell-sgg986",
+    "sha": "1b060b742d25b19383fbe55af36ff499379b351c",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/a1990-root-cache-freshness-20261004",
+    "sha": "6381f906224d5885ed9e3802715c1455ce82aa55",
+    "source_candidates": 363,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/a1990-s-kosif-entry-ux-20261004",
+    "sha": "a184f17ffb6445af97e7ee5792eb6d549187e731",
+    "source_candidates": 361,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/audit-first-helper-separation",
+    "sha": "a9bfa78890fed24bee344b1f81c02ce37cd24686",
+    "source_candidates": 297,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/audit-fusion-spec-20260925",
+    "sha": "b702c996164ded65bf5eb4a003ed709ccdae2cad",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/canonical-audit-preview-20261007",
+    "sha": "0583ec2c3ae456f069556004a3a6c28a0072b7fc",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/clean-architecture-daily-advanced",
+    "sha": "230d6182b97c1de32ed1ff257ec1f66697ba0393",
+    "source_candidates": 87,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/company-context-vat-20261007",
+    "sha": "949e0d170ab98fe7320095375b87575201284225",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/erp-centers-20260925",
+    "sha": "e8962437fd319e21960d243e702f63826ca0e93f",
+    "source_candidates": 70,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/final-semantic-cleanup",
+    "sha": "8f5ba9698ce77f4f6e77058006999426fc0d30d0",
+    "source_candidates": 101,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/fullmode-login-performance-20261004",
+    "sha": "af6f083374244e937819df6fda90d7de6608f71d",
+    "source_candidates": 361,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/fullmode-text-finalizer-20261004",
+    "sha": "877d932e2c600bf1565108163174d993229b101d",
+    "source_candidates": 362,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/fusion-audit-visual-unification",
+    "sha": "160606f1d3310330fd4666fdbd207cbdd3c93ab1",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/fusion-audit-visual-unification-r2",
+    "sha": "d1e9c8e2cad62d3aca10ea6b73d2d3d0a7c9b92c",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/global-financial-intelligence",
+    "sha": "86e837c18fd23724a72061a2dd653793497fe798",
+    "source_candidates": 271,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/global-research-round2",
+    "sha": "5918f9c47b5f403a280e0745c7e5f33fde2dcdea",
+    "source_candidates": 270,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/integrate-53-mobile-preview-20260928",
+    "sha": "bc5578c1f45477138b2e990aa8dbc679d2b5caa0",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/kosif-four-portals-vision-20261005",
+    "sha": "2056f573cf145dc06386cc4d76a09179eaf03016",
+    "source_candidates": 421,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/kosif-think-public-safe-mcp-v0.5.1",
+    "sha": "914d22db1ed83db3fe03bd81839692a56c2c9840",
+    "source_candidates": 338,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/kosif-think-tool-router-v0.5-main",
+    "sha": "c1492e82771cae73bba6698067eeba9c5f5e4aa0",
+    "source_candidates": 338,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/kosif-think-tool-router-v0.5",
+    "sha": "fb3d608ab5c0ef17e5ef516dddc76e6dc8f92501",
+    "source_candidates": 329,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/kosif-think-v0.5.1-private-plugin-auth",
+    "sha": "aeb1a34b934e6da7f04e260b01709d0a46ca028d",
+    "source_candidates": 339,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/kosif-think-v0.5.1-public-router",
+    "sha": "aeb1a34b934e6da7f04e260b01709d0a46ca028d",
+    "source_candidates": 339,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/kosif-whatsapp-vnext-20260926",
+    "sha": "2fe3e6ad3c0215d73cc9fdfef6409c64f7a4b14f",
+    "source_candidates": 126,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/port-stable-capabilities-v2-20260925",
+    "sha": "7dc971e226c04c91c6d91773d8ed33feccaf362d",
+    "source_candidates": 69,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/port-stable-capabilities-v2-final",
+    "sha": "5de9aa0579701d38bb49ccb3d50adaa5bbeb6490",
+    "source_candidates": 69,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/product-flow-cleanup",
+    "sha": "98e444049bbfa3c21503cd6efd8ad551b6c6d6a6",
+    "source_candidates": 270,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/report-compatibility-49",
+    "sha": "e69573af17a7ed87058d4e197a8fe5ed1819abb6",
+    "source_candidates": 297,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/s-kosif-maintenance-20260928",
+    "sha": "cbdb7a7d42552626e81f49d7fc5e6aa97d25df3e",
+    "source_candidates": 320,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-all-periods-context-20261005",
+    "sha": "a5ecf79e1fa5c46c510bb99cbcf6812095d3b053",
+    "source_candidates": 418,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-all-periods-main-20261005",
+    "sha": "bc773c947e5e9042d82a1c3ded14498eb63ebab3",
+    "source_candidates": 416,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-audit-readability-20261004",
+    "sha": "2330e5bb897dfb325f5c4c90c48c1f08b6ff7000",
+    "source_candidates": 362,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-box-kpi-consistency-20261004",
+    "sha": "69d60c820fd9d033970af9fb05e3f5a42d84c84e",
+    "source_candidates": 397,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-company-scope-20261004",
+    "sha": "5aca4e621c2010ad156c90b5799c7dc34f82786a",
+    "source_candidates": 395,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-council-readiness-20261004",
+    "sha": "be1d7504fd2d97a1f1cb39875e26920d247d191b",
+    "source_candidates": 399,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-executive-context-guard-20261005",
+    "sha": "684f6240eb04cb835ab66cb226055252f0853f65",
+    "source_candidates": 418,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-five-audit-source-models-20261005",
+    "sha": "7da550d6debc90a3d0012b6e96cf99ab39a7cd96",
+    "source_candidates": 469,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-focus-diagnostic-20261005",
+    "sha": "e9bf860af07019af74f76312861e4129af5d6082",
+    "source_candidates": 438,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-management-report-20261004",
+    "sha": "1a54ed9555c51632f083c3c41a51973928d87368",
+    "source_candidates": 385,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-mercury-presentation-20261004",
+    "sha": "f4523616e41653b36680a027c3c3b58e9006b60e",
+    "source_candidates": 392,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-native-focus-completion-20261005",
+    "sha": "c047cb34b77ba08fda7cefd072a1c25929366f33",
+    "source_candidates": 438,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-preview-accessibility-20261005",
+    "sha": "e926d4974c5d7dab5716791f0c679a7c4e46a994",
+    "source_candidates": 431,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-pwa-theme-consistency-20261004",
+    "sha": "94d2ba7deb8b71bd3952840a310f5b2eb791b184",
+    "source_candidates": 361,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-report-a11y-main-20261005-r2",
+    "sha": "775ac9f5cf476efbed7920523e490d679991a936",
+    "source_candidates": 437,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-reports-receipts-20261004",
+    "sha": "661a0d5d7b54192a0908dc228bb401550151373d",
+    "source_candidates": 366,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-review-import-guard-20261004",
+    "sha": "b05a1246f42e1c2dda8a74762eb83db42eff9008",
+    "source_candidates": 395,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-sales-forward-fixes-20261004",
+    "sha": "94c2894a44122ead340da08596ff165d8949c5ac",
+    "source_candidates": 388,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-sidebar-visibility-20261004",
+    "sha": "dd1dd1f373493dd0159585a1f087aa1e671c8d96",
+    "source_candidates": 371,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-trial-balance-footer-20261004",
+    "sha": "9e7d71707b79fb3728264c2ad99689d54b5f7b53",
+    "source_candidates": 369,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-unlock-focus-20261004",
+    "sha": "6a4c819c7b35e81971f12de2eddee72466848d2b",
+    "source_candidates": 368,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-workspace-validation-20261005",
+    "sha": "7271c995070ed47e7984e4dbb91771b9b96815ec",
+    "source_candidates": 418,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/sqc-workspace-validation-main-20261005-r2",
+    "sha": "f04088b96c4e64c7b625c96893cf1a1d72d6e0dc",
+    "source_candidates": 420,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/standards-2025-round3",
+    "sha": "74c1c0102cd6fcdcec386e7361ac9d9ef82f3cbc",
+    "source_candidates": 270,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/three-entry-mandate-evidence-20261005",
+    "sha": "a911c113050aa760c8499e965f560a991583e7c5",
+    "source_candidates": 440,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/zero-legacy-capability-fusion",
+    "sha": "5c54a99c4b3db15182cef0053c0f8a5f4315977b",
+    "source_candidates": 143,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "codex/zero-legacy-capability-fusion-r2",
+    "sha": "bbff36360ff5264606c85d47cc4333a384800931",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "docs/rule-zero-checkpoint-20261005-r2",
+    "sha": "66ed51216c0862c035762a0003f1ed0fe3bfaafe",
+    "source_candidates": 440,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/accountant-user-workspaces",
+    "sha": "dfae3678c85b4594b921f6fa06befd46477618a2",
+    "source_candidates": 340,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/four-finance-gateways-20261005",
+    "sha": "62dd47b8553c941cec829cfa29fe8bcb1b45bd61",
+    "source_candidates": 421,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/jev-tool-router-v080",
+    "sha": "129eb4462cae8b1c31a0750cc772e6f920a82aa6",
+    "source_candidates": 350,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-ai-exception-queue-20261005",
+    "sha": "4b1bcf11514b20a661a9a420008cdf075d82bb83",
+    "source_candidates": 440,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-computer-jev-runtime-v1",
+    "sha": "25fcf4cb63e723cb09b24b70e991d4dda1307d3b",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-platform-vision-contract-20261005",
+    "sha": "4e7eeb47bebf397c4c2befd2455b394ee5baf9c0",
+    "source_candidates": 441,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-standards-company-layer-20261005",
+    "sha": "5fe83f3cb401b04f07c5b800f02e62adfdc5ddfd",
+    "source_candidates": 439,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-think-browser-jev-routing-20260929",
+    "sha": "ff9eaa0c587e0b1a3ce17665d8051f0e04e86e6e",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-think-v054-browserjev-apply-decision",
+    "sha": "49916e10df8f9f66849aeb80fb510a08f013ec7c",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-think-v055-evidence-cognition",
+    "sha": "e0597fd63fde6ceeb1f70fc876a7547a327fa699",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-unified-financial-os-20261005",
+    "sha": "03777bd7b43dea02ac7466778c443943ee189630",
+    "source_candidates": 428,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-unified-financial-os-main-20261005-r2",
+    "sha": "a6f83aa50e7cfb73bb7b892bca6a2bf3d4bc829a",
+    "source_candidates": 437,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-unified-financial-os-main-20261005-r3",
+    "sha": "bf83bbfc94a7e860d38144a663eed732de6c797d",
+    "source_candidates": 436,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feat/kosif-unified-financial-os-main-20261005-r4",
+    "sha": "143acf235c69ceb27a5759fdb1f43bb59646adaf",
+    "source_candidates": 436,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feature/corpus-audit-round2",
+    "sha": "9f6997067eb8be25e60977c7d6a78df79737243a",
+    "source_candidates": 319,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feature/kosif-think-cleanapis-v2",
+    "sha": "587695682e2c3d05db44708ad74657ae927bc94a",
+    "source_candidates": 320,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "feature/kosif-think-orchestrator-v1",
+    "sha": "836dd2a8711a754789a794de254879789f7288b5",
+    "source_candidates": 320,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/kosif-think-auth-gate-and-tool-merge",
+    "sha": "35040c4381bea66edf20e7fcb66c2b454628c970",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/kosif-think-browserjev-v052-20260929",
+    "sha": "584277eebc62a9cd2758e754dc59621ef622fd5c",
+    "source_candidates": 350,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/kosif-think-browserjev-v053-20260929",
+    "sha": "5d5ce2b8c7cac64b85b672fd689dadc8a57fb103",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/kosif-think-public-preflight-fallback-20260929",
+    "sha": "3b5b5730870b3e0a93720da2ab837fe41e176648",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/kosif-think-v051-public-preflight-20260928",
+    "sha": "558ede6d58c32e216c2f5668334d9353242f9e1a",
+    "source_candidates": 350,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/kosif-think-v057-jev-browser-reliability-20260929",
+    "sha": "a4d5d31d3da53ee94ffc03579bfdbd6c3aebe1ff",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/kosif-think-v058-packet-binding-status",
+    "sha": "e29f8560290fd439c2764440e9f3fae861a7db18",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/kosif-think-v081-evidence-consistency",
+    "sha": "276c9b98fda3827926ec009f728b6b458aeacfd8",
+    "source_candidates": 350,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/mobile-helper-actions-320",
+    "sha": "09018488185a74112b6dab04385c4b71d5e3f6ff",
+    "source_candidates": 339,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/preview-safe-responsive-20260928",
+    "sha": "f335625e9a05820b4b59e167bcae483a78e098cd",
+    "source_candidates": 325,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "fix/wa-mcp-owner-auth",
+    "sha": "c803db71652036be359c9410be76e741c7b57f31",
+    "source_candidates": 127,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "handoff/kosif-think-complete-source-20260930",
+    "sha": "7b53f3367ef1712037d7dbc0e0d1d0b7402fa3a1",
+    "source_candidates": 360,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "hotfix/idempotent-view-listeners",
+    "sha": "710ec94c453df1da69a88b45096912ca2997813f",
+    "source_candidates": 316,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/all-work-20261006",
+    "sha": "f6453813d8916739accd845ccfc7e169bce826c1",
+    "source_candidates": 542,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/grand-fusion-knowledge-20261007",
+    "sha": "bf588e990fb567bae9cd33fc691c64d6a8011011",
+    "source_candidates": 553,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/knowledge-sweep-20261007",
+    "sha": "4ce0f8b0201e16ca937e8871884520ccc37a9476",
+    "source_candidates": 554,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/kosif199022-account-harvest-20261007",
+    "sha": "fd7fb9b7fc38ab320e34b7ad36cbe8ba61a35525",
+    "source_candidates": 552,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/pr67-pr58-review-20261006",
+    "sha": "a6c131acb522374916923712ae8ddb2a7551ed21",
+    "source_candidates": 533,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/pr77-pr68-review-20261006",
+    "sha": "285c9ac6cfb6f66d76f4e1de84e8e76a469b7f2a",
+    "source_candidates": 533,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/pr87-pr78-review-20261006",
+    "sha": "fc5d4714bcc8992fd4cd702a3fca679714c4294f",
+    "source_candidates": 533,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/pr94-calibration-recover-20261006",
+    "sha": "d68c9c335c0c734022ff6d8a94bca506893a7066",
+    "source_candidates": 532,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/pr96-whatsapp-recover-20261006",
+    "sha": "c8ca0efcde0f1b6b1c243651f59d01331cb74677",
+    "source_candidates": 528,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "integration/pr97-runtime-slices-20261006",
+    "sha": "21653e04638aeb214bfcb30dccd72c5721c49691",
+    "source_candidates": 531,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "kosif-see/foundation-rule-zero-20261006",
+    "sha": "c4fb6a65a9ca02fbd369642401d01e331f17eef6",
+    "source_candidates": 440,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "kosifsee/audit-context-separation-20261006",
+    "sha": "a56ddf27cb76096a70e509f0a1beece41d72edb3",
+    "source_candidates": 486,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "kosifsee/tools-context-safety-20261006",
+    "sha": "2f5f506b670a2b359a207fc50cf38eef4e164d73",
+    "source_candidates": 486,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "kosifsee/ux-clarity-20261006",
+    "sha": "d4b1724cc75c419c078dfa2d26aea843802de76e",
+    "source_candidates": 482,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "legacy-before-zero-ui-rebuild",
+    "sha": "ccd155f9bd2cbe74632607a9fcdf3d12956595d4",
+    "source_candidates": 140,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "legacy-before-zero-ui-rebuild-20260925",
+    "sha": "ccd155f9bd2cbe74632607a9fcdf3d12956595d4",
+    "source_candidates": 140,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "main",
+    "sha": "b324b99a6d649da1be3c687b5d9f3e4ca860a83e",
+    "source_candidates": 584,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "rebuild/grand-fusion-clean-slate-20260925",
+    "sha": "5482976f137b0bb7659637d69bfe05977516d7d8",
+    "source_candidates": 96,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "rebuild/grand-fusion-complete-sol-20260925",
+    "sha": "ba91238aeb7546000015cdba2b59889219b3d082",
+    "source_candidates": 223,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "rebuild/grand-fusion-finance-wave1-20260925",
+    "sha": "07844a9a22f8059ab9ad170ce65bd5863c6d22aa",
+    "source_candidates": 24,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "rebuild/major-capability-fusion-20260925",
+    "sha": "842c43d61eea559965a412c5319b9bca78e8ef39",
+    "source_candidates": 146,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "rebuild/major-from-zero-20260925",
+    "sha": "af3e6a3b9a74f0a3cb0f0d3d0c6e64887aaedbbb",
+    "source_candidates": 117,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "rebuild/zero-legacy-cutover-20260925",
+    "sha": "3f9ae53e661cd16e6f923d6c52341c4b9e515dd4",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "rebuild/zero-legacy-jev-continuation-20260925",
+    "sha": "fc1f7e6a904ab6e042d24fdbbfbed3e35a1bb96a",
+    "source_candidates": 140,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "rebuild/zero-legacy-main-sync-20260925",
+    "sha": "64a96c36577b766ede11e6e2c5a10827f66359ba",
+    "source_candidates": 145,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "rebuild/zero-legacy-ui-20260925",
+    "sha": "def0db3ef5c135fa8daf15e782dbf770b2df64fc",
+    "source_candidates": 140,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "sales-intel-integration-20261004",
+    "sha": "755c750abdaf525b2fd2533bfd6205ec56d26127",
+    "source_candidates": 387,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "sqc/incremental-ui-20261003",
+    "sha": "aea7f6e2ea4ba3833a8cc185adfd469756833e39",
+    "source_candidates": 360,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "sync/kosif-think-0.7.0-capability-mesh",
+    "sha": "18b63caf39feeaca96cce61058f6874bb22537de",
+    "source_candidates": 351,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "sync/kosif-think-live-0.27.3",
+    "sha": "08c02bf12bb2a30bd155129549e3189dbbac865b",
+    "source_candidates": 356,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/kosif-earth-ci-fork",
+    "branch": "sync/kosif-think-v059-live-20260929",
+    "sha": "f4a68054e151146bc584b25303cebe3f3395e6b1",
+    "source_candidates": 352,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/mafateeh-al-tharwa",
+    "branch": "main",
+    "sha": "a182735f5523f0b99a046c96416416e6d7760e41",
+    "source_candidates": 54,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/mafateeh-al-tharwa",
+    "branch": "package-source-20260823",
+    "sha": "60ce87177c98ad03c0fa96b751a4316f5ecb02ee",
+    "source_candidates": 50,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/mafateeh-al-tharwa",
+    "branch": "review-v31",
+    "sha": "ec4b5e5e4f3e0860562aa6d24cecb5920dd93357",
+    "source_candidates": 30,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/mafateeh-al-tharwa2",
+    "branch": "main",
+    "sha": "fc8518662be5511cc7b09d5317875a7677a343b1",
+    "source_candidates": 29,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/mafateeh-al-tharwa2",
+    "branch": "release/v30-runtime-fixes",
+    "sha": "7ca63864697a2a280f30da2c3a047c63c221effc",
+    "source_candidates": 29,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/moon",
+    "branch": "claude/link-download-work-xwxkgi",
+    "sha": "8966664423cc532260ef52413253a659ee012b1b",
+    "source_candidates": 32,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/moon",
+    "branch": "feat/moon-audit-os-v1",
+    "sha": "8f5323237e4baa971251ab03ec8b5b8275472a41",
+    "source_candidates": 32,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/moon",
+    "branch": "fix/enable-github-pages",
+    "sha": "80c7e61f9ea6326470120b4d683987af30c858e1",
+    "source_candidates": 32,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/moon",
+    "branch": "fix/pages-manual-deploy",
+    "sha": "176e6bce9dc96d4697f0f6026432dd29c7318f8a",
+    "source_candidates": 32,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/moon",
+    "branch": "main",
+    "sha": "52baec7a598ecbfb42db97c2e9e3e6ed852781f5",
+    "source_candidates": 32,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/new",
+    "branch": "feat/new-finance-core",
+    "sha": "f83e26712eed3a744034f3d1e8efffcabb443f8e",
+    "source_candidates": 83,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/new",
+    "branch": "feat/new-platform-foundation",
+    "sha": "faee3fdb0772ce4cb829df7e66a22fea33dc66c2",
+    "source_candidates": 62,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/new",
+    "branch": "main",
+    "sha": "e0a0cc351f6620416a649f62b05d00c83bed5848",
+    "source_candidates": 0,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "codex/kosif-c-video-fetch-review-20261009",
+    "sha": "73dd10879adb6c73735b063b2bc2e35f236990ae",
+    "source_candidates": 200,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "codex/kosif-free-render-poc",
+    "sha": "f60d701a76cc52f6128a8f16bc3304535f485099",
+    "source_candidates": 203,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "codex/see-fidelity-secure-handoff-20261009",
+    "sha": "158e31cf26db1e6b77c5e068fa26dee64c45753e",
+    "source_candidates": 197,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "design/see-unified-architecture",
+    "sha": "f4bab3f3a6748a30580e4154195ca0e324532c42",
+    "source_candidates": 135,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "feat/cloudflare-mvp",
+    "sha": "b0a8fe1d5aeb0aeaf3af183357d351e81cecfb6e",
+    "source_candidates": 135,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "feat/see-kosif-completion",
+    "sha": "297cb48f1e984b7ef356e310ab765f9b10b8ac43",
+    "source_candidates": 197,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "feat/see-kosif-full-parity",
+    "sha": "c149c2045b8e6bedb766ec909129cb54a16b55a6",
+    "source_candidates": 197,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "feat/see-phase-a-unification",
+    "sha": "511817015c00785dc566322b2816451b7470961b",
+    "source_candidates": 184,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "fix/cloudflare-resource-bindings",
+    "sha": "c3fe336e73b8a17cc1583fdd8ff0525afd390367",
+    "source_candidates": 135,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/see",
+    "branch": "main",
+    "sha": "158e31cf26db1e6b77c5e068fa26dee64c45753e",
+    "source_candidates": 197,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/smart-trial-balance-review",
+    "branch": "main",
+    "sha": "9b646fd704b0f5ccf48c8bce7877e96e3783335b",
+    "source_candidates": 8,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "antigravity/affective-cognition-20260929",
+    "sha": "71a9a6efbdd537bb27a1229dfe2b7e4e356753fc",
+    "source_candidates": 132,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "claude/zealous-maxwell-sgg986",
+    "sha": "6dd676fd775a90271c43fffd2e5e06925d9762b9",
+    "source_candidates": 149,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "codex/complete-flagshiprouter-integration-20261009",
+    "sha": "c3f19410edf75e50b8b93858b0bb67aa4fb0913b",
+    "source_candidates": 141,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "codex/flagshiprouter-model-gateway-20261009",
+    "sha": "16e50a6100d9720966aeb8e6aef9381b529573dc",
+    "source_candidates": 139,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "codex/no-key-local-inference",
+    "sha": "a2a864771265b5ddbf71fac47e9f6d839687152d",
+    "source_candidates": 131,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "feat/browser-record-space-20261009",
+    "sha": "433aec9c623f4daa07f484af88708f1ef8dedab4",
+    "source_candidates": 137,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "feat/free-browser-threejs-motion-20261008",
+    "sha": "454ebbb36c5fdb61d170aee86727105adb092245",
+    "source_candidates": 137,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "feat/jev-confidence-router-books-20260930",
+    "sha": "a2a864771265b5ddbf71fac47e9f6d839687152d",
+    "source_candidates": 131,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "integration/unified-kosif",
+    "sha": "8221a163f2c66b962e4046ba8c459f8557b9d34b",
+    "source_candidates": 70,
+    "truncated": false,
+    "error": null
+  },
+  {
+    "repo": "kosif199022-jpg/think",
+    "branch": "main",
+    "sha": "4fb0c8c5e05a71a23e3e838798e31abd06c1f257",
+    "source_candidates": 141,
+    "truncated": false,
+    "error": null
+  }
+]
