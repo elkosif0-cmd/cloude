@@ -8,7 +8,7 @@ const auth={subject:'synthetic-auditor@example.invalid',tenantId:'ten_demo',work
             workspaceRole:'manager'};
 const aggregate={
   period:{month:'2026-09',secret:'not-sent'},
-  financeSummary:{receipts:5000,payments:2500,net:2500,customerPhones:'0551234567',month:'2026-09'},
+  financeSummary:{receipts:5000,payments:2500,net:2500,customerPhones:'0551234567',customerPhone:551234567,month:'2026-09'},
   inventorySummary:{tracked:12,orders:'private-orders',reorderAlerts:3},
   reporting:{savedIncomeStatements:5,lastNetProfit:4255,lastMonth:'2026-08'},
   preferences:{currency:'SAR',personalNotes:'no'},
@@ -49,7 +49,7 @@ test('task allowlist refuses unsolicited context or ledger data',()=>{
 });
 test('all non-aggregate records and personal details are stripped before model calls',()=>{
   const s=JSON.stringify(allowedAggregate(aggregate));
-  for(const token of ['0551234567','private-orders','personalNotes','SA1234','rawTransactions','notes','customerPhones'])
+  for(const token of ['0551234567','551234567','customerPhone','private-orders','personalNotes','SA1234','rawTransactions','notes','customerPhones'])
     assert.equal(s.includes(token),false,token);
   assert.ok(s.includes('receipts'));assert.ok(s.includes('4255'));
 });
