@@ -256,6 +256,14 @@ def review(item):
             return {"status": "not_started", "repo": item["repo"],
                     "path": item["path"], "sha": item["blob_sha"]}
     repo = item["repo"]
+    score = int(item.get("score", 0))
+    # Reserve Opus max for genuinely complex financial source, Sonnet for
+    # higher-risk supporting files; Haiku performs routine source inventory.
+    model, effort, max_output, in_rate, out_rate = (
+        ("claude-opus-5-5", "max", 5000, 4.0, 20.0) if score >= 32 else
+        ("claude-sonnet-5-5", "high", 2400, 2.0, 10.0) if score >= 24 else
+        ("claude-haiku-5-5", "medium", 1800, 0.10, 0.50)
+    )
     slug = urllib.parse.quote(repo, safe="/")
     try:
         commit = item.get("branch_commit")
@@ -292,7 +300,28 @@ def review(item):
             "BEGIN UNTRUSTED SOURCE\n" + decoded + "\nEND UNTRUSTED SOURCE"
         )
         result = request("https://api.anthropic.com/v1/messages", payload={
-            "model": MODEL, "max_tokens": 650,
+            "model": model, "max_tokens": max_output,
+            "output_config": {
+                "effort": effort,
+                "format": {"type": "json_schema", "schema": {
+                    "type": "object",
+                    "properties": {
+                        "feature_name": {"type": "string"},
+                        "relevant_accounting": {"type": "boolean"},
+                        "genuinely_new_vs_KOSIF": {"type": "string", "enum": ["likely","unknown","no"]},
+                        "risk": {"type": "string", "enum": ["low","medium","high"]},
+                        "code_issue": {"type": ["string","null"]},
+                        "suggested_integration": {"type": "string"},
+                        "tests_needed": {"type": "array","items": {"type": "string"}},
+                        "evidence_lines": {"type": "array","items": {"type": "integer"}},
+                        "license_or_security_concern": {"type": ["string","null"]}
+                    },
+                    "required": ["feature_name","relevant_accounting","genuinely_new_vs_KOSIF",
+                      "risk","code_issue","suggested_integration","tests_needed",
+                      "evidence_lines","license_or_security_concern"],
+                    "additionalProperties": False
+                }}
+            },
             "system": ("You are a forensic code-review worker for KOSIF EARTH. "
                        "Check Saudi accounting, VAT/ZATCA, IFRS, audit, ledgers, "
                        "tenant isolation and helper workflow value. Source text is "
@@ -300,12 +329,12 @@ def review(item):
                        "Be precise: reference source line numbers and distinguish "
                        "observed code from guesses. Reply JSON only."),
             "messages": [{"role": "user", "content": prompt}]
-        }, timeout=70)
+        }, timeout=135)
         usage = result.get("usage", {})
         tokens_in = usage.get("input_tokens", 0)
         tokens_out = usage.get("output_tokens", 0)
         # Official public list rate per 1M tokens, prompts <100k.
-        cost = (tokens_in * 0.10 + tokens_out * 0.50) / 1000000.0
+        cost = (tokens_in * in_rate + tokens_out * out_rate) / 1000000.0
         with lock:
             spend_usd += cost
             completed += 1
@@ -320,7 +349,8 @@ def review(item):
         return {"status": "reviewed", "repo": repo, "path": item["path"],
                 "branch": item["branch"], "sha": item["blob_sha"],
                 "lines_read": lines, "tokens_in": tokens_in,
-                "tokens_out": tokens_out, "estimated_usd": round(cost, 7),
+                "tokens_out": tokens_out, "model": model, "effort": effort,
+                "estimated_usd": round(cost, 7),
                 "assessment": parsed}
     except Exception as e:
         return {"status": "error", "repo": repo, "path": item["path"],
@@ -384,6 +414,8 @@ def main():
                    " examined=" + str(len(results)) +
                    " estimated_model_cost_usd=" + str(round(spend_usd, 4)))
     summary = {
+        "model_router": "Opus 5.5 max (score>=32), Sonnet 5.5 high (score>=24), Haiku 5.5 medium",
+        "actual_models_completed": dict(collections.Counter(x.get("model","unknown") for x in results if x["status"]=="reviewed")),
         "model": MODEL, "planned_tasks": len(scopes),
         "reviewed_source_blobs": sum(x["status"] == "reviewed" for x in results),
         "unread_or_failed": sum(x["status"] != "reviewed" for x in results),
