@@ -1,0 +1,52 @@
+name: KOSIF Claude Output Repair Review
+on:
+  push:
+    branches:
+      - audit/claude-source-retry-20261012
+    paths:
+      - .github/workflows/claude-source-retry.yml
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: kosif-claude-output-retry-20261012
+  cancel-in-progress: false
+jobs:
+  source-output-retry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GITHUB_REPOSITORY: elkosif0-cmd/cloude
+      GITHUB_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download original Claude source-review evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p previous-source-results
+          gh run download 38237575694 -R elkosif0-cmd/cloude -n claude-public-source-audit-38237575694 -D previous-source-results
+          test -s previous-source-results/review-manifest.json
+          test -s previous-source-results/actual-source-reviews.json
+      - name: Check cost, model settings, scope and no-deploy guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/claude_public_source_fanout.py tools/claude_retry_source_outputs.py
+          grep -F "github.ref_name != 'audit/claude-source-retry-20261012'" .github/workflows/pages-deploy.yml
+          python3 tools/claude_retry_source_outputs.py --check
+      - name: Preflight then retry incomplete Claude text reviews
+        shell: bash
+        run: python3 tools/claude_retry_source_outputs.py
+      - name: Save provider cost and file evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-source-review-corrected-${{ github.run_id }}
+          path: claude-retry-results/
+          if-no-files-found: warn
+          retention-days: 14
