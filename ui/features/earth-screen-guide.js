@@ -48,8 +48,44 @@ function bullets(parent,heading,steps){
  block.append(list);parent.append(block);
 }
 function activePages(s){
- const can=s.sk.perm?.can;
- return (s.sk.caps.members(s.hub.id)||[]).filter(c=>c&&!c.hidden&&(!can||can(c.id))).map(c=>c.label).filter(Boolean).slice(0,7);
+ // Only routes that exist in the canonical registry and are permitted within
+ // the CURRENT gateway. A Tools add-on in Accounting must be installed there.
+ return (s.sk.caps.members(s.hub.id)||[])
+  .filter(c=>c&&c.id!==s.view&&!c.hidden&&
+    s.sk.caps.inGatewayOf(c,s.gate)&&
+    (!s.sk.perm?.can||s.sk.perm.can(c.id)))
+  .slice(0,7);
+}
+function relatedPages(parent,s,dialog){
+ const pages=activePages(s);
+ if(!pages.length)return;
+ const block=el("section","earth-screen-guide__field");
+ block.append(el("h3","","الخطوة التالية — افتح شاشة موجودة بالفعل"));
+ const text=el("p","","اختار الوظيفة المناسبة. هنفضل داخل نفس القسم والشركة، ومش هتتنقل أي بيانات.");
+ block.append(text);
+ const list=el("div","earth-screen-guide__links");
+ list.setAttribute("role","group");
+ list.setAttribute("aria-label","شاشات موجودة مرتبطة بهذه المهمة");
+ const companyId=s.sk.company?.current?.()?.id||"";
+ for(const cap of pages){
+   const b=el("button","earth-screen-guide__link",cap.label+" ←");
+   b.type="button";
+   b.dataset.capabilityId=cap.id;
+   b.addEventListener("click",()=>{
+     // A switch/reload can invalidate the old context while the modal is open.
+     const now=ctx();
+     if(!now||now.gate!==s.gate||now.hub.id!==s.hub.id||
+        (now.sk.company?.current?.()?.id||"")!==companyId)return;
+     const target=now.sk.caps.get(cap.id);
+     if(!target||target.hidden||!now.sk.caps.inGatewayOf(target,now.gate)||
+        (now.sk.perm?.can&&!now.sk.perm.can(target.id)))return;
+     dialog.close();
+     now.core.go(target.id);
+   });
+   list.append(b);
+ }
+ block.append(list);
+ parent.append(block);
 }
 function show(){
  const s=ctx();
@@ -76,18 +112,28 @@ function show(){
  if(s.gate==="accounting")scope="تعمل داخل الشركة المحاسبية والفترة المختارتين فقط؛ لا تنقل البيانات إلى عميل مراجعة.";
  if(s.gate==="audit")scope="ملف مراجعة مستقل. لا يُستورَد دفتر شركة محاسبية إلا بإجراء ربط صريح.";
  line(body,"نطاق العمل",scope);
- const known=VERIFIED[own.id]||VERIFIED[s.cap.id];
+ // A verified parent process is NOT evidence that each of its child tabs
+ // performs the very same task. Exact view evidence wins; otherwise stay
+ // explicit that we only know the canonical registry description.
+ const known=VERIFIED[s.cap.id]||(s.cap.id===s.hub.id?VERIFIED[s.hub.id]:null);
  if(known){
    line(body,"هتحتاج إيه؟",known.needs);
    bullets(body,"الخطوات",known.steps);
    line(body,"هتوصل لإيه؟",known.result);
  }else{
-   line(body,"هتحتاج إيه؟","البيانات المناسبة لهذه الوظيفة وصلاحية الوصول إلى مساحتها. راجع التعليمات داخل الشاشة قبل التنفيذ.");
-   const pages=activePages(s);
-   if(pages.length>1)bullets(body,"الوظائف المتاحة داخل هذا الاستوديو",pages);
-   line(body,"هتوصل لإيه؟","النتيجة التي توفرها الشاشة وفق وصفها أعلاه. راجعها داخل الشاشة قبل اعتماد أي قرار.");
+   line(body,"هتحتاج إيه؟",s.cap.sub||
+     "افتح البيانات المتاحة لهذه الشاشة، وتأكد من الصلاحية ونطاق الشركة والفترة.");
+   bullets(body,"الخطوات المقترحة",[
+     "تأكد من اسم الشركة والقسم والفترة الظاهرة في التطبيق قبل بدء المهمة.",
+     "استخدم وظائف الشاشة المسمّاة في السجل. افتح تبويباً مناسباً من الروابط التالية إن وُجد.",
+     "راجع النتيجة داخل الشاشة نفسها؛ لا تعتمد على الوصف وحده كدليل لإنجاز المعالجة."
+   ]);
+   line(body,"هتوصل لإيه؟","استعراض الوظيفة المذكورة في وصف الشاشة، مع التحقق من مخرجاتها الفعلية قبل اتخاذ القرار.");
+   body.append(el("p","earth-screen-guide__source",
+     "مسار استرشادي من سجل وظائف KOSIF EARTH، وليس تأكيداً بأن كل المعالجات أو الصادرات مكتملة."));
  }
- const note=el("p","earth-screen-guide__note","الدليل للتوضيح فقط؛ لا ينفّذ أي عملية ولا يُغيّر البيانات أو الصلاحيات.");
+ relatedPages(body,s,m);
+ const note=el("p","earth-screen-guide__note","هذا الدليل لا يحفظ بيانات ولا ينفّذ معاملات. الروابط تنقلك إلى شاشات مسموح بها فقط داخل نفس نطاق العمل.");
  body.append(note);m.append(body);document.body.append(m);
  dialog=m;openFor=s.view;
  m.addEventListener("close",()=>{m.remove();if(dialog===m)dialog=null;button?.focus({preventScroll:true})},{once:true});
