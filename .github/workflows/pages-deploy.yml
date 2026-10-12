@@ -26,10 +26,8 @@ permissions:
 
 jobs:
   deploy:
-    # Private-access Claude development must never auto-publish Pages.
-    if: github.ref_name != "feature/claude-secure-accounting-council-20261012"
-    # CI repair branch never deploys to Cloudflare Pages, including previews.
-    if: github.ref_name != 'fix/tbreview-duplicate-open-20261012' && github.ref_name != 'integration/earth-accounting-verified-20261012'
+    # Preserve the existing release guards and keep protected AI development off Pages.
+    if: github.ref_name != 'fix/tbreview-duplicate-open-20261012' && github.ref_name != 'integration/earth-accounting-verified-20261012' && github.ref_name != 'feature/claude-secure-accounting-council-20261012'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
