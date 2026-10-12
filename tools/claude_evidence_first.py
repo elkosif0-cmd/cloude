@@ -200,8 +200,8 @@ def upload_manifest(groups, counts):
     data = json.dumps({"scope": counts, "tasks": [group[0] for group in groups]},
                       ensure_ascii=False).encode("utf-8")
     boundary = "KOSIF_PUBLIC_SCOPE_20261012"
-    body = (("--" + boundary + "\r\nContent-Disposition: form-data; name=\\"purpose\\"\r\n\r\nagent\r\n").encode()
-            + ("--" + boundary + "\r\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"review-scopes.json\\"\r\nContent-Type: application/json\r\n\r\n").encode()
+    body = (("--" + boundary + "\r\nContent-Disposition: form-data; name=\"purpose\"\r\n\r\nagent\r\n").encode()
+            + ("--" + boundary + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"review-scopes.json\"\r\nContent-Type: application/json\r\n\r\n").encode()
             + data + ("\r\n--" + boundary + "--\r\n").encode())
     req = urllib.request.Request(ANTHROPIC + "/v1/files", data=body,
         method="POST", headers={
