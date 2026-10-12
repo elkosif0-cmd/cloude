@@ -102,3 +102,16 @@ CREATE TABLE IF NOT EXISTS workspace_documents (
 );
 CREATE INDEX IF NOT EXISTS workspace_documents_workspace_idx ON workspace_documents(workspace_id,tenant_id,uploaded_at DESC);
 CREATE INDEX IF NOT EXISTS workspace_documents_sha_idx ON workspace_documents(workspace_id,sha256);
+
+-- Server-side AI usage reservations, scoped to a single workspace and UTC day.
+-- Apply before enabling AI_ENABLED on the Cloudflare Worker.
+CREATE TABLE IF NOT EXISTS workspace_ai_requests (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL REFERENCES workspaces(id),
+  tenant_id TEXT NOT NULL REFERENCES tenants(id),
+  actor TEXT NOT NULL,
+  day TEXT NOT NULL,
+  task TEXT NOT NULL CHECK (task IN ('audit-review','accounting-analysis','reconciliation')),
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS workspace_ai_requests_daily_idx ON workspace_ai_requests(workspace_id,tenant_id,day);
