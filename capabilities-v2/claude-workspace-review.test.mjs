@@ -35,6 +35,9 @@ function fixtures(options={}) {
     assert.equal(request.redirect,'error');
     const p=JSON.parse(request.body);
     assert.equal(p.model,'claude-opus-5-5');
+    assert.equal(p.thinking.type,'adaptive');
+    assert.equal(p.output_config.effort,'medium');
+    assert.ok(p.max_tokens>=8192);
     assert.equal(p.messages[0].content.includes('ten-a'),false);
     assert.equal(p.messages[0].content.includes(ID),false);
     assert.equal(p.messages[0].content.includes('secret'),false);
