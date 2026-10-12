@@ -191,6 +191,9 @@ function confirmDialog(message,opts={}){
     w.innerHTML='<div class="skd" role="alertdialog" aria-modal="true" aria-labelledby="'+id+'"><h3 id="'+id+'">'+esc(opts.title||"تأكيد")+'</h3><p>'+esc(message)+'</p><div class="skd-acts">'+
       (opts.alert?'':'<button type="button" class="btn" data-r="0">'+esc(opts.cancel||"إلغاء")+'</button>')+
       '<button type="button" class="btn '+(opts.danger?'danger':'primary')+'" data-r="1">'+esc(opts.ok||(opts.alert?"حسناً":"تأكيد"))+'</button></div></div>';
+    /* Short confirmation buttons share a row at 361–600px; long captions remain stacked. */
+    if(!opts.alert && String(opts.cancel||"إلغاء").length <= 12 && String(opts.ok||"تأكيد").length <= 12)
+      w.querySelector(".skd-acts").classList.add("skd-acts-short");
     let settled=false,release=()=>{};
     const done=r=>{if(settled)return;settled=true;w.remove();document.removeEventListener("keydown",key,true);release();resolve(r)};
     const key=e=>{if(e.key==="Escape"&&modalStack.at(-1)?.root===w.querySelector(".skd")){e.preventDefault();e.stopImmediatePropagation();done(!!opts.alert)}};
