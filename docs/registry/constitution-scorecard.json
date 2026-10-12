@@ -2,8 +2,8 @@
  "summary": {
   "rules": 18,
   "enforced": 18,
-  "pass": 5,
-  "fail": 13,
+  "pass": 18,
+  "fail": 0,
   "knownRed": 0,
   "gap": 0,
   "partial": 3
@@ -25,7 +25,7 @@
   {
    "id": "F3",
    "section": "§3",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "check",
@@ -36,15 +36,15 @@
     {
      "kind": "test",
      "id": "tools/gate_nav_contract.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "3 نجح · 0 فشل",
      "knownRed": false
     },
     {
      "kind": "test",
      "id": "tools/company_entry.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "11 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -52,19 +52,19 @@
   {
    "id": "F3.0-1",
    "section": "§3.0‑1",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "check",
      "id": "audit_registry_own",
-     "ok": false,
-     "note": "يقرأ سجل ملفات المراجعة خارج المراجعة: ui/core/audit.js"
+     "ok": true,
+     "note": "سجل ملفات المراجعة تقرؤه شاشة المراجعة وحدها"
     },
     {
      "kind": "test",
      "id": "tools/owner_scope.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "4 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -72,13 +72,13 @@
   {
    "id": "F3.0-3",
    "section": "§3.0‑3",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "test",
      "id": "tools/audit_context_independence.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "6 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -112,27 +112,27 @@
   {
    "id": "F3.0-6",
    "section": "§3.0‑6",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "test",
      "id": "tools/company_scope_keys.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "2 نجح · 0 فشل",
      "knownRed": false
     },
     {
      "kind": "test",
      "id": "tools/company_context.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "10 نجح · 0 فشل",
      "knownRed": false
     },
     {
      "kind": "test",
      "id": "tools/bootstrap_scope.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "42 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -140,7 +140,7 @@
   {
    "id": "F3.0-7",
    "section": "§3.0‑7",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "check",
@@ -151,8 +151,8 @@
     {
      "kind": "test",
      "id": "tools/context_display_regression.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "10 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -160,7 +160,7 @@
   {
    "id": "F3.0-8",
    "section": "§3.0‑8",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "check",
@@ -171,8 +171,8 @@
     {
      "kind": "test",
      "id": "tools/save_state.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "5 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -180,13 +180,13 @@
   {
    "id": "F3.0-9",
    "section": "§3.0‑9",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "test",
      "id": "tools/assistant_scope.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "40 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -194,13 +194,13 @@
   {
    "id": "F3.0-10",
    "section": "§3.0‑10",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "test",
      "id": "tools/capability_profile.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "5 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -221,7 +221,7 @@
   {
    "id": "F3.7",
    "section": "§3.7",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "check",
@@ -232,8 +232,8 @@
     {
      "kind": "test",
      "id": "tools/brand_art.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "5 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -241,13 +241,13 @@
   {
    "id": "F3.10",
    "section": "§3.10",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "test",
      "id": "tools/corpus_same_results.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "1 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -255,20 +255,20 @@
   {
    "id": "F3.11.1",
    "section": "§3.11.1",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "test",
      "id": "tools/mercury_report_presentation.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "16 نجح · 0 فشل",
      "knownRed": false
     },
     {
      "kind": "test",
      "id": "tools/report_pack_guard.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "34 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -276,20 +276,20 @@
   {
    "id": "F3.11.2",
    "section": "§3.11.2",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "test",
      "id": "tools/door_tokens.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "2 نجح · 0 فشل",
      "knownRed": false
     },
     {
      "kind": "test",
      "id": "tools/identity_audit.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "3 نجح · 0 فشل",
      "knownRed": false
     }
    ]
@@ -297,13 +297,13 @@
   {
    "id": "F6-ai",
    "section": "§6",
-   "status": "fail",
+   "status": "pass",
    "results": [
     {
      "kind": "test",
      "id": "tools/harsh_review_guards.test.mjs",
-     "ok": false,
-     "note": "0 نجح · 0 فشل",
+     "ok": true,
+     "note": "4 نجح · 0 فشل",
      "knownRed": false
     }
    ]

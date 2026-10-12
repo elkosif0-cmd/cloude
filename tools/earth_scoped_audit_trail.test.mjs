@@ -22,7 +22,8 @@ function harness(){
   user:()=>state.user?{id:state.user}:null,
   current:()=>state.space?{id:state.space}:null};
  vm.runInNewContext(source,{
-  SK,window:{SKosifCore:{view:()=>state.view},SKosifSpace:space},
+  SK,window:{SKosifCore:{view:()=>state.view},SKosifSpace:space,
+   SKosifTBReview:{activeFile:()=>registry.list.some(e=>e&&e.id===registry.active)?registry.active:''}},
   localStorage:{setItem:(k,v)=>{writeCount++;values.set(k,v)}},
   addEventListener:()=>{},setTimeout:()=>1,Date,JSON,encodeURIComponent
  });

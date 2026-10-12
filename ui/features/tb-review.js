@@ -353,6 +353,8 @@ function canonicalStatements(c){
     limitation:"عرض تحليلي من ربط الميزان في الملف الرئيسي، وليس نسخة كاملة من التقرير المنشور أو إثبات امتثال للإطار. التقرير الكامل وفق إطار المصدر غير مدعوم هنا؛ غير صالح للإصدار. تبقى التسويات والأدلة والاعتمادات في الملف الرئيسي."}));
 }
 window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,
+  /* The id of the open audit file when it is a registered one, otherwise "" (SK.audit scopes its activity log by it). */
+  activeFile:()=>{const r=load(ENG,null);return r&&r.active&&Array.isArray(r.list)&&r.list.some(e=>e&&e.id===r.active)?r.active:""},
   /* Keep one canonical open implementation (openTab), which is already exported below. */
   current:()=>compute()?tab:"",
   openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();if(c&&c.sourceOnly)return {sourceOnly:true,sourceKind:"published-statements",rows:[],sig:c.sig,label:c.sourceModel?c.sourceModel.issuer:"source model",ctx:{...c.d.ctx,sourceKind:"published-statements"},unavailableReason:"The embedded studio does not support source provenance; no ledger or audit-evidence transport is permitted."};return c&&c.tb.ok?{mappingUnsupported:!!(c.d.ctx.corpusId&&Object.keys(c.d.overrides||{}).length),canonicalStatements:canonicalStatements(c),rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});

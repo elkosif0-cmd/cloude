@@ -15,10 +15,10 @@ function scopeKey(){
   const gate=SK.gate?.current?.();
   if(!["accounting","audit","tools"].includes(gate))return "";
   if(gate==="audit"){
-    const register=SK.load("skosif_engagements_v1",null);
-    const active=register?.active;
-    if(!active||!Array.isArray(register.list)||
-       !register.list.some(e=>e&&e.id===active))return "";
+    /* FOUNDATION §3.0-1: the audit files' registry is read by the audit screen alone;
+       it tells us which registered file is open, or "" when none is. */
+    const active=window.SKosifTBReview?.activeFile?.()||"";
+    if(!active)return "";
     return KEY+"audit:"+encodeURIComponent(active);
   }
   if(window.SKosifSpace?.busy?.())return "";
