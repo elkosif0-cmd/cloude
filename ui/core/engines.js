@@ -34599,6 +34599,12 @@ window.SKEngines = (function() {
 			story: "مجمع تعليمي بـ1,200 طالب: رسوم فصلين تُفوتر مقدماً وتُكتسب شهرياً، منح وخصومات، تحصيل متدرج ومتأخرات، نقل مدرسي، واسترداد رسوم طالب منسحب."
 		},
 		{
+			id: "model-meat-factory",
+			sector: "meat",
+			name: "مصنع محمود لتسويق اللحوم",
+			story: "مصنع لحوم افتراضي ضخم: رأس مال 600 مليون ريال، ثمانية خطوط تشغيل أسبوعية، مشتريات الذبائح والتبريد والتقطيع والتعبئة والمبيعات النقدية والآجلة والتحصيل والضريبة والهدر والتسويات؛ جميع الأسماء والمعاملات اصطناعية."
+		},
+		{
 			id: "model-manufacturing",
 			sector: "manufacturing",
 			name: "مصنع الخليج النموذجي للبلاستيك",
@@ -34801,6 +34807,7 @@ window.SKEngines = (function() {
 		};
 	}
 	var CAPITAL = {
+		meat: 6e10,
 		health: 25e8,
 		education: 12e8,
 		manufacturing: 9e8,
@@ -34809,6 +34816,11 @@ window.SKEngines = (function() {
 		trade: 7e8
 	};
 	var OVERHEAD = {
+		meat: {
+			payroll: 12e7,
+			rent: 3e7,
+			opex: 65e6
+		},
 		health: {
 			payroll: 36e7,
 			rent: 45e6,
@@ -34841,6 +34853,112 @@ window.SKEngines = (function() {
 		}
 	};
 	var SECTOR = {
+		meat: ({ year, months, vary, je, L, sale, purchase, pay, collect, end, ledger }) => {
+			const suppliers = [
+				"مورد افتراضي ألف",
+				"مورد افتراضي باء",
+				"مورد افتراضي جيم",
+				"مورد افتراضي دال"
+			];
+			const customers = [
+				"سلسلة تجريبية شمال",
+				"سلسلة تجريبية غرب",
+				"تاجر جملة تجريبي",
+				"منفذ تجريبي للتموين"
+			];
+			const batches = [];
+			ledger.productionBatches = batches;
+			ledger.synthetic = true;
+			ledger.currency = "SAR";
+			ledger.costCenters = [
+				"المسالخ",
+				"التبريد",
+				"التقطيع",
+				"التعبئة",
+				"الجملة",
+				"المتجر"
+			];
+			let priorSupplierDue = {}, priorReceivable = {};
+			for (const m of months) {
+				for (const [supplier, amount] of Object.entries(priorSupplierDue)) pay(year + "-" + pad(m) + "-10", "سداد مورد تجريبي عن الشهر السابق", "2100", amount, "MF-SPAY-" + year + pad(m) + "-" + suppliers.indexOf(supplier), supplier);
+				for (const [customer, amount] of Object.entries(priorReceivable)) collect(year + "-" + pad(m) + "-11", "تحصيل عميل تجريبي عن الشهر السابق", "1200", amount, "MF-COLL-" + year + pad(m) + "-" + customers.indexOf(customer), customer);
+				const monthSupplier = {}, monthCustomer = {};
+				for (let b = 1; b <= 8; b++) {
+					const day = 2 + (b - 1) * 3, date = year + "-" + pad(m) + "-" + pad(day), ref = "MF-" + year + pad(m) + "-" + pad(b);
+					const supplier = suppliers[(b + m) % suppliers.length], customer = customers[(b + m) % customers.length];
+					const cost = vary(9e8, .08);
+					const waste = Math.round(cost * .018), secondary = Math.round(cost * .065);
+					const cuts = cost - waste - secondary;
+					purchase(date, "استلام ذبائح مبردة — دفعة افتراضية " + ref, "1310", cost, supplier, ref + "-PO");
+					monthSupplier[supplier] = (monthSupplier[supplier] || 0) + cost;
+					je(date, "تشغيل وتقطيع وتوزيع تكلفة الذبيحة " + ref, [
+						L("1320", cuts, 0),
+						L("1330", secondary, 0),
+						L("5100", waste, 0),
+						L("1310", 0, cost)
+					], {
+						reference: ref + "-CUT",
+						source: "أوامر إنتاج",
+						meta: { meatBatch: {
+							reference: ref,
+							cutting: true,
+							yieldPercent: 98.2,
+							coldChain: true
+						} }
+					});
+					const packing = vary(18e6, .05);
+					purchase(date, "عبوات تغليف غذائي " + ref, "1340", packing, supplier, ref + "-PKG");
+					monthSupplier[supplier] = (monthSupplier[supplier] || 0) + packing;
+					je(date, "صرف عبوات التعبئة لأمر الإنتاج " + ref, [L("5200", packing, 0), L("1340", 0, packing)], {
+						reference: ref + "-PACK",
+						source: "تعبئة"
+					});
+					const soldCuts = Math.round(cuts * .91), soldByproduct = Math.round(secondary * .76);
+					je(date, "تكلفة الكميات المسلّمة وملحقات الذبيحة " + ref, [
+						L("5000", soldCuts + soldByproduct, 0),
+						L("1320", 0, soldCuts),
+						L("1330", 0, soldByproduct)
+					], {
+						reference: ref + "-COGS",
+						source: "تكلفة مبيعات"
+					});
+					const wholesale = vary(95e7, .07), retail = vary(3e8, .08), extras = vary(75e6, .07);
+					sale(date, "توريد لحوم بالجملة " + ref, wholesale, {
+						cashShare: .6,
+						party: customer,
+						reference: ref + "-WHS",
+						source: "مبيعات الجملة"
+					});
+					sale(date, "مبيعات أصناف المتجر " + ref, retail, {
+						cashShare: 1,
+						reference: ref + "-RTL",
+						source: "مبيعات المتجر"
+					});
+					sale(date, "منتجات ثانوية وقطع تغليف " + ref, extras, {
+						revenue: "4100",
+						cashShare: .6,
+						party: customer,
+						reference: ref + "-BY",
+						source: "منتجات ثانوية"
+					});
+					monthCustomer[customer] = (monthCustomer[customer] || 0) + Math.round((wholesale + extras) * 1.15 * .4);
+					batches.push({
+						reference: ref,
+						date,
+						costHalalas: cost,
+						netSalesHalalas: wholesale + retail + extras,
+						wasteHalalas: waste,
+						yieldPercent: 98.2
+					});
+				}
+				priorSupplierDue = Object.fromEntries(Object.entries(monthSupplier).map(([party, net]) => [party, Math.round(net * 1.15 * .86)]));
+				priorReceivable = Object.fromEntries(Object.entries(monthCustomer).map(([party, gross]) => [party, Math.round(gross * .84)]));
+				je(end(m), "مصاريف تشغيل خطوط التبريد والنقل المبرد", [L("6400", 35e6, 0), L("1100", 0, 35e6)], {
+					reference: "MF-COLD-" + year + pad(m),
+					source: "تبريد ونقل"
+				});
+			}
+		},
 		health: ({ year, months, vat, vary, je, L, purchase, pay, end }) => {
 			const DEPTS = [
 				["outpatient", 95e5],
