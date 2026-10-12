@@ -1,0 +1,61 @@
+name: KOSIF Claude 1000 Verified Source-Review Workers
+
+# One-shot dedicated audit branch. No publishing, no source writes.
+on:
+  push:
+    branches:
+      - audit/claude-direct-workers-20261012
+    paths:
+      - .github/workflows/claude-source-review-1000.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: claude-source-review-once-20261012
+  cancel-in-progress: false
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    env:
+      GITHUB_REPOSITORY: elkosif0-cmd/cloude
+      GITHUB_TOKEN: ${{ github.token }}
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - name: Checkout isolated audit code without persisting credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate syntax and cost controls before Anthropic requests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/claude_source_review_workers.py
+          grep -F "if: github.ref_name != 'audit/claude-direct-workers-20261012'" .github/workflows/pages-deploy.yml
+          python3 - <<'PY'
+          import importlib.util
+          s=importlib.util.spec_from_file_location("audit","tools/claude_source_review_workers.py")
+          m=importlib.util.module_from_spec(s)
+          s.loader.exec_module(m)
+          assert m.MODEL=="claude-haiku-5-5"
+          assert m.MAX_JOBS==1000
+          assert m.CONCURRENCY<=16
+          assert m.MAX_NEW_USD<=37
+          assert m.MAX_SOURCE_BYTES<=24000
+          assert m.OWNERS==("elkosif0-cmd","kosif199022-jpg")
+          print("Verified actual source review, 1000 job ceiling and $37 reserve budget")
+          PY
+          test -n "$ANTHROPIC_API_KEY"
+      - name: Run real Anthropic source review workers across public branch trees
+        shell: bash
+        run: python3 tools/claude_source_review_workers.py
+      - name: Keep evidence, receipts and coverage without raw source files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-source-audit-${{ github.run_id }}
+          path: claude-source-audit/
+          if-no-files-found: warn
+          retention-days: 14
