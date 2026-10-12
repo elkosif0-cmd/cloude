@@ -10,7 +10,18 @@ MODEL="claude-opus-5-5"
 def ask(question):
     payload={
         "model": MODEL, "max_tokens": 4096,
-        "output_config": {"effort": "max"},
+        "output_config": {
+            "effort": "max",
+            "format": {"type": "json_schema", "schema": {
+                "type": "object",
+                "properties": {
+                    "status": {"type": "string", "enum": ["balanced","unbalanced","access_denied"]},
+                    "difference_minor": {"type": "integer"}
+                },
+                "required": ["status","difference_minor"],
+                "additionalProperties": False
+            }}
+        },
         "system": ("You are a financial accounting assistant for KOSIF EARTH. "
                    "Use only the synthetic data provided in each request. "
                    "Always respect per-company authorization. "
