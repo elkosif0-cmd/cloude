@@ -1,4 +1,4 @@
-name: KOSIF Claude 1000 Verified Source-Review Workers
+name: KOSIF Claude Opus Sonnet Haiku Deep Source Audit
 # Source manifest was pinned locally and 1000 unique blob SHA checks validated.
 
 # One-shot dedicated audit branch. No publishing, no source writes.
@@ -41,6 +41,9 @@ jobs:
           m=importlib.util.module_from_spec(s)
           s.loader.exec_module(m)
           assert m.MODEL=="claude-haiku-5-5"
+          assert "claude-opus-5-5" in open("tools/claude_source_review_workers.py", encoding="utf8").read()
+          assert "claude-sonnet-5-5" in open("tools/claude_source_review_workers.py", encoding="utf8").read()
+          assert len(__import__("json").load(open("tools/claude-scope-data/scope-manifest.json"))) == 1000
           assert m.MAX_JOBS==1000
           assert m.CONCURRENCY<=16
           assert m.MAX_NEW_USD<=37
