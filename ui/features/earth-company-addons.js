@@ -53,7 +53,7 @@ function attach(box,ctx){
   const c=company(),cp=P();
   const existing=box.querySelector(".earth-addon-entry");
   if(!ownerIsAccounting(c)||!cp){
-    existing?.remove();return;
+    existing?.remove();box.querySelector(".earth-ai-dev-entry")?.remove();return;
   }
   const catalog=library();
   let section=existing;
@@ -72,6 +72,21 @@ function attach(box,ctx){
     inner.append(section);
   }
   section.dataset.companyId=c.id;
+  let aiEntry=box.querySelector(".earth-ai-dev-entry");
+  if(!aiEntry){
+    const inner=box.querySelector(".earth-journey__inner");
+    if(inner){
+      aiEntry=node("div","earth-addon-entry earth-ai-dev-entry");
+      const t=node("div","earth-addon-entry__text");
+      t.append(node("b","","طوّر شركتك بالذكاء الاصطناعي"),
+        node("span","earth-addon-entry__sub","تصدير Python · استيراد المقترحات · مراجعة قبل التنفيذ"));
+      const go=node("button","earth-addon-entry__action","فتح استوديو التطوير");
+      go.type="button";go.addEventListener("click",()=>openDeveloper(go.dataset.companyId));
+      aiEntry.append(t,go);inner.append(aiEntry);
+    }
+  }
+  const devButton=aiEntry?.querySelector("button");
+  if(devButton){devButton.dataset.companyId=c.id;devButton.disabled=switching();}
   const button=section.querySelector(".earth-addon-entry__action");
   const pending=switching();
   if(button){
@@ -166,5 +181,138 @@ function open(companyId){
   dialog.showModal();
   paint();
 }
-window.KOSIFEarthAddons=Object.freeze({attach,open,library});
+
+/* AI development workshop: export an anonymous Python-readable contract and
+   stage declarative AI proposals. Never run uploaded Python/JS or mutate ledgers. */
+const devStorageKey=id=>"skosif_ai_development_v1::"+encodeURIComponent(id);
+const developerAreas=Object.freeze(["accounting","audit","tools","ui","reports","integrations","sector"]);
+const developerActions=Object.freeze(["add","modify","remove"]);
+function devPython(id){
+  if(!activeCompany(id))throw new Error("اختر الشركة من برنامج المحاسبة أولًا");
+  const c=company(),s=P().state();
+  const caps=window.SK?.caps?.all?.()||[];
+  const names=caps.filter(x=>x&&x.id&&x.label&&!x.hidden).slice(0,200).map(x=>({
+    id:String(x.id).slice(0,80),area:String(x.gateway||"shared").slice(0,40),label:String(x.label).slice(0,100)
+  }));
+  // Never include the actual company name, ID, accounting balances, records,
+  // uploaded documents, private workspace data or provider/API keys.
+  const context={
+    format:"kosif-company-ai-context/v1",product:"KOSIF EARTH",
+    company:{name:"الشركة المحددة (محجوبة الهوية)",sector:c.sector,country:c.country,currency:c.currency},
+    enabled_tools:(s.installedTools||[]).filter(x=>typeof x==="string").slice(0,200),
+    capability_catalog:names,
+    available_areas:developerAreas,
+    proposal_format:{
+      format:"kosif-extension-proposal/v1",scope:"current-company",
+      title:"عنوان التطوير",summary:"لماذا هذا التطوير مهم",
+      changes:[{area:"ui",action:"modify",target:"اسم الشاشة أو المحرك",description:"التغيير المقترح وسبب الحاجة إليه"}]
+    },
+    constraints:[
+      "اقترح تعديلات على جميع أقسام الشركة بما فيها الحسابات والمراجعة والشاشات.",
+      "لا ترسل بيانات عميل أو قيوداً فعلية أو أي أسرار أو مفاتيح API.",
+      "أعد مقترحاً بصيغة JSON المذكورة؛ لا تضع كوداً تنفيذياً داخل المقترح.",
+      "الكود المصدري الحقيقي للتطبيق JavaScript/TypeScript وليس نسخة Python من المحركات.",
+      "التعديلات على كود المصدر تحتاج مراجعة واختبارات وخط نشر منفصل؛ هذا الملف نموذج سياق لاقتراح التطوير."
+    ]
+  };
+  const json=JSON.stringify(context);
+  return "# -*- coding: utf-8 -*-\n"+
+    '"""KOSIF EARTH: anonymized company development context, not executable ERP source."""\n'+
+    "import json\n\nKOSIF_CONTEXT = json.loads("+JSON.stringify(json)+")\n\n"+
+    "def get_development_context():\n    return KOSIF_CONTEXT\n\n"+
+    "if __name__ == '__main__':\n    print(json.dumps(get_development_context(), ensure_ascii=False, indent=2))\n";
+}
+function validateDevProposal(raw){
+  if(typeof raw!=="string"||raw.length>65536)throw new Error("الملف غير صالح أو يتجاوز 64 كيلوبايت");
+  let p;try{p=JSON.parse(raw)}catch{throw new Error("ارفع ملف JSON صحيحاً، وليس كوداً تنفيذياً")};
+  if(!p||Array.isArray(p)||typeof p!=="object"||p.format!=="kosif-extension-proposal/v1"||p.scope!=="current-company")
+    throw new Error("صيغة المقترح أو نطاقه غير معتمد");
+  const cleanText=(x,max)=>{if(typeof x!=="string"||!x.trim()||x.length>max)throw new Error("وصف التعديل غير صالح");return x.trim()};
+  const title=cleanText(p.title,120),summary=cleanText(p.summary,2000);
+  if(!Array.isArray(p.changes)||!p.changes.length||p.changes.length>30)throw new Error("عدد التعديلات المسموح من 1 إلى 30");
+  const changes=p.changes.map(x=>{
+    if(!x||Array.isArray(x)||typeof x!=="object"||!developerAreas.includes(x.area)||!developerActions.includes(x.action))
+      throw new Error("نوع تعديل غير معتمد");
+    return {area:x.area,action:x.action,target:cleanText(x.target,140),description:cleanText(x.description,1600)};
+  });
+  // Whitelist rather than storing the untrusted input: scripts and extra fields
+  // are intentionally discarded and never interpreted or executed.
+  return {format:"kosif-extension-proposal/v1",scope:"current-company",title,summary,changes};
+}
+function openDeveloper(companyId){
+  if(!activeCompany(companyId)){SK.toast?.("افتح الشركة أولاً قبل تطويرها","bad");return}
+  document.querySelector("#earth-ai-developer-dialog")?.remove();
+  const c=company(),dialog=node("dialog","earth-addon-dialog");
+  dialog.id="earth-ai-developer-dialog";dialog.dir="rtl";
+  dialog.setAttribute("aria-label","تطوير الشركة بالذكاء الاصطناعي");
+  const shell=node("div","earth-addon-dialog__shell");
+  const header=node("header","earth-addon-dialog__head");
+  const info=node("div","");
+  info.append(node("h2","","التطوير بالذكاء الاصطناعي — "+c.name),
+    node("p","","صدّر سياق الشركة كملف Python، واطلب من Claude أو ChatGPT مقترحات تطوير شاملة. لا تُصدّر بيانات مالية أو مفاتيح API."));
+  const close=node("button","earth-addon-dialog__close","إغلاق ×");
+  close.type="button";close.addEventListener("click",()=>dialog.close());
+  header.append(info,close);
+  const exportButton=node("button","earth-addon-entry__action","تصدير Python آمن");
+  exportButton.type="button";
+  exportButton.addEventListener("click",()=>{
+    try{
+      if(!activeCompany(companyId))throw new Error("تغيرت الشركة الحالية");
+      const blob=new Blob([devPython(companyId)],{type:"text/x-python;charset=utf-8"});
+      const url=URL.createObjectURL(blob),a=node("a","");
+      a.href=url;a.download="KOSIF-company-ai-context.py";document.body.append(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+    }catch(e){SK.toast?.(e.message,"bad")}
+  });
+  const instruction=node("p","earth-addon-dialog__note",
+    "الملف يصف قدرات الشركة وعقود التعديل، وليس تحويل المحركات المحاسبية إلى Python. اطلب من AI إعادة اقتراح JSON بالنموذج المضمّن.");
+  const label=node("label","earth-addon-search");
+  label.append(node("span","","استيراد مقترح JSON (للمراجعة فقط)"));
+  const upload=node("input","");
+  upload.type="file";upload.accept=".json,application/json";label.append(upload);
+  const preview=node("div","earth-addon-dialog__results");
+  preview.setAttribute("aria-live","polite");
+  const saveButton=node("button","earth-addon-entry__action","حفظ المقترح لهذه الشركة");
+  saveButton.type="button";saveButton.disabled=true;
+  let staged=null;
+  upload.addEventListener("change",async()=>{
+    staged=null;saveButton.disabled=true;preview.replaceChildren();
+    const f=upload.files?.[0];if(!f)return;
+    try{
+      if(f.size>65536)throw new Error("الحد الأقصى للمقترح 64 كيلوبايت");
+      if(!activeCompany(companyId))throw new Error("تغيرت الشركة الحالية");
+      staged=validateDevProposal(await f.text());
+      if(!activeCompany(companyId))throw new Error("تغيرت الشركة أثناء القراءة");
+      preview.append(node("b","",staged.title),node("p","",staged.summary));
+      for(const ch of staged.changes)preview.append(node("p","",ch.action+" · "+ch.area+" · "+ch.target+" — "+ch.description));
+      saveButton.disabled=false;
+    }catch(e){preview.append(node("p","",e.message))}
+  });
+  saveButton.addEventListener("click",()=>{
+    try{
+      if(!staged||!activeCompany(companyId))throw new Error("لا يوجد مقترح صالح للشركة المفتوحة");
+      const key=devStorageKey(companyId);
+      // Store ONLY the validated structured proposal; do not apply changes to
+      // financial records, execute uploaded code, or touch another company.
+      const approved={...staged,companyId,reviewStatus:"pending",createdAt:new Date().toISOString()};
+      if(SK.save(key,approved)!==true)throw new Error("تعذر حفظ مقترح التطوير");
+      SK.audit?.log?.("ai-development.proposal-stage",{companyId,changeCount:approved.changes.length});
+      preview.append(node("p","","تم حفظ المقترح للمراجعة لهذه الشركة فقط. لم تُطبّق تغييرات على البرنامج."));
+      saveButton.disabled=true;
+    }catch(e){SK.toast?.(e.message,"bad")}
+  });
+  const previous=SK.load(devStorageKey(companyId),null);
+  const history=node("p","earth-addon-dialog__note",
+    previous&&previous.companyId===companyId&&previous.reviewStatus==="pending"?
+      "المقترح السابق بانتظار المراجعة: "+String(previous.title||"").slice(0,120):
+      "لا يوجد مقترح محفوظ لهذه الشركة.");
+  shell.append(header,exportButton,instruction,label,preview,saveButton,history,
+    node("p","earth-addon-dialog__note",
+      "الأمان: المعاينة والحفظ لا ينفذان Python أو JavaScript. تعديل الكود الفعلي أو ترحيل البيانات يتطلب بوابة مراجعة، اختبارات، نسخة رجوع، وموافقة قبل النشر."));
+  dialog.append(shell);document.body.append(dialog);
+  dialog.addEventListener("close",()=>dialog.remove(),{once:true});
+  dialog.showModal();
+}
+
+window.KOSIFEarthAddons=Object.freeze({attach,open,library,openDeveloper,devPython,validateDevProposal,devStorageKey});
 })();
