@@ -1103,3 +1103,24 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Cross-account inventory: 21 repositories, 342 branches, 0 metadata read errors. Branch SHA CSV + candidate reuse matrix in docs/rebuild/KOSIF_EARTH_INTELLIGENT_UI_REPO_REUSE_HANDOFF_20261010_AR.md; no bulk cherry-picks.
 - NEXT ACTION: rerun browser acceptance with scoped audit, push branch to GitHub and open draft PR; compare remote-branch diff inventories, separately stress-test audit report exports and server authorization.
 - Risks: client-local audit logs are not a server-enforced RBAC or immutable audit ledger. The previous full-suite 27 historical failures are not resolved by focused green tests. Keep all production, secrets, original dirty worktrees unchanged.
+
+### TASK CLAUDE-20261012-010 — Integrate the open PR lane into one branch; KOSIF EARTH motion graphics
+- Agent: Claude (Lead Development Agent)
+- Status: IN PROGRESS (branch `claude/earth-integration-20261012`; preview deploy, then owner approval before main)
+- Owner request: «اضف كد الفروع وادمجها وطور التطبيق اضف انميشن وموشن جرافيك للموقع».
+- Merged into the branch (no-ff): #239 #240 #241 #242 #243 #245 #246 #252 #253 #257 #269 #271. Workflow files kept from
+  main where the PRs only changed the `if:` list; worklog conflicts resolved by union; `ui/core/company.js` conflicts
+  were comment-only (main already carries the code from db394b6).
+- Not merged, with reasons: #259 #261 #264 #268 superseded by main db394b6 (same fixes ported); #249 #250 the duplicate
+  `open` key is already gone on main; #251 #255 superseded by the merged #241/#242/#269 (9–14 real hunks in tb-review /
+  feature_audit / identity_check); #254 (541k-line repository imports), #247 (manual merge — canonical doc says do not
+  merge), #258 (conflicting, 2k lines), #263 (WIP), #237 (4K concept assets only), #256 (fetch refused), #266/#265
+  (older drafts of #271).
+- Ratchets repaired after the merges: manifest theme_color back to #1d1814 (identity_unity), earth-adaptive focus rule
+  dropped (the global :focus-visible applies), its reduced-motion rule without !important, spacing on the 4 px grid,
+  copper rail without !important — identity_audit back at baseline.
+- Motion graphics: door layer `ui/art/brand/earth-motion.{css,js}` (orbit ring + light rays + pointer parallax in the
+  visual column, entrance choreography wordmark → claim → section cards → goal/steps/result path, 3D tilt + light sweep
+  on cards, re-stagger of sectors/companies, html.em-lite under reduced motion / save-data / ≤2 GB); app `ui/core/motion.js`
+  v2 (scroll reveal past the first ten blocks, figure count-up ending on the rendered text) + luxe.css «motion v2».
+  Guard: `tools/earth_motion.test.mjs`. The reviewed unlock script is untouched (unlock_runtime 5/5).

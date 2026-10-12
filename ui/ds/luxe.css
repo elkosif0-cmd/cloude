@@ -375,6 +375,17 @@ table.sktb-dense td,table.sktb-dense th{padding-block:4px!important;font-size:va
 .nav-btn{transition:background-color var(--sk-t) var(--sk-ease-out),box-shadow var(--sk-t) var(--sk-ease-out),color var(--sk-t) var(--sk-ease-out)}
 @media (hover:hover) and (pointer:fine){.card{transition:box-shadow 220ms var(--sk-ease-out),border-color 220ms var(--sk-ease-out)}.card:hover{box-shadow:var(--sk-shadow-2,0 14px 40px -24px rgba(11,28,51,.35))}}
 @media (prefers-reduced-motion:reduce){#view.sk-enter>*,#view.sk-enter>.sk-view>*,.skd-wrap .skd,.sk-menu,.toast{animation:none}.btn:active:not(:disabled){transform:none}}
+/* motion v2 (KOSIF EARTH): blocks past the first ten rise as they scroll in; figures count up (tabular while moving);
+   stat tiles and command-centre cards lift under a fine pointer; a shimmer for anything still loading (.sk-skel). */
+@keyframes sk-reveal-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes sk-shimmer{to{background-position:-200% 0}}
+#view .sk-reveal{opacity:0}
+#view .sk-reveal.sk-shown{animation:sk-reveal-in var(--sk-motion-enter) var(--sk-ease-out) both}
+.sk-counting{font-variant-numeric:tabular-nums}
+.stat,.skc-card{transition:transform 220ms var(--sk-ease-out),box-shadow 220ms var(--sk-ease-out)}
+@media (hover:hover) and (pointer:fine){.stat:hover,.skc-card:hover{transform:translateY(-4px);box-shadow:var(--sk-shadow-2)}}
+.sk-skel{color:transparent;border-radius:var(--sk-radius-sm,8px);background:linear-gradient(90deg,var(--sk-surface-2),var(--sk-surface),var(--sk-surface-2));background-size:200% 100%;animation:sk-shimmer 1.4s linear infinite}
+@media (prefers-reduced-motion:reduce){#view .sk-reveal{opacity:1}#view .sk-reveal.sk-shown,.sk-skel{animation:none}.stat:hover,.skc-card:hover{transform:none}}
 
 /* ================= Modal, Window & Sheet Graphic Enhancements ================= */
 .skd-wrap, .modal {

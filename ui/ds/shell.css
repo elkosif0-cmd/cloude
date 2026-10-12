@@ -559,7 +559,7 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 :root[data-look="aurora"] body{background:radial-gradient(900px 520px at 100% -10%,rgba(123,97,255,.16),transparent 60%),radial-gradient(800px 520px at -10% 30%,rgba(0,179,255,.14),transparent 60%),radial-gradient(700px 500px at 60% 110%,rgba(10,102,255,.1),transparent 60%),var(--sk-bg) fixed}
 :root[data-look="aurora"][data-theme="dark"] body{background:radial-gradient(900px 520px at 100% -10%,rgba(123,97,255,.22),transparent 60%),radial-gradient(800px 520px at -10% 30%,rgba(0,179,255,.14),transparent 60%),var(--sk-bg) fixed}
 :root[data-look="aurora"] .card,:root[data-look="aurora"] .skc-card,:root[data-look="aurora"] .sk-kpi,:root[data-look="aurora"] .sk-ph,:root[data-look="aurora"] .topbar{background:color-mix(in srgb,var(--sk-surface) 74%,transparent)!important;backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);border-color:color-mix(in srgb,var(--sk-line) 70%,transparent)!important}
-:root[data-look="aurora"] .rail{background:var(--sk-grad-rail)!important;backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-inline-start:1px solid var(--sk-line)}
+:root[data-look="aurora"] .rail{background:var(--sk-grad-rail);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-inline-start:1px solid var(--sk-line)}
 :root[data-look="aurora"] .nav-btn[aria-current="page"]{background:var(--sk-rail-active);color:var(--sk-brand);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sk-brand) 22%,transparent)}
 :root[data-look="aurora"] .btn.primary{background:var(--sk-grad-brand);border:0;box-shadow:0 10px 24px -12px rgba(10,102,255,.6)}
 /* النابض — the attached dashboard's light theme: soft colour light, indigo actions, gradient scrollbars */
@@ -755,7 +755,7 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 
 
 /* Copper Executive: optional premium look, no overrides for the approved default office. */
-:root[data-look="copper"] .rail{background:var(--sk-grad-rail)!important;border-inline-start:1px solid rgba(231,165,116,.22)}
+:root[data-look="copper"] .rail{background:var(--sk-grad-rail);border-inline-start:1px solid rgba(231,165,116,.22)}
 :root[data-look="copper"] .nav-btn[aria-current="page"]{background:var(--sk-rail-active);color:var(--sk-rail-ink);box-shadow:inset -3px 0 0 var(--sk-brand-2)}
 :root[data-look="copper"] .nav-btn[aria-current="page"] svg{color:var(--sk-rail-ink)}
 :root[data-look="copper"] .card,:root[data-look="copper"] .skc-card{border-color:var(--sk-line)}
