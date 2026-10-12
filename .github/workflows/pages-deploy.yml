@@ -26,6 +26,8 @@ permissions:
 
 jobs:
   deploy:
+    # Never publish the autonomous 1000-agent audit branch, even as a Pages preview.
+    if: github.ref_name != 'audit/claude-1000-20261012'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
