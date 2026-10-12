@@ -1,0 +1,44 @@
+name: KOSIF Claude Deterministic 1000 Source Workers
+on:
+  push:
+    branches:
+      - audit/claude-1000-20261012
+    paths:
+      - .github/workflows/claude-deterministic-1000.yml
+permissions:
+  contents: read
+concurrency:
+  group: kosif-claude-deterministic-1000-20261012
+  cancel-in-progress: false
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 42
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: elkosif0-cmd/cloude
+    steps:
+      - name: Checkout without saving credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify syntax, budget guard, and isolated no-deploy branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/claude_deterministic_1000.py
+          grep -F 'CAP_USD = 42.0' tools/claude_deterministic_1000.py
+          grep -F 'MAX_WORKERS = 1000' tools/claude_deterministic_1000.py
+          grep -F "if: github.ref_name != 'audit/claude-1000-20261012'" .github/workflows/pages-deploy.yml
+          test -n "$ANTHROPIC_API_KEY"
+      - name: Run independent budget-metered Claude API source reviewers
+        run: python3 tools/claude_deterministic_1000.py
+      - name: Preserve source manifest, real token receipts, and findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kosif-claude-deterministic-${{ github.run_id }}
+          path: claude-worker-evidence/
+          retention-days: 14
+          if-no-files-found: warn
