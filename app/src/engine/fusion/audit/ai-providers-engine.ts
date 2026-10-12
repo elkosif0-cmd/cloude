@@ -19,7 +19,7 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
   openai: { id: 'openai', ar: 'OpenAI', base: 'https://api.openai.com/v1/', keyHint: 'sk-…', keyPattern: /^sk-[\w-]{20,}$/,
     keyLink: 'https://platform.openai.com/api-keys', models: ['gpt-5', 'gpt-5-mini', 'gpt-4.1'], host: 'api.openai.com' },
   anthropic: { id: 'anthropic', ar: 'Anthropic Claude', base: 'https://api.anthropic.com/v1/', keyHint: 'sk-ant-…', keyPattern: /^sk-ant-[\w-]{20,}$/,
-    keyLink: 'https://platform.claude.com/settings/keys', models: ['claude-opus-5-5', 'claude-sonnet-5', 'claude-haiku-4-5'], host: 'api.anthropic.com' },
+    keyLink: 'https://platform.claude.com/settings/keys', models: ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'], host: 'api.anthropic.com' },
 };
 export const isProvider = (x: unknown): x is ProviderId => x === 'gemini' || x === 'openai' || x === 'anthropic';
 
