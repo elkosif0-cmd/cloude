@@ -19,3 +19,11 @@ workers_dev = true
 # [[r2_buckets]]
 # binding = "DOCUMENTS"
 # bucket_name = "s-kosif-documents"
+
+# Claude is OFF by default. Enable only after Cloudflare Access, D1 migration
+# and the Anthropic secret are configured on this dedicated worker.
+[vars]
+AI_ENABLED = "false"
+AI_DAILY_LIMIT = "5"
+ANTHROPIC_MODEL = "claude-opus-5-5"
+ALLOWED_ORIGINS = "https://earth.kosif.pp.ua"
