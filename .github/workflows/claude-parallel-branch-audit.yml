@@ -1,0 +1,57 @@
+name: Claude parallel branch audit (read-only)
+
+# Manual activation only. No code from reviewed branches is executed.
+# The only API secret is GitHub Actions' encrypted MOON.
+on:
+  workflow_dispatch:
+    inputs:
+      branch_limit:
+        description: 'Maximum branches to inventory (1-500)'
+        required: true
+        default: '300'
+        type: string
+      agent_calls:
+        description: 'Maximum economy Claude agent requests (1-32)'
+        required: true
+        default: '20'
+        type: string
+      parallelism:
+        description: 'Maximum concurrent Claude calls (1-8)'
+        required: true
+        default: '6'
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: claude-parallel-branch-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_TOKEN: ${{ github.token }}
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+      BRANCH_LIMIT: ${{ inputs.branch_limit }}
+      CALL_LIMIT: ${{ inputs.agent_calls }}
+      MAX_PARALLEL: ${{ inputs.parallelism }}
+    steps:
+      - name: Checkout trusted main (never review-branch code)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Audit branches with bounded parallel Haiku agents
+        run: python3 tools/claude_branch_swarm.py
+      - name: Upload branch inventory and Claude recommendations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-branch-audit
+          path: branch-audit-reports/
+          if-no-files-found: warn
+          retention-days: 14

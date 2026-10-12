@@ -1,0 +1,40 @@
+name: KOSIF EARTH - Resume Existing Claude Session With GitHub Evidence
+on:
+  push:
+    branches:
+      - audit/claude-1000-20261012
+    paths:
+      - .github/workflows/claude-1000-resume.yml
+permissions:
+  contents: read
+concurrency:
+  group: kosif-claude-existing-session-resume-20261012
+  cancel-in-progress: false
+jobs:
+  resume-existing:
+    name: Resume same $17 capped Claude session
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout isolated branch without persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Preflight - no publishing, script compiles
+        run: |
+          set -euo pipefail
+          grep -F "if: github.ref_name != 'audit/claude-1000-20261012'" .github/workflows/pages-deploy.yml
+          python3 -m py_compile tools/claude_resume_1000.py
+      - name: Compare GitHub branches and continue same Claude session
+        run: python3 tools/claude_resume_1000.py
+      - name: Save read-only coverage and Claude checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kosif-1000-evidence-${{ github.run_id }}
+          path: claude-1000-resume-evidence/
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,54 @@
+name: Claude - 100 Agent Read Only Branch Audit
+
+# This file is introduced on a dedicated non-production branch.
+# Its one-time branch push starts the first tightly budgeted scan.
+on:
+  push:
+    branches:
+      - integration/claude-parallel-branch-audit-20261012
+    paths:
+      - .github/workflows/claude-100-agent-swarm.yml
+  workflow_dispatch:
+    inputs:
+      launch:
+        description: 'Start 100 read-only Claude agents; incurs capped API costs'
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: claude-100-agent-swarm
+  cancel-in-progress: false
+
+jobs:
+  swarm:
+    if: github.event_name == 'push' || inputs.launch == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+      CLAUDE_SWARM_BUDGET_CENTS: '500'
+    steps:
+      - name: Checkout trusted read-only swarm driver
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Sanity-check driver
+        run: python3 -m py_compile tools/claude_100_agent_swarm.py
+      - name: Discover public repositories and launch managed Claude swarm
+        run: python3 tools/claude_100_agent_swarm.py --launch
+      - name: Preserve manifest, agent IDs and review results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-100-agent-audit-${{ github.run_id }}
+          path: |
+            claude-swarm-manifest.json
+            claude-swarm-run.json
+            claude-swarm-report.md
+          if-no-files-found: warn
+          retention-days: 14
