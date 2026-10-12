@@ -26,6 +26,8 @@ permissions:
 
 jobs:
   deploy:
+    # Prohibit staging-only accounting control changes from being published as previews.
+    if: github.ref_name != 'fix/kosif-journal-validation-20261012'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
