@@ -21,6 +21,7 @@ const space=()=>window.SKosifSpace||null;
 const SCOPES=Object.freeze({accounting:"FULL_ACCOUNTING",audit:"AUDIT_ONLY",tools:"TOOLS_ONLY"});
 const scopeOfRec=rec=>rec&&Object.values(SCOPES).includes(rec.ownerScope)?rec.ownerScope:SCOPES.accounting;
 const gateNow=()=>{try{return SK.gate&&SK.gate.current?SK.gate.current():"accounting"}catch{return "accounting"}};
+const scopeForUnregistered=()=>SCOPES[gateNow()]||SCOPES.accounting;
 function books(){
   const d=load(CO,{})||{};
   return{companies:Array.isArray(d.companies)?d.companies.filter(c=>c&&c.id):[],periods:Array.isArray(d.periods)?d.periods.filter(p=>p&&p.id):[],
@@ -36,7 +37,7 @@ function current(){
   const periods=d.periods.filter(p=>p.companyId===id||!p.companyId),period=periods.find(p=>p.id===d.active.periodId)||null;
   /* the sector (FOUNDATION §3.7) is the company's own; the demo company is a meat company; a company recorded before
      sectors existed is general trade */
-  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",sector:(rec&&rec.sector)||(id===DEMO.id?DEMO.sector:"trade"),packPending:!!(rec&&rec.packPending),model:!!(rec&&rec.model),locked:!!id&&privateId()===id,demo:id===DEMO.id,ownerScope:scopeOfRec(rec),period,periods});
+  return Object.freeze({id,name,currency:(rec&&rec.currency)||"SAR",country:(rec&&rec.country)||"SA",sector:(rec&&rec.sector)||(id===DEMO.id?DEMO.sector:"trade"),packPending:!!(rec&&rec.packPending),model:!!(rec&&rec.model),locked:!!id&&privateId()===id,demo:id===DEMO.id,ownerScope:rec?scopeOfRec(rec):scopeForUnregistered(),period,periods});
 }
 /* every company this device knows: the open one first; the private one only while it is the open one */
 function list(){
@@ -46,7 +47,7 @@ function list(){
   ((space()&&space().list&&space().list())||[]).forEach(o=>{if(o&&o.id&&!seen.has(o.id)){seen.add(o.id);const b=fromBooks(o.id);out.push({id:o.id,name:clean(b&&b.name)||clean(o.name)||o.id,currency:b&&b.currency,demo:o.id===DEMO.id})}});
   d.companies.forEach(c=>{if(!seen.has(c.id)){seen.add(c.id);out.push({id:c.id,name:clean(c.name)||c.id,currency:c.currency,demo:c.id===DEMO.id})}});
   if(!seen.has(DEMO.id))out.push({id:DEMO.id,name:DEMO.name,demo:true});
-  out.forEach(o=>{o.ownerScope=scopeOfRec(fromBooks(o.id))});
+  out.forEach(o=>{const rec=fromBooks(o.id);o.ownerScope=rec?scopeOfRec(rec):o.id===cur.id?cur.ownerScope:SCOPES.accounting});
   return gateNow()==="tools"?out:out.filter(o=>o.open||o.ownerScope!==SCOPES.tools);
 }
 /* open a company: its data replaces the open one (the app reloads); the private company goes through the front door */
@@ -70,7 +71,7 @@ function setOrgName(name){const c=window.SKosifCore;return!!(c&&c.setOrg&&c.setO
 /* rename the open company everywhere: the books, the spaces, the business name */
 function rename(name){
   name=clean(name);if(!name)return false;const cur=current(),d=books();
-  d.rest.companies=d.companies.map(c=>c.id===cur.id?{...c,name}:c);if(!d.rest.companies.some(c=>c.id===cur.id))d.rest.companies.push({id:cur.id,name,country:"SA",currency:"SAR"});
+  d.rest.companies=d.companies.map(c=>c.id===cur.id?{...c,name}:c);if(!d.rest.companies.some(c=>c.id===cur.id))d.rest.companies.push({id:cur.id,name,country:"SA",currency:"SAR",ownerScope:cur.ownerScope});
   save(CO,d.rest);
   if(space()&&space().rename)space().rename(cur.id,name);
   setOrgName(name);
@@ -87,7 +88,7 @@ function updateMeta(patch={}){
   const want=clean(patch.sector||cur.sector||"trade"),sector=SK.caps&&SK.caps.sector&&SK.caps.sector(want)?want:cur.sector||"trade";
   let found=false;
   d.rest.companies=d.companies.map(c=>{if(c.id!==cur.id)return c;found=true;return{...c,country,currency,sector,...("packPending" in patch?{packPending:!!patch.packPending}:{})}});
-  if(!found)d.rest.companies.push({id:cur.id,name:cur.name,country,currency,sector});
+  if(!found)d.rest.companies.push({id:cur.id,name:cur.name,country,currency,sector,ownerScope:cur.ownerScope});
   if(save(CO,d.rest)!==true)return false;
   SK.bus&&SK.bus.emit("company",{companyId:cur.id,country,currency,sector});
   return true;
@@ -98,7 +99,14 @@ function updateMeta(patch={}){
 function provisional(){const cur=current();if(cur.id!=="space-main")return false;const d=books();return !d.companies.some(c=>c.id===cur.id)}
 function reconcile(){
   const cur=current(),d=books(),changed=[];if(!cur.id||provisional())return changed;
-  if(!d.companies.some(c=>c.id===cur.id)){d.rest.companies=[...d.companies,{id:cur.id,name:cur.name,country:cur.country,currency:cur.currency}];changed.push("books-record")}
+  const rec=d.companies.find(c=>c.id===cur.id);
+  if(!rec){
+    d.rest.companies=[...d.companies,{id:cur.id,name:cur.name,country:cur.country,currency:cur.currency,ownerScope:cur.ownerScope}];
+    changed.push("books-record");
+  }else if(cur.id==="space-tools"&&gateNow()==="tools"&&!rec.ownerScope){
+    d.rest.companies=d.companies.map(c=>c.id===cur.id?{...c,ownerScope:SCOPES.tools}:c);
+    changed.push("reserved-tools-scope");
+  }
   if(d.active.companyId!==cur.id){d.rest.active={companyId:cur.id};changed.push("books-active")}
   else if(d.active.periodId&&!d.periods.some(p=>p.id===d.active.periodId&&(p.companyId===cur.id||!p.companyId))){d.rest.active={companyId:cur.id};changed.push("books-period")}
   if(changed.length)save(CO,d.rest);

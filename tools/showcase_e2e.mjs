@@ -1,6 +1,6 @@
 // SQC — the showcase: any company of the research bundle, audited end to end, then toured (regression test).
 // On a laptop, a 390px phone and a 320px phone, from a first start:
-//   • «▶ نموذج عرض القدرات» in the audit files bar opens the picker with all 47 statement sets (43 companies); the search and the sector
+//   • «▶ نموذج عرض القدرات» in the audit files bar opens the picker with all 48 available company models (including the synthetic meat factory); the search and the sector
 //     filter narrow it; every visible control of the picker stays on the screen;
 //   • «عرض القدرات» on a company opens its own engagement file (its trial balance from its published statements), runs
 //     the full audit without an AI key (rounds, documents, adjustments, final report) and shows the tour;
@@ -50,11 +50,11 @@ for (const [tag, opts] of [['laptop', { viewport: { width: 1366, height: 900 } }
   await p.click('#view .tbr-files [data-bundle-open]');
   await p.waitForSelector('#tbr-bundle [data-bundle-show]', { timeout: 15000 });
   const all = await p.locator('#tbr-bundle [data-bundle-show]').count();
-  ok(tag, 'the picker lists every company of the bundle', all === 47, `${all}`);
+  ok(tag, 'the picker lists every company of the bundle', all === 48, `${all}`);
   const pf = await p.evaluate(FITS, '#tbr-bundle'); if (pf.length) { failures.push(`${tag} ✗ picker controls off screen — ${pf.join('; ')}`); console.log(failures.at(-1)); }
   await p.fill('#tbr-bundle [data-bundle-q]', 'Aramco');
   const q = await p.locator('#tbr-bundle [data-bundle-show]').count();
-  ok(tag, 'the search narrows the list', q >= 1 && q < 47, `${q}`);
+  ok(tag, 'the search narrows the list', q >= 1 && q < 48, `${q}`);
   await p.fill('#tbr-bundle [data-bundle-q]', '');
   const sec = await p.evaluate(() => { const s = document.querySelector('#tbr-bundle [data-bundle-sector]'); const o = [...s.options].find((x) => x.value === 'banking'); if (!o) return null; s.value = 'banking'; s.dispatchEvent(new Event('change', { bubbles: true })); return document.querySelectorAll('#tbr-bundle [data-bundle-show]').length; });
   ok(tag, 'the sector filter narrows the list', sec !== null && sec >= 1 && sec < 47, `${sec}`);

@@ -4172,7 +4172,7 @@ window.SKEngines = (function() {
 		const hasPrior = rows.some((r) => r.prior !== null);
 		const priorDifference = hasPrior ? rows.reduce((a, r) => a + (r.prior ?? 0), 0) : null;
 		return {
-			ok: rows.length > 0,
+			ok: rows.length > 0 && errors.length === 0,
 			rows,
 			errors,
 			totals: {
@@ -4271,8 +4271,28 @@ window.SKEngines = (function() {
 				return;
 			}
 			let prior = null;
-			if (columns.priorDebit !== void 0 || columns.priorCredit !== void 0) prior = (cell("priorDebit") ?? 0) - (cell("priorCredit") ?? 0);
-			else if (columns.prior !== void 0) prior = cell("prior");
+			if (columns.priorDebit !== void 0 || columns.priorCredit !== void 0) {
+				const pd = cell("priorDebit"), pc = cell("priorCredit");
+				if (pd === null || pc === null) {
+					errors.push({
+						line: lineNo,
+						code: "AMOUNT_NOT_NUMERIC",
+						message: "مبلغ المقارنة غير صالح في السطر " + lineNo
+					});
+					return;
+				}
+				prior = pd - pc;
+			} else if (columns.prior !== void 0) {
+				prior = cell("prior");
+				if (prior === null) {
+					errors.push({
+						line: lineNo,
+						code: "AMOUNT_NOT_NUMERIC",
+						message: "رصيد السنة السابقة غير صالح في السطر " + lineNo
+					});
+					return;
+				}
+			}
 			if (seen.has(code) && code) errors.push({
 				line: lineNo,
 				code: "DUPLICATE_ACCOUNT",
@@ -25647,6 +25667,10 @@ window.SKEngines = (function() {
 		let totalCredit = 0;
 		if (!Array.isArray(entry.lines) || entry.lines.length < 2) issues.push({ code: "JOURNAL_TOO_FEW_LINES" });
 		(Array.isArray(entry.lines) ? entry.lines : []).forEach((line, lineIndex) => {
+			if (typeof line.accountId !== "string" || !line.accountId.trim()) issues.push({
+				code: "LINE_ACCOUNT_REQUIRED",
+				lineIndex
+			});
 			const debit = Number(line.debit);
 			const credit = Number(line.credit);
 			if (!Number.isFinite(debit) || !Number.isFinite(credit)) {

@@ -139,7 +139,7 @@ function finish(rows: TbRow[], errors: TbError[], columns: Record<string, number
   const debit = rows.reduce((a, r) => a + r.debit, 0), credit = rows.reduce((a, r) => a + r.credit, 0);
   const hasPrior = rows.some((r) => r.prior !== null);
   const priorDifference = hasPrior ? rows.reduce((a, r) => a + (r.prior ?? 0), 0) : null;
-  return { ok: rows.length > 0, rows, errors, totals: { debit, credit }, difference: debit - credit, balanced: debit === credit,
+  return { ok: rows.length > 0 && errors.length === 0, rows, errors, totals: { debit, credit }, difference: debit - credit, balanced: debit === credit,
     hasPrior, priorDifference, unclassified: rows.filter((r) => r.type === 'suspense').length, columns, delimiter };
 }
 
@@ -188,8 +188,19 @@ export function parseTrialBalance(text: string, opts: { delimiter?: string; over
     if (debit === null || credit === null) { errors.push({ line: lineNo, code: 'AMOUNT_NOT_NUMERIC', message: `مبلغ غير صالح في السطر ${lineNo}` }); return; }
     let prior: Minor | null = null;
     if (columns.priorDebit !== undefined || columns.priorCredit !== undefined) {
-      const pd = cell('priorDebit') ?? 0, pc = cell('priorCredit') ?? 0; prior = pd - pc;
-    } else if (columns.prior !== undefined) prior = cell('prior');
+      const pd = cell('priorDebit'), pc = cell('priorCredit');
+      if (pd === null || pc === null) {
+        errors.push({ line: lineNo, code: 'AMOUNT_NOT_NUMERIC', message: 'مبلغ المقارنة غير صالح في السطر ' + lineNo });
+        return;
+      }
+      prior = pd - pc;
+    } else if (columns.prior !== undefined) {
+      prior = cell('prior');
+      if (prior === null) {
+        errors.push({ line: lineNo, code: 'AMOUNT_NOT_NUMERIC', message: 'رصيد السنة السابقة غير صالح في السطر ' + lineNo });
+        return;
+      }
+    }
     if (seen.has(code) && code) errors.push({ line: lineNo, code: 'DUPLICATE_ACCOUNT', message: `الحساب ${code} مكرر (السطر ${seen.get(code)} والسطر ${lineNo})` });
     else seen.set(code, lineNo);
     rows.push(makeRow(lineNo, code, name, debit, credit, prior, opts.overrides?.[code]));

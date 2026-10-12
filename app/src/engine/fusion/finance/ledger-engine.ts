@@ -18,6 +18,7 @@ export type JournalIssueCode =
   | 'LINE_NEGATIVE_AMOUNT'
   | 'LINE_ZERO_AMOUNT'
   | 'LINE_NON_FINITE_AMOUNT'
+  | 'LINE_ACCOUNT_REQUIRED'
   | 'JOURNAL_TOO_FEW_LINES'
   | 'JOURNAL_EMPTY_TOTAL';
 
@@ -63,6 +64,9 @@ export function validateJournalEntry(entry: JournalEntry): ValidationResult {
   }
 
   (Array.isArray(entry.lines) ? entry.lines : []).forEach((line, lineIndex) => {
+    if (typeof line.accountId !== 'string' || !line.accountId.trim()) {
+      issues.push({ code: 'LINE_ACCOUNT_REQUIRED', lineIndex });
+    }
     const debit = Number(line.debit);
     const credit = Number(line.credit);
 
