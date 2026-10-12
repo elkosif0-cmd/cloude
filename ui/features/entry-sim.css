@@ -40,6 +40,12 @@
 .js-list small{color:var(--sk-ink-3)}
 .js-log{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13px}
 .js-log small{color:var(--sk-ink-3);font-variant-numeric:tabular-nums;margin-inline-end:6px}
+/* The fixed phone quick-nav must never cover the last actionable journal
+   controls, including the suggestion/post buttons when scrolled into view. */
+@media (max-width:900px){
+  .js-shell{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
+  .js-shell [data-js="run"],.js-shell [data-js="post"]{scroll-margin-block:100px}
+}
 @media (max-width:640px){
   .js-er{grid-template-columns:1fr 1fr;}
   .js-er input[data-je="name"]{grid-column:1/-1;order:-1}
