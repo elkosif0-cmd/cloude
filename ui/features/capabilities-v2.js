@@ -169,7 +169,7 @@ async function deleteRemoteDocument(documentId){
   return api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/documents/"+encodeURIComponent(documentId),{method:"DELETE",timeoutMs:15000});
 }
 
-let root=null,state={tab:"overview",busy:false,session:null,providers:null,workspace:null,remoteError:""};
+let root=null,state={tab:"overview",busy:false,session:null,providers:null,workspace:null,remoteError:"",claudeAnswer:"",claudeError:"",claudeBusy:false};
 const workspaceRole=()=>state.workspace?.workspace_role||state.session?.session?.role||rolePreview();
 function badge(ok,label){return '<span class="skv2-badge '+(ok?"ok":"muted")+'">'+esc(label)+'</span>'}
 function overviewHTML(){
@@ -205,6 +205,52 @@ function rolesHTML(){
     '<div class="skv2-matrix"><table><thead><tr><th>الصلاحية</th>'+Object.keys(PERMISSIONS).map(x=>'<th>'+ROLE_AR[x]+'</th>').join("")+'</tr></thead><tbody>'+names.map(p=>'<tr><td><code>'+p+'</code></td>'+Object.keys(PERMISSIONS).map(x=>'<td class="'+(authorizeRole(x,p)?"yes":"no")+'">'+(authorizeRole(x,p)?"✓":"—")+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'+
     '<div class="skv2-current"><b>الصلاحيات الحالية:</b> '+perms.map(p=>'<code>'+esc(p)+'</code>').join(" ")+'</div>';
 }
+/* The Claude reviewer receives aggregate numbers only, not company identity,
+   customer transactions, document bytes or local API credentials. */
+async function reviewWithClaude(question,task){
+  if(!cfg().apiBase || !state.session || !state.providers?.providers?.some(p=>p.id==="claude"&&p.canRun))
+    throw new Error("خدمة Claude الآمنة غير مهيأة على الخادم");
+  const currentCompany=companyRef().id;
+  const companyScope=window.SKosifSpace?.chatScopeSnapshot?.();
+  if(!companyScope || companyScope.status!=="stable" || companyScope.companyId!==currentCompany)
+    throw new Error("أكّد الشركة والمستخدم الحاليين قبل مراجعة Claude");
+  const scopeToken=companyScope.token;
+  const validScope=()=>{const x=window.SKosifSpace?.chatScopeSnapshot?.();return x?.status==="stable"&&x.companyId===currentCompany&&x.token===scopeToken};
+  const id=await ensureRemoteWorkspace();
+  if(!validScope()||companyRef().id!==currentCompany)throw new Error("تغيّر سياق الشركة أثناء الطلب");
+  const snapshot=safeSummary();
+  const data={
+    task,question,consent:true,
+    metrics:{
+      receipts:Number(snapshot.financeSummary?.receipts)||0,
+      payments:Number(snapshot.financeSummary?.payments)||0,
+      inventoryItems:Number(snapshot.inventorySummary?.tracked)||0,
+      reorderAlerts:Number(snapshot.inventorySummary?.reorderAlerts)||0,
+      netProfit:Number(snapshot.reporting?.lastNetProfit)||0
+    }
+  };
+  const result=await api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/ai/review",{
+    method:"POST",body:JSON.stringify(data),timeoutMs:30000
+  });
+  if(!validScope()||companyRef().id!==currentCompany)throw new Error("تغيّرت الشركة؛ تم تجاهل الإجابة حفاظاً على العزل");
+  return result;
+}
+function claudeHTML(){
+  const claude=(state.providers?.providers||[]).find(x=>x.id==="claude");
+  const ready=Boolean(cfg().apiBase&&state.session&&claude?.canRun);
+  const allowed=["owner","partner","manager","senior"].includes(workspaceRole())&&state.session;
+  return '<section class="skv2-panel" id="skv2-claude-review"><h4>Claude — مراجعة محاسبية آمنة</h4>'+
+    '<p class="skv2-note">يراجع Claude أرقاماً مجمعة فقط، بدون أسماء شركات أو عملاء أو قيود أو مستندات خام. يتطلب Cloudflare Access وخادمًا مُهيأ وموافقتك قبل إرسال الملخص.</p>'+
+    '<label class="sk-field"><span>نوع المراجعة</span><select id="skv2-claude-task"><option value="accounting">الحسابات</option><option value="audit">المراجعة والتدقيق</option><option value="reporting">القوائم والتقارير</option></select></label>'+
+    '<label class="sk-field"><span>السؤال</span><textarea id="skv2-claude-question" rows="3" maxlength="900" placeholder="راجع توازن الأرقام والمؤشرات وحدد الأدلة الناقصة"></textarea></label>'+
+    '<label><input type="checkbox" id="skv2-claude-consent"> أوافق على إرسال المؤشرات المالية المجمعة إلى Anthropic لمراجعتها</label>'+
+    '<div class="skv2-actions"><button type="button" class="btn primary" id="skv2-claude-run" '+
+       ((!ready||!allowed||state.claudeBusy)?'disabled':'')+'>مراجعة مع Claude</button></div>'+
+    (ready?'':'<p class="skv2-note">Claude غير مفعّل بعد على الخادم، أو جلسة Cloudflare Access غير متصلة.</p>')+
+    (state.claudeError?'<p class="skv2-note">'+esc(state.claudeError)+'</p>':'')+
+    (state.claudeAnswer?'<div class="skv2-last" dir="auto" role="status"><b>اقتراح Claude — غير معتمد ولا يرحّل قيوداً</b><p style="white-space:pre-wrap">'+esc(state.claudeAnswer)+'</p></div>':'')+
+    '</section>';
+}
 function providersHTML(){
   const remote=state.providers?.providers||[];
   const local=[
@@ -213,7 +259,7 @@ function providersHTML(){
   ];
   const rows=(remote.length?remote:local);
   return '<div class="skv2-providers">'+rows.map(p=>'<div><span class="skv2-provider-dot '+(p.status==="ready"||p.status==="configured"?"ok":"")+'"></span><div><b>'+esc(p.name||p.id)+'</b><small>'+esc(p.id)+' · '+esc(p.dataPolicy||"summary-only")+'</small></div>'+badge(p.status==="ready"||p.status==="configured",p.status||"unknown")+'</div>').join("")+'</div>'+
-    '<p class="skv2-note">مفاتيح OpenAI/Gemini/Claude لا تُخزن ولا تُدخل في المتصفح. سجل المزودات يعرض حالة الإعداد فقط.</p>';
+    '<p class="skv2-note">المفتاح الخادمي لا يدخل المتصفح. تشغيل Claude يحتاج Auth مُوقّع، حد طلبات، وموافقة صريحة.</p>'+claudeHTML();
 }
 function integrityHTML(){
   const d=localData();
@@ -263,6 +309,18 @@ function bind(){
   const sh=$("#skv2-share",root);if(sh)sh.onclick=async()=>{const v=await SK.form("مشاركة الشركة",[{key:"subject",label:"بريد المستخدم",type:"email",required:true,placeholder:"user@example.com"},{key:"role",label:"الدور",type:"select",value:"viewer",options:[["partner","شريك"],["manager","مدير"],["senior","محاسب أول"],["viewer","مشاهدة فقط"]]}],{ok:"منح الوصول",message:"في المساحات الحساسة مثل تصيف لن تظهر الشركة للمستخدم أصلًا قبل هذا المنح الصريح."});if(!v)return;sh.disabled=true;try{await shareRemote(v.subject,v.role);toast("تم منح الوصول للشركة","ok")}catch(e){toast("تعذر المشاركة: "+e.message,"err")}finally{sh.disabled=false}};
   const vf=$("#skv2-verify",root);if(vf)vf.onclick=async()=>{const r=await verifyLocal();toast(r.valid?"سلسلة النزاهة سليمة ("+r.entries+")":"اكتُشف كسر عند #"+r.broken_seq,r.valid?"ok":"err")};
   const rr=$("#skv2-role",root);if(rr)rr.onchange=()=>{save(ROLE_KEY,rr.value);toast("تم تغيير دور المعاينة","info");paint()};
+  const ar=$("#skv2-claude-run",root);if(ar)ar.onclick=async()=>{
+    if(state.claudeBusy)return;
+    const consent=$("#skv2-claude-consent",root)?.checked;
+    if(!consent)return toast("وافِق صراحة على إرسال الأرقام المجمّعة أولاً","warn");
+    const question=String($("#skv2-claude-question",root)?.value||"").trim();
+    if(question.length<5)return toast("اكتب سؤالاً للمراجعة","warn");
+    const task=$("#skv2-claude-task",root)?.value||"accounting";
+    state.claudeBusy=true;state.claudeError="";state.claudeAnswer="";ar.disabled=true;
+    try{const result=await reviewWithClaude(question,task);state.claudeAnswer=result.answer||""}
+    catch(e){state.claudeError="تعذرت مراجعة Claude: "+(e.message||"خطأ اتصال")}
+    finally{state.claudeBusy=false;if(root?.isConnected&&state.tab==="providers")paint()}
+  };
   const ir=$("#skv2-integrity-run",root);if(ir)ir.onclick=async()=>{const r=await verifyLocal(),box=$("#skv2-integrity-result",root);box.innerHTML='<div class="'+(r.valid?"skv2-okbox":"skv2-badbox")+'"><b>'+(r.valid?"السلسلة سليمة":"السلسلة غير سليمة")+'</b><span>'+(r.valid?("عدد الأحداث "+r.entries+" · head "+esc((r.head_hash||"").slice(0,24))+"…"):("الكسر عند #"+r.broken_seq))+'</span></div>'};
   const ac=$("#skv2-audit-csv",root);if(ac)ac.onclick=()=>SK.csv.download("SQC-capabilities-v2-audit",["seq","action","at","prev_hash","entry_hash"],localData().audit.map(x=>[x.seq,x.action,x.at,x.prev_hash,x.entry_hash]));
   const as=$("#skv2-api-save",root);if(as)as.onclick=()=>{let v=$("#skv2-api-base",root).value.trim().replace(/\/+$/,"");if(v&&!/^https:\/\//i.test(v))return toast("عنوان Worker يجب أن يبدأ بـ https://","err");const c=cfg();c.apiBase=v;c.workspaceIds={};save(CFG_KEY,c);testRemote()};
