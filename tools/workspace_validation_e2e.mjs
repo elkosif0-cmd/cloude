@@ -36,6 +36,11 @@ const snapshot = page => page.evaluate(() => {
 });
 const ready = page => page.waitForFunction(() => window.SK?.company?.ready() && window.SKosifSpace && !SKosifSpace.busy() && SK.demo?.settled() && !document.querySelector('.skdemo-overlay'), null, {timeout:90000});
 async function companies(page) {
+  // After a company switch the long workspace can retain a low scroll position.
+  // Scrolling Playwright's menu target into view triggers the app's window-scroll
+  // handler and closes the menu before the click; return to the top first.
+  await page.evaluate(() => window.scrollTo({top:0,behavior:'instant'}));
+  await page.waitForFunction(() => window.scrollY < 2);
   await page.locator('#sk-tb-pe').click();
   await page.locator('.sk-menu [data-m="go"][data-v="companies"]').click();
   await page.locator('#view [data-w="add-pe"]').waitFor({state:'visible'});
