@@ -1,0 +1,51 @@
+name: KOSIF Claude Source Review Fanout
+on:
+  push:
+    branches:
+      - audit/claude-source-fanout-20261012
+    paths:
+      - .github/workflows/claude-source-fanout.yml
+permissions:
+  contents: read
+concurrency:
+  group: kosif-claude-source-fanout-20261012
+  cancel-in-progress: false
+jobs:
+  public-code-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      GITHUB_REPOSITORY: elkosif0-cmd/cloude
+      GITHUB_TOKEN: ${{ github.token }}
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate no-deploy and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/claude_public_source_fanout.py
+          grep -F "github.ref_name != 'audit/claude-source-fanout-20261012'" .github/workflows/pages-deploy.yml
+          python3 - <<'PY'
+          import importlib.util
+          s=importlib.util.spec_from_file_location("audit","tools/claude_public_source_fanout.py")
+          x=importlib.util.module_from_spec(s);s.loader.exec_module(x)
+          assert x.MAX_REVIEW == 1000
+          assert x.MAX_USD <= 38
+          assert x.MAX_PARALLEL <= 12
+          assert x.DURATION <= 790
+          print("Budget, review scope, and deployment guards verified")
+          PY
+      - name: Execute parallel source-grounded Claude reviews
+        shell: bash
+        run: python3 tools/claude_public_source_fanout.py
+      - name: Preserve review receipts and source hashes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-public-source-audit-${{ github.run_id }}
+          path: claude-fanout-results/
+          if-no-files-found: warn
+          retention-days: 14
