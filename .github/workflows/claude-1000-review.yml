@@ -1,0 +1,66 @@
+name: KOSIF EARTH - One Shot 1000 Claude Review
+
+# Only one push event, on the isolated audit branch, triggers this workflow.
+# Pages publishing is explicitly disabled for this branch.
+on:
+  push:
+    branches:
+      - audit/claude-1000-20261012
+    paths:
+      - .github/workflows/claude-1000-review.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: one-shot-claude-1000-20261012
+  cancel-in-progress: false
+
+jobs:
+  one-shot-audit:
+    name: One shared budget, no repository writes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+      GITHUB_TOKEN: ${{ github.token }}
+      CLAUDE_SWARM_BUDGET_CENTS: "1700"
+    steps:
+      - name: Checkout independent audit branch without persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate review script and deploy guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/claude_100_agent_swarm.py
+          grep -F "if: github.ref_name != 'audit/claude-1000-20261012'" .github/workflows/pages-deploy.yml
+          python3 - <<'PY'
+          import importlib.util
+          p='tools/claude_100_agent_swarm.py'
+          spec=importlib.util.spec_from_file_location('swarm',p)
+          m=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(m)
+          sample=[('owner/repo','main',f'branch{i}') for i in range(554)]
+          shards=m.distribute(sample)
+          assert len(shards)==1000 and m.WORKERS==1000
+          assert m.BUDGET_CENTS<=1700
+          assert m.MAX_RUNTIME<=510
+          print('Verified 1000 review task assignments and <= $17 list-cost cap')
+          PY
+      - name: Launch exactly one cost-capped Claude Managed Agents session
+        shell: bash
+        run: python3 tools/claude_100_agent_swarm.py --launch
+      - name: Preserve checkpoint and review manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kosif-1000-agent-review-${{ github.run_id }}
+          path: |
+            claude-swarm-manifest.json
+            claude-swarm-run.json
+            claude-swarm-status.json
+            claude-swarm-report.md
+          if-no-files-found: warn
+          retention-days: 14
