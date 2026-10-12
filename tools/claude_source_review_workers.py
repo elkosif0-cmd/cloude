@@ -24,12 +24,12 @@ OUT.mkdir(exist_ok=True)
 OWNERS = ("elkosif0-cmd", "kosif199022-jpg")
 MODEL = "claude-haiku-5-5"
 MAX_JOBS = 1000
-CONCURRENCY = 12
+CONCURRENCY = 16
 MAX_SOURCE_BYTES = 24000
 # User's total envelope is USD 50. Internal USD 37 ceiling with ample
 # headroom for previous sessions, in-flight requests and billing differences.
 MAX_NEW_USD = 37.0
-MAX_SECONDS = 925
+MAX_SECONDS = 1580
 EXCLUDE_REPOS = ("whatsapp-personal-bridge", "CLOUDFLARE_API_TOKEN",
                  "kosif-atlas-private", "secrets", "credentials")
 EXT = (".ts", ".tsx", ".js", ".jsx", ".mjs", ".py", ".sql", ".html", ".css", ".go", ".rs")
@@ -323,7 +323,7 @@ def main():
     checkpoint("work-receipts.json", results)
     logger("FIRST_CLAUDE_WORKER_SUCCEEDED, starting bounded parallel source readers")
     with concurrent.futures.ThreadPoolExecutor(max_workers=CONCURRENCY) as pool:
-        batch_size = 36
+        batch_size = 48
         for off in range(1, len(scopes), batch_size):
             if time.monotonic() - start > MAX_SECONDS or stopped:
                 break
