@@ -1,4 +1,4 @@
-name: KOSIF Claude Full Branch Review 1000 Tasks 43USD
+name: KOSIF Claude Opus-Haiku Mounted Manifest Review
 on:
   push:
     branches:
@@ -41,6 +41,8 @@ jobs:
           assert m.TASK_LIMIT == 1000
           assert len(m.worker_tasks([{'repo':'a/b','default':'main','branch':'q','status':'ahead','ahead':1,'behind':0,'paths':['app/a.py'],'changes':10,'error':None}])[0]) == 2
           assert m.TASKS_CONCURRENT <= 24
+          assert callable(m.upload_manifest)
+          assert 'claude-opus-5-5' in open('tools/claude_evidence_first.py', encoding='utf-8').read()
           print("Verified 1000 unique scope limit, read-only execution, and USD 43 provider budget cap.")
           PY
       - name: Inventory unique GitHub branches and run one capped Claude session
