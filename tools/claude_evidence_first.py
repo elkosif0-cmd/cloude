@@ -64,8 +64,15 @@ def api(url, *, data=None, is_anthropic=False):
             if e.code in (429, 500, 502, 503) and retry < 2:
                 time.sleep(2 ** retry)
                 continue
-            raise RuntimeError("HTTP " + str(e.code) + " at " +
-                               urllib.parse.urlsplit(url).path) from None
+            detail = ""
+            if is_anthropic and e.code == 400:
+                try:
+                    error_response = json.loads(e.read(2048).decode("utf-8"))
+                    detail = str(error_response.get("error", {}).get("message", ""))[:350]
+                except Exception:
+                    detail = "unparseable validation error"
+            raise RuntimeError(sanitize("HTTP " + str(e.code) + " at " +
+                               urllib.parse.urlsplit(url).path + " " + detail)) from None
 
 
 def pages(path, limit=12):
