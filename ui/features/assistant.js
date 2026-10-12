@@ -256,7 +256,7 @@ function paint(){
     '<div class="ska-hello"><b>أهلاً — أنا مساعد KOSIF EARTH</b><p>أنفّذ ما تطلبه في التطبيق مباشرة: أفتح الشاشات، أقرأ الأرقام، أصدّر وأطبع، وأغيّر المظهر. الأزرار العامة وتعبئة الحقول تحتاج تنفيذاً يدوياً حتى تدعم سياق الشركة بأمان.</p></div>';
   if(busy)box.insertAdjacentHTML("beforeend",'<div class="ska-m ai typing"><i></i><i></i><i></i></div>');
   $(".ska-sugg",panel).innerHTML=(h.length>6?[]:SUGG).map(s=>'<button type="button" data-s="'+esc(s)+'">'+esc(s)+'</button>').join("");
-  const ai=window.SKosifAI&&SKosifAI.ready(), aiConfig=ai?SKosifAI.conf():null;$(".ska-status",panel).textContent=ai?("مزود "+aiConfig.label+" · النموذج "+aiConfig.model+" · للشركة الحالية فقط"):"أوامر مباشرة · فعّل Claude أو غيره من المراجع الذكي للطلبات الحرة";$(".ska-status",panel).classList.toggle("on",!!ai);
+  const ai=window.SKosifAI&&SKosifAI.ready(), aiConfig=ai&&typeof SKosifAI.conf==="function"?SKosifAI.conf():null;$(".ska-status",panel).textContent=ai?(aiConfig?("مزود "+aiConfig.label+" · النموذج "+aiConfig.model+" · للشركة الحالية فقط"):"الذكاء الاصطناعي متصل · للشركة الحالية فقط"):"أوامر مباشرة · فعّل Claude أو غيره من المراجع الذكي للطلبات الحرة";$(".ska-status",panel).classList.toggle("on",!!ai);
   box.scrollTop=box.scrollHeight;
 }
 async function send(text){
