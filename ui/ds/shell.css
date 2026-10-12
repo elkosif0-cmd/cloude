@@ -752,3 +752,14 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 .skn-search:has(.skn-search-status:not([hidden])) input{
   padding-inline-end:96px;
 }
+
+
+/* Copper Executive: optional premium look, no overrides for the approved default office. */
+:root[data-look="copper"] .rail{background:var(--sk-grad-rail)!important;border-inline-start:1px solid rgba(231,165,116,.22)}
+:root[data-look="copper"] .nav-btn[aria-current="page"]{background:var(--sk-rail-active);color:var(--sk-rail-ink);box-shadow:inset -3px 0 0 var(--sk-brand-2)}
+:root[data-look="copper"] .nav-btn[aria-current="page"] svg{color:var(--sk-rail-ink)}
+:root[data-look="copper"] .card,:root[data-look="copper"] .skc-card{border-color:var(--sk-line)}
+:root[data-look="copper"] .card-h h3{border-inline-start:3px solid var(--sk-brand);padding-inline-start:var(--sk-2)}
+:root[data-look="copper"] .btn.primary{background:var(--sk-grad-brand);color:var(--sk-on-brand);border-color:transparent}
+:root[data-look="copper"] body{background:radial-gradient(650px 360px at 85% -10%,rgba(172,95,55,.055),transparent 75%),var(--sk-bg)}
+@media (prefers-reduced-motion:reduce){:root[data-look="copper"] *, :root[data-look="copper"] *::before,:root[data-look="copper"] *::after{scroll-behavior:auto}}

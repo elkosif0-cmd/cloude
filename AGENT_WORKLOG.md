@@ -1081,3 +1081,14 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch: `chatgpt/claude-api-dev-github-20261011` (isolated from main); draft PR #253 open and mergeable; no publish.
 - Validation: Foundation Guard and Windows production-build smoke succeeded on PR head. Existing S.kosif CI fails ESLint `no-dupe-keys` in **unchanged** `ui/features/tb-review.js:359` (`open` duplicate); do not attribute to workflow. Live Claude API remains untested.
 - Follow-up: review GitHub Action security, resolve unrelated lint blocker, merge by owner, add secret locally, then test with an owner `@claude` issue and inspect resulting PR/CI before publishing.
+
+### 2026-10-10 — KOSIF EARTH isolated QA continuation (draft; no production)
+- Base a973a5c / PR #243. Worktree kosif-earth-qa-handoff-20261010, isolated from concurrent staged/unstaged work.
+- Fixed demo startup busy-handoff hang with bounded 160×250ms retry, fail-closed timeout and three regression cases.
+- Added optional Copper Executive light/night styles; preserved daylight office default and 4K original.
+- Focused Node 47/47 PASS; browser add/remove/reload 32/32 PASS; theme matrix 87/87 PASS and save/reload 3/3, 29 selectable looks across 3 viewports.
+- Preview build 191 entries, dist/secure absent; constitution 18/18 PASS (3 partial), identity audit 3/3 PASS, diff --check PASS.
+- The report-scope status for demo-co remains unknown without a selected period; do not claim report readiness.
+- Complete details/reproduction/next phase: docs/rebuild/KOSIF_EARTH_QA_HANDOFF_20261010_AR.md.
+- Open: full suite 27 prior failures, all-repo branch/PR classification, report/export stress, model-earth-industrial E2E, published Preview deployment with exact SHA.
+- No main merge, production deploy, checkout/reset/stash/clean of original dirty worktree.
