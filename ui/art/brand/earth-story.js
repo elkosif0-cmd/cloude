@@ -8,6 +8,8 @@
   const overlay = document.getElementById('kosif-earth-intro');
   const skip = document.getElementById('kosif-earth-skip');
   const enter = document.getElementById('kosif-earth-enter');
+  const video = document.getElementById('kosif-earth-movie');
+  const sound = document.getElementById('kosif-earth-sound');
   if (!overlay || !skip || !enter || !('animate' in Element.prototype)) return;
   const prefers = q => { try { return !!(matchMedia && matchMedia(q).matches); } catch { return false; } };
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -115,7 +117,8 @@
   const finish = () => {
     if (closed) return; closed = true;
     timers.forEach(clearTimeout); timers.clear(); if (raf) cancelAnimationFrame(raf);
-    overlay.classList.remove('is-playing'); overlay.hidden = true;
+    overlay.classList.remove('is-playing', 'es-film', 'es-story'); overlay.hidden = true;
+    if (video) { try { video.pause(); video.removeAttribute('src'); video.load(); } catch {} }
     if (shell) shell.inert = prevInert;
     try { sessionStorage.setItem('kosif-earth-intro-seen-v1', '1'); } catch {}
     document.removeEventListener('keydown', keys);
@@ -133,11 +136,29 @@
     if (s.extra) later(() => { const el = document.getElementById(s.extra.id); if (el) typeInto(el, [s.extra.text], s.extra.fast ? 90 : 60); }, s.extra.at * 1000);
     const conf = s.el.querySelector('#es-conf'); if (conf && !conf.children.length) confetti(conf);
   }
+  /* the cold open: the film already on the published site (mobile source, the 4K one on wide fast desktops), ≤ 7 s, then the story */
+  const FILM_MAX = 7;
+  let filmLen = 0;
+  function film(next) {
+    const src = video && (prefers('(min-width: 1100px)') && video.dataset.src4k && !(conn && /2g|3g/.test(conn.effectiveType || '')) ? video.dataset.src4k : video.dataset.src);
+    if (!video || !src) return next();
+    let done = false; const go = () => { if (done) return; done = true; overlay.classList.remove('es-film'); video.pause(); next(); };
+    overlay.classList.add('es-film');
+    if (sound) sound.addEventListener('click', () => { video.muted = !video.muted; sound.setAttribute('aria-pressed', String(!video.muted)); sound.textContent = video.muted ? 'تشغيل الصوت' : 'كتم الصوت'; });
+    video.addEventListener('ended', go, { once: true }); video.addEventListener('error', go, { once: true });
+    video.src = src; video.muted = true; video.load();
+    const p = video.play(); if (p && p.catch) p.catch(go);
+    later(go, FILM_MAX * 1000);
+  }
   function play() {
     overlay.hidden = false; overlay.classList.add('is-playing');
     if (shell) shell.inert = true;
     document.addEventListener('keydown', keys); skip.addEventListener('click', finish); enter.addEventListener('click', finish);
     skip.focus();
+    const t1 = performance.now();
+    film(() => { filmLen = (performance.now() - t1) / 1000; overlay.classList.add('es-story'); story(); });
+  }
+  function story() {
     S.forEach((s, i) => later(() => show(i), s.t * 1000));
     later(finish, TOTAL * 1000);
     t0 = performance.now();
@@ -146,6 +167,6 @@
     /* the pane / a hidden tab paints no frames: the bar still lands */
     later(() => overlay.style.setProperty('--es-p', '1'), TOTAL * 1000 - 300);
   }
-  window.KOSIFStory = Object.freeze({ finish, scenes: S.length, total: TOTAL, at: () => (performance.now() - t0) / 1000 });
+  window.KOSIFStory = Object.freeze({ finish, scenes: S.length, total: TOTAL, filmMax: FILM_MAX, film: () => filmLen, at: () => (performance.now() - t0) / 1000 });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', play, { once: true }); else play();
 })();

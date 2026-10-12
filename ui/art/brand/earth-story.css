@@ -3,9 +3,14 @@
    underline swoosh, the KOSIF mark as the mascot, glowing UI mock-ups, a step timeline, a growing chart, confetti and the
    wordmark outro. Colours are the door's own tokens (ink, forest green, mint, cream) — nothing new. The stage lives inside
    the existing #kosif-earth-intro overlay; the film stays as the fallback when html.es-on is not set. */
-.es-on .earth-intro__movie,.es-on .earth-intro__poster{display:none}
+/* the film first (the founder / globe cold open already on the published site), then the six beats */
+.es-on .earth-intro__movie{display:block;opacity:0;transition:opacity .6s ease;z-index:1}
+.es-on .earth-intro.es-film .earth-intro__movie{opacity:1}
 .es-on .earth-intro__story{display:none}
 .es-on .earth-intro__sound{display:none}
+.es-on .earth-intro.es-film .earth-intro__sound{display:inline-flex}
+.es-on .es-stage{opacity:0;transition:opacity .6s ease}
+.es-on .earth-intro.es-story .es-stage{opacity:1}
 .es-on .earth-intro{background:var(--sk-ink,#132b20)}
 .es-on .earth-intro__veil{background:
   radial-gradient(70% 60% at 50% 42%,rgba(23,107,75,.38),transparent 70%),
