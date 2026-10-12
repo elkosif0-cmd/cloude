@@ -201,10 +201,10 @@ def source_blob(task):
         if response.status != 200:
             raise ValueError("Public source fetch failed")
         data = response.read(MAX_BYTES + 1)
-    if len(data) > MAX_BYTES or b"\\x00" in data:
+    if len(data) > MAX_BYTES or b"\x00" in data:
         raise ValueError("Source unexpectedly too large or binary")
     expected = task["sha"]
-    actual = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\\x00" + data).hexdigest()
+    actual = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\x00" + data).hexdigest()
     if actual != expected:
         raise ValueError("Source SHA does not match Git manifest; not sent to Claude")
     content = data.decode("utf-8")
