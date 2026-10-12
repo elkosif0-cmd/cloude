@@ -24,6 +24,7 @@ export type ModelBooks = ModelCompany & { year: number; months: number; accounts
 export const MODEL_COMPANIES: readonly ModelCompany[] = Object.freeze([
   { id: 'model-health', sector: 'health', name: 'مستشفى الشفاء النموذجي', story: 'مستشفى بإيراد شهري يتجاوز 11 مليوناً: زيارات يومية لأربعة أقسام، ثلاث شركات تأمين ومطالبات ورفض وتسويات، أتعاب أطباء وصيدلية، وضريبة المواطن والمقيم.' },
   { id: 'model-education', sector: 'education', name: 'مدارس المستقبل النموذجية', story: 'مجمع تعليمي بـ1,200 طالب: رسوم فصلين تُفوتر مقدماً وتُكتسب شهرياً، منح وخصومات، تحصيل متدرج ومتأخرات، نقل مدرسي، واسترداد رسوم طالب منسحب.' },
+  { id: 'model-meat-factory', sector: 'meat', name: 'مصنع محمود لتسويق اللحوم', story: 'مصنع لحوم افتراضي ضخم: رأس مال 600 مليون ريال، ثمانية خطوط تشغيل أسبوعية، مشتريات الذبائح والتبريد والتقطيع والتعبئة والمبيعات النقدية والآجلة والتحصيل والضريبة والهدر والتسويات؛ جميع الأسماء والمعاملات اصطناعية.' },
   { id: 'model-manufacturing', sector: 'manufacturing', name: 'مصنع الخليج النموذجي للبلاستيك', story: 'مصنع: شراء خامات، صرف للتشغيل، تحميل أجور وتكاليف غير مباشرة، إنتاج تام بالتكلفة المعيارية، هالك وانحرافات، مبيعات آجلة وتحصيل.' },
   { id: 'model-bakery', sector: 'bakery', name: 'مخبز السنابل النموذجي', story: 'مخبز: مبيعات نقدية يومية، مكونات وإنتاج شهري، تكلفة المبيعات، تالف ومنتهي الصلاحية، ورواتب الخبازين المحمّلة على الإنتاج.' },
   { id: 'model-agriculture', sector: 'agriculture', name: 'مزرعة الوادي الأخضر النموذجية', story: 'مزرعة أغنام: قطيع وأعلاف تُحمَّل على تكلفته، مواليد ونفوق، مبيعات شهرية بتكلفة الرأس المتوسطة.' },
@@ -99,8 +100,9 @@ export function modelBooks(id: string, opts: { year?: number; months?: number; v
   return { ...co, year, months, accounts, entries, lockDate: lock, ledger };
 }
 
-const CAPITAL: Record<string, number> = { health: 2_500_000_000, education: 1_200_000_000, manufacturing: 900_000_000, bakery: 60_000_000, agriculture: 400_000_000, trade: 700_000_000 };
+const CAPITAL: Record<string, number> = { meat: 60_000_000_000, health: 2_500_000_000, education: 1_200_000_000, manufacturing: 900_000_000, bakery: 60_000_000, agriculture: 400_000_000, trade: 700_000_000 };
 const OVERHEAD: Record<string, { payroll: number; rent: number; opex: number }> = {
+  meat: { payroll: 120_000_000, rent: 30_000_000, opex: 65_000_000 },
   health: { payroll: 360_000_000, rent: 45_000_000, opex: 38_000_000 }, education: { payroll: 190_000_000, rent: 35_000_000, opex: 12_000_000 },
   manufacturing: { payroll: 90_000_000, rent: 12_000_000, opex: 40_000_000 }, bakery: { payroll: 8_500_000, rent: 2_500_000, opex: 3_000_000 },
   agriculture: { payroll: 6_000_000, rent: 1_500_000, opex: 2_500_000 }, trade: { payroll: 9_000_000, rent: 3_500_000, opex: 2_000_000 },
@@ -115,6 +117,56 @@ type Ctx = { year: number; months: number[]; vat: number; rnd: () => number; var
   collect: (date: string, memo: string, code: string, h: number, ref: string, party?: string) => ModelEntry };
 
 const SECTOR: Record<string, (c: Ctx) => void> = {
+  /* Mahmoud Meat Marketing Factory — large, deterministic, synthetic integrated operating cycle.
+     Every amount is in halalas. Batch transfers are double-entry; customer/supplier balances
+     and retained refrigerated inventory remain reconcilable. No real-party or tenant data. */
+  meat: ({ year, months, vary, je, L, sale, purchase, pay, collect, end, ledger }) => {
+    const suppliers = ['مورد افتراضي ألف', 'مورد افتراضي باء', 'مورد افتراضي جيم', 'مورد افتراضي دال'];
+    const customers = ['سلسلة تجريبية شمال', 'سلسلة تجريبية غرب', 'تاجر جملة تجريبي', 'منفذ تجريبي للتموين'];
+    const batches: { reference: string; date: string; costHalalas: number; netSalesHalalas: number; wasteHalalas: number; yieldPercent: number }[] = [];
+    ledger.productionBatches = batches;
+    ledger.synthetic = true;
+    ledger.currency = 'SAR';
+    ledger.costCenters = ['المسالخ', 'التبريد', 'التقطيع', 'التعبئة', 'الجملة', 'المتجر'];
+    let priorSupplierDue = 0, priorReceivable = 0;
+    for (const m of months) {
+      if (priorSupplierDue > 0) pay(year + '-' + pad(m) + '-10', 'سداد دفعات موردين افتراضية عن الشهر السابق', '2100', priorSupplierDue, 'MF-SPAY-' + year + pad(m));
+      if (priorReceivable > 0) collect(year + '-' + pad(m) + '-11', 'تحصيل ذمم عملاء تجريبية عن الشهر السابق', '1200', priorReceivable, 'MF-COLL-' + year + pad(m));
+      let purchased = 0, creditSales = 0;
+      for (let b = 1; b <= 8; b++) {
+        const day = 2 + (b - 1) * 3, date = year + '-' + pad(m) + '-' + pad(day), ref = 'MF-' + year + pad(m) + '-' + pad(b);
+        const supplier = suppliers[(b + m) % suppliers.length], customer = customers[(b + m) % customers.length];
+        const cost = vary(900_000_000, 0.08);
+        const waste = Math.round(cost * 0.018), secondary = Math.round(cost * 0.065);
+        const cuts = cost - waste - secondary;
+        purchase(date, 'استلام ذبائح مبردة — دفعة افتراضية ' + ref, '1310', cost, supplier, ref + '-PO');
+        purchased += cost;
+        je(date, 'تشغيل وتقطيع وتوزيع تكلفة الذبيحة ' + ref,
+          [L('1320', cuts, 0), L('1330', secondary, 0), L('5100', waste, 0), L('1310', 0, cost)],
+          { reference: ref + '-CUT', source: 'أوامر إنتاج', meta: { meatBatch: { reference: ref, cutting: true, yieldPercent: 98.2, coldChain: true } } });
+        const packing = vary(18_000_000, 0.05);
+        purchase(date, 'عبوات تغليف غذائي ' + ref, '1340', packing, supplier, ref + '-PKG');
+        purchased += packing;
+        je(date, 'صرف عبوات التعبئة لأمر الإنتاج ' + ref,
+          [L('5200', packing, 0), L('1340', 0, packing)], { reference: ref + '-PACK', source: 'تعبئة' });
+        const soldCuts = Math.round(cuts * 0.91), soldByproduct = Math.round(secondary * 0.76);
+        je(date, 'تكلفة الكميات المسلّمة وملحقات الذبيحة ' + ref,
+          [L('5000', soldCuts + soldByproduct, 0), L('1320', 0, soldCuts), L('1330', 0, soldByproduct)],
+          { reference: ref + '-COGS', source: 'تكلفة مبيعات' });
+        const wholesale = vary(950_000_000, 0.07), retail = vary(300_000_000, 0.08), extras = vary(75_000_000, 0.07);
+        sale(date, 'توريد لحوم بالجملة ' + ref, wholesale, { cashShare: 0.6, party: customer, reference: ref + '-WHS', source: 'مبيعات الجملة' });
+        sale(date, 'مبيعات أصناف المتجر ' + ref, retail, { cashShare: 1, reference: ref + '-RTL', source: 'مبيعات المتجر' });
+        sale(date, 'منتجات ثانوية وقطع تغليف ' + ref, extras, { revenue: '4100', cashShare: 0.6, party: customer, reference: ref + '-BY', source: 'منتجات ثانوية' });
+        creditSales += Math.round((wholesale + extras) * 1.15 * 0.4);
+        batches.push({ reference: ref, date, costHalalas: cost, netSalesHalalas: wholesale + retail + extras, wasteHalalas: waste, yieldPercent: 98.2 });
+      }
+      /* The next month settles only part of the outstanding balances; realistic ageing remains. */
+      priorSupplierDue = Math.round(purchased * 1.15 * 0.86);
+      priorReceivable = Math.round(creditSales * 0.84);
+      je(end(m), 'مصاريف تشغيل خطوط التبريد والنقل المبرد', [L('6400', 35_000_000, 0), L('1100', 0, 35_000_000)],
+        { reference: 'MF-COLD-' + year + pad(m), source: 'تبريد ونقل' });
+    }
+  },
   /* the hospital: every day each department's insured citizens (state-borne VAT, 85% claimed from the day's payer) and its
      cash-paying residents (standard VAT); the payers remit the month's claims on the 20th of the next month, paying 94%
      and rejecting 3% for coding; doctors' fees accrue at 15% of clinical revenue; the pharmacy buys and consumes stock */
