@@ -33,9 +33,9 @@ const WORKSPACE_FORBIDDEN_KEYS = new Set([
 
 export const ROLE_PERMISSIONS = Object.freeze({
   owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read","ai:run"]),
-  partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"]),
+  partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read","ai:run"]),
   manager: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read","ai:run"]),
-  senior: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"]),
+  senior: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read","ai:run"]),
   viewer: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","document:list","document:read","integrity:read"]),
 });
 
