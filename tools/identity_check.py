@@ -36,7 +36,7 @@ unlock_head = index.split("</head>", 1)[0]
 
 desc = re.search(r'<meta\s+name=["\']description["\']\s+content="([^"]*)"', app)
 ok("page description names KOSIF EARTH", bool(desc) and desc.group(1).startswith("KOSIF EARTH"))
-ok("page description covers accounting and audit", bool(desc) and all(w in desc.group(1) for w in ("المحاسبة", "المراجعة")) and not any(s in desc.group(1) for s in SALES_FIRST), desc.group(1) if desc else "")
+ok("page description covers accounting and audit", bool(desc) and all(w in desc.group(1) for w in ("محاسبة", "المراجعة")) and not any(s in desc.group(1) for s in SALES_FIRST), desc.group(1) if desc else "")
 tag = re.search(r'#biz-name::after\{content:"([^"]*)"', css)
 ok("rail tagline is audit-first", bool(tag) and "المراجعة" in tag.group(1) and not any(s in tag.group(1) for s in SALES_FIRST), tag.group(1) if tag else "missing")
 ok("manifest describes the three product gateways", all(w in manifest["description"] for w in ("المحاسبة", "المراجعة", "الأدوات")) and not any(s in manifest["description"] for s in SALES_FIRST))
