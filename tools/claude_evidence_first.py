@@ -18,7 +18,7 @@ from pathlib import Path
 GITHUB = "https://api.github.com"
 ANTHROPIC = "https://api.anthropic.com"
 OWNERS = ("elkosif0-cmd", "kosif199022-jpg")
-BUDGET_CENTS = 1500
+BUDGET_CENTS = 500
 STOP_SECS = 390
 OUT = Path("claude-evidence-review")
 PATH_DENY = (".env", "secret", "credential", "private", "api_token",
@@ -26,7 +26,7 @@ PATH_DENY = (".env", "secret", "credential", "private", "api_token",
 REPO_DENY = ("cloudflare_api_token", "whatsapp-personal-bridge", "kosif-atlas-private")
 MODEL = "claude-haiku-5-5"
 TASK_LIMIT = 180
-TASKS_CONCURRENT = 12
+TASKS_CONCURRENT = 16
 
 
 def sanitize(s):
@@ -173,18 +173,17 @@ def worker_tasks(rows):
         hay = (row["branch"] + " " + " ".join(row["paths"])).lower()
         return (sum(k in hay for k in rank_terms), row["changes"])
     candidates.sort(key=rank, reverse=True)
-    # Every candidate receives exactly one task slot. Regroup into at most
-    # 180 worker shards with a bounded number of branches each.
-    slots = min(TASK_LIMIT, len(candidates))
-    if not slots:
-        return [], candidates
-    groups = [[] for _ in range(slots)]
-    for i, row in enumerate(candidates):
-        groups[i % slots].append({
-            "repo": row["repo"], "base": row["default"], "branch": row["branch"],
-            "status": row["status"], "ahead": row["ahead"],
-            "paths": row["paths"][:8], "changes": row["changes"]})
-    # Important: 1000 is the upper bound/capacity, not 1000 fake agents.
+    # Two distinct value-add lenses for each verified branch; this increases
+    # targeted review agents without inventing or repeating the same assignment.
+    # Unique (repo, branch, lens) tuples: integration value and accounting/scope risks.
+    tasks = []
+    for row in candidates:
+        for lens in ("feature-port-and-tests", "company-security-and-financial-integrity"):
+            tasks.append({
+                "repo": row["repo"], "base": row["default"], "branch": row["branch"],
+                "status": row["status"], "ahead": row["ahead"], "lens": lens,
+                "paths": row["paths"][:8], "changes": row["changes"]})
+    groups = [[task] for task in tasks[:TASK_LIMIT]]
     return groups, candidates
 
 
@@ -194,7 +193,7 @@ def run_paid(groups, counts):
     if not groups:
         summary("No ahead/diverged candidates; no paid review necessary.")
         return
-    if BUDGET_CENTS > 1500:
+    if BUDGET_CENTS > 500:
         raise RuntimeError("Expense guard violated")
     agent = api(ANTHROPIC + "/v1/agents", is_anthropic=True, data={
         "name": "KOSIF EARTH evidence based branch reviewer",
@@ -206,9 +205,9 @@ def run_paid(groups, counts):
                        "workflows": {"type": "enabled"}},
         "system": (
             "You coordinate a single Dynamic Workflow. Use exactly ONE independently "
-            "scoped Haiku worker per SHARD, with no more than 12 concurrently. "
+            "scoped Haiku worker per SHARD, with no more than 16 concurrently. "
             "This scope was prefiltered using live authenticated GitHub compare API: "
-            "zero duplicated repo/branch pairs, only ahead/diverged candidates. "
+            "distinct feature and security lenses per verified ahead/diverged branch, with no duplicated task lenses. "
             "Each shard receives GitHub metadata and file paths, not source code. "
             "You must never invent functionality from file names. Classify candidate "
             "value, risks and exact files for manual implementation with evidence grades; "
@@ -262,11 +261,11 @@ def run_paid(groups, counts):
     })
     sid = session["id"]
     (OUT / "session-id.json").write_text(
-        json.dumps({"session_id": sid, "limit_usd": "15.00",
+        json.dumps({"session_id": sid, "limit_usd": "5.00",
                     "candidate_branches": counts["candidate_branches"],
                     "worker_shards": len(groups)}, indent=2), encoding="utf-8")
     summary(f"Opened one Claude session {sid}; worker shards {len(groups)}; "
-            "shared list-cost cap USD 15.00 (in-flight overshoot possible).")
+            "shared list-cost cap USD 5.00 (in-flight overshoot possible).")
     started = time.monotonic()
     state = {}
     status = "unknown"
