@@ -307,7 +307,7 @@ def review(item):
 def main():
     if os.getenv("GITHUB_REPOSITORY") != "elkosif0-cmd/cloude":
         raise RuntimeError("Wrong repository; no AI calls")
-    if not os.getenv("ANTHROPIC_API_KEY"):
+    if "--dry-run" not in sys.argv and not os.getenv("ANTHROPIC_API_KEY"):
         raise RuntimeError("MOON secret not available; no AI calls")
     scopes = discover()
     if "--dry-run" in sys.argv:
