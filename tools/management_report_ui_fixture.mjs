@@ -30,7 +30,7 @@ export function uiHarness(){
 export function ledgerHookHarness(ledger){
  const views={},calls={open:[],csv:[],writes:0},root={dataset:{},innerHTML:'',listeners:{},addEventListener(k,f){this.listeners[k]=f},querySelector(){return null}};
  const data={skosif_ledger_v1:ledger,skosif_companies_v1:{active:{periodId:'p'},periods:[{id:'p',label:'Synthetic',startDate:'2026-01-01',endDate:'2026-12-31'}]}};
- const context=vm.createContext({window:{},document:{addEventListener(){}},TextEncoder});
+ const context=vm.createContext({window:{},document:{addEventListener(){},querySelector(){return null}},TextEncoder});
  context.SK={$:()=>null,esc:String,load:(k,d)=>data[k]?JSON.parse(JSON.stringify(data[k])):d,save(){calls.writes++;return true},money:String,toast(){},icon:()=>'',view:(id,v)=>views[id]=v,ui:{tabs:()=>'',state:{empty:()=>''}},csv:{download:(...args)=>calls.csv.push(args)}};
  context.window.SKosifCore={go:()=>views.ledger.render(root)};context.window.SKosifManagementReport={open:async o=>calls.open.push(o)};context.SKosifManagementReport=context.window.SKosifManagementReport;
  vm.runInContext(fs.readFileSync(new URL('../ui/core/engines.js',import.meta.url),'utf8'),context);vm.runInContext(fs.readFileSync(new URL('../ui/features/ledger.js',import.meta.url),'utf8'),context);context.window.SKosifLedger.open('tb');
