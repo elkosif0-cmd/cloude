@@ -19,3 +19,19 @@ workers_dev = true
 # [[r2_buckets]]
 # binding = "DOCUMENTS"
 # bucket_name = "s-kosif-documents"
+
+# Claude financial reviewer: rate-limit requests per signed user + workspace.
+# The Workers Rate Limiting API requires Wrangler >= 4.36.0.
+[[ratelimits]]
+name = "AI_LIMITER"
+namespace_id = "2026101201"
+
+[ratelimits.simple]
+limit = 5
+period = 60
+
+# Do not store the Claude API key here. Configure ANTHROPIC_API_KEY
+# as a Cloudflare Worker SECRET, and configure Cloudflare Access TEAM_DOMAIN
+# and POLICY_AUD for the Worker route. Without these bindings AI fails closed.
+# [vars]
+# ANTHROPIC_MODEL = "claude-opus-5-5"
