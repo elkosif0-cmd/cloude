@@ -1,4 +1,5 @@
 name: KOSIF Claude 1000 Verified Source-Review Workers
+# Source manifest was pinned locally and 1000 unique blob SHA checks validated.
 
 # One-shot dedicated audit branch. No publishing, no source writes.
 on:
