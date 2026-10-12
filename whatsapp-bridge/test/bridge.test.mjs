@@ -7,7 +7,7 @@ import { createServer } from 'node:http';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 
@@ -74,7 +74,7 @@ before(async () => {
   }).listen(0);
   await new Promise((r) => files.once('listening', r));
 
-  container = spawn(process.execPath, ['--import', join(here, 'register.mjs'), join(here, '../container/server.mjs')], {
+  container = spawn(process.execPath, ['--import', pathToFileURL(join(here, 'register.mjs')).href, join(here, '../container/server.mjs')], {
     env: { ...process.env, SENT_LOG, LOG_LEVEL: 'silent' },
     stdio: 'inherit',
   });
@@ -90,7 +90,7 @@ before(async () => {
     alias: { '@cloudflare/containers': join(here, 'stub-containers.mjs') },
   });
   globalThis.scheduler = { wait: (ms) => new Promise((r) => setTimeout(r, ms)) };
-  const mod = await import(out);
+  const mod = await import(pathToFileURL(out).href);
   worker = mod.default;
 
   waitUntils = [];
@@ -365,10 +365,14 @@ test('pages and OpenAPI are served', async () => {
 
 // ---- MCP worker, wired to the bridge above ----
 test('MCP tools send a bundle, read messages and report status', async () => {
-  const mcp = (await import(join(here, '../workers/mcp/index.js'))).default;
-  const menv = { BRIDGE: { fetch: (req) => worker.fetch(req, env) }, BRIDGE_KEY: KEY };
+  const mcp = (await import(pathToFileURL(join(here, '../workers/mcp/index.js')).href)).default;
+  // Isolated test-only shared secret: the MCP auth gate stays fail-closed.
+  const TEST_MCP_SECRET = 'unit-test-only-bridge-secret-1234567890123456';
+  const menv = { BRIDGE: { fetch: (req) => worker.fetch(req, env) }, BRIDGE_KEY: KEY, WA_MCP_TOKEN: TEST_MCP_SECRET };
   const rpcCall = async (method, params) => (await (await mcp.fetch(new Request('https://m.test/mcp', {
-    method: 'POST', body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+    method: 'POST',
+    headers: { authorization: 'Bearer ' + TEST_MCP_SECRET, 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
   }), menv)).json()).result;
 
   const tools = await rpcCall('tools/list');
@@ -378,7 +382,7 @@ test('MCP tools send a bundle, read messages and report status', async () => {
   resetSent();
   const args = { to: '201088888888', message: 'mcp', attachments: [{ stored: 'cv-ar' }], idempotencyKey: 'mcp-1' };
   const res = await rpcCall('tools/call', { name: 'send_whatsapp_bundle', arguments: args });
-  assert.equal(res.isError, undefined);
+  assert.notEqual(res.isError, true, 'accepted MCP tool results are non-errors');
   assert.match(res.content[0].text, /accepted by WhatsApp transport/);
   const again = await rpcCall('tools/call', { name: 'send_whatsapp_bundle', arguments: args });
   assert.match(again.content[0].text, /already accepted/);

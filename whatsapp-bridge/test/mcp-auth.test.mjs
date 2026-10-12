@@ -111,7 +111,7 @@ test('only the owner passes: other tenant accounts, other audiences, expired or 
 test('the owner token and the shared secret both work', async () => {
   const owner = await counted(async () => worker.fetch(post(send, await jwt()), env()));
   assert.equal(owner.r.status, 200);
-  assert.equal((await owner.r.json()).result.structuredContent.status, 'sent');
+  assert.equal((await owner.r.json()).result.structuredContent.status, 'accepted', 'bridge accepted the transport request; delivery is unconfirmed');
   assert.equal(owner.bridge, 1);
   const server = await worker.fetch(post(status, SHARED), env({ KOSIF_OWNER_SUBS: '', WA_MCP_TOKEN: SHARED }));
   assert.equal(server.status, 200);
