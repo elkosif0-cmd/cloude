@@ -128,11 +128,11 @@ const SECTOR: Record<string, (c: Ctx) => void> = {
     ledger.synthetic = true;
     ledger.currency = 'SAR';
     ledger.costCenters = ['المسالخ', 'التبريد', 'التقطيع', 'التعبئة', 'الجملة', 'المتجر'];
-    let priorSupplierDue = 0, priorReceivable = 0;
+    let priorSupplierDue: Record<string, number> = {}, priorReceivable: Record<string, number> = {};
     for (const m of months) {
-      if (priorSupplierDue > 0) pay(year + '-' + pad(m) + '-10', 'سداد دفعات موردين افتراضية عن الشهر السابق', '2100', priorSupplierDue, 'MF-SPAY-' + year + pad(m));
-      if (priorReceivable > 0) collect(year + '-' + pad(m) + '-11', 'تحصيل ذمم عملاء تجريبية عن الشهر السابق', '1200', priorReceivable, 'MF-COLL-' + year + pad(m));
-      let purchased = 0, creditSales = 0;
+      for (const [supplier, amount] of Object.entries(priorSupplierDue)) pay(year + '-' + pad(m) + '-10', 'سداد مورد تجريبي عن الشهر السابق', '2100', amount, 'MF-SPAY-' + year + pad(m) + '-' + suppliers.indexOf(supplier), supplier);
+      for (const [customer, amount] of Object.entries(priorReceivable)) collect(year + '-' + pad(m) + '-11', 'تحصيل عميل تجريبي عن الشهر السابق', '1200', amount, 'MF-COLL-' + year + pad(m) + '-' + customers.indexOf(customer), customer);
+      const monthSupplier: Record<string, number> = {}, monthCustomer: Record<string, number> = {};
       for (let b = 1; b <= 8; b++) {
         const day = 2 + (b - 1) * 3, date = year + '-' + pad(m) + '-' + pad(day), ref = 'MF-' + year + pad(m) + '-' + pad(b);
         const supplier = suppliers[(b + m) % suppliers.length], customer = customers[(b + m) % customers.length];
@@ -140,13 +140,13 @@ const SECTOR: Record<string, (c: Ctx) => void> = {
         const waste = Math.round(cost * 0.018), secondary = Math.round(cost * 0.065);
         const cuts = cost - waste - secondary;
         purchase(date, 'استلام ذبائح مبردة — دفعة افتراضية ' + ref, '1310', cost, supplier, ref + '-PO');
-        purchased += cost;
+        monthSupplier[supplier] = (monthSupplier[supplier] || 0) + cost;
         je(date, 'تشغيل وتقطيع وتوزيع تكلفة الذبيحة ' + ref,
           [L('1320', cuts, 0), L('1330', secondary, 0), L('5100', waste, 0), L('1310', 0, cost)],
           { reference: ref + '-CUT', source: 'أوامر إنتاج', meta: { meatBatch: { reference: ref, cutting: true, yieldPercent: 98.2, coldChain: true } } });
         const packing = vary(18_000_000, 0.05);
         purchase(date, 'عبوات تغليف غذائي ' + ref, '1340', packing, supplier, ref + '-PKG');
-        purchased += packing;
+        monthSupplier[supplier] = (monthSupplier[supplier] || 0) + packing;
         je(date, 'صرف عبوات التعبئة لأمر الإنتاج ' + ref,
           [L('5200', packing, 0), L('1340', 0, packing)], { reference: ref + '-PACK', source: 'تعبئة' });
         const soldCuts = Math.round(cuts * 0.91), soldByproduct = Math.round(secondary * 0.76);
@@ -157,12 +157,12 @@ const SECTOR: Record<string, (c: Ctx) => void> = {
         sale(date, 'توريد لحوم بالجملة ' + ref, wholesale, { cashShare: 0.6, party: customer, reference: ref + '-WHS', source: 'مبيعات الجملة' });
         sale(date, 'مبيعات أصناف المتجر ' + ref, retail, { cashShare: 1, reference: ref + '-RTL', source: 'مبيعات المتجر' });
         sale(date, 'منتجات ثانوية وقطع تغليف ' + ref, extras, { revenue: '4100', cashShare: 0.6, party: customer, reference: ref + '-BY', source: 'منتجات ثانوية' });
-        creditSales += Math.round((wholesale + extras) * 1.15 * 0.4);
+        monthCustomer[customer] = (monthCustomer[customer] || 0) + Math.round((wholesale + extras) * 1.15 * 0.4);
         batches.push({ reference: ref, date, costHalalas: cost, netSalesHalalas: wholesale + retail + extras, wasteHalalas: waste, yieldPercent: 98.2 });
       }
       /* The next month settles only part of the outstanding balances; realistic ageing remains. */
-      priorSupplierDue = Math.round(purchased * 1.15 * 0.86);
-      priorReceivable = Math.round(creditSales * 0.84);
+      priorSupplierDue = Object.fromEntries(Object.entries(monthSupplier).map(([party, net]) => [party, Math.round(net * 1.15 * 0.86)]));
+      priorReceivable = Object.fromEntries(Object.entries(monthCustomer).map(([party, gross]) => [party, Math.round(gross * 0.84)]));
       je(end(m), 'مصاريف تشغيل خطوط التبريد والنقل المبرد', [L('6400', 35_000_000, 0), L('1100', 0, 35_000_000)],
         { reference: 'MF-COLD-' + year + pad(m), source: 'تبريد ونقل' });
     }
