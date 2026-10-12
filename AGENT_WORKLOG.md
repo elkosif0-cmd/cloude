@@ -1124,3 +1124,40 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   on cards, re-stagger of sectors/companies, html.em-lite under reduced motion / save-data / ≤2 GB); app `ui/core/motion.js`
   v2 (scroll reveal past the first ten blocks, figure count-up ending on the rendered text) + luxe.css «motion v2».
   Guard: `tools/earth_motion.test.mjs`. The reviewed unlock script is untouched (unlock_runtime 5/5).
+
+### TASK CLAUDE-20261012-011 — Port the remaining registry capabilities from the other repositories (backlog §4, mandatory gaps)
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on the branch (preview deployed; owner approval before main)
+- Owner request: «اكمل تطوير التطبيق واستفد من كل المستودعات».
+- Basis: docs/registry/repos/decisions.json (what is still «لم يُنقل» / Rebuild), docs/registry/EXTERNAL_BACKLOG_ar.md §4 order,
+  capability-source-registry.json mandatory_gaps (period-close-locks, continuous-close, ai-confidence-exception-queue).
+- Pieces (engine + vitest + screen/tab + node guard each):
+  1. Journal-entry risk score for 100% of entries (`see` journal-signals + audit-studio heuristics) → `audit/journal-risk-engine.ts`
+     + tools screen «مخاطر القيود» (moon decision: Relocate — standalone tools screen reading the company's books).
+  2. AI trust layer (`think` guardrails/PII masker/preflight → small JS) + unified AI trace log → `system/ai-guard-engine.ts`,
+     `ui/core/ai-guard.js` hooked into `ui/core/ai.js`, tab «سجل الذكاء الاصطناعي».
+  3. Close checklist with owners, sign-offs, reconciliation certification + period-close locks enforced by the ledger engine
+     (`finance/close-checklist-engine.ts`, month-close.js extended).
+  4. Bank statement import (Saudi bank CSV/XLSX layouts) + continuous reconciliation + certification
+     (`finance/bank-statement-engine.ts` on top of bank-reconciliation-engine).
+- Shared wiring (engines index/regeneration, build.py lists, capabilities.json, this log) done by the lead only.
+- Done (2026-10-13): journal-risk-engine (29 vitest) + screen «مخاطر القيود» (registry `journalrisk`, tools/also audit, hub tbreview);
+  ai-guard-engine (24 vitest) + `ui/core/ai-guard.js` hooked in `SKosifAI.generate` (mask → send → un-mask, one trace row per call, blocked
+  requests never leave) + tab «سجل الذكاء الاصطناعي»; close-checklist-engine (14 vitest) + `PostingContext` lock guard in ledger-engine
+  (`PERIOD_LOCKED`, `reason_ar`) + month-close checklist/lock/unlock UI, ledger refusal, pulse blockers; bank-statement-engine (16 vitest)
+  + card «كشف البنك والمطابقة المستمرة» in the ledger recon tab + pulse tile «منذ آخر مطابقة بنكية». Storage keys: skosif_erp_close_v1,
+  skosif_erp_bank_statement_v1, ai trace per company (HELPER_KEY). Engines regenerated; registry docs regenerated. Full engine gate
+  125 files / 678 tests. Guards: scope keys, identity (ratchets at/below baseline), registry clarity, constitution, menus, door tokens.
+
+### TASK CLAUDE-20261013-012 — «القصة»: the door's cinematic intro as a code-rendered launch film
+- Agent: Claude (Lead Development Agent)
+- Status: DONE on the branch
+- Owner request: «اجعل التطبيق بنفس الانميشن المرفق مع الحفاظ على نفس الوان التطبيق» (reference: a 30 s product launch film —
+  dark warm vignette, one accent word per headline with an underline swoosh, a mascot mark, glowing UI mock-ups, a step timeline,
+  a growing chart, confetti, wordmark outro).
+- Built: `ui/art/brand/earth-story.{css,js}` — six beats on a fixed clock (~31 s) inside the existing #kosif-earth-intro overlay
+  (skip / enter / Escape / focus trap / seen flag / progress bar kept); `html.es-on` makes `earth-intro-20261009.js` step aside, so the
+  film remains the fallback and brand_art's intro contract is untouched. Palette = the door's tokens only (ink, forest green, mint,
+  soft, cream). Gated like the film (reduced motion, save-data, ≤2 GB, deep links, once per session). Guard in tools/earth_motion.test.mjs.
+- Evidence: six headless-Edge captures (scratch) at 1.8 / 6.5 / 12.5 / 18.2 / 23.5 / 28.6 s; overlay closes itself at the end and the
+  door's own choreography (`em-ready`) follows.

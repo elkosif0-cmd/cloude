@@ -67,6 +67,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | التصور الموحد 2026 — جسر مساعد التقارير إلى ملف المراجعة | `auditinbox` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › صندوق استلام المراجعة | CORE | admin, accountant |
 | جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
 | جديد — من global_financial_and_audit_research_bundle_extended_verified.pdf (12,506 صفحة) | `auditbench` | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › المرجع العالمي للمراجعة | MANAGEMENT | admin |
+| جديد — نقل «تقييم 100% من القيود» من SEE journal-signals و KOSIF audit studio engine.js | `journalrisk` | الأدوات المساعدة › المراجعة والمراجعة المالية › مركز المراجعة › مخاطر القيود | MANAGEMENT | admin, accountant |
 | جديد — تشغيل المراجعة على شركات global_financial_and_audit_research_bundle_extended_verified.pdf ومقارنتها بتقارير مراجعيها | `corpuslab` | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › مختبر الشركات العالمية | MANAGEMENT | admin |
 | KOSIF Audit Studio | `auditdesk` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › الاستوديو المتقدم | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditdocs` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › المستندات والأدلة | ADVANCED | admin, accountant |
@@ -109,7 +110,7 @@ The front door and the sidebar expose exactly three entries (FOUNDATION §3): th
 | البرنامج المحاسبي الكامل | التقارير والبيانات | التقارير التنفيذية | `execreports` التقارير التنفيذية | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | التقارير والبيانات | الطباعة والتصدير | `reports` مركز الطباعة · `exports` مركز التصدير | الأدوات المساعدة |
 | البرنامج المحاسبي الكامل | التقارير والبيانات | الأرشيف والأنظمة الأصلية | `archive` الأرشيف والتغييرات · `legacyapps` الأنظمة الأصلية | الأدوات المساعدة |
-| المراجعة والتدقيق | المراجعة والمراجعة المالية | مركز المراجعة | `tbreview` ملف المراجعة · `auditinbox` صندوق استلام المراجعة · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات | — |
+| المراجعة والتدقيق | المراجعة والمراجعة المالية | مركز المراجعة | `tbreview` ملف المراجعة · `auditinbox` صندوق استلام المراجعة · `journalrisk` مخاطر القيود · `auditdesk` الاستوديو المتقدم · `auditdocs` المستندات والأدلة · `auditissues` الملاحظات والقضايا · `auditcouncil` مجلس المراجعين · `auditfin` القوائم والقيود · `auditreport` التقارير والإصدار · `auditanalytics` التحليل والاختبارات | — |
 | المراجعة والتدقيق | المراجعة والمراجعة المالية | المعايير والمدونة | `codex` المدونة المحاسبية والمعايير · `auditbench` المرجع العالمي للمراجعة · `corpuslab` مختبر الشركات العالمية · `auditlab` مختبر المعايير والأبحاث | البرنامج المحاسبي الكامل |
 | الأدوات المساعدة | العام | مركز القيادة | `dash` مركز القيادة | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
 | الأدوات المساعدة | العام | المهام والإشعارات | `tasks` المهام · `notifications` مركز الإشعارات | البرنامج المحاسبي الكامل، المراجعة والتدقيق |
@@ -144,15 +145,15 @@ The front door and the sidebar expose exactly three entries (FOUNDATION §3): th
 | `agriculture` الزراعة والمزارع | — | المواسم والحظائر كمراكز تكلفة، الأعلاف، النفوق، تكلفة الدورة |
 | `trade` التجارة والخدمات العامة | — | فروع ومستودعات، شراء وبيع، هوامش ومخزون وائتمان — وكل نشاط آخر |
 
-78 screens in 37 menu entries.
+79 screens in 37 menu entries.
 
 ## By tier
 
 - **CORE** — العمل اليومي الأساسي (26): `dash`, `notifications`, `salesmap`, `commerce`, `customers`, `customerflow`, `followup`, `offers`, `inventory`, `suppliers`, `purchasing`, `ledger`, `jesim`, `cash`, `receivables`, `advances`, `ptree`, `productflow`, `catalog`, `sim`, `builder`, `zatca`, `reportingintake`, `tbreview`, `auditinbox`, `masterdata`
-- **MANAGEMENT** — الإدارة والمتابعة (12): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `benchmarks`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `corpuslab`
+- **MANAGEMENT** — الإدارة والمتابعة (13): `tasks`, `risks`, `b2bcredit`, `operations`, `traceability`, `benchmarks`, `memo`, `execreports`, `archive`, `codex`, `auditbench`, `journalrisk`, `corpuslab`
 - **INTELLIGENCE** — التحليل والذكاء (7): `decision`, `jev`, `council`, `salesintel`, `intelligence`, `economics`, `compare`
 - **ADVANCED** — الهندسة المتقدمة (17): `risklab`, `sensitivity`, `carcass`, `yieldlab`, `nrv`, `finance`, `costs`, `kernel`, `analyzer`, `auditdesk`, `auditdocs`, `auditissues`, `auditcouncil`, `auditfin`, `auditreport`, `auditanalytics`, `auditlab`
 - **UTILITIES** — أدوات مساعدة (11): `helperdesk`, `blending`, `culinary`, `labels`, `scanner`, `smartmatch`, `excelrecon`, `reports`, `exports`, `devices`, `legacyapps`
 - **ADMIN** — النظام والإدارة (5): `settings`, `companies`, `governance`, `health`, `capabilitiesv2`
 
-Coverage gate: 78 screens in 3 user-facing entries and 8 internal domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.
+Coverage gate: 79 screens in 3 user-facing entries and 8 internal domains; see CAPABILITY_COVERAGE_ALL_VERSIONS.md for every historical version.

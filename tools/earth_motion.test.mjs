@@ -67,3 +67,19 @@ test('reduced motion counts nothing',()=>{
   const a=app();a.ctx.matchMedia=()=>({matches:true});
   assert.equal(a.ctx.SK.motion.countUp(),0);
 });
+
+/* «القصة»: the code-rendered launch-film intro (ui/art/brand/earth-story.{css,js}) owns the overlay; the film is the fallback */
+test('the story loads before the film script, keeps the overlay contract and the door tokens, and steps off under reduced motion',()=>{
+  const sjs=read('ui/art/brand/earth-story.js'),scss=read('ui/art/brand/earth-story.css'),film=read('ui/art/brand/earth-intro-20261009.js');
+  assert.ok(door.indexOf('art/brand/earth-story.js')<door.indexOf('art/brand/earth-intro-20261009.js'));
+  assert.ok(door.indexOf('earth-motion.css')<door.indexOf('earth-story.css'));
+  assert.match(film,/classList\.contains\('es-on'\)\) return;/,'the film steps aside when the story runs');
+  for(const k of ["sessionStorage.setItem('kosif-earth-intro-seen-v1'","prefers-reduced-motion: reduce",'saveData','deviceMemory',"'Escape'",'shell.inert']) assert.ok(sjs.includes(k),k);
+  for(const bad of ['localStorage','fetch(','XMLHttpRequest','crypto','password','SQC:AUTH']) assert.ok(!sjs.includes(bad),bad);
+  assert.equal((sjs.match(/S\.push\(\{/g)||[]).length,6,'six beats');
+  assert.ok(scss.includes('@media (prefers-reduced-motion:reduce){.es-stage{display:none}}'));
+  for(const t of new Set(scss.match(/var\(--sk-[a-z0-9-]+/g))){const k=t.slice(4);assert.ok(door.includes(k+':')||scss.includes('var('+k+','),`${k} is a door token or carries a fallback`)}
+  /* the palette is the door's: ink, forest green, mint, soft, cream — no orange, no foreign brand colour */
+  const colours=new Set((scss.match(/#[0-9a-f]{6}\b/gi)||[]).map(c=>c.toLowerCase()));
+  for(const c of colours) assert.ok(['#132b20','#176b4b','#a7eabb','#e5f4e9','#ffffff','#0e2119','#2b9a6b','#0f4d35','#d7edc5'].includes(c),c+' belongs to the door palette');
+});

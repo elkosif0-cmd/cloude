@@ -5,7 +5,7 @@
    (SKosifLedger)، فلا يختلف رقم بين شاشة وأخرى. */
 (()=>{
 "use strict";
-const {esc,load,money}=SK;
+const {esc,load,save,money}=SK;
 const L=()=>window.SKosifLedger;
 const DAY=864e5,iso=t=>new Date(t).toISOString().slice(0,10),today=()=>iso(Date.now());
 const endOf=m=>iso(Date.UTC(+m.slice(0,4),+m.slice(5,7),0));
@@ -14,6 +14,97 @@ const label=m=>MONTHS[+m.slice(5,7)-1]+" "+m.slice(0,4);
 const prevMonth=(m,k=1)=>new Date(Date.UTC(+m.slice(0,4),+m.slice(5,7)-1-k,1)).toISOString().slice(0,7);
 const days=(a,b)=>Math.round((Date.parse(b)-Date.parse(a))/DAY);
 let month=null;
+
+/* ---------- close management (close-checklist-engine): the checklist with owners, sign-offs and certified
+   reconciliations, and the period locks with their append-only log. One per-company key (HELPER_KEY: skosif_erp_*):
+   {owners:{month:{task:role}}, signOffs:{month:{task:SignOff}}, certifications:{month:{task:Certification}},
+   lock:{locks:[],log:[]}}. The engine decides every status; this file only reads the books and stores decisions. */
+const CL_KEY="skosif_erp_close_v1";
+const CE=()=>{try{return window.SKEngines&&SKEngines.finance&&SKEngines.finance.closeChecklist||null}catch{return null}};
+const obj=v=>v&&typeof v==="object"&&!Array.isArray(v)?v:{};
+const clState=()=>{const s=obj(load(CL_KEY,{}));const lk=obj(s.lock);return{owners:obj(s.owners),signOffs:obj(s.signOffs),certifications:obj(s.certifications),lock:{locks:Array.isArray(lk.locks)?lk.locks:[],log:Array.isArray(lk.log)?lk.log:[]}}};
+const clSave=(s,act,detail)=>{save(CL_KEY,s);SK.audit&&SK.audit.log&&SK.audit.log("close",{act,...(detail||{})})};
+const periodOf=m=>({id:m,start:m+"-01",end:endOf(m),label:label(m)});
+/* the person acting: the helper-space user when one is chosen, else the role's label */
+function who(){try{const u=window.SKosifSpace&&SKosifSpace.user&&SKosifSpace.user();if(u&&u.name)return String(u.name)}catch{}try{return SK.perm&&SK.perm.label?SK.perm.label():"المستخدم"}catch{return "المستخدم"}}
+const roleId=()=>{try{return SK.perm&&SK.perm.role?SK.perm.role():""}catch{return ""}};
+const roles=()=>{try{return SK.perm&&SK.perm.list?SK.perm.list():[]}catch{return []}};
+/* what the books can tell the engine about the month (system facts); nothing here is a human decision */
+function booksFacts(m){
+  const l=L();if(!l)return{};const d=l.snapshot(),end=endOf(m),mm=+m.slice(5,7);
+  const hist=((d.bank||{}).history||[]).map(h=>h.end).sort(),c=d.count||{};
+  const name=re=>d.accounts.some(a=>re.test(String(a.name||"")));
+  let v=null;if(mm%3===0){try{v=l.vat(m.slice(0,4)+"-Q"+(mm/3))}catch{v=null}}
+  let tb=null,p=null;try{tb=l.trialBalance(end);p=l.pending(end)}catch{}
+  const cur=(()=>{try{return SK.company.current().currency||"SAR"}catch{return "SAR"}})();
+  return{bankReconciledTo:hist[hist.length-1]||null,inventoryCountDate:c.posted&&c.date?c.date:null,
+    hasInventory:d.accounts.some(a=>String(a.code)==="1300")||name(/مخزون/),
+    vatSettled:v?!!v.settled:null,vatDue:v?v.q.due:null,
+    hasFixedAssets:name(/أصول ثابتة|معدات|سيارات|مبان|آلات|أثاث|إهلاك/),
+    hasForeignCurrency:d.entries.some(e=>e.currency&&String(e.currency).toUpperCase()!==cur),
+    hasIntercompany:name(/شقيقة|ذات علاقة|intercompany/i),
+    trialBalanceBalanced:tb?!!tb.balanced:undefined,pendingPostings:p?p.total||0:0};
+}
+function checklist(m){
+  const E=CE();if(!E||!L())return null;const s=clState();
+  try{return E.buildChecklist(periodOf(m),booksFacts(m),{today:today(),owners:s.owners[m]||{},signOffs:s.signOffs[m]||{},certifications:s.certifications[m]||{},lock:s.lock})}
+  catch(e){SK.errors&&SK.errors.report&&SK.errors.report(e,"close-checklist");return null}
+}
+const readinessOf=m=>{const E=CE(),c=checklist(m);return E&&c?E.readiness(c):null};
+/* the ledger's question before any posting: {ok} without the engine or without locks (unchanged behaviour) */
+function canPost(date){const E=CE();if(!E)return{ok:true};try{return E.canPost(clState().lock,date)}catch{return{ok:true}}}
+function lockMonth(m,by,ts){
+  const E=CE(),l=L();if(!l)return{ok:false,reason_ar:"الدفاتر غير متاحة"};
+  const end=endOf(m);let r={ok:true};
+  if(E){const s=clState();r=E.lockPeriod(s.lock,periodOf(m),by||who(),ts||new Date().toISOString());if(!r.ok)return r;s.lock=r.state;clSave(s,"lock",{period:m,who:r.event.who})}
+  /* the books' single lock date follows, so every older guard agrees */
+  if(!(l.snapshot().lockDate>=end))l.lockTo(end);
+  return r;
+}
+function unlockMonth(m,by,reason,ts){
+  const E=CE(),l=L();if(!E||!l)return{ok:false,reason_ar:"محرك الإقفال غير متاح"};
+  const s=clState(),r=E.unlockPeriod(s.lock,periodOf(m),by||who(),reason,ts||new Date().toISOString());if(!r.ok)return r;
+  s.lock=r.state;clSave(s,"unlock",{period:m,who:r.event.who,reason:r.event.reason});
+  /* the single lock date steps back to the day before the period; any other locked period keeps refusing through canPost */
+  const d=l.snapshot();if(d.lockDate&&d.lockDate>=endOf(m)&&l.unlockTo)l.unlockTo(iso(Date.parse(m+"-01")-DAY));
+  return r;
+}
+function setOwner(m,taskId,role){const s=clState();s.owners[m]={...(s.owners[m]||{}),[taskId]:String(role||"")};clSave(s,"owner",{period:m,task:taskId,role})}
+function sign(m,taskId,note,by,ts){
+  const E=CE(),c=checklist(m);if(!E||!c)return{ok:false,reason_ar:"محرك الإقفال غير متاح"};
+  const t=c.tasks.find(x=>x.id===taskId);if(!t)return{ok:false,reason_ar:"مهمة غير معروفة"};
+  try{const out=E.signOff(t,by||who(),note||"",ts||new Date().toISOString(),roleId());const s=clState();s.signOffs[m]={...(s.signOffs[m]||{}),[taskId]:out.signOff};clSave(s,"signoff",{period:m,task:taskId,who:out.signOff.who});return{ok:true,task:out}}
+  catch(e){return{ok:false,reason_ar:String(e&&e.message||e)}}
+}
+function certifyTask(m,taskId,hash,by,ts,note){
+  const E=CE(),c=checklist(m);if(!E||!c)return{ok:false,reason_ar:"محرك الإقفال غير متاح"};
+  const t=c.tasks.find(x=>x.id===taskId);if(!t)return{ok:false,reason_ar:"مهمة غير معروفة"};
+  try{const out=E.certify(t,hash,by||who(),ts||new Date().toISOString(),note);const s=clState();s.certifications[m]={...(s.certifications[m]||{}),[taskId]:out.certification};clSave(s,"certify",{period:m,task:taskId,hash:out.certification.evidenceHash});return{ok:true,task:out}}
+  catch(e){return{ok:false,reason_ar:String(e&&e.message||e)}}
+}
+async function hashFile(file){const b=await file.arrayBuffer();if(!(globalThis.crypto&&crypto.subtle))throw new Error("لا تتوفر بصمة SHA-256 في هذا المتصفح");const d=await crypto.subtle.digest("SHA-256",b);return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+const ST={done:["good","تم"],pending:["warn","بانتظار"],blocked:["bad","متوقف"],na:["","لا ينطبق"]},MODE={system:"من الدفاتر",human:"قرار بشري"};
+const ERR={CLOSE_CERTIFY_HASH_INVALID:"بصمة الدليل غير صالحة",CLOSE_SIGNOFF_HUMAN_ONLY:"هذه المهمة تُحسم من الدفاتر لا بالتوقيع",CLOSE_SIGNOFF_NOT_APPLICABLE:"المهمة لا تنطبق"};
+function checklistHTML(m){
+  const E=CE();if(!E)return '<section class="card skcl"><div class="card-h"><div><h3>قائمة الإقفال</h3><p>محرك قائمة الإقفال غير مُحمّل في هذه النسخة.</p></div></div></section>';
+  const c=checklist(m);if(!c)return "";
+  const R=E.readiness(c),log=E.lockLog(clState().lock).filter(e=>e.periodId===m).slice(-6).reverse(),rs=roles(),p=c.period;
+  const locked=R.locked,tone=locked?"ok":R.ready?"ok":R.blockers.some(b=>b.status==="blocked")?"bad":"warn";
+  const row=t=>{const st=ST[t.status]||ST.pending,owner=rs.length?'<select class="skcl-owner" data-cl-owner="'+esc(t.id)+'" aria-label="مسؤول '+esc(t.title_ar)+'"'+(locked?' disabled':'')+'>'+rs.map(r=>'<option value="'+esc(r.id)+'"'+(r.id===t.owner?' selected':'')+'>'+esc(r.label||r.id)+'</option>').join("")+'</select>':'<span class="skcl-owner">'+esc(t.owner)+'</span>';
+    const act=t.status==="na"||locked?"":t.mode==="human"?(t.status==="done"?"":'<button type="button" class="btn sm primary" data-cl="sign" data-task="'+esc(t.id)+'">توقيع</button>')
+      :t.requiresEvidence&&t.status!=="done"&&t.fact?'<label class="skcl-ev"><span>اعتماد بدليل (ملف الكشف)</span><input type="file" data-cl-file="'+esc(t.id)+'" aria-label="دليل '+esc(t.title_ar)+'"></label>':"";
+    return '<li class="st-'+t.status+(t.overdue?' late':'')+'"><div class="tx"><b>'+esc(t.title_ar)+'</b><small>'+esc(t.why_ar)+' · '+MODE[t.mode]+'</small><span class="note">'+esc(t.detail_ar)+'</span></div>'+
+      '<div class="skcl-meta">'+owner+'<time datetime="'+esc(t.due)+'">'+(t.overdue?'متأخر منذ ':'يستحق ')+esc(t.due)+'</time></div>'+
+      '<span class="sk-pill '+st[0]+'">'+st[1]+'</span><div class="skcl-act">'+act+'</div></li>'};
+  return '<section class="card skcl" aria-label="قائمة الإقفال"><div class="card-h"><div><h3>قائمة إقفال '+esc(label(m))+'</h3><p>مهام الإقفال بمسؤول وموعد وتوقيع لكل مهمة؛ ما تحسمه الدفاتر يُقرأ منها، وما يحتاج قراراً يُوقَّع، والمطابقات تُعتمد بدليل ببصمة SHA-256.</p></div>'+
+      '<div class="skcl-ring tone-'+tone+'" style="--p:'+R.pct+'" role="img" aria-label="الجاهزية '+R.pct+'٪"><i>'+R.pct+'%</i></div></div>'+
+    '<div class="card-b"><p class="hint">'+R.done+' من '+R.of+' مهام مكتملة'+(R.overdue?' · '+R.overdue+' متأخرة':'')+(locked?' — الفترة مقفلة':R.ready?' — جاهزة للإقفال النهائي':R.blockers.length?' — التالية: <b>'+esc(R.blockers[0].title_ar)+'</b>':'')+'</p>'+
+    '<ol class="skclose-steps skcl-tasks">'+c.tasks.map(row).join("")+'</ol>'+
+    '<div class="skcl-lock"><div class="tx"><b>'+(locked?'الفترة مقفلة':'إقفال الفترة')+'</b><small>'+(locked?'لا يُقبل قيد بتاريخ بين '+esc(p.start)+' و'+esc(p.end)+'؛ فتح الإقفال يحتاج سبباً ويُسجَّل.':'بعد الإقفال يرفض محرك الدفاتر أي قيد بتاريخ داخل الفترة ويعرض السبب.')+'</small></div>'+
+      '<div class="sk-actions">'+(locked?'<button type="button" class="btn" data-cl="punlock">فتح الإقفال بسبب</button>':'<button type="button" class="btn primary" data-cl="plock"'+(R.ready?'':' disabled')+'>إقفال الفترة</button>')+'</div></div>'+
+    (log.length?'<ol class="skcl-log" aria-label="سجل الإقفال">'+log.map(e=>'<li><span class="sk-pill '+(e.kind==="lock"?"good":"warn")+'">'+(e.kind==="lock"?"إقفال":"فتح")+'</span><b>'+esc(e.who)+'</b><small>'+esc(String(e.ts).slice(0,16).replace("T"," "))+(e.reason?' — '+esc(e.reason):'')+'</small></li>').join("")+'</ol>':'')+
+    '</div></section>';
+}
 
 /* the month to close: the first ended month after the lock date, else the last ended month */
 function defaultMonth(){
@@ -59,8 +150,10 @@ function steps(m){
   const r=load("skosif_tbreview_v1",{})||{},sent=!!(r.tbText&&r.loadedAt&&r.loadedAt.slice(0,10)>=end);
   add("review","الإرسال إلى المراجعة","ميزان الشهر في ملف المراجعة (المعايير والمجلس الذكي) — اختياري",sent?"ok":"na",sent?"أُرسل في "+r.loadedAt.slice(0,10):"لم يُرسل ميزان هذا الشهر",{run:"review",label:"إرسال الميزان"});
   S[S.length-1].optional=true;
-  const locked=!!(d.lockDate&&d.lockDate>=end),ready=S[0].st==="ok"&&S.find(x=>x.id==="tb").st==="ok"&&t>end;
-  add("lock","إقفال الفترة","بعد الإقفال لا يتغير رقم في الشهر",locked?"ok":ready?"warn":"bad",locked?"مقفلة حتى "+d.lockDate:ready?"جاهز للإقفال":t<=end?"الشهر لم ينته بعد":"رحّل العمليات ووازن الميزان أولاً",{run:"lock",label:"إقفال الشهر",disabled:!ready||locked});
+  /* the lock: the books' single lock date or a close-management lock on the month; when the checklist engine is
+     loaded, the final lock also waits for its sign-offs and certifications */
+  const R=readinessOf(m),locked=!!(d.lockDate&&d.lockDate>=end)||!!(R&&R.locked),ready=S[0].st==="ok"&&S.find(x=>x.id==="tb").st==="ok"&&t>end&&(!R||R.ready);
+  add("lock","إقفال الفترة","بعد الإقفال لا يتغير رقم في الشهر",locked?"ok":ready?"warn":"bad",locked?"مقفلة حتى "+(d.lockDate>=end?d.lockDate:end):ready?"جاهز للإقفال":t<=end?"الشهر لم ينته بعد":R&&!R.ready&&R.blockers.length?"قائمة الإقفال: "+R.blockers.length+" مهمة مفتوحة":"رحّل العمليات ووازن الميزان أولاً",{run:"lock",label:"إقفال الشهر",disabled:!ready||locked});
   return S;
 }
 function progress(S){const a=S.filter(x=>!x.optional&&x.st!=="na");return{done:a.filter(x=>x.st==="ok").length,of:a.length,next:a.find(x=>x.st!=="ok")||null}}
@@ -77,7 +170,7 @@ function html(){
     '<div class="card-b"><div class="skclose-bar" role="progressbar" aria-label="تقدم الإقفال" aria-valuemin="0" aria-valuemax="'+P.of+'" aria-valuenow="'+P.done+'"><span style="width:'+pct+'%"></span></div>'+
     '<p class="hint">'+P.done+' من '+P.of+' خطوات مكتملة'+(P.next?' — التالية: <b>'+esc(P.next.title)+'</b>':' — الشهر مكتمل ومقفل')+'</p>'+
     '<ol class="skclose-steps">'+S.map((x,i)=>'<li class="st-'+x.st+'"><span class="n">'+(i+1)+'</span><div class="tx"><b>'+esc(x.title)+'</b><small>'+esc(x.why)+'</small><span class="note">'+esc(x.note)+'</span></div>'+
-      '<span class="sk-pill '+PILL[x.st][0]+'">'+PILL[x.st][1]+(x.optional?' · اختياري':'')+'</span>'+btn(x,x.st==="warn"||x.st==="bad"?" primary":"")+'</li>').join("")+'</ol></div></section>';
+      '<span class="sk-pill '+PILL[x.st][0]+'">'+PILL[x.st][1]+(x.optional?' · اختياري':'')+'</span>'+btn(x,x.st==="warn"||x.st==="bad"?" primary":"")+'</li>').join("")+'</ol></div></section>'+checklistHTML(month);
 }
 
 /* ---------- alerts for the bell: what the books say needs attention now ---------- */
@@ -148,9 +241,25 @@ document.addEventListener("click",async e=>{
   if(a==="month"){month=b.dataset.m;l.open("close");return}
   if(a==="go"){l.open(b.dataset.goTab||"close",{q:b.dataset.q||undefined});return}
   if(a==="review"){await l.sendToReview();return}
-  if(a==="lock"){const end=endOf(month||defaultMonth());
+  const m=month||defaultMonth();
+  if(a==="lock"||a==="plock"){const end=endOf(m);
     if(!await SK.confirm("إقفال الدفاتر حتى "+end+"؟ لن يُقبل بعدها قيد أو ترحيل أو عكس بتاريخ في "+label(end.slice(0,7))+" أو قبله.",{ok:"إقفال"}))return;
-    if(l.lockTo(end))SK.toast("أُقفل شهر "+label(end.slice(0,7)),"ok");l.open("close")}
+    const r=lockMonth(m);if(r.ok)SK.toast("أُقفل شهر "+label(end.slice(0,7)),"ok");else SK.toast(r.reason_ar||"لم يُقفل","warn");l.open("close");return}
+  if(a==="punlock"){
+    const v=await SK.form("فتح إقفال "+label(m),[{key:"reason",label:"سبب فتح الإقفال",type:"textarea",required:true,hint:"يُسجَّل مع اسمك والوقت في سجل الإقفال"}],{danger:true,ok:"فتح الإقفال",message:"يسمح بتغيير أرقام فترة معتمدة."});
+    if(!v)return;const r=unlockMonth(m,undefined,v.reason);SK.toast(r.ok?"فُتح إقفال "+label(m):r.reason_ar||"لم يُفتح",r.ok?"ok":"warn");l.open("close");return}
+  if(a==="sign"){const c=checklist(m),t=c&&c.tasks.find(x=>x.id===b.dataset.task);if(!t)return;
+    const v=await SK.form("توقيع: "+t.title_ar,[{key:"note",label:"ملاحظة التوقيع",type:"textarea",hint:t.why_ar}],{ok:"توقيع باسم "+who()});
+    if(!v)return;const r=sign(m,t.id,v.note);SK.toast(r.ok?"وُقّعت المهمة":ERR[r.reason_ar]||r.reason_ar,r.ok?"ok":"warn");l.open("close")}
 });
-window.SKosifClose=Object.freeze({html,steps:m=>steps(m||defaultMonth()),alerts,month:()=>month||defaultMonth()});
+/* a reconciliation's evidence file: hashed in the browser, the hash and the certifier go to the engine */
+document.addEventListener("change",async e=>{
+  const i=e.target.closest&&e.target.closest("[data-cl-file]");if(i){const f=i.files&&i.files[0],l=L();if(!f||!l)return;
+    try{const h=await hashFile(f),r=certifyTask(month||defaultMonth(),i.dataset.clFile,h,undefined,undefined,f.name);SK.toast(r.ok?"اعتُمدت المطابقة بدليل "+h.slice(0,12)+"…":ERR[r.reason_ar]||r.reason_ar,r.ok?"ok":"warn")}
+    catch(err){SK.toast(String(err&&err.message||err),"warn")}l.open("close");return}
+  const s=e.target.closest&&e.target.closest("[data-cl-owner]");if(s){setOwner(month||defaultMonth(),s.dataset.clOwner,s.value);SK.toast("حُفظ المسؤول","ok")}
+});
+window.SKosifClose=Object.freeze({html,steps:m=>steps(m||defaultMonth()),alerts,month:()=>month||defaultMonth(),
+  /* close management: the checklist, its readiness, the period locks and the ledger's question */
+  checklist:m=>checklist(m||defaultMonth()),readiness:m=>readinessOf(m||defaultMonth()),canPost,lock:lockMonth,unlock:unlockMonth,sign,certify:certifyTask,setOwner,lockLog:()=>{const E=CE();return E?E.lockLog(clState().lock):[]},STORAGE_KEY:CL_KEY});
 })();

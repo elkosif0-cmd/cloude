@@ -3822,7 +3822,7 @@ window.SKEngines = (function() {
 		detectDelimiter: () => detectDelimiter,
 		fromRows: () => fromRows,
 		largestBalances: () => largestBalances,
-		norm: () => norm$3,
+		norm: () => norm$4,
 		parseTrialBalance: () => parseTrialBalance,
 		splitLine: () => splitLine
 	});
@@ -3852,7 +3852,7 @@ window.SKEngines = (function() {
 		7: "expense",
 		8: "expense"
 	};
-	var norm$3 = (s) => normalizeDigits(s).toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ـ/g, "").replace(/\s+/g, " ").trim();
+	var norm$4 = (s) => normalizeDigits(s).toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ـ/g, "").replace(/\s+/g, " ").trim();
 	var NAME_HINTS = [
 		{
 			type: "asset",
@@ -3983,7 +3983,7 @@ window.SKEngines = (function() {
 			type: CODE_PREFIX[digits[0]],
 			basis: "code"
 		};
-		const hay = norm$3(name);
+		const hay = norm$4(name);
 		if (CONTRA.some((w) => hay.includes(w)) && !/مصروف|مصاريف|expense/.test(hay)) return {
 			type: "asset",
 			basis: "name"
@@ -4077,7 +4077,7 @@ window.SKEngines = (function() {
 		]
 	};
 	function headerKey(cell) {
-		const k = norm$3(cell).replace(/[\s_\-.()]/g, "");
+		const k = norm$4(cell).replace(/[\s_\-.()]/g, "");
 		for (const [field, aliases] of Object.entries(HEADERS)) if (aliases.includes(k)) return field;
 		return null;
 	}
@@ -6716,9 +6716,9 @@ window.SKEngines = (function() {
 			key: overrides[row.code],
 			basis: "manual"
 		};
-		const name = norm$3(row.name), code = String(row.code || "").replace(/\D/g, "");
+		const name = norm$4(row.name), code = String(row.code || "").replace(/\D/g, "");
 		const candidates = LINES.filter((l) => l.types.includes(row.type));
-		const byName = candidates.find((l) => l.kws.some((k) => name.includes(norm$3(k))));
+		const byName = candidates.find((l) => l.kws.some((k) => name.includes(norm$4(k))));
 		if (byName) return {
 			key: byName.key,
 			basis: "name"
@@ -7251,7 +7251,7 @@ window.SKEngines = (function() {
 	var analysis_engine_exports = /* @__PURE__ */ __exportAll({
 		altmanZ: () => altmanZ,
 		beneishM: () => beneishM,
-		benford: () => benford$1,
+		benford: () => benford$2,
 		commonSize: () => commonSize,
 		dupont: () => dupont,
 		freeCashFlow: () => freeCashFlow,
@@ -7260,15 +7260,15 @@ window.SKEngines = (function() {
 		mdna: () => mdna,
 		ratios: () => ratios
 	});
-	var r2$9 = (n) => Math.round(n * 100) / 100;
+	var r2$10 = (n) => Math.round(n * 100) / 100;
 	var div$1 = (a, b) => b ? a / b : null;
 	var pctOf = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$9(x * 100);
+		return x === null ? null : r2$10(x * 100);
 	};
 	var times = (a, b) => {
 		const x = div$1(a, b);
-		return x === null ? null : r2$9(x);
+		return x === null ? null : r2$10(x);
 	};
 	var days$3 = (a, b) => {
 		const x = div$1(a, b);
@@ -7535,7 +7535,7 @@ window.SKEngines = (function() {
 	/** Common-size: P&L lines as % of revenue, position lines as % of total assets. */
 	function commonSize(fs) {
 		const rev = fs.keys.revenue, ta = fs.keys.assets;
-		const pc = (a, b) => b ? r2$9(a / b * 100) : null;
+		const pc = (a, b) => b ? r2$10(a / b * 100) : null;
 		return {
 			pl: fs.pl.map((r) => ({
 				key: r.key,
@@ -7560,7 +7560,7 @@ window.SKEngines = (function() {
 			current: r.current,
 			prior: r.prior,
 			change: r.current - r.prior,
-			changePct: r.prior ? r2$9((r.current - r.prior) / Math.abs(r.prior) * 100) : null
+			changePct: r.prior ? r2$10((r.current - r.prior) / Math.abs(r.prior) * 100) : null
 		}));
 	}
 	/** DuPont: ROE = net margin × asset turnover × equity multiplier (year-end balances). */
@@ -7577,10 +7577,10 @@ window.SKEngines = (function() {
 		const k = fs.keys, one = (rev, profit, ta, eq) => {
 			const nm = div$1(profit, rev), at = div$1(rev, ta), em = div$1(ta, eq);
 			return {
-				netMargin: nm === null ? null : r2$9(nm * 100),
-				assetTurnover: at === null ? null : r2$9(at),
-				equityMultiplier: em === null ? null : r2$9(em),
-				roe: nm === null || at === null || em === null ? null : r2$9(nm * at * em * 100)
+				netMargin: nm === null ? null : r2$10(nm * 100),
+				assetTurnover: at === null ? null : r2$10(at),
+				equityMultiplier: em === null ? null : r2$10(em),
+				roe: nm === null || at === null || em === null ? null : r2$10(nm * at * em * 100)
 			};
 		};
 		return {
@@ -7595,16 +7595,16 @@ window.SKEngines = (function() {
 		if (!ta) return null;
 		const retained = fs.lines.filter((l) => l.key === "retained").reduce((a, l) => a + l.current, 0) + k.profit.current;
 		const x1 = (k.ca.current - k.cl.current) / ta, x2 = retained / ta, x3 = k.operating.current / ta, x4 = tl ? k.equity.current / tl : 0;
-		const z = r2$9(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
+		const z = r2$10(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4);
 		return {
 			z,
 			zone: z > 2.6 ? "safe" : z >= 1.1 ? "grey" : "distress",
 			zoneAr: z > 2.6 ? "منطقة الأمان" : z >= 1.1 ? "المنطقة الرمادية" : "منطقة التعثر",
 			components: {
-				x1: r2$9(x1),
-				x2: r2$9(x2),
-				x3: r2$9(x3),
-				x4: r2$9(x4)
+				x1: r2$10(x1),
+				x2: r2$10(x2),
+				x3: r2$10(x3),
+				x4: r2$10(x4)
 			}
 		};
 	}
@@ -7623,7 +7623,7 @@ window.SKEngines = (function() {
 		const sgai = q(q(sga(c), c("revenue")), q(sga(p), p("revenue")));
 		const lvgi = q(q(c("cl") + c("loansNcl") + c("leaseNcl"), c("assets")), q(p("cl") + p("loansNcl") + p("leaseNcl"), p("assets")));
 		const tata = fs.keys.cfo ? q(c("profit") - fs.keys.cfo.current, c("assets")) : 0;
-		const m = r2$9(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
+		const m = r2$10(-4.84 + .92 * dsri + .528 * gmi + .404 * aqi + .892 * sgi + .115 * depi - .172 * sgai + 4.679 * tata - .327 * lvgi);
 		const f = (x) => Math.round(x * 1e3) / 1e3;
 		return {
 			m,
@@ -7641,7 +7641,7 @@ window.SKEngines = (function() {
 		};
 	}
 	/** Benford first digit with Nigrini's mean absolute deviation conformity bands. */
-	function benford$1(amounts) {
+	function benford$2(amounts) {
 		const firsts = amounts.map((a) => Math.abs(a)).filter((a) => a >= 1e3).map((a) => Number(String(a)[0]));
 		const n = firsts.length, counts = Array(10).fill(0);
 		firsts.forEach((d) => {
@@ -7723,7 +7723,7 @@ window.SKEngines = (function() {
 			rat("current")
 		].map((i) => ({
 			...i,
-			change: i.prior === null || i.current === null || !i.prior ? null : r2$9((i.current - i.prior) / Math.abs(i.prior) * 100)
+			change: i.prior === null || i.current === null || !i.prior ? null : r2$10((i.current - i.prior) / Math.abs(i.prior) * 100)
 		}));
 	}
 	/** A deterministic management discussion: sentences generated from the numbers only. */
@@ -7734,7 +7734,7 @@ window.SKEngines = (function() {
 		const ch = (key) => {
 			const x = k[key];
 			if (!x || x.prior === null || !x.prior) return null;
-			return r2$9((x.current - x.prior) / Math.abs(x.prior) * 100);
+			return r2$10((x.current - x.prior) / Math.abs(x.prior) * 100);
 		};
 		const dir = (v, up, down) => v === null ? "" : v >= 0 ? `${up} ${Math.abs(v)}%` : `${down} ${Math.abs(v)}%`;
 		const out = [];
@@ -11055,109 +11055,109 @@ window.SKEngines = (function() {
 		}
 		return report;
 	});
-	var K$2 = (report, theme, page, title) => ({
+	var K$3 = (report, theme, page, title) => ({
 		report: canonicalReferenceId(report),
 		title,
 		theme,
 		page
 	});
 	var KAMS = [
-		K$2("amazon-2023", "tax-uncertainty", 49, "Uncertain Tax Positions"),
-		K$2("amazon-2024", "tax-uncertainty", 1063, "Uncertain Tax Positions"),
-		K$2("apple-2020", "tax-uncertainty", 973, "Uncertain Tax Positions"),
-		K$2("apple-2023", "tax-uncertainty", 1159, "Uncertain Tax Positions"),
-		K$2("apple-2024", "tax-uncertainty", 144, "Uncertain Tax Positions"),
-		K$2("cisco-2024", "revenue-recognition", 289, "Revenue Recognition for Certain Product and Services Revenue"),
-		K$2("cisco-2024", "complex-transactions", 289, "Acquisition of Splunk — Valuation of Customer Contracts and Related Relationships Asset and the Technology Asset Acquired"),
-		K$2("walmart-2023", "provisions-litigation", 399, "Contingencies (opioid-related legal proceedings)"),
-		K$2("adobe-2024", "revenue-recognition", 538, "Performance obligations in cloud-enabled software subscriptions"),
-		K$2("jpmorgan-2023", "credit-losses", 749, "Allowance for Loan Losses – Portfolio-based component of Wholesale Loan and Credit Card Loan Portfolios"),
-		K$2("jpmorgan-2023", "fair-value", 749, "Fair Value of Certain Level 3 Financial Instruments"),
-		K$2("jpmorgan-2025", "credit-losses", 1536, "Allowance for Loan Losses – Portfolio-Based Component of the Wholesale and Credit Card Retained Loan Portfolios"),
-		K$2("jpmorgan-2025", "fair-value", 1536, "Fair Value of Certain Level 3 Financial Instruments"),
-		K$2("bofa-2025", "credit-losses", 1771, "Allowance for Loan and Lease Losses - Commercial and Consumer Card Loans"),
-		K$2("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — short-duration property and casualty claim liabilities"),
-		K$2("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — Retroactive Reinsurance Contracts"),
-		K$2("pepsico-2025", "tax-uncertainty", 1936, "Unrecognized tax benefits"),
-		K$2("pg-2026", "impairment-intangibles", 2001, "Intangible Assets — Gillette Indefinite-Lived Intangible Asset"),
-		K$2("homedepot-2025", "inventory", 2084, "Sufficiency of audit evidence over certain merchandise inventories (retail inventory method)"),
-		K$2("nestle-2025", "revenue-deductions", 2312, "Measurement of revenue as it relates to trade spend"),
-		K$2("nestle-2025", "impairment-intangibles", 2314, "Carrying value of goodwill and indefinite useful life intangible assets"),
-		K$2("roche-2025", "revenue-deductions", 2508, "Government and regulatory mandatory price reductions in the US pharmaceuticals business"),
-		K$2("roche-2025", "impairment-intangibles", 2509, "Carrying value of product intangibles not available for use in the Pharmaceuticals Division"),
-		K$2("novartis-2025", "revenue-deductions", 2790, "Provisions for deductions from revenue related to US Managed Care, Medicare Part D and Medicaid rebate programs"),
-		K$2("ubs-2025", "fair-value", 3047, "Valuation of complex or illiquid instruments at fair value"),
-		K$2("ubs-2025", "credit-losses", 3048, "Expected credit losses"),
-		K$2("ubs-2025", "tax-uncertainty", 3049, "Recognition of deferred tax assets"),
-		K$2("volkswagen-2025", "impairment-intangibles", 4295, "Recoverability of goodwill and acquired brand names"),
-		K$2("volkswagen-2025", "impairment-intangibles", 4297, "Capitalization and recoverability of development costs"),
-		K$2("volkswagen-2025", "provisions-litigation", 4299, "Accounting treatment of the risk provisions for the diesel issue"),
-		K$2("volkswagen-2025", "provisions-litigation", 4300, "Completeness and measurement of provisions for warranty obligations"),
-		K$2("volkswagen-2025", "impairment-assets", 4301, "Determination of the expected residual values of lease assets during impairment testing"),
-		K$2("telekom-2025", "revenue-recognition", 4686, "Revenue recognition"),
-		K$2("bp-2025", "climate", 4837, "Potential impact of climate change and the energy transition"),
-		K$2("bp-2025", "impairment-assets", 4837, "Impairment of upstream oil and gas property, plant and equipment (PP&E) assets"),
-		K$2("bp-2025", "provisions-litigation", 4837, "Decommissioning provisions"),
-		K$2("bp-2025", "fair-value", 4847, "Valuation of commodity financial derivatives, where fraud risks may arise in revenue recognition"),
-		K$2("bp-2025", "fraud-override", 4837, "Management override of controls"),
-		K$2("unilever-2025", "revenue-deductions", 5219, "Revenue recognition – Rebates"),
-		K$2("unilever-2025", "tax-uncertainty", 5220, "Indirect tax contingent liabilities in Brazil"),
-		K$2("unilever-2025", "complex-transactions", 5221, "Ice Cream demerger"),
-		K$2("unilever-2025", "parent-investments", 5222, "Investments in subsidiaries (Parent Company)"),
-		K$2("astrazeneca-2025", "revenue-deductions", 5504, "Recognition and measurement of accruals for Managed Care, Medicaid and Medicare Part D rebates on US Product Sales"),
-		K$2("astrazeneca-2025", "impairment-intangibles", 5505, "Impairment assessment of the product, marketing and distribution rights and other intangibles"),
-		K$2("astrazeneca-2025", "provisions-litigation", 5506, "Recognition and measurement of legal provisions and disclosure of contingent liabilities"),
-		K$2("astrazeneca-2025", "actuarial", 5507, "Valuation of defined benefit obligations in the United Kingdom"),
-		K$2("astrazeneca-2025", "parent-investments", 5503, "Distributable reserves (Company)"),
-		K$2("gsk-2025", "revenue-deductions", 5796, "Valuation of US Returns and Rebates (RAR) accruals"),
-		K$2("gsk-2025", "fair-value", 5797, "Valuation of the ViiV Healthcare Shionogi contingent consideration liability"),
-		K$2("gsk-2025", "impairment-intangibles", 5798, "Valuation of other intangible assets"),
-		K$2("gsk-2025", "tax-uncertainty", 5799, "Valuation of uncertain tax positions, including transfer pricing"),
-		K$2("hsbc-2025", "credit-losses", 6206, "Expected credit losses – Loans and advances to customers (Group)"),
-		K$2("hsbc-2025", "parent-investments", 6206, "Investments in subsidiaries (parent company)"),
-		K$2("totalenergies-2024", "impairment-assets", 6369, "Evaluation of the impairment of non-current assets used in exploration and production activities (E&P and Integrated LNG)"),
-		K$2("totalenergies-2024", "impairment-assets", 6372, "Effect of estimated proved developed hydrocarbon reserves on the depreciation of the oil and gas assets used in production activities"),
-		K$2("airbus-2023", "revenue-recognition", 7380, "Revenue recognition (including revenues and costs at completion for onerous and over-time contracts)"),
-		K$2("airbus-2023", "impairment-assets", 7383, "Recoverability of key program assets - long-lived assets"),
-		K$2("airbus-2023", "fair-value", 7384, "Accounting for derivative financial instruments and hedge ineffectiveness"),
-		K$2("sanofi-2025", "impairment-intangibles", 7636, "Recoverable amount of other intangible assets - Acquired R&D, products, trademarks and other rights"),
-		K$2("sanofi-2025", "revenue-deductions", 7636, "Valuation of the provisions for rebates relating to Sanofi’s business in the United States – Medicaid, Medicare and Managed Care"),
-		K$2("sanofi-2025", "tax-uncertainty", 7637, "Uncertain tax positions"),
-		K$2("toyota-2026", "provisions-litigation", 7906, "Liabilities for the costs of recalls and other safety measures"),
-		K$2("toyota-2026", "credit-losses", 7906, "Allowance for credit losses—Retail finance receivables"),
-		K$2("honda-2023", "provisions-litigation", 8137, "Evaluation of the provision for specific warranty programs"),
-		K$2("honda-2023", "credit-losses", 8137, "Allowance for expected credit losses on retail receivables at the finance subsidiary in the United States"),
-		K$2("honda-2023", "impairment-assets", 8138, "Estimated end of term residual values of lease vehicles at the finance subsidiary in the United States"),
-		K$2("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Macroeconomic Variables in Multiple Economic Forecast Scenarios and Weightings"),
-		K$2("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Krungsri Segment — Qualitative Adjustments"),
-		K$2("mufg-2026", "credit-losses", 8616, "Allowance for Credit Losses — Commercial Segment — Internal Credit Rating"),
-		K$2("smfg-2026", "credit-losses", 8909, "The reasonableness of management's assessment of the reserve for possible loan losses for SMBC's corporate loans"),
-		K$2("samsung-2025", "impairment-assets", 8918, "Evaluation of commencement of depreciation related to construction in progress"),
-		K$2("samsung-2025", "revenue-deductions", 8918, "Sales deduction related to sales promotion activities"),
-		K$2("tencent-2025", "revenue-recognition", 9308, "Revenue recognition on provision of online games value-added services related to in-game permanent virtual items – the estimates of expected user lifetime"),
-		K$2("tencent-2025", "impairment-intangibles", 9309, "Impairment assessments of goodwill, investments in associates and investments in joint ventures"),
-		K$2("tencent-2025", "fair-value", 9311, "Fair value measurement of Level 3 financial instruments"),
-		K$2("reliance-2026", "provisions-litigation", 9519, "Litigation matters"),
-		K$2("reliance-2026", "fair-value", 9519, "Fair Valuation of Investments"),
-		K$2("reliance-2026", "it-controls", 9520, "Information Technology (IT) systems and controls over financial reporting"),
-		K$2("reliance-2026", "revenue-recognition", 9562, "Revenue Recognition (reported by the auditors of Reliance Jio Infocomm)"),
-		K$2("infosys-2026", "revenue-recognition", 9810, "Revenue recognition"),
-		K$2("infosys-2026", "revenue-recognition", 9811, "Revenue recognition - Fixed price contracts using the percentage of completion method"),
-		K$2("aramco-2025", "impairment-intangibles", 10164, "Recoverability of Downstream goodwill and the SABIC brand"),
-		K$2("aramco-2025", "impairment-assets", 10165, "Valuation of property, plant and equipment and assets held for sale"),
-		K$2("aramco-2025", "complex-transactions", 10167, "Sale of non-controlling interest in Jafurah Midstream Gas Company"),
-		K$2("emiratesnbd-2025", "credit-losses", 10336, "Expected Credit Loss allowance against Loans and receivables"),
-		K$2("emiratesnbd-2025", "related-parties", 10338, "Related party transactions and balances"),
-		K$2("eand-2025", "revenue-recognition", 10553, "Revenue recognition"),
-		K$2("eand-2025", "impairment-intangibles", 10554, "Carrying value of cash generating units, including goodwill"),
-		K$2("rbc-2025", "credit-losses", 10745, "Allowance for Credit Losses on Loans Categorized as Stage 1 and Stage 2"),
-		K$2("rbc-2025", "tax-uncertainty", 10745, "Uncertain Tax Positions"),
-		K$2("bhp-2025", "impairment-assets", 11205, "Carrying value of property, plant and equipment"),
-		K$2("bhp-2025", "provisions-litigation", 11205, "Closure and rehabilitation provisions"),
-		K$2("bhp-2025", "provisions-litigation", 11206, "Samarco dam failure provisions recognised and the contingent liabilities disclosed"),
-		K$2("cba-2025", "credit-losses", 12468, "Provisions for loan impairment"),
-		K$2("cba-2025", "provisions-litigation", 12469, "Provisions for ongoing class actions"),
-		K$2("cba-2025", "it-controls", 12470, "Operation of financial reporting Information Technology (IT) systems and controls")
+		K$3("amazon-2023", "tax-uncertainty", 49, "Uncertain Tax Positions"),
+		K$3("amazon-2024", "tax-uncertainty", 1063, "Uncertain Tax Positions"),
+		K$3("apple-2020", "tax-uncertainty", 973, "Uncertain Tax Positions"),
+		K$3("apple-2023", "tax-uncertainty", 1159, "Uncertain Tax Positions"),
+		K$3("apple-2024", "tax-uncertainty", 144, "Uncertain Tax Positions"),
+		K$3("cisco-2024", "revenue-recognition", 289, "Revenue Recognition for Certain Product and Services Revenue"),
+		K$3("cisco-2024", "complex-transactions", 289, "Acquisition of Splunk — Valuation of Customer Contracts and Related Relationships Asset and the Technology Asset Acquired"),
+		K$3("walmart-2023", "provisions-litigation", 399, "Contingencies (opioid-related legal proceedings)"),
+		K$3("adobe-2024", "revenue-recognition", 538, "Performance obligations in cloud-enabled software subscriptions"),
+		K$3("jpmorgan-2023", "credit-losses", 749, "Allowance for Loan Losses – Portfolio-based component of Wholesale Loan and Credit Card Loan Portfolios"),
+		K$3("jpmorgan-2023", "fair-value", 749, "Fair Value of Certain Level 3 Financial Instruments"),
+		K$3("jpmorgan-2025", "credit-losses", 1536, "Allowance for Loan Losses – Portfolio-Based Component of the Wholesale and Credit Card Retained Loan Portfolios"),
+		K$3("jpmorgan-2025", "fair-value", 1536, "Fair Value of Certain Level 3 Financial Instruments"),
+		K$3("bofa-2025", "credit-losses", 1771, "Allowance for Loan and Lease Losses - Commercial and Consumer Card Loans"),
+		K$3("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — short-duration property and casualty claim liabilities"),
+		K$3("berkshire-2025", "actuarial", 1278, "Unpaid Losses and Loss Adjustment Expenses — Retroactive Reinsurance Contracts"),
+		K$3("pepsico-2025", "tax-uncertainty", 1936, "Unrecognized tax benefits"),
+		K$3("pg-2026", "impairment-intangibles", 2001, "Intangible Assets — Gillette Indefinite-Lived Intangible Asset"),
+		K$3("homedepot-2025", "inventory", 2084, "Sufficiency of audit evidence over certain merchandise inventories (retail inventory method)"),
+		K$3("nestle-2025", "revenue-deductions", 2312, "Measurement of revenue as it relates to trade spend"),
+		K$3("nestle-2025", "impairment-intangibles", 2314, "Carrying value of goodwill and indefinite useful life intangible assets"),
+		K$3("roche-2025", "revenue-deductions", 2508, "Government and regulatory mandatory price reductions in the US pharmaceuticals business"),
+		K$3("roche-2025", "impairment-intangibles", 2509, "Carrying value of product intangibles not available for use in the Pharmaceuticals Division"),
+		K$3("novartis-2025", "revenue-deductions", 2790, "Provisions for deductions from revenue related to US Managed Care, Medicare Part D and Medicaid rebate programs"),
+		K$3("ubs-2025", "fair-value", 3047, "Valuation of complex or illiquid instruments at fair value"),
+		K$3("ubs-2025", "credit-losses", 3048, "Expected credit losses"),
+		K$3("ubs-2025", "tax-uncertainty", 3049, "Recognition of deferred tax assets"),
+		K$3("volkswagen-2025", "impairment-intangibles", 4295, "Recoverability of goodwill and acquired brand names"),
+		K$3("volkswagen-2025", "impairment-intangibles", 4297, "Capitalization and recoverability of development costs"),
+		K$3("volkswagen-2025", "provisions-litigation", 4299, "Accounting treatment of the risk provisions for the diesel issue"),
+		K$3("volkswagen-2025", "provisions-litigation", 4300, "Completeness and measurement of provisions for warranty obligations"),
+		K$3("volkswagen-2025", "impairment-assets", 4301, "Determination of the expected residual values of lease assets during impairment testing"),
+		K$3("telekom-2025", "revenue-recognition", 4686, "Revenue recognition"),
+		K$3("bp-2025", "climate", 4837, "Potential impact of climate change and the energy transition"),
+		K$3("bp-2025", "impairment-assets", 4837, "Impairment of upstream oil and gas property, plant and equipment (PP&E) assets"),
+		K$3("bp-2025", "provisions-litigation", 4837, "Decommissioning provisions"),
+		K$3("bp-2025", "fair-value", 4847, "Valuation of commodity financial derivatives, where fraud risks may arise in revenue recognition"),
+		K$3("bp-2025", "fraud-override", 4837, "Management override of controls"),
+		K$3("unilever-2025", "revenue-deductions", 5219, "Revenue recognition – Rebates"),
+		K$3("unilever-2025", "tax-uncertainty", 5220, "Indirect tax contingent liabilities in Brazil"),
+		K$3("unilever-2025", "complex-transactions", 5221, "Ice Cream demerger"),
+		K$3("unilever-2025", "parent-investments", 5222, "Investments in subsidiaries (Parent Company)"),
+		K$3("astrazeneca-2025", "revenue-deductions", 5504, "Recognition and measurement of accruals for Managed Care, Medicaid and Medicare Part D rebates on US Product Sales"),
+		K$3("astrazeneca-2025", "impairment-intangibles", 5505, "Impairment assessment of the product, marketing and distribution rights and other intangibles"),
+		K$3("astrazeneca-2025", "provisions-litigation", 5506, "Recognition and measurement of legal provisions and disclosure of contingent liabilities"),
+		K$3("astrazeneca-2025", "actuarial", 5507, "Valuation of defined benefit obligations in the United Kingdom"),
+		K$3("astrazeneca-2025", "parent-investments", 5503, "Distributable reserves (Company)"),
+		K$3("gsk-2025", "revenue-deductions", 5796, "Valuation of US Returns and Rebates (RAR) accruals"),
+		K$3("gsk-2025", "fair-value", 5797, "Valuation of the ViiV Healthcare Shionogi contingent consideration liability"),
+		K$3("gsk-2025", "impairment-intangibles", 5798, "Valuation of other intangible assets"),
+		K$3("gsk-2025", "tax-uncertainty", 5799, "Valuation of uncertain tax positions, including transfer pricing"),
+		K$3("hsbc-2025", "credit-losses", 6206, "Expected credit losses – Loans and advances to customers (Group)"),
+		K$3("hsbc-2025", "parent-investments", 6206, "Investments in subsidiaries (parent company)"),
+		K$3("totalenergies-2024", "impairment-assets", 6369, "Evaluation of the impairment of non-current assets used in exploration and production activities (E&P and Integrated LNG)"),
+		K$3("totalenergies-2024", "impairment-assets", 6372, "Effect of estimated proved developed hydrocarbon reserves on the depreciation of the oil and gas assets used in production activities"),
+		K$3("airbus-2023", "revenue-recognition", 7380, "Revenue recognition (including revenues and costs at completion for onerous and over-time contracts)"),
+		K$3("airbus-2023", "impairment-assets", 7383, "Recoverability of key program assets - long-lived assets"),
+		K$3("airbus-2023", "fair-value", 7384, "Accounting for derivative financial instruments and hedge ineffectiveness"),
+		K$3("sanofi-2025", "impairment-intangibles", 7636, "Recoverable amount of other intangible assets - Acquired R&D, products, trademarks and other rights"),
+		K$3("sanofi-2025", "revenue-deductions", 7636, "Valuation of the provisions for rebates relating to Sanofi’s business in the United States – Medicaid, Medicare and Managed Care"),
+		K$3("sanofi-2025", "tax-uncertainty", 7637, "Uncertain tax positions"),
+		K$3("toyota-2026", "provisions-litigation", 7906, "Liabilities for the costs of recalls and other safety measures"),
+		K$3("toyota-2026", "credit-losses", 7906, "Allowance for credit losses—Retail finance receivables"),
+		K$3("honda-2023", "provisions-litigation", 8137, "Evaluation of the provision for specific warranty programs"),
+		K$3("honda-2023", "credit-losses", 8137, "Allowance for expected credit losses on retail receivables at the finance subsidiary in the United States"),
+		K$3("honda-2023", "impairment-assets", 8138, "Estimated end of term residual values of lease vehicles at the finance subsidiary in the United States"),
+		K$3("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Macroeconomic Variables in Multiple Economic Forecast Scenarios and Weightings"),
+		K$3("mufg-2026", "credit-losses", 8615, "Allowance for Credit Losses — Krungsri Segment — Qualitative Adjustments"),
+		K$3("mufg-2026", "credit-losses", 8616, "Allowance for Credit Losses — Commercial Segment — Internal Credit Rating"),
+		K$3("smfg-2026", "credit-losses", 8909, "The reasonableness of management's assessment of the reserve for possible loan losses for SMBC's corporate loans"),
+		K$3("samsung-2025", "impairment-assets", 8918, "Evaluation of commencement of depreciation related to construction in progress"),
+		K$3("samsung-2025", "revenue-deductions", 8918, "Sales deduction related to sales promotion activities"),
+		K$3("tencent-2025", "revenue-recognition", 9308, "Revenue recognition on provision of online games value-added services related to in-game permanent virtual items – the estimates of expected user lifetime"),
+		K$3("tencent-2025", "impairment-intangibles", 9309, "Impairment assessments of goodwill, investments in associates and investments in joint ventures"),
+		K$3("tencent-2025", "fair-value", 9311, "Fair value measurement of Level 3 financial instruments"),
+		K$3("reliance-2026", "provisions-litigation", 9519, "Litigation matters"),
+		K$3("reliance-2026", "fair-value", 9519, "Fair Valuation of Investments"),
+		K$3("reliance-2026", "it-controls", 9520, "Information Technology (IT) systems and controls over financial reporting"),
+		K$3("reliance-2026", "revenue-recognition", 9562, "Revenue Recognition (reported by the auditors of Reliance Jio Infocomm)"),
+		K$3("infosys-2026", "revenue-recognition", 9810, "Revenue recognition"),
+		K$3("infosys-2026", "revenue-recognition", 9811, "Revenue recognition - Fixed price contracts using the percentage of completion method"),
+		K$3("aramco-2025", "impairment-intangibles", 10164, "Recoverability of Downstream goodwill and the SABIC brand"),
+		K$3("aramco-2025", "impairment-assets", 10165, "Valuation of property, plant and equipment and assets held for sale"),
+		K$3("aramco-2025", "complex-transactions", 10167, "Sale of non-controlling interest in Jafurah Midstream Gas Company"),
+		K$3("emiratesnbd-2025", "credit-losses", 10336, "Expected Credit Loss allowance against Loans and receivables"),
+		K$3("emiratesnbd-2025", "related-parties", 10338, "Related party transactions and balances"),
+		K$3("eand-2025", "revenue-recognition", 10553, "Revenue recognition"),
+		K$3("eand-2025", "impairment-intangibles", 10554, "Carrying value of cash generating units, including goodwill"),
+		K$3("rbc-2025", "credit-losses", 10745, "Allowance for Credit Losses on Loans Categorized as Stage 1 and Stage 2"),
+		K$3("rbc-2025", "tax-uncertainty", 10745, "Uncertain Tax Positions"),
+		K$3("bhp-2025", "impairment-assets", 11205, "Carrying value of property, plant and equipment"),
+		K$3("bhp-2025", "provisions-litigation", 11205, "Closure and rehabilitation provisions"),
+		K$3("bhp-2025", "provisions-litigation", 11206, "Samarco dam failure provisions recognised and the contingent liabilities disclosed"),
+		K$3("cba-2025", "credit-losses", 12468, "Provisions for loan impairment"),
+		K$3("cba-2025", "provisions-litigation", 12469, "Provisions for ongoing class actions"),
+		K$3("cba-2025", "it-controls", 12470, "Operation of financial reporting Information Technology (IT) systems and controls")
 	];
 	var MATERIALITY = [
 		{
@@ -11833,7 +11833,7 @@ window.SKEngines = (function() {
 	var E_ = "existence";
 	var C$1 = "completeness";
 	var A$1 = "accuracy";
-	var K$1 = "cutoff";
+	var K$2 = "cutoff";
 	var V = "valuation";
 	var P = "presentation";
 	var MGT = "الإدارة المالية";
@@ -11861,8 +11861,8 @@ window.SKEngines = (function() {
 			"loansCl",
 			"loansNcl"
 		] }),
-		T("CA-02", "area", "التسويات البنكية في تاريخ الإقفال مع الكشوف الداعمة والبنود المعلقة", "اكتمال النقد والقطع", "reconciliation", [E_, K$1], "ISA 500", "always", MGT, "فحص كشف الشهر اللاحق لتسوية البنود المعلقة", { lines: ["cash"] }),
-		T("CA-04", "area", "كشوف الحسابات البنكية لشهر الإقفال والشهر اللاحق لكل حساب", "إثبات الرصيد في تاريخ الإقفال وتسوية البنود المعلقة لاحقاً", "bank", [E_, K$1], "ISA 500", "always", MGT, "طلب الكشوف من البنك مباشرة عبر المصادقة البنكية", { lines: ["cash"] }),
+		T("CA-02", "area", "التسويات البنكية في تاريخ الإقفال مع الكشوف الداعمة والبنود المعلقة", "اكتمال النقد والقطع", "reconciliation", [E_, K$2], "ISA 500", "always", MGT, "فحص كشف الشهر اللاحق لتسوية البنود المعلقة", { lines: ["cash"] }),
+		T("CA-04", "area", "كشوف الحسابات البنكية لشهر الإقفال والشهر اللاحق لكل حساب", "إثبات الرصيد في تاريخ الإقفال وتسوية البنود المعلقة لاحقاً", "bank", [E_, K$2], "ISA 500", "always", MGT, "طلب الكشوف من البنك مباشرة عبر المصادقة البنكية", { lines: ["cash"] }),
 		T("CA-03", "area", "محاضر جرد النقدية والعهد في تاريخ الإقفال", "وجود النقد بالصندوق", "count", [E_], "ISA 501", "material", "أمين الصندوق", "فحص الحركة اللاحقة للعهد وتسويتها", { lines: ["cash"] }),
 		T("AR-01", "area", "كشف أعمار الذمم المدينة بالعميل في تاريخ الإقفال مطابقاً للأستاذ", "التقييم والوجود", "schedule", [E_, V], "ISA 500", "significant", MGT, "إعداد الأعمار من دفتر الأستاذ المساعد", { lines: ["receivables"] }),
 		T("AR-02", "area", "مصادقات أرصدة لعينة من العملاء (إيجابية)", "وجود الأرصدة وحقوق المنشأة", "confirmation", [E_], "ISA 505", "significant", "العملاء (يرسلها المراجع)", "التحصيلات اللاحقة وفواتير البيع ومستندات التسليم للأرصدة غير المؤكدة", { lines: ["receivables"] }),
@@ -11883,7 +11883,7 @@ window.SKEngines = (function() {
 		T("IA-01", "area", "سجل الأصول غير الملموسة والشهرة وتوزيعها على وحدات توليد النقد", "الوجود والتقييم (IAS 38، IFRS 3)", "register", [E_, V], "ISA 500", "significant", MGT, "إعادة بناء الرصيد من اتفاقيات الاستحواذ والتراخيص", { lines: ["intangibles"] }),
 		T("IV-01", "area", "كشوف الاستثمارات ومصادقات أمناء الحفظ وتقارير القيمة العادلة", "الوجود والتقييم (IFRS 9/13)", "confirmation", [E_, V], "ISA 505", "significant", "أمين الحفظ", "أسعار السوق المعلنة وشهادات الملكية الأصلية", { lines: ["investments", "investIncome"] }),
 		T("AP-01", "area", "كشف أرصدة الموردين مع مطابقات كشوف حسابات الموردين الرئيسيين", "اكتمال الالتزامات", "reconciliation", [C$1, A$1], "ISA 500", "significant", MGT, "مصادقة مباشرة للموردين الرئيسيين", { lines: ["payables"] }),
-		T("AP-02", "area", "المدفوعات والفواتير المستلمة بعد تاريخ الإقفال حتى تاريخ العمل الميداني", "البحث عن الالتزامات غير المسجلة والقطع", "invoice", [C$1, K$1], "ISA 500", "always", MGT, "فحص كشوف البنك اللاحقة مباشرة", { lines: ["payables", "accruals"] }),
+		T("AP-02", "area", "المدفوعات والفواتير المستلمة بعد تاريخ الإقفال حتى تاريخ العمل الميداني", "البحث عن الالتزامات غير المسجلة والقطع", "invoice", [C$1, K$2], "ISA 500", "always", MGT, "فحص كشوف البنك اللاحقة مباشرة", { lines: ["payables", "accruals"] }),
 		T("AP-03", "area", "مصادقات أرصدة لعينة من الموردين (بما فيها الأرصدة الصفرية)", "اكتمال الالتزامات", "confirmation", [C$1], "ISA 505", "material", "الموردون (يرسلها المراجع)", "كشوف حسابات الموردين والمدفوعات اللاحقة", { lines: ["payables"] }),
 		T("AC-01", "area", "تحليل المصروفات المستحقة والمطلوبات الأخرى مع أساس كل تقدير", "الاكتمال والتقييم", "schedule", [C$1, V], "ISA 540", "estimate", MGT, "تقدير مستقل من المدفوعات اللاحقة", { lines: ["accruals", "otherCl"] }),
 		T("PR-01", "area", "تحليل حركة المخصصات وأساس كل مخصص ورأي المستشارين", "الاعتراف والقياس (IAS 37)", "legal", [C$1, V], "ISA 540", "estimate", MGT, "فحص المحاضر والمراسلات والمدفوعات اللاحقة", { lines: ["provisions"] }),
@@ -11910,9 +11910,9 @@ window.SKEngines = (function() {
 			"partners",
 			"retained"
 		] }),
-		T("RV-01", "area", "عقود البيع الرئيسية وسياسة الاعتراف بالإيراد وشروط التسليم والخصومات", "الحدوث والقطع (IFRS 15)", "contract", [E_, K$1], "ISA 500", "always", MGT, "فحص عينة من الفواتير ومستندات التسليم", { lines: ["revenue", "contractLiab"] }),
-		T("RV-02", "area", "فواتير ومستندات تسليم لعينة من المبيعات وحول تاريخ الإقفال", "الحدوث والقطع", "invoice", [E_, K$1], "ISA 500", "always", MGT, "فحص التحصيلات البنكية المقابلة للمبيعات", { lines: ["revenue", "receivables"] }),
-		T("RV-03", "area", "تحليل المرتجعات والخصومات والحوافز بعد تاريخ الإقفال", "تقدير المقابل المتغير والقطع", "schedule", [K$1, V], "ISA 540", "estimate", MGT, "فحص إشعارات الدائن اللاحقة", { lines: ["revenue"] }),
+		T("RV-01", "area", "عقود البيع الرئيسية وسياسة الاعتراف بالإيراد وشروط التسليم والخصومات", "الحدوث والقطع (IFRS 15)", "contract", [E_, K$2], "ISA 500", "always", MGT, "فحص عينة من الفواتير ومستندات التسليم", { lines: ["revenue", "contractLiab"] }),
+		T("RV-02", "area", "فواتير ومستندات تسليم لعينة من المبيعات وحول تاريخ الإقفال", "الحدوث والقطع", "invoice", [E_, K$2], "ISA 500", "always", MGT, "فحص التحصيلات البنكية المقابلة للمبيعات", { lines: ["revenue", "receivables"] }),
+		T("RV-03", "area", "تحليل المرتجعات والخصومات والحوافز بعد تاريخ الإقفال", "تقدير المقابل المتغير والقطع", "schedule", [K$2, V], "ISA 540", "estimate", MGT, "فحص إشعارات الدائن اللاحقة", { lines: ["revenue"] }),
 		T("CS-01", "area", "تحليل تكلفة المبيعات وربطها بحركة المخزون والمشتريات", "الاكتمال والتطابق مع الإيراد", "reconciliation", [C$1, A$1], "ISA 520", "always", MGT, "إعادة بناء التكلفة من حركة المخزون", { lines: ["cogs", "inventory"] }),
 		T("OX-01", "area", "تحليل المصروفات التشغيلية الجوهرية وفواتير عينة منها", "الحدوث والتصنيف", "invoice", [E_, P], "ISA 500", "significant", MGT, "فحص المدفوعات البنكية المقابلة", { lines: [
 			"selling",
@@ -11973,11 +11973,11 @@ window.SKEngines = (function() {
 			theme: "actuarial",
 			lines: ["eosb"]
 		}),
-		T("KM-13", "kam", "تحليل الخصومات والحوافز المستحقة للعملاء وأساس الاستحقاق والتسويات الفعلية اللاحقة", "تقدير المقابل المتغير — كما في تقارير السلع الاستهلاكية", "schedule", [V, K$1], "ISA 540", "estimate", MGT, "توقع مستقل من المطالبات الفعلية والاتجاهات", {
+		T("KM-13", "kam", "تحليل الخصومات والحوافز المستحقة للعملاء وأساس الاستحقاق والتسويات الفعلية اللاحقة", "تقدير المقابل المتغير — كما في تقارير السلع الاستهلاكية", "schedule", [V, K$2], "ISA 540", "estimate", MGT, "توقع مستقل من المطالبات الفعلية والاتجاهات", {
 			theme: "revenue-deductions",
 			lines: ["revenue", "accruals"]
 		}),
-		T("KM-14", "kam", "عقود طويلة الأجل ونسبة الإنجاز وتقديرات التكلفة حتى الإكمال", "توقيت الاعتراف بالإيراد وهوامش العقود (IFRS 15)", "contract", [V, K$1], "ISA 540", "estimate", MGT, "زيارات ميدانية ومقارنة التكاليف الفعلية بالتقديرات السابقة", {
+		T("KM-14", "kam", "عقود طويلة الأجل ونسبة الإنجاز وتقديرات التكلفة حتى الإكمال", "توقيت الاعتراف بالإيراد وهوامش العقود (IFRS 15)", "contract", [V, K$2], "ISA 540", "estimate", MGT, "زيارات ميدانية ومقارنة التكاليف الفعلية بالتقديرات السابقة", {
 			theme: "revenue-recognition",
 			lines: ["revenue", "contractLiab"]
 		}),
@@ -12537,7 +12537,7 @@ window.SKEngines = (function() {
 			action: "تصحيح الملف المصدر وإعادة الاستيراد."
 		});
 		for (const a of accounts) {
-			const n = norm$3(a.name), big = Math.abs(a.balance) >= mat.trivial;
+			const n = norm$4(a.name), big = Math.abs(a.balance) >= mat.trivial;
 			if (a.type === "suspense" || !a.lineKey) tag(add({
 				severity: big ? "medium" : "low",
 				kind: "classification",
@@ -12826,7 +12826,7 @@ window.SKEngines = (function() {
 			action: "طلب إيصال السداد أو قيد المخصص."
 		});
 		const ppeNet = kv("ppe");
-		const depInside = accounts.some((a) => a.type === "expense" && a.natural !== 0 && /استهلاك|اهلاك|اطفاء/.test(norm$3(a.name)));
+		const depInside = accounts.some((a) => a.type === "expense" && a.natural !== 0 && /استهلاك|اهلاك|اطفاء/.test(norm$4(a.name)));
 		if (ppeNet > 0 && kv("depreciation") === 0 && !depInside) add({
 			severity: ppeNet >= mat.overall ? "high" : "medium",
 			kind: "completeness",
@@ -12847,7 +12847,7 @@ window.SKEngines = (function() {
 			basis: "الصافي " + money(ppeNet),
 			action: "مراجعة سجل الأصول والاستبعادات."
 		});
-		const salaries = accounts.filter((a) => a.type === "expense" && SALARIES.test(norm$3(a.name))).reduce((s, a) => s + a.natural, 0);
+		const salaries = accounts.filter((a) => a.type === "expense" && SALARIES.test(norm$4(a.name))).reduce((s, a) => s + a.natural, 0);
 		if (!egypt && !intl && salaries > 0 && !fs.lines.some((l) => l.key === "eosb" && l.current !== 0)) add({
 			severity: salaries >= mat.overall ? "high" : "medium",
 			kind: "completeness",
@@ -12859,7 +12859,7 @@ window.SKEngines = (function() {
 			action: "طلب كشف الموظفين واحتساب الالتزام."
 		});
 		const loans = kv("loansCl") + kv("loansNcl");
-		const financeInside = accounts.some((a) => a.natural !== 0 && a.lineKey !== "loansNcl" && a.lineKey !== "loansCl" && /تكاليف التمويل|تكلفه التمويل|فوائد/.test(norm$3(a.name)));
+		const financeInside = accounts.some((a) => a.natural !== 0 && a.lineKey !== "loansNcl" && a.lineKey !== "loansCl" && /تكاليف التمويل|تكلفه التمويل|فوائد/.test(norm$4(a.name)));
 		if (loans > 0 && kv("finance") === 0 && !financeInside) add({
 			severity: "medium",
 			kind: "completeness",
@@ -12871,7 +12871,7 @@ window.SKEngines = (function() {
 			action: "طلب عقود التمويل وكشوف احتساب الفائدة."
 		});
 		const rec = kv("receivables");
-		if (rec >= mat.performance && !fs.lines.some((l) => l.key === "impairment" && l.current !== 0) && !accounts.some((a) => a.lineKey === "receivables" && /خسائر|مخصص|مشكوك/.test(norm$3(a.name)))) add({
+		if (rec >= mat.performance && !fs.lines.some((l) => l.key === "impairment" && l.current !== 0) && !accounts.some((a) => a.lineKey === "receivables" && /خسائر|مخصص|مشكوك/.test(norm$4(a.name)))) add({
 			severity: "medium",
 			kind: "measurement",
 			lineKey: "receivables",
@@ -13312,7 +13312,7 @@ window.SKEngines = (function() {
 	}
 	/** The allowance already booked: credit balances of the receivables line's allowance accounts. */
 	function existingAllowance(tb) {
-		return tb.rows.filter((r) => lineFor(r).key === "receivables" && /خسائر|مخصص|مشكوك|allowance/.test(norm$3(r.name))).reduce((a, r) => a + Math.max(0, -r.balance), 0);
+		return tb.rows.filter((r) => lineFor(r).key === "receivables" && /خسائر|مخصص|مشكوك|allowance/.test(norm$4(r.name))).reduce((a, r) => a + Math.max(0, -r.balance), 0);
 	}
 	/** The entry that brings the allowance to the matrix result (up or down); null when nothing changes. */
 	function eclAdjustment(tb, matrix, framework = "IFRS") {
@@ -13394,7 +13394,7 @@ window.SKEngines = (function() {
 	/** no cap: the rounds go on until the evidence is sufficient or what remains is declared unavailable by the entity (then the
 	report carries the limitation, ISA 705); a firm may still pass its own cap to sessionState */
 	var MAX_ROUNDS = Number.POSITIVE_INFINITY;
-	var S$3 = (description) => ({
+	var S$4 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
 	});
@@ -13408,10 +13408,10 @@ window.SKEngines = (function() {
 		required
 	});
 	var LINES_SCHEMA = ARR$1(OBJ$2({
-		accountCode: S$3("رقم الحساب من الميزان، أو NEW-… لحساب جديد"),
-		accountName: S$3(),
-		debit: S$3("مبلغ بالريال أو 0"),
-		credit: S$3("مبلغ بالريال أو 0")
+		accountCode: S$4("رقم الحساب من الميزان، أو NEW-… لحساب جديد"),
+		accountName: S$4(),
+		debit: S$4("مبلغ بالريال أو 0"),
+		credit: S$4("مبلغ بالريال أو 0")
 	}, [
 		"accountCode",
 		"accountName",
@@ -13419,9 +13419,9 @@ window.SKEngines = (function() {
 		"credit"
 	]));
 	var ADJ_SCHEMA = ARR$1(OBJ$2({
-		title: S$3(),
-		reason: S$3(),
-		standardCode: S$3(),
+		title: S$4(),
+		reason: S$4(),
+		standardCode: S$4(),
 		lines: LINES_SCHEMA
 	}, [
 		"title",
@@ -13435,7 +13435,7 @@ window.SKEngines = (function() {
 			enum: ["needs_docs", "complete"],
 			description: "needs_docs ما دامت هناك مستندات مطلوبة أو ملاحظات جوهرية معلقة"
 		},
-		executiveSummary: S$3(),
+		executiveSummary: S$4(),
 		riskScore: {
 			type: "INTEGER",
 			description: "0-100"
@@ -13445,17 +13445,17 @@ window.SKEngines = (function() {
 				type: "STRING",
 				enum: [...REVIEWERS]
 			},
-			opinion: S$3()
+			opinion: S$4()
 		}, ["reviewer", "opinion"])),
 		accountStandards: ARR$1(OBJ$2({
-			accountCode: S$3(),
-			standards: ARR$1(S$3()),
-			note: S$3("علاقة المعيار بالحساب باختصار")
+			accountCode: S$4(),
+			standards: ARR$1(S$4()),
+			note: S$4("علاقة المعيار بالحساب باختصار")
 		}, ["accountCode", "standards"])),
 		findings: ARR$1(OBJ$2({
-			accountCode: S$3(),
-			accountName: S$3(),
-			standardCode: S$3(),
+			accountCode: S$4(),
+			accountName: S$4(),
+			standardCode: S$4(),
 			issueType: {
 				type: "STRING",
 				enum: [
@@ -13478,10 +13478,10 @@ window.SKEngines = (function() {
 					"منخفضة"
 				]
 			},
-			amount: S$3("المبلغ المتأثر بالريال إن وجد"),
-			comment: S$3(),
-			recommendation: S$3(),
-			citations: ARR$1(S$3("رقم دليل من السجل"))
+			amount: S$4("المبلغ المتأثر بالريال إن وجد"),
+			comment: S$4(),
+			recommendation: S$4(),
+			citations: ARR$1(S$4("رقم دليل من السجل"))
 		}, [
 			"accountName",
 			"standardCode",
@@ -13490,11 +13490,11 @@ window.SKEngines = (function() {
 			"recommendation"
 		])),
 		requestedDocuments: ARR$1(OBJ$2({
-			id: S$3("REQ-n متسلسل ومحفوظ بين الجولات"),
-			title: S$3(),
-			purpose: S$3(),
-			relatedAccounts: ARR$1(S$3()),
-			standardCode: S$3(),
+			id: S$4("REQ-n متسلسل ومحفوظ بين الجولات"),
+			title: S$4(),
+			purpose: S$4(),
+			relatedAccounts: ARR$1(S$4()),
+			standardCode: S$4(),
 			priority: {
 				type: "STRING",
 				enum: [
@@ -13503,7 +13503,7 @@ window.SKEngines = (function() {
 					"منخفضة"
 				]
 			},
-			lineKey: S$3("مفتاح البند"),
+			lineKey: S$4("مفتاح البند"),
 			assertion: {
 				type: "STRING",
 				enum: [
@@ -13523,7 +13523,7 @@ window.SKEngines = (function() {
 					"high"
 				]
 			},
-			citations: ARR$1(S$3())
+			citations: ARR$1(S$4())
 		}, [
 			"id",
 			"title",
@@ -13531,8 +13531,8 @@ window.SKEngines = (function() {
 			"priority"
 		])),
 		documentsReviewed: ARR$1(OBJ$2({
-			fileName: S$3(),
-			requestId: S$3(),
+			fileName: S$4(),
+			requestId: S$4(),
 			verdict: {
 				type: "STRING",
 				enum: [
@@ -13541,14 +13541,14 @@ window.SKEngines = (function() {
 					"مرفوض"
 				]
 			},
-			notes: S$3(),
+			notes: S$4(),
 			extracted: OBJ$2({
-				documentDate: S$3("YYYY-MM-DD"),
-				amount: S$3(),
-				vatAmount: S$3(),
-				vatNumber: S$3(),
-				counterparty: S$3(),
-				reference: S$3()
+				documentDate: S$4("YYYY-MM-DD"),
+				amount: S$4(),
+				vatAmount: S$4(),
+				vatNumber: S$4(),
+				counterparty: S$4(),
+				reference: S$4()
 			}, [])
 		}, [
 			"fileName",
@@ -13556,7 +13556,7 @@ window.SKEngines = (function() {
 			"notes"
 		])),
 		proposedAdjustments: ADJ_SCHEMA,
-		nextStepGuidance: S$3(),
+		nextStepGuidance: S$4(),
 		decision: {
 			type: "STRING",
 			enum: [
@@ -13567,7 +13567,7 @@ window.SKEngines = (function() {
 			description: "قرار الرئيس: طلب أدلة، أو تصعيد للمراجع البشري، أو اكتفاء"
 		},
 		confidence: ARR$1(OBJ$2({
-			lineKey: S$3(),
+			lineKey: S$4(),
 			assertion: {
 				type: "STRING",
 				enum: [
@@ -13589,9 +13589,9 @@ window.SKEngines = (function() {
 			"value"
 		])),
 		dissent: ARR$1(OBJ$2({
-			member: S$3(),
-			note: S$3(),
-			citations: ARR$1(S$3())
+			member: S$4(),
+			note: S$4(),
+			citations: ARR$1(S$4())
 		}, ["member", "note"]))
 	}, [
 		"status",
@@ -13612,19 +13612,19 @@ window.SKEngines = (function() {
 				"امتناع عن إبداء الرأي"
 			]
 		},
-		headline: S$3(),
-		summary: S$3(),
+		headline: S$4(),
+		summary: S$4(),
 		keyAuditMatters: ARR$1(OBJ$2({
-			title: S$3(),
-			why: S$3("لماذا يعد أمراً رئيسياً"),
-			how: S$3("كيف عولج في المراجعة")
+			title: S$4(),
+			why: S$4("لماذا يعد أمراً رئيسياً"),
+			how: S$4("كيف عولج في المراجعة")
 		}, [
 			"title",
 			"why",
 			"how"
 		])),
 		complianceDiscussion: ARR$1(OBJ$2({
-			standardCode: S$3(),
+			standardCode: S$4(),
 			status: {
 				type: "STRING",
 				enum: [
@@ -13634,7 +13634,7 @@ window.SKEngines = (function() {
 					"غير منطبق"
 				]
 			},
-			discussion: S$3()
+			discussion: S$4()
 		}, [
 			"standardCode",
 			"status",
@@ -13642,10 +13642,10 @@ window.SKEngines = (function() {
 		])),
 		adjustments: ADJ_SCHEMA,
 		managementLetter: ARR$1(OBJ$2({
-			title: S$3(),
-			observation: S$3(),
-			effect: S$3(),
-			recommendation: S$3(),
+			title: S$4(),
+			observation: S$4(),
+			effect: S$4(),
+			recommendation: S$4(),
 			priority: {
 				type: "STRING",
 				enum: [
@@ -13660,8 +13660,8 @@ window.SKEngines = (function() {
 			"recommendation",
 			"priority"
 		])),
-		limitations: ARR$1(S$3()),
-		closingStatement: S$3()
+		limitations: ARR$1(S$4()),
+		closingStatement: S$4()
 	}, [
 		"overallOpinion",
 		"headline",
@@ -13690,7 +13690,7 @@ window.SKEngines = (function() {
 		"غش": "fraud",
 		"استمرارية": "going-concern"
 	};
-	var str$1 = (v, max = 4e3) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
+	var str$2 = (v, max = 4e3) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 	var arr$1 = (v) => Array.isArray(v) ? v : [];
 	function newSession(ctx, model = DEFAULT_MODEL, now = /* @__PURE__ */ new Date()) {
 		return {
@@ -13892,16 +13892,16 @@ window.SKEngines = (function() {
 	function adjFrom(raw, i, round, tb, prefix) {
 		const r = raw ?? {};
 		const lines = arr$1(r.lines).map((l) => ({
-			code: str$1(l.accountCode, 40) || "NEW",
-			name: str$1(l.accountName, 200),
+			code: str$2(l.accountCode, 40) || "NEW",
+			name: str$2(l.accountName, 200),
 			debit: Math.abs(parseMinor(l.debit) ?? 0),
 			credit: Math.abs(parseMinor(l.credit) ?? 0)
 		}));
 		const a = {
 			id: `${prefix}${round}-${i + 1}`,
-			title: str$1(r.title, 200) || "قيد تسوية",
-			reason: str$1(r.reason, 1e3),
-			standard: normalizeCode$1(str$1(r.standardCode, 60)) ?? str$1(r.standardCode, 60),
+			title: str$2(r.title, 200) || "قيد تسوية",
+			reason: str$2(r.reason, 1e3),
+			standard: normalizeCode$1(str$2(r.standardCode, 60)) ?? str$2(r.standardCode, 60),
 			lines,
 			estimate: false,
 			source: "gemini",
@@ -13920,7 +13920,7 @@ window.SKEngines = (function() {
 	function normalizeRound(raw, s, tb, model, now = /* @__PURE__ */ new Date(), evidenceIds) {
 		const r = raw ?? {}, no = s.rounds.length + 1, warnings = [];
 		const cite = (v, where) => {
-			const list = arr$1(v).map((c) => str$1(c, 40)).filter(Boolean);
+			const list = arr$1(v).map((c) => str$2(c, 40)).filter(Boolean);
 			if (!evidenceIds) return list;
 			const bad = list.filter((c) => !evidenceIds.has(c));
 			if (bad.length) warnings.push(`استشهاد بدليل غير موجود في ${where}: ${bad.join("، ")} — حُذف.`);
@@ -13929,33 +13929,33 @@ window.SKEngines = (function() {
 		const codes = new Set(tb.rows.map((x) => x.code));
 		const accountStandards = {};
 		for (const x of arr$1(r.accountStandards)) {
-			const code = str$1(x.accountCode, 40);
+			const code = str$2(x.accountCode, 40);
 			if (!code) continue;
 			if (!codes.has(code)) {
 				warnings.push(`تجاهل معايير لحساب غير موجود في الميزان: ${code}`);
 				continue;
 			}
-			const list = arr$1(x.standards).map((c) => str$1(c, 60)).filter(Boolean);
+			const list = arr$1(x.standards).map((c) => str$2(c, 60)).filter(Boolean);
 			accountStandards[code] = {
 				standards: list.map((c) => normalizeCode$1(c)).filter((c) => !!c).filter((c, i, a) => a.indexOf(c) === i),
 				unknown: list.filter((c) => !normalizeCode$1(c)),
-				note: str$1(x.note, 600)
+				note: str$2(x.note, 600)
 			};
 		}
 		let fseq = 0;
 		const findings = arr$1(r.findings).slice(0, 30).map((f) => {
-			const code = str$1(f.accountCode, 40), std = str$1(f.standardCode, 60), amount = parseMinor(f.amount);
+			const code = str$2(f.accountCode, 40), std = str$2(f.standardCode, 60), amount = parseMinor(f.amount);
 			return {
 				id: `G${no}-${++fseq}`,
-				severity: SEV[str$1(f.severity, 20)] ?? "medium",
-				kind: KIND[str$1(f.issueType, 20)] ?? "measurement",
+				severity: SEV[str$2(f.severity, 20)] ?? "medium",
+				kind: KIND[str$2(f.issueType, 20)] ?? "measurement",
 				code: codes.has(code) ? code : void 0,
-				account: str$1(f.accountName, 200),
+				account: str$2(f.accountName, 200),
 				standard: normalizeCode$1(std) ?? (std || "IAS 1"),
-				title: str$1(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
-				detail: str$1(f.comment, 2e3),
+				title: str$2(f.comment, 160).split(/[.،؛]/)[0] || "ملاحظة",
+				detail: str$2(f.comment, 2e3),
 				basis: amount ? "المبلغ المتأثر " + sar$10(amount) + (s.ctx.framework === "EAS" ? " ج.م" : " ر.س") : "حكم مهني",
-				action: str$1(f.recommendation, 1e3),
+				action: str$2(f.recommendation, 1e3),
 				source: "gemini",
 				round: no,
 				citations: cite(f.citations, "ملاحظة")
@@ -13966,9 +13966,9 @@ window.SKEngines = (function() {
 		let next = existing.size + 1;
 		const requests = [];
 		for (const q of arr$1(r.requestedDocuments).slice(0, 20)) {
-			const title = str$1(q.title, 300);
+			const title = str$2(q.title, 300);
 			if (!title) continue;
-			let id = str$1(q.id, 20).toUpperCase().replace(/\s+/g, "");
+			let id = str$2(q.id, 20).toUpperCase().replace(/\s+/g, "");
 			const same = [...existing.values()].find((e) => e.title === title);
 			if (same) {
 				if (!requests.some((x) => x.id === same.id)) requests.push(same);
@@ -13976,18 +13976,18 @@ window.SKEngines = (function() {
 			}
 			if (!/^REQ-\d+$/.test(id) || existing.has(id) || requests.some((x) => x.id === id)) id = "REQ-" + next;
 			next = Math.max(next, Number(id.slice(4)) + 1);
-			const assertion = str$1(q.assertion, 20), effort = str$1(q.effort, 10), lineKey = str$1(q.lineKey, 40);
+			const assertion = str$2(q.assertion, 20), effort = str$2(q.effort, 10), lineKey = str$2(q.lineKey, 40);
 			requests.push({
 				id,
 				title,
-				purpose: str$1(q.purpose, 600),
-				accounts: arr$1(q.relatedAccounts).map((c) => str$1(c, 40)).filter(Boolean),
-				standard: normalizeCode$1(str$1(q.standardCode, 60)) ?? "ISA 500",
+				purpose: str$2(q.purpose, 600),
+				accounts: arr$1(q.relatedAccounts).map((c) => str$2(c, 40)).filter(Boolean),
+				standard: normalizeCode$1(str$2(q.standardCode, 60)) ?? "ISA 500",
 				priority: [
 					"عالية",
 					"متوسطة",
 					"منخفضة"
-				].find((p) => p === str$1(q.priority, 20)) ?? "متوسطة",
+				].find((p) => p === str$2(q.priority, 20)) ?? "متوسطة",
 				source: "gemini",
 				round: no,
 				...lineKey ? { lineKey } : {},
@@ -14002,26 +14002,26 @@ window.SKEngines = (function() {
 		}
 		const up = pendingUploads(s);
 		const reviewed = arr$1(r.documentsReviewed).map((d) => {
-			const fileName = str$1(d.fileName, 300), match = up.find((u) => u.fileName === fileName) ?? up.find((u) => fileName && (u.fileName.includes(fileName) || fileName.includes(u.fileName)));
+			const fileName = str$2(d.fileName, 300), match = up.find((u) => u.fileName === fileName) ?? up.find((u) => fileName && (u.fileName.includes(fileName) || fileName.includes(u.fileName)));
 			const verdict = [
 				"مقبول",
 				"غير كافٍ",
 				"مرفوض"
-			].find((v) => v === str$1(d.verdict, 20)) ?? "غير كافٍ";
+			].find((v) => v === str$2(d.verdict, 20)) ?? "غير كافٍ";
 			const ex = d.extracted ?? {};
 			return {
 				...match?.origin ? { origin: match.origin } : {},
-				requestId: match?.requestId ?? str$1(d.requestId, 20),
+				requestId: match?.requestId ?? str$2(d.requestId, 20),
 				fileName: match?.fileName ?? fileName,
 				verdict,
-				notes: str$1(d.notes, 2e3),
-				extracted: Object.fromEntries(Object.entries(ex).map(([k, v]) => [k, str$1(v, 200)]).filter(([, v]) => v))
+				notes: str$2(d.notes, 2e3),
+				extracted: Object.fromEntries(Object.entries(ex).map(([k, v]) => [k, str$2(v, 200)]).filter(([, v]) => v))
 			};
 		});
 		for (const u of up) if (!reviewed.some((d) => d.fileName === u.fileName)) warnings.push(`لم يعلّق المجلس على المستند «${u.fileName}»؛ سيبقى الطلب ${u.requestId} قائماً.`);
 		const adjustments = arr$1(r.proposedAdjustments).slice(0, 15).map((a, i) => adjFrom(a, i, no, tb, "G"));
 		for (const a of adjustments) if (!a.valid) warnings.push(`القيد «${a.title}» لم يُقبل آلياً: ${a.problems.join("، ") || "بيانات ناقصة"}.`);
-		let status = str$1(r.status, 20) === "complete" ? "complete" : "needs_docs";
+		let status = str$2(r.status, 20) === "complete" ? "complete" : "needs_docs";
 		const newAsks = requests.filter((q) => q.round === no);
 		if (status === "complete" && newAsks.length) {
 			status = "needs_docs";
@@ -14037,32 +14037,32 @@ window.SKEngines = (function() {
 			at: now.toISOString(),
 			model,
 			status,
-			summary: str$1(r.executiveSummary, 4e3),
+			summary: str$2(r.executiveSummary, 4e3),
 			riskScore: Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 50,
 			opinions: arr$1(r.boardOpinions).map((o) => ({
-				reviewer: str$1(o.reviewer, 80),
-				opinion: str$1(o.opinion, 2e3)
+				reviewer: str$2(o.reviewer, 80),
+				opinion: str$2(o.opinion, 2e3)
 			})).filter((o) => o.opinion),
 			accountStandards,
 			findings,
 			requests,
 			reviewed,
 			adjustments,
-			guidance: str$1(r.nextStepGuidance, 2e3),
+			guidance: str$2(r.nextStepGuidance, 2e3),
 			warnings,
 			...r.decision ? { decision: [
 				"request_more_evidence",
 				"escalate",
 				"sufficient"
-			].find((d) => d === str$1(r.decision, 30)) ?? "request_more_evidence" } : {},
+			].find((d) => d === str$2(r.decision, 30)) ?? "request_more_evidence" } : {},
 			...r.confidence ? { confidence: arr$1(r.confidence).map((c) => ({
-				lineKey: str$1(c.lineKey, 40),
-				assertion: str$1(c.assertion, 20),
+				lineKey: str$2(c.lineKey, 40),
+				assertion: str$2(c.assertion, 20),
 				value: Math.max(0, Math.min(1, Number(c.value) || 0))
 			})).filter((c) => c.lineKey) } : {},
 			...r.dissent ? { dissent: arr$1(r.dissent).map((x) => ({
-				member: str$1(x.member, 80),
-				note: str$1(x.note, 800),
+				member: str$2(x.member, 80),
+				note: str$2(x.note, 800),
 				citations: cite(x.citations, "رأي مخالف")
 			})).filter((x) => x.note) } : {}
 		};
@@ -14253,29 +14253,29 @@ window.SKEngines = (function() {
 		if (origin) return referenceFinal(origin, now.toISOString());
 		return {
 			at: now.toISOString(),
-			aiOpinion: str$1(r.overallOpinion, 40),
-			headline: str$1(r.headline, 300),
-			summary: str$1(r.summary, 6e3),
+			aiOpinion: str$2(r.overallOpinion, 40),
+			headline: str$2(r.headline, 300),
+			summary: str$2(r.summary, 6e3),
 			kams: arr$1(r.keyAuditMatters).map((k) => ({
-				title: str$1(k.title, 200),
-				why: str$1(k.why, 2e3),
-				how: str$1(k.how, 2e3)
+				title: str$2(k.title, 200),
+				why: str$2(k.why, 2e3),
+				how: str$2(k.how, 2e3)
 			})).filter((k) => k.title),
 			compliance: arr$1(r.complianceDiscussion).map((c) => ({
-				standardCode: normalizeCode$1(str$1(c.standardCode, 60)) ?? str$1(c.standardCode, 60),
-				status: str$1(c.status, 30),
-				discussion: str$1(c.discussion, 3e3)
+				standardCode: normalizeCode$1(str$2(c.standardCode, 60)) ?? str$2(c.standardCode, 60),
+				status: str$2(c.status, 30),
+				discussion: str$2(c.discussion, 3e3)
 			})).filter((c) => c.standardCode),
 			adjustments: arr$1(r.adjustments).slice(0, 20).map((a, i) => adjFrom(a, i, s.rounds.length + 1, tb, "F")),
 			letter: arr$1(r.managementLetter).map((m) => ({
-				title: str$1(m.title, 200),
-				observation: str$1(m.observation, 2e3),
-				effect: str$1(m.effect, 2e3) || void 0,
-				recommendation: str$1(m.recommendation, 2e3),
-				priority: str$1(m.priority, 20)
+				title: str$2(m.title, 200),
+				observation: str$2(m.observation, 2e3),
+				effect: str$2(m.effect, 2e3) || void 0,
+				recommendation: str$2(m.recommendation, 2e3),
+				priority: str$2(m.priority, 20)
 			})).filter((m) => m.title),
-			limitations: arr$1(r.limitations).map((x) => str$1(x, 600)).filter(Boolean),
-			closing: str$1(r.closingStatement, 2e3)
+			limitations: arr$1(r.limitations).map((x) => str$2(x, 600)).filter(Boolean),
+			closing: str$2(r.closingStatement, 2e3)
 		};
 	}
 	/** Test call body for the key check. */
@@ -14403,7 +14403,7 @@ window.SKEngines = (function() {
 		}
 	};
 	var clamp01 = (x) => Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : 0;
-	var r2$8 = (x) => Math.round(x * 100) / 100;
+	var r2$9 = (x) => Math.round(x * 100) / 100;
 	/** E — evidence coverage for a balance: Σ r·v ÷ V, capped at 1 (only accepted evidence counts). */
 	function coverage(items, balance) {
 		const V = Math.abs(balance);
@@ -14437,9 +14437,9 @@ window.SKEngines = (function() {
 		};
 		if (p.A === null) {
 			const k = W.E + W.T || 1;
-			return r2$8(clamp01(W.E / k * p.E + W.T / k * p.T));
+			return r2$9(clamp01(W.E / k * p.E + W.T / k * p.T));
 		}
-		return r2$8(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
+		return r2$9(clamp01(W.E * p.E + W.T * p.T + W.A * p.A));
 	}
 	/** The confidence a line needs: material & high risk 0.90, material & medium 0.80, material & low 0.70, immaterial → analytics only (null). */
 	function thresholdFor(line) {
@@ -14464,9 +14464,9 @@ window.SKEngines = (function() {
 				}, i.weights);
 				return {
 					assertion: a,
-					E: r2$8(E),
-					T: r2$8(T),
-					A: A === null ? null : r2$8(A),
+					E: r2$9(E),
+					T: r2$9(T),
+					A: A === null ? null : r2$9(A),
 					C,
 					met: threshold === null ? null : C >= threshold
 				};
@@ -14477,13 +14477,13 @@ window.SKEngines = (function() {
 				threshold,
 				...ov ? { override: ov } : {},
 				cells,
-				min: r2$8(min),
+				min: r2$9(min),
 				met: threshold === null ? null : cells.every((c) => c.met)
 			};
 		});
 		const open = rows.filter((r) => r.met === false), material = rows.filter((r) => r.threshold !== null);
-		const avgOpen = open.length ? r2$8(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
-		const avgAll = material.length ? r2$8(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
+		const avgOpen = open.length ? r2$9(open.reduce((s, r) => s + r.min, 0) / open.length) : 1;
+		const avgAll = material.length ? r2$9(material.reduce((s, r) => s + r.min, 0) / material.length) : 1;
 		return {
 			rows,
 			open,
@@ -14548,7 +14548,7 @@ window.SKEngines = (function() {
 			amount,
 			accepted: true
 		}], row.amount);
-		return r2$8(Math.max(0, confidence({
+		return r2$9(Math.max(0, confidence({
 			E: E2,
 			T: cell.T,
 			A: cell.A
@@ -14558,11 +14558,11 @@ window.SKEngines = (function() {
 	function rankRequests(list) {
 		return list.map((q) => ({
 			...q,
-			score: r2$8(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
+			score: r2$9(q.expectedGain * q.materialityWeight / EFFORT[q.effort].v * 100) / 100
 		})).sort((a, b) => b.score - a.score || b.materialityWeight - a.materialityWeight);
 	}
 	/** Materiality weight of a line: its balance relative to overall materiality (≥ 1 means material on its own). */
-	var materialityWeight = (amount, overall) => overall > 0 ? r2$8(Math.min(10, Math.abs(amount) / overall)) : 1;
+	var materialityWeight = (amount, overall) => overall > 0 ? r2$9(Math.min(10, Math.abs(amount) / overall)) : 1;
 	var STATES = [
 		{
 			key: "new",
@@ -14799,7 +14799,7 @@ window.SKEngines = (function() {
 		removedKams: () => removedKams,
 		suggestKams: () => suggestKams
 	});
-	var clean$3 = (x) => x.replace(/[.،؛]\s*$/, "");
+	var clean$4 = (x) => x.replace(/[.،؛]\s*$/, "");
 	/** The revenue theme carries the presumed risk of fraud (ISA 240.26), so it ranks above an equal line risk. */
 	var FRAUD_THEMES = /* @__PURE__ */ new Set(["revenue-deductions", "revenue-recognition"]);
 	function suggestKams(input) {
@@ -14831,8 +14831,8 @@ window.SKEngines = (function() {
 				if (!prev.lineKeys.includes(r.lineKey)) prev.lineKeys.push(r.lineKey);
 				continue;
 			}
-			const description = (pr ? pr.why + " " : "") + "بلغ رصيد " + r.ar + " " + money(amount) + (input.periodEnd ? " كما في " + input.periodEnd : "") + " (" + pct + "% من مجموع الموجودات)" + (r.risk ? "، وتتركز مخاطره في " + clean$3(r.risk) : "") + (estimate ? "، ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً مهماً (ISA 540)" : "") + ". لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.";
-			const steps = [...new Set([...r.procedures ?? [], ...pr ? pr.procedures : []].map(clean$3))].slice(0, 6);
+			const description = (pr ? pr.why + " " : "") + "بلغ رصيد " + r.ar + " " + money(amount) + (input.periodEnd ? " كما في " + input.periodEnd : "") + " (" + pct + "% من مجموع الموجودات)" + (r.risk ? "، وتتركز مخاطره في " + clean$4(r.risk) : "") + (estimate ? "، ويتضمن تقديرات محاسبية تتطلب حكماً مهنياً مهماً (ISA 540)" : "") + ". لذلك عُدّ من الأمور ذات الأهمية القصوى في مراجعتنا.";
+			const steps = [...new Set([...r.procedures ?? [], ...pr ? pr.procedures : []].map(clean$4))].slice(0, 6);
 			const ev = input.evidence?.[r.lineKey];
 			const how = "شملت إجراءاتنا: " + steps.join("؛ ") + ".";
 			const observation = ev === "accepted" ? "لم تسفر إجراءاتنا عن تحفظات، وحصلنا على أدلة كافية ومناسبة تؤيد ما سجلته الإدارة." : ev === "partial" ? "ما زالت بعض الأدلة المؤيدة قيد الاستكمال؛ تُحدَّث النتيجة قبل إصدار التقرير." : "النتيجة معلقة حتى استكمال الأدلة المطلوبة من المنشأة.";
@@ -18636,7 +18636,7 @@ window.SKEngines = (function() {
 		sectorPrior: () => sectorPrior,
 		typicalKamCount: () => typicalKamCount
 	});
-	var r2$7 = (x) => Math.round(x * 100) / 100;
+	var r2$8 = (x) => Math.round(x * 100) / 100;
 	/** How often the auditors of a sector reported each theme (share of that sector's reports with KAMs), leaving one report out. */
 	function sectorPrior(sector, exclude) {
 		if (!sector) return {};
@@ -18645,7 +18645,7 @@ window.SKEngines = (function() {
 		const out = {};
 		for (const t of Object.keys(THEMES)) {
 			const n = reports.filter((id) => KAMS.some((k) => k.report === id && k.theme === t)).length;
-			if (n) out[t] = r2$7(n / reports.length);
+			if (n) out[t] = r2$8(n / reports.length);
 		}
 		return out;
 	}
@@ -18720,15 +18720,15 @@ window.SKEngines = (function() {
 			unit: c.unitAr,
 			actual,
 			ours,
-			recall: themes.length ? r2$7(hit / themes.length) : null,
-			rankedRecall: themes.length ? r2$7(rankedHit / themes.length) : null,
-			precision: selected.size && themes.length ? r2$7(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
+			recall: themes.length ? r2$8(hit / themes.length) : null,
+			rankedRecall: themes.length ? r2$8(rankedHit / themes.length) : null,
+			precision: selected.size && themes.length ? r2$8(ours.filter((o) => o.selected && o.matched).length / selected.size) : null,
 			materiality: {
 				ours: oursMat,
 				benchmark: review.materiality.benchmarkAr,
 				disclosed: disc ? disc.overall / unit : null,
 				disclosedBasis: disc ? disc.basis : null,
-				ratio: disc ? r2$7(oursMat / (disc.overall / unit)) : null,
+				ratio: disc ? r2$8(oursMat / (disc.overall / unit)) : null,
 				page: disc ? disc.page : null
 			},
 			requests: review.requests.length,
@@ -18744,7 +18744,7 @@ window.SKEngines = (function() {
 		return {
 			theirs: theirs.length,
 			covered: covered.length,
-			share: theirs.length ? r2$7(covered.length / theirs.length) : null,
+			share: theirs.length ? r2$8(covered.length / theirs.length) : null,
 			missing: theirs.filter((x) => !SQC_SECTIONS.has(x.key)).map((x) => x.ar)
 		};
 	}
@@ -18766,16 +18766,16 @@ window.SKEngines = (function() {
 			companies: list.length,
 			withKams: withKams.length,
 			kamThemes: actualN,
-			recall: actualN ? r2$7(sel / actualN) : 0,
-			rankedRecall: actualN ? r2$7(rk / actualN) : 0,
-			precision: oursSel ? r2$7(oursHit / oursSel) : 0,
+			recall: actualN ? r2$8(sel / actualN) : 0,
+			rankedRecall: actualN ? r2$8(rk / actualN) : 0,
+			precision: oursSel ? r2$8(oursHit / oursSel) : 0,
 			anyMatch: withKams.filter((r) => r.actual.some((a) => a.found === "selected")).length,
 			missed: Object.entries(missed).map(([theme, n]) => ({
 				theme,
 				ar: THEMES[theme].ar,
 				n
 			})).sort((a, b) => b.n - a.n),
-			structure: stTheirs ? r2$7(stCov / stTheirs) : 0,
+			structure: stTheirs ? r2$8(stCov / stTheirs) : 0,
 			materiality: mat.map((r) => ({
 				id: r.id,
 				company: r.company,
@@ -18794,7 +18794,7 @@ window.SKEngines = (function() {
 		COUNCIL: () => COUNCIL,
 		MEMBERS: () => MEMBERS,
 		MEMBER_SCHEMA: () => MEMBER_SCHEMA,
-		benford: () => benford,
+		benford: () => benford$1,
 		councilText: () => councilText,
 		cutoffEntries: () => cutoffEntries,
 		disagreements: () => disagreements,
@@ -18810,11 +18810,11 @@ window.SKEngines = (function() {
 		weightedVote: () => weightedVote
 	});
 	var nd = (s) => String(s ?? "").replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[٬,\s]/g, "").replace("٫", ".");
-	var num$1 = (s) => {
+	var num$2 = (s) => {
 		const t = nd(s), neg = /^\(.*\)$/.test(t), v = parseFloat(t.replace(/[()]/g, ""));
 		return Number.isFinite(v) ? neg ? -v : v : 0;
 	};
-	var norm$2 = (s) => String(s || "").toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").trim();
+	var norm$3 = (s) => String(s || "").toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").trim();
 	var HEAD = [
 		[/رقم القيد|القيد|المرجع|ref|entry|voucher|سند/, "ref"],
 		[/تاريخ|date/, "date"],
@@ -18852,7 +18852,7 @@ window.SKEngines = (function() {
 			errors: ["الملف فارغ أو بلا صفوف قيود"]
 		};
 		const d = lines[0].includes("	") ? "	" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
-		const head = split(lines[0], d).map(norm$2), col = {};
+		const head = split(lines[0], d).map(norm$3), col = {};
 		head.forEach((h, i) => {
 			const hit = HEAD.find(([re, k]) => re.test(h) && col[k] === void 0);
 			if (hit) col[hit[1]] = i;
@@ -18884,8 +18884,8 @@ window.SKEngines = (function() {
 			if (!j.memo && get("memo")) j.memo = get("memo");
 			j.lines.push({
 				account: get("account"),
-				debit: Math.abs(num$1(get("debit"))),
-				credit: Math.abs(num$1(get("credit")))
+				debit: Math.abs(num$2(get("debit"))),
+				credit: Math.abs(num$2(get("credit")))
 			});
 			map.set(key, j);
 		});
@@ -18972,7 +18972,7 @@ window.SKEngines = (function() {
 		8,
 		9
 	].map((d) => Math.log10(1 + 1 / d));
-	function benford(amounts) {
+	function benford$1(amounts) {
 		const firsts = amounts.map((a) => Math.abs(a)).filter((a) => a >= 10).map((a) => Number(String(a).replace(/^0\.?0*/, "")[0])).filter((d) => d >= 1 && d <= 9);
 		const n = firsts.length, counts = Array(9).fill(0);
 		firsts.forEach((d) => counts[d - 1]++);
@@ -19074,7 +19074,7 @@ window.SKEngines = (function() {
 		})).sort((a, b) => a.date.localeCompare(b.date));
 	}
 	function journalTests(E, o) {
-		const unusual = unusualEntries(E, o), ben = benford(E.map(amountOf$1)), cutoff = o.periodEnd ? cutoffEntries(E, o.periodEnd, o.isResult) : [];
+		const unusual = unusualEntries(E, o), ben = benford$1(E.map(amountOf$1)), cutoff = o.periodEnd ? cutoffEntries(E, o.periodEnd, o.isResult) : [];
 		const fraudSignal = unusual.some((u) => u.reasons.some((r) => r.code === "backdated") && E.find((j) => j.id === u.entryId).lines.some((l) => o.sensitive(l.account))) || ben.conformity === "nonconformity" && unusual.length >= Math.max(5, E.length * .05);
 		return {
 			count: E.length,
@@ -19106,7 +19106,7 @@ window.SKEngines = (function() {
 				lineKey: f.lineKey ?? (f.code ? i.lineOf(f.code) ?? void 0 : void 0),
 				title: f.title,
 				detail: f.detail + (f.code ? " [TB-" + f.code + "]" : ""),
-				amount: amt ? num$1(amt) : void 0
+				amount: amt ? num$2(amt) : void 0
 			});
 		});
 		(i.checks ?? []).filter((c) => c.ok === false).forEach((c, k) => out.push({
@@ -19212,7 +19212,7 @@ window.SKEngines = (function() {
 		if (member === "skeptic") return highRisk ? 2 : 1;
 		return 1;
 	}
-	var S$2 = (description) => ({
+	var S$3 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
 	});
@@ -19230,11 +19230,11 @@ window.SKEngines = (function() {
 		enum: ASSERTIONS.map((a) => a.key)
 	};
 	var MEMBER_SCHEMA = OBJ$1({
-		position: S$2("موقفك في جملة واحدة"),
-		reasoning: S$2("التعليل مع أرقام الأدلة بين معقوفين مثل [T-ANL-001]"),
-		citations: ARR(S$2("رقم دليل من السجل فقط")),
+		position: S$3("موقفك في جملة واحدة"),
+		reasoning: S$3("التعليل مع أرقام الأدلة بين معقوفين مثل [T-ANL-001]"),
+		citations: ARR(S$3("رقم دليل من السجل فقط")),
 		items: ARR(OBJ$1({
-			lineKey: S$2("مفتاح البند كما في السجل"),
+			lineKey: S$3("مفتاح البند كما في السجل"),
 			assertion: ASSERT_ENUM,
 			sufficient: { type: "BOOLEAN" },
 			finding: { type: "BOOLEAN" },
@@ -19242,7 +19242,7 @@ window.SKEngines = (function() {
 				type: "NUMBER",
 				description: "0 إلى 1"
 			},
-			citations: ARR(S$2())
+			citations: ARR(S$3())
 		}, [
 			"lineKey",
 			"assertion",
@@ -19252,11 +19252,11 @@ window.SKEngines = (function() {
 			"citations"
 		])),
 		requests: ARR(OBJ$1({
-			lineKey: S$2(),
+			lineKey: S$3(),
 			assertion: ASSERT_ENUM,
-			evidence: S$2("المستند المطلوب بدقة: من، ماذا، أي فترة"),
-			reason: S$2("السبب مع رقم الدليل"),
-			citations: ARR(S$2()),
+			evidence: S$3("المستند المطلوب بدقة: من، ماذا، أي فترة"),
+			reason: S$3("السبب مع رقم الدليل"),
+			citations: ARR(S$3()),
 			effort: {
 				type: "STRING",
 				enum: [
@@ -19443,10 +19443,10 @@ window.SKEngines = (function() {
 		"متوسطة": 1,
 		"منخفضة": 2
 	};
-	function money$28(m, cur) {
+	function money$29(m, cur) {
 		return formatMinor(Math.round(m), { decimals: 0 }) + (cur ? " " + cur : "");
 	}
-	function addDays$1(iso, n) {
+	function addDays$2(iso, n) {
 		if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return "";
 		const d = /* @__PURE__ */ new Date(iso.slice(0, 10) + "T00:00:00Z");
 		d.setUTCDate(d.getUTCDate() + n);
@@ -19471,7 +19471,7 @@ window.SKEngines = (function() {
 		const top = review.findings.slice().sort((a, b) => (a.severity === "high" ? 0 : a.severity === "medium" ? 1 : 2) - (b.severity === "high" ? 0 : b.severity === "medium" ? 1 : 2)).slice(0, 6);
 		return simulationRound({
 			status: "needs_docs",
-			executiveSummary: `راجع المجلس ميزان «${ctx.company}» (${review.summary.accounts} حساباً) بأهمية نسبية ${money$28(mat.overall, cur)} على أساس ${mat.benchmarkAr}. ` + (sig.length ? `المخاطر الجوهرية: ${sig.map((r) => r.ar).join("، ")}. ` : "") + `طُلب ${reqs.length} مستنداً لتغطيتها قبل إبداء الرأي.`,
+			executiveSummary: `راجع المجلس ميزان «${ctx.company}» (${review.summary.accounts} حساباً) بأهمية نسبية ${money$29(mat.overall, cur)} على أساس ${mat.benchmarkAr}. ` + (sig.length ? `المخاطر الجوهرية: ${sig.map((r) => r.ar).join("، ")}. ` : "") + `طُلب ${reqs.length} مستنداً لتغطيتها قبل إبداء الرأي.`,
 			riskScore: Math.min(90, 30 + sig.length * 8 + top.filter((f) => f.severity === "high").length * 6),
 			boardOpinions: [
 				{
@@ -19530,9 +19530,9 @@ window.SKEngines = (function() {
 		return `جدول تفصيلي بالرصيد مع المستندات المؤيدة.\nالرصيد: ${amount}\nمطابق للدفاتر والميزان.`;
 	}
 	function documents(review, requests, ctx, round = 1) {
-		const date = addDays$1(ctx.periodEnd, 45) || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+		const date = addDays$2(ctx.periodEnd, 45) || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
 		return requests.map((q) => {
-			const key = lineOf(review, q), amt = money$28(amountOf(review, q), ctx.currency);
+			const key = lineOf(review, q), amt = money$29(amountOf(review, q), ctx.currency);
 			const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nإلى: ${ctx.auditFirm || "المراجع الخارجي"}\nمن: إدارة ${ctx.company}\nالموضوع: ${q.title}\nالتاريخ: ${date}\nالمرجع: DOC-${q.id}-${round}\n\n` + body(key, q.title, amt, ctx, date);
 			return {
 				origin: "simulation",
@@ -19549,7 +19549,7 @@ window.SKEngines = (function() {
 	}
 	function round2(review, requests, uploads, ctx) {
 		const weak = pickInsufficient(review, requests), wq = requests.find((q) => q.id === weak);
-		const date = addDays$1(ctx.periodEnd, 45);
+		const date = addDays$2(ctx.periodEnd, 45);
 		const sig = review.risks.filter((r) => r.significant);
 		const weakLine = wq ? lineOf(review, wq) : "";
 		return simulationRound({
@@ -19603,8 +19603,8 @@ window.SKEngines = (function() {
 		});
 	}
 	function followUpDocuments(review, original, follow, ctx) {
-		const date = addDays$1(ctx.periodEnd, 60) || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-		const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nمن: إدارة ${ctx.company}\nالموضوع: ${follow.title}\nالتاريخ: ${date}\n\nالبنود الأربعة التي لم يُرد على مصادقاتها: حُصّلت بالكامل بعد نهاية الفترة (كشوف البنك مرفقة) وفواتيرها وإشعارات تسليمها مطابقة. قيمة البنود: ${money$28(amountOf(review, follow) * .08, ctx.currency)}.`;
+		const date = addDays$2(ctx.periodEnd, 60) || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+		const text = `مستند تجريبي (عرض قدرات SQC) — ليس مستنداً حقيقياً\nمن: إدارة ${ctx.company}\nالموضوع: ${follow.title}\nالتاريخ: ${date}\n\nالبنود الأربعة التي لم يُرد على مصادقاتها: حُصّلت بالكامل بعد نهاية الفترة (كشوف البنك مرفقة) وفواتيرها وإشعارات تسليمها مطابقة. قيمة البنود: ${money$29(amountOf(review, follow) * .08, ctx.currency)}.`;
 		return [{
 			origin: "simulation",
 			requestId: follow.id,
@@ -19719,22 +19719,22 @@ window.SKEngines = (function() {
 		},
 		15: {
 			title: "الاستثمارات في المشروعات المشتركة",
-			applies: (fs) => fs.lines.some((l) => l.key === "investments" && l.accounts.some((a) => /مشروع مشترك|joint/.test(norm$3(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.key === "investments" && l.accounts.some((a) => /مشروع مشترك|joint/.test(norm$4(a.name)))),
 			why: ["توجد حصص في مشروعات مشتركة", "لا توجد مشروعات مشتركة في الميزان"]
 		},
 		16: {
 			title: "العقارات الاستثمارية",
-			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /عقار(ات)? استثماري|investment propert/.test(norm$3(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /عقار(ات)? استثماري|investment propert/.test(norm$4(a.name)))),
 			why: ["توجد عقارات استثمارية", "لا توجد عقارات محتفظ بها للإيجار أو لزيادة القيمة"]
 		},
 		26: {
 			title: "المدفوعات المبنية على الأسهم",
-			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /خيارات اسهم|مدفوعات مبنيه على اسهم|share-based/.test(norm$3(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.accounts.some((a) => /خيارات اسهم|مدفوعات مبنيه على اسهم|share-based/.test(norm$4(a.name)))),
 			why: ["توجد مدفوعات مبنية على أسهم", "لا توجد خطط مدفوعات مبنية على أسهم"]
 		},
 		28: {
 			title: "منافع الموظفين",
-			applies: (fs) => fs.lines.some((l) => l.key === "eosb" && l.current !== 0) || fs.lines.some((l) => l.accounts.some((a) => /رواتب|اجور|salar/.test(norm$3(a.name)))),
+			applies: (fs) => fs.lines.some((l) => l.key === "eosb" && l.current !== 0) || fs.lines.some((l) => l.accounts.some((a) => /رواتب|اجور|salar/.test(norm$4(a.name)))),
 			why: ["توجد رواتب والتزامات منافع موظفين", "لا توجد رواتب أو منافع موظفين"]
 		},
 		34: {
@@ -20088,7 +20088,7 @@ window.SKEngines = (function() {
 		representationLetter: () => representationLetter,
 		riskMatrix: () => riskMatrix,
 		sampleSize: () => sampleSize,
-		signOff: () => signOff,
+		signOff: () => signOff$1,
 		workingPapers: () => workingPapers,
 		wpStatus: () => wpStatus
 	});
@@ -20369,7 +20369,7 @@ window.SKEngines = (function() {
 		return out;
 	}
 	/** Returns the new sign-off or an error in Arabic: prepare needs every step and a conclusion; review needs a different person. */
-	function signOff(wp, s, role, name, now = /* @__PURE__ */ new Date()) {
+	function signOff$1(wp, s, role, name, now = /* @__PURE__ */ new Date()) {
 		const who = name.trim();
 		if (!who) return {
 			ok: false,
@@ -20773,7 +20773,7 @@ window.SKEngines = (function() {
 		classifyDeficiency: () => classifyDeficiency,
 		icfrReport: () => icfrReport
 	});
-	var money$27 = (v, cur) => `${Math.round(v / 100).toLocaleString("en")} ${cur}`;
+	var money$28 = (v, cur) => `${Math.round(v / 100).toLocaleString("en")} ${cur}`;
 	var pct$5 = (v) => `${Math.round(v * 1e3) / 10}%`;
 	var RATIONALE = {
 		pbz: "الربح قبل الزكاة مقياس مهم لمستخدمي القوائم المالية وأساس مقبول عموماً للمنشآت الهادفة للربح.",
@@ -20787,8 +20787,8 @@ window.SKEngines = (function() {
 		return {
 			title: "نهجنا في المراجعة",
 			paragraphs: [
-				`حددنا الأهمية النسبية للقوائم المالية ككل بمبلغ ${money$27(m.overall, cur)}، بنسبة ${pct$5(rate)} من ${benchmarkAr}.`,
-				`واتفقنا مع المكلفين بالحوكمة على أن نبلغهم بالتحريفات التي تتجاوز ${money$27(m.trivial, cur)}، وبما يقل عنها إن استدعت أسباب نوعية ذلك.`,
+				`حددنا الأهمية النسبية للقوائم المالية ككل بمبلغ ${money$28(m.overall, cur)}، بنسبة ${pct$5(rate)} من ${benchmarkAr}.`,
+				`واتفقنا مع المكلفين بالحوكمة على أن نبلغهم بالتحريفات التي تتجاوز ${money$28(m.trivial, cur)}، وبما يقل عنها إن استدعت أسباب نوعية ذلك.`,
 				i.components ? `النطاق: ${i.components}.` : "النطاق: مراجعة كاملة للمنشأة، وصُممت الإجراءات لكل بند جوهري على ضوء تقييم مخاطر التحريف الجوهري فيه.",
 				...i.kamTitles.length ? [`الأمور الرئيسية للمراجعة: ${i.kamTitles.join("؛ ")}.`] : [],
 				"وكما في كل مراجعة، عالجنا خطر تجاوز الإدارة لأدوات الرقابة الداخلية، بما في ذلك النظر في وجود تحيز يمثل خطر تحريف جوهري بسبب الغش."
@@ -20796,11 +20796,11 @@ window.SKEngines = (function() {
 			table: {
 				columns: ["", ""],
 				rows: [
-					["الأهمية النسبية العامة", money$27(m.overall, cur)],
-					["كيف حددناها", `${pct$5(rate)} من ${benchmarkAr} (${money$27(m.base, cur)})`],
+					["الأهمية النسبية العامة", money$28(m.overall, cur)],
+					["كيف حددناها", `${pct$5(rate)} من ${benchmarkAr} (${money$28(m.base, cur)})`],
 					["مبرر الأساس المختار", RATIONALE[m.benchmark]],
-					["الأهمية النسبية التنفيذية", `${money$27(m.performance, cur)} (${pct$5(m.overall ? m.performance / m.overall : 0)} من الأهمية العامة)`],
-					["حد الإبلاغ للمكلفين بالحوكمة", `${money$27(m.trivial, cur)} (${pct$5(m.overall ? m.trivial / m.overall : 0)} من الأهمية العامة)`]
+					["الأهمية النسبية التنفيذية", `${money$28(m.performance, cur)} (${pct$5(m.overall ? m.performance / m.overall : 0)} من الأهمية العامة)`],
+					["حد الإبلاغ للمكلفين بالحوكمة", `${money$28(m.trivial, cur)} (${pct$5(m.overall ? m.trivial / m.overall : 0)} من الأهمية العامة)`]
 				]
 			}
 		};
@@ -20818,8 +20818,8 @@ window.SKEngines = (function() {
 				paragraphs: [
 					`التقرير المالي: ناقشت اللجنة مع الإدارة والمراجع الخارجي القوائم المالية لـ${i.period || "السنة"} المعدة وفق ${fwAr}، والأحكام والتقديرات المحاسبية الهامة، وكفاية الإفصاحات.`,
 					`الرقابة الداخلية: اطلعت اللجنة على ملاحظات المراجع (عالية الأثر: ${i.findings.high}، متوسطة: ${i.findings.medium})${i.findings.controlTitles.length ? "، أبرزها: " + i.findings.controlTitles.slice(0, 3).join("؛ ") : ""}، وتابعت خطط الإدارة لمعالجتها.`,
-					`المراجع الخارجي: اطلعت اللجنة على خطة المراجعة ونطاقها، والأهمية النسبية المحددة بمبلغ ${money$27(i.materiality.overall, cur)}، وتحققت من استقلال ${firm} وعدم تقديمه خدمات تخل باستقلاله، وقيّمت فاعلية أعماله.`,
-					`التحريفات (ISA 450): ${i.corrected.count ? `اعتمدت الإدارة ${i.corrected.count} من قيود التسوية أثرها على الربح ${money$27(i.corrected.profitEffect, cur)}` : "لم تعتمد الإدارة قيود تسوية بعد"}؛ ${i.uncorrected.count ? `وبقيت ${i.uncorrected.count} من التحريفات غير المصححة أثرها ${money$27(i.uncorrected.effect, cur)}${unMat ? "، وتتجاوز الأهمية النسبية، وقد طلبت اللجنة تصحيحها أو بيان أثرها على الرأي" : "، وهي دون الأهمية النسبية"}` : "ولا توجد تحريفات غير مصححة"}.`
+					`المراجع الخارجي: اطلعت اللجنة على خطة المراجعة ونطاقها، والأهمية النسبية المحددة بمبلغ ${money$28(i.materiality.overall, cur)}، وتحققت من استقلال ${firm} وعدم تقديمه خدمات تخل باستقلاله، وقيّمت فاعلية أعماله.`,
+					`التحريفات (ISA 450): ${i.corrected.count ? `اعتمدت الإدارة ${i.corrected.count} من قيود التسوية أثرها على الربح ${money$28(i.corrected.profitEffect, cur)}` : "لم تعتمد الإدارة قيود تسوية بعد"}؛ ${i.uncorrected.count ? `وبقيت ${i.uncorrected.count} من التحريفات غير المصححة أثرها ${money$28(i.uncorrected.effect, cur)}${unMat ? "، وتتجاوز الأهمية النسبية، وقد طلبت اللجنة تصحيحها أو بيان أثرها على الرأي" : "، وهي دون الأهمية النسبية"}` : "ولا توجد تحريفات غير مصححة"}.`
 				]
 			},
 			{
@@ -20965,13 +20965,518 @@ window.SKEngines = (function() {
 		}[severity];
 	}
 	//#endregion
+	//#region app/src/engine/fusion/audit/journal-risk-engine.ts
+	var journal_risk_engine_exports = /* @__PURE__ */ __exportAll({
+		BANDS: () => BANDS,
+		BENFORD_AR: () => BENFORD_AR,
+		BENFORD_EXPECTED: () => BENFORD_EXPECTED,
+		SIGNALS: () => SIGNALS,
+		bandOf: () => bandOf$1,
+		benford: () => benford,
+		duplicateKey: () => duplicateKey,
+		entryAmount: () => entryAmount,
+		firstDigit: () => firstDigit,
+		normalizeText: () => normalizeText$1,
+		scoreEntries: () => scoreEntries,
+		scoreEntry: () => scoreEntry,
+		signalDuplicate: () => signalDuplicate,
+		signalEmpty: () => signalEmpty,
+		signalHoliday: () => signalHoliday,
+		signalLarge: () => signalLarge,
+		signalManual: () => signalManual,
+		signalNoMemo: () => signalNoMemo,
+		signalPeriodEnd: () => signalPeriodEnd,
+		signalPostedAfter: () => signalPostedAfter,
+		signalRareUser: () => signalRareUser,
+		signalRelatedParty: () => signalRelatedParty,
+		signalReversal: () => signalReversal,
+		signalRound: () => signalRound,
+		signalSensitive: () => signalSensitive,
+		signalSuspense: () => signalSuspense,
+		signalUnbalanced: () => signalUnbalanced,
+		signalUnusualSide: () => signalUnusualSide,
+		signalWeekend: () => signalWeekend,
+		summarize: () => summarize
+	});
+	var SIGNALS = {
+		UNBALANCED: {
+			label_ar: "قيد غير متزن",
+			weight: 30,
+			isa: "ISA 240.33"
+		},
+		EMPTY_ENTRY: {
+			label_ar: "قيد بلا مبلغ أو بلا سطور",
+			weight: 10,
+			isa: "ISA 240.33"
+		},
+		MANUAL_ENTRY: {
+			label_ar: "قيد يدوي",
+			weight: 20,
+			isa: "ISA 240.A42"
+		},
+		ROUND_AMOUNT: {
+			label_ar: "مبلغ مستدير",
+			weight: 15,
+			isa: "ISA 240.A43"
+		},
+		LARGE_AMOUNT: {
+			label_ar: "مبلغ يبلغ الأهمية النسبية",
+			weight: 15,
+			isa: "ISA 320"
+		},
+		SUSPENSE_ACCOUNT: {
+			label_ar: "حساب وسيط أو معلّق",
+			weight: 25,
+			isa: "ISA 240.A43"
+		},
+		RELATED_PARTY: {
+			label_ar: "طرف ذو علاقة",
+			weight: 20,
+			isa: "ISA 550"
+		},
+		UNUSUAL_SIDE: {
+			label_ar: "حركة على الجانب غير المعتاد للحساب",
+			weight: 15,
+			isa: "ISA 240.A43"
+		},
+		WEEKEND_POSTING: {
+			label_ar: "ترحيل في عطلة نهاية الأسبوع",
+			weight: 10,
+			isa: "ISA 240.A43"
+		},
+		HOLIDAY_POSTING: {
+			label_ar: "ترحيل في عطلة رسمية",
+			weight: 12,
+			isa: "ISA 240.A43"
+		},
+		PERIOD_END: {
+			label_ar: "قيد في أيام الإقفال",
+			weight: 15,
+			isa: "ISA 240.33(a)(ii)"
+		},
+		POSTED_AFTER_PERIOD: {
+			label_ar: "مرحَّل بعد نهاية الفترة أو بأثر رجعي",
+			weight: 20,
+			isa: "ISA 240.33(a)(ii)"
+		},
+		DUPLICATE: {
+			label_ar: "قيد مكرر (نفس المبلغ والحسابات)",
+			weight: 20,
+			isa: "ISA 240.A43"
+		},
+		RARE_USER: {
+			label_ar: "مُعِدّ نادر الترحيل",
+			weight: 10,
+			isa: "ISA 240.A43"
+		},
+		SENSITIVE_TEXT: {
+			label_ar: "وصف يستدعي فحصاً مهنياً",
+			weight: 10,
+			isa: "ISA 240.A43"
+		},
+		NO_MEMO: {
+			label_ar: "بلا بيان ولا مرجع",
+			weight: 5,
+			isa: "ISA 240.A43"
+		},
+		REVERSAL: {
+			label_ar: "قيد عكس",
+			weight: 8,
+			isa: "ISA 240.A43"
+		}
+	};
+	var BANDS = [
+		{
+			key: "high",
+			label_ar: "مرتفع",
+			min: 60
+		},
+		{
+			key: "medium",
+			label_ar: "متوسط",
+			min: 30
+		},
+		{
+			key: "low",
+			label_ar: "منخفض",
+			min: 0
+		}
+	];
+	var bandOf$1 = (score) => score >= 60 ? "high" : score >= 30 ? "medium" : "low";
+	var DEFAULT_SUSPENSE = [
+		"معلق",
+		"معلقه",
+		"تسويه",
+		"وسيط",
+		"فروقات",
+		"مؤقت",
+		"suspense",
+		"clearing",
+		"temporary"
+	];
+	var DEFAULT_RELATED = [
+		"طرف ذو علاقه",
+		"اطراف ذات علاقه",
+		"جاري الشريك",
+		"جاري الشركاء",
+		"جاري المالك",
+		"شركاء",
+		"related party",
+		"shareholder",
+		"director"
+	];
+	var DEFAULT_SENSITIVE = [
+		"تسويه",
+		"تجاوز",
+		"تعديل يدوي",
+		"نهايه الفتره",
+		"اقفال",
+		"override",
+		"adjustment",
+		"correction",
+		"plug"
+	];
+	var MONEY_TOLERANCE$1 = .005;
+	var DAY$3 = 864e5;
+	function normalizeText$1(value) {
+		return String(value ?? "").toLowerCase().replace(/[ً-ْـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/\s+/g, " ").trim();
+	}
+	var hasTerm = (text, terms) => {
+		const t = normalizeText$1(text);
+		return !!t && terms.some((k) => t.includes(normalizeText$1(k)));
+	};
+	var isIsoDate = (v) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v);
+	var dayOf$1 = (iso) => String(iso).slice(0, 10);
+	var epoch = (iso) => {
+		const t = Date.parse(dayOf$1(iso) + "T00:00:00Z");
+		return Number.isFinite(t) ? t : NaN;
+	};
+	var weekday$1 = (iso) => {
+		const t = epoch(iso);
+		return Number.isFinite(t) ? new Date(t).getUTCDay() : -1;
+	};
+	var r2$7 = (v) => Math.round((v + Number.EPSILON) * 100) / 100;
+	var num$1 = (v) => {
+		const n = Number(v);
+		return Number.isFinite(n) ? n : 0;
+	};
+	function entryAmount(entry) {
+		const lines = Array.isArray(entry.lines) ? entry.lines : [];
+		const d = lines.reduce((s, l) => s + Math.abs(num$1(l.debit)), 0), c = lines.reduce((s, l) => s + Math.abs(num$1(l.credit)), 0);
+		return r2$7(Math.max(d, c));
+	}
+	var imbalance = (lines) => r2$7(lines.reduce((s, l) => s + num$1(l.debit) - num$1(l.credit), 0));
+	var sig = (code, detail) => ({
+		code,
+		label_ar: SIGNALS[code].label_ar,
+		weight: SIGNALS[code].weight,
+		detail
+	});
+	function duplicateKey(entry) {
+		const lines = Array.isArray(entry.lines) ? entry.lines : [];
+		const amount = entryAmount(entry);
+		if (!amount) return null;
+		const ids = [...new Set(lines.map((l) => String(l.accountId || "")))].sort();
+		return amount.toFixed(2) + "|" + ids.join(",");
+	}
+	function population(entries, opts) {
+		const userCounts = /* @__PURE__ */ new Map(), dupGroups = /* @__PURE__ */ new Map();
+		for (const e of entries) {
+			const u = normalizeText$1(e.user);
+			if (u) userCounts.set(u, (userCounts.get(u) || 0) + 1);
+			if (e.reversalOf) continue;
+			const k = duplicateKey(e);
+			if (!k) continue;
+			const g = dupGroups.get(k) || [];
+			g.push(e.id);
+			dupGroups.set(k, g);
+		}
+		const accounts = /* @__PURE__ */ new Map();
+		for (const a of opts.accounts || []) if (a && a.id) accounts.set(String(a.id), a);
+		return {
+			userCounts,
+			dupGroups,
+			accounts
+		};
+	}
+	var signalUnbalanced = (e) => {
+		const diff = imbalance(Array.isArray(e.lines) ? e.lines : []);
+		return Math.abs(diff) > MONEY_TOLERANCE$1 ? sig("UNBALANCED", "الفرق بين المدين والدائن " + diff.toFixed(2)) : null;
+	};
+	var signalEmpty = (e) => {
+		const lines = Array.isArray(e.lines) ? e.lines : [];
+		return lines.length < 2 || entryAmount(e) === 0 ? sig("EMPTY_ENTRY", lines.length < 2 ? "أقل من سطرين" : "مجموع الحركة صفر") : null;
+	};
+	var signalManual = (e, opts = {}) => {
+		if (e.manual === false) return null;
+		const src = String(e.source || "").trim();
+		return e.manual === true || !src || /يدوي|manual/i.test(src) || (opts.manualSources || []).some((s) => normalizeText$1(s) === normalizeText$1(src)) ? sig("MANUAL_ENTRY", src ? "المصدر: " + src : "بلا مصدر مسجَّل") : null;
+	};
+	var signalRound = (e, opts = {}) => {
+		const unit = opts.roundUnit ?? 1e3, min = opts.roundMin ?? 1e3, a = entryAmount(e);
+		if (unit <= 0 || a < min) return null;
+		return Math.round(a * 100) % Math.round(unit * 100) === 0 ? sig("ROUND_AMOUNT", "المبلغ " + a.toFixed(2) + " من مضاعفات " + unit) : null;
+	};
+	var signalLarge = (e, opts = {}) => {
+		const m = opts.materiality;
+		if (!m || m <= 0) return null;
+		const a = entryAmount(e);
+		return a >= m ? sig("LARGE_AMOUNT", "المبلغ " + a.toFixed(2) + " ≥ الأهمية النسبية " + m) : null;
+	};
+	function accountMatches(e, pop, explicit, terms) {
+		const ex = new Set(explicit.map(String)), hits = [];
+		for (const l of Array.isArray(e.lines) ? e.lines : []) {
+			const id = String(l.accountId || ""), a = pop.accounts.get(id);
+			const label = a ? (a.code ? a.code + " " : "") + (a.name || "") : id;
+			if (ex.has(id) || a && a.code && ex.has(String(a.code)) || hasTerm(a ? a.name || "" : "", terms)) hits.push(label.trim() || id);
+		}
+		return [...new Set(hits)];
+	}
+	var signalSuspense = (e, opts = {}, pop) => {
+		const hits = accountMatches(e, pop || population([], opts), opts.suspenseAccounts || [], opts.suspenseTerms || DEFAULT_SUSPENSE);
+		return hits.length ? sig("SUSPENSE_ACCOUNT", hits.join("، ")) : null;
+	};
+	var signalRelatedParty = (e, opts = {}, pop) => {
+		const p = pop || population([], opts), terms = opts.relatedPartyTerms || DEFAULT_RELATED;
+		const hits = accountMatches(e, p, opts.relatedPartyAccounts || [], terms);
+		if (hasTerm(e.memo || "", terms)) hits.push("البيان");
+		return hits.length ? sig("RELATED_PARTY", [...new Set(hits)].join("، ")) : null;
+	};
+	var signalUnusualSide = (e, opts = {}, pop) => {
+		if (e.reversalOf) return null;
+		const p = pop || population([], opts), hits = [];
+		for (const l of Array.isArray(e.lines) ? e.lines : []) {
+			const a = p.accounts.get(String(l.accountId || ""));
+			if (!a || !a.type) continue;
+			if (a.type === "revenue" && num$1(l.debit) > 0) hits.push("مدين على إيراد " + (a.name || a.code || a.id));
+			if (a.type === "expense" && num$1(l.credit) > 0) hits.push("دائن على مصروف " + (a.name || a.code || a.id));
+		}
+		return hits.length ? sig("UNUSUAL_SIDE", hits.join("، ")) : null;
+	};
+	var signalWeekend = (e, opts = {}) => {
+		if (!isIsoDate(e.date)) return null;
+		const days = opts.weekendDays ?? [5, 6], d = weekday$1(e.date);
+		return d >= 0 && days.includes(d) ? sig("WEEKEND_POSTING", "تاريخ القيد " + dayOf$1(e.date) + " يوم " + [
+			"الأحد",
+			"الاثنين",
+			"الثلاثاء",
+			"الأربعاء",
+			"الخميس",
+			"الجمعة",
+			"السبت"
+		][d]) : null;
+	};
+	var signalHoliday = (e, opts = {}) => {
+		if (!isIsoDate(e.date) || !opts.holidays || !opts.holidays.length) return null;
+		return opts.holidays.map(dayOf$1).includes(dayOf$1(e.date)) ? sig("HOLIDAY_POSTING", "تاريخ القيد " + dayOf$1(e.date) + " عطلة رسمية") : null;
+	};
+	var signalPeriodEnd = (e, opts = {}) => {
+		if (!isIsoDate(e.date) || !isIsoDate(opts.periodEnd)) return null;
+		const gap = Math.round((epoch(opts.periodEnd) - epoch(e.date)) / DAY$3), win = Math.max(0, opts.periodEndWindowDays ?? 5);
+		return gap >= 0 && gap <= win ? sig("PERIOD_END", gap === 0 ? "بتاريخ نهاية الفترة " + dayOf$1(opts.periodEnd) : "قبل نهاية الفترة بـ" + gap + " يوم") : null;
+	};
+	var signalPostedAfter = (e, opts = {}) => {
+		if (!isIsoDate(e.date) || !isIsoDate(e.postedAt)) return null;
+		const posted = dayOf$1(e.postedAt), lag = Math.round((epoch(posted) - epoch(e.date)) / DAY$3);
+		if (isIsoDate(opts.periodEnd) && dayOf$1(e.date) <= dayOf$1(opts.periodEnd) && posted > dayOf$1(opts.periodEnd)) return sig("POSTED_AFTER_PERIOD", "مؤرَّخ " + dayOf$1(e.date) + " ورُحِّل " + posted + " بعد نهاية الفترة");
+		return lag > Math.max(0, opts.backdateDays ?? 30) ? sig("POSTED_AFTER_PERIOD", "رُحِّل بعد تاريخه بـ" + lag + " يوماً") : null;
+	};
+	var signalDuplicate = (e, pop) => {
+		if (e.reversalOf) return null;
+		const k = duplicateKey(e);
+		if (!k) return null;
+		const g = pop.dupGroups.get(k) || [];
+		if (g.length < 2) return null;
+		return sig("DUPLICATE", "نفس المبلغ والحسابات في: " + g.filter((id) => id !== e.id).join("، "));
+	};
+	var signalRareUser = (e, opts, pop) => {
+		const u = normalizeText$1(e.user);
+		if (!u) return null;
+		const max = Math.max(0, opts.rareUserMaxEntries ?? 1), total = [...pop.userCounts.values()].reduce((s, n) => s + n, 0), mine = pop.userCounts.get(u) || 0;
+		return mine <= max && total > max + 1 ? sig("RARE_USER", String(e.user) + " رحّل " + mine + " من " + total) : null;
+	};
+	var signalSensitive = (e, opts = {}) => {
+		const terms = opts.sensitiveTerms || DEFAULT_SENSITIVE, text = [e.memo, ...Array.isArray(e.lines) ? e.lines.map((l) => l.description) : []].filter(Boolean).join(" ");
+		const hit = terms.find((t) => hasTerm(text, [t]));
+		return hit ? sig("SENSITIVE_TEXT", "ورد في البيان: «" + hit + "»") : null;
+	};
+	var signalNoMemo = (e) => !String(e.memo || "").trim() && !String(e.reference || "").trim() ? sig("NO_MEMO", "لا بيان ولا مرجع") : null;
+	var signalReversal = (e) => e.reversalOf ? sig("REVERSAL", "يعكس القيد " + e.reversalOf) : null;
+	function scoreEntry(e, opts, pop) {
+		const signals = [
+			signalUnbalanced(e),
+			signalEmpty(e),
+			signalManual(e, opts),
+			signalRound(e, opts),
+			signalLarge(e, opts),
+			signalSuspense(e, opts, pop),
+			signalRelatedParty(e, opts, pop),
+			signalUnusualSide(e, opts, pop),
+			signalWeekend(e, opts),
+			signalHoliday(e, opts),
+			signalPeriodEnd(e, opts),
+			signalPostedAfter(e, opts),
+			signalDuplicate(e, pop),
+			signalRareUser(e, opts, pop),
+			signalSensitive(e, opts),
+			signalNoMemo(e),
+			signalReversal(e)
+		].filter((s) => s !== null);
+		const score = Math.min(100, signals.reduce((s, x) => s + x.weight, 0));
+		return {
+			id: String(e.id),
+			date: isIsoDate(e.date) ? dayOf$1(e.date) : String(e.date || ""),
+			amount: entryAmount(e),
+			source: String(e.source || ""),
+			memo: String(e.memo || ""),
+			user: String(e.user || ""),
+			score,
+			band: bandOf$1(score),
+			signals,
+			duplicateKey: e.reversalOf ? null : duplicateKey(e)
+		};
+	}
+	function scoreEntries(entries, opts = {}) {
+		const list = (Array.isArray(entries) ? entries : []).filter((e) => e && e.id != null);
+		const pop = population(list, opts);
+		return list.map((e) => scoreEntry(e, opts, pop)).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+	}
+	var BENFORD_EXPECTED = [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		8,
+		9
+	].map((d) => Math.log10(1 + 1 / d));
+	var firstDigit = (amount) => {
+		const a = Math.abs(Number(amount));
+		if (!Number.isFinite(a) || a < 10) return 0;
+		return Number(String(Math.floor(a))[0]);
+	};
+	function benford(amounts, minSample = 50) {
+		const counts = [
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0
+		];
+		for (const a of amounts) {
+			const d = firstDigit(a);
+			if (d >= 1) counts[d - 1] += 1;
+		}
+		const n = counts.reduce((s, c) => s + c, 0);
+		const digits = counts.map((count, i) => {
+			const observed = n ? count / n : 0, expected = BENFORD_EXPECTED[i];
+			return {
+				digit: i + 1,
+				count,
+				observed,
+				expected,
+				deviation: observed - expected
+			};
+		});
+		const mad = n ? digits.reduce((s, d) => s + Math.abs(d.deviation), 0) / 9 : 0;
+		return {
+			n,
+			sufficient: n >= minSample,
+			digits,
+			mad,
+			conformity: n < minSample ? "insufficient" : mad < .006 ? "close" : mad < .012 ? "acceptable" : mad < .015 ? "marginal" : "nonconforming"
+		};
+	}
+	var BENFORD_AR = {
+		insufficient: "العينة أصغر من أن تُقرأ",
+		close: "مطابقة قريبة",
+		acceptable: "مطابقة مقبولة",
+		marginal: "مطابقة هامشية",
+		nonconforming: "انحراف عن التوزيع المتوقع"
+	};
+	function summarize(scores, opts = {}) {
+		const list = Array.isArray(scores) ? scores : [];
+		const distribution = {
+			low: 0,
+			medium: 0,
+			high: 0
+		};
+		const by = /* @__PURE__ */ new Map();
+		const groups = /* @__PURE__ */ new Map();
+		let totalScore = 0;
+		for (const s of list) {
+			distribution[s.band] += 1;
+			totalScore += s.score;
+			const seen = /* @__PURE__ */ new Set();
+			for (const x of s.signals) {
+				if (seen.has(x.code)) continue;
+				seen.add(x.code);
+				const r = by.get(x.code) || {
+					count: 0,
+					amount: 0
+				};
+				r.count += 1;
+				r.amount = r2$7(r.amount + s.amount);
+				by.set(x.code, r);
+			}
+			if (s.duplicateKey) {
+				const g = groups.get(s.duplicateKey) || {
+					ids: [],
+					amount: s.amount
+				};
+				g.ids.push(s.id);
+				groups.set(s.duplicateKey, g);
+			}
+		}
+		const has = (c) => (by.get(c) || { count: 0 }).count;
+		const sorted = list.slice().sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+		return {
+			total: list.length,
+			scored: list.filter((s) => s.signals.length).length,
+			averageScore: list.length ? Math.round(totalScore / list.length * 10) / 10 : 0,
+			distribution,
+			top: sorted.slice(0, Math.max(0, opts.top ?? 20)),
+			bySignal: [...by.entries()].map(([code, r]) => ({
+				code,
+				label_ar: SIGNALS[code].label_ar,
+				count: r.count,
+				amount: r.amount
+			})).sort((a, b) => b.count - a.count || a.code.localeCompare(b.code)),
+			duplicateGroups: [...groups.entries()].filter(([, g]) => g.ids.length > 1).map(([key, g]) => ({
+				key,
+				ids: g.ids.slice().sort(),
+				amount: g.amount,
+				count: g.ids.length
+			})).sort((a, b) => b.amount - a.amount || a.key.localeCompare(b.key)),
+			counts: {
+				suspense: has("SUSPENSE_ACCOUNT"),
+				round: has("ROUND_AMOUNT"),
+				weekend: has("WEEKEND_POSTING"),
+				holiday: has("HOLIDAY_POSTING"),
+				manual: has("MANUAL_ENTRY"),
+				duplicates: has("DUPLICATE"),
+				unbalanced: has("UNBALANCED"),
+				afterPeriod: has("POSTED_AFTER_PERIOD"),
+				periodEnd: has("PERIOD_END"),
+				relatedParty: has("RELATED_PARTY")
+			},
+			benford: benford(list.map((s) => s.amount), opts.benfordMinSample ?? 50)
+		};
+	}
+	//#endregion
 	//#region app/src/engine/fusion/audit/materiality-engine.ts
 	var materiality_engine_exports = /* @__PURE__ */ __exportAll({
 		PLAN_BENCHMARKS: () => PLAN_BENCHMARKS,
 		calculateMateriality: () => calculateMateriality,
 		planMateriality: () => planMateriality
 	});
-	function money$26(value) {
+	function money$27(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateMateriality(input) {
@@ -20981,9 +21486,9 @@ window.SKEngines = (function() {
 		const trivialRate = Math.min(1, Math.max(0, input.trivialRate));
 		const overall = base * benchmarkRate;
 		return {
-			overall: money$26(overall),
-			performance: money$26(overall * performanceRate),
-			trivial: money$26(overall * trivialRate)
+			overall: money$27(overall),
+			performance: money$27(overall * performanceRate),
+			trivial: money$27(overall * trivialRate)
 		};
 	}
 	var PLAN_BENCHMARKS = {
@@ -22364,7 +22869,7 @@ window.SKEngines = (function() {
 		calculateBoxEconomics: () => calculateBoxEconomics,
 		validateBoxRecipe: () => validateBoxRecipe
 	});
-	function money$25(value) {
+	function money$26(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculateBoxEconomics(recipe, items) {
@@ -22377,17 +22882,17 @@ window.SKEngines = (function() {
 				itemId: line.itemId,
 				quantity,
 				unitCost,
-				cost: money$25(quantity * unitCost),
+				cost: money$26(quantity * unitCost),
 				missingCost: item?.defaultCost === void 0
 			};
 		});
-		const totalCostExVat = money$25(lines.reduce((sum, line) => sum + line.cost, 0));
+		const totalCostExVat = money$26(lines.reduce((sum, line) => sum + line.cost, 0));
 		const vatRate = Math.max(0, recipe.vatRate);
-		const sellingPriceIncVat = money$25(Math.max(0, recipe.sellingPriceIncVat));
-		const sellingPriceExVat = money$25(sellingPriceIncVat / (1 + vatRate));
-		const vat = money$25(sellingPriceIncVat - sellingPriceExVat);
-		const profitExVat = money$25(sellingPriceExVat - totalCostExVat);
-		const marginPercent = sellingPriceExVat === 0 ? 0 : money$25(profitExVat / sellingPriceExVat * 100);
+		const sellingPriceIncVat = money$26(Math.max(0, recipe.sellingPriceIncVat));
+		const sellingPriceExVat = money$26(sellingPriceIncVat / (1 + vatRate));
+		const vat = money$26(sellingPriceIncVat - sellingPriceExVat);
+		const profitExVat = money$26(sellingPriceExVat - totalCostExVat);
+		const marginPercent = sellingPriceExVat === 0 ? 0 : money$26(profitExVat / sellingPriceExVat * 100);
 		const target = Math.min(95, Math.max(0, recipe.targetMarginPercent ?? 0)) / 100;
 		return {
 			lines,
@@ -22397,7 +22902,7 @@ window.SKEngines = (function() {
 			sellingPriceIncVat,
 			profitExVat,
 			marginPercent,
-			minimumPriceForTargetMarginIncVat: money$25((target >= 1 ? 0 : totalCostExVat / (1 - target)) * (1 + vatRate)),
+			minimumPriceForTargetMarginIncVat: money$26((target >= 1 ? 0 : totalCostExVat / (1 - target)) * (1 + vatRate)),
 			missingCostItems: lines.filter((line) => line.missingCost).length
 		};
 	}
@@ -22996,15 +23501,15 @@ window.SKEngines = (function() {
 		createCatalogItem: () => createCatalogItem,
 		inspectCatalog: () => inspectCatalog
 	});
-	function clean$2(v) {
+	function clean$3(v) {
 		return v.trim();
 	}
 	function createCatalogItem(input) {
-		const sku = clean$2(input.sku);
+		const sku = clean$3(input.sku);
 		return {
 			id: "item-" + sku.toLowerCase().replace(/[^a-z0-9_-]+/gi, "-"),
 			sku,
-			name: clean$2(input.name),
+			name: clean$3(input.name),
 			unit: input.unit,
 			vatRate: input.vatRate,
 			defaultCost: input.defaultCost,
@@ -23161,7 +23666,7 @@ window.SKEngines = (function() {
 		"211232",
 		"2331112"
 	];
-	function money$24(value) {
+	function money$25(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function buildScaleBarcode(input) {
@@ -23186,7 +23691,7 @@ window.SKEngines = (function() {
 			...input,
 			id: crypto.randomUUID(),
 			barcode: buildScaleBarcode(input),
-			totalIncVat: money$24(input.weightKg * input.unitPriceIncVat)
+			totalIncVat: money$25(input.weightKg * input.unitPriceIncVat)
 		};
 	}
 	function code128SvgData(text, height = 32) {
@@ -23282,7 +23787,7 @@ window.SKEngines = (function() {
 	//#endregion
 	//#region app/src/engine/fusion/catalog/pricing-engine.ts
 	var pricing_engine_exports = /* @__PURE__ */ __exportAll({ calculatePricing: () => calculatePricing });
-	function money$23(value) {
+	function money$24(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function calculatePricing(input) {
@@ -23296,11 +23801,11 @@ window.SKEngines = (function() {
 		const grossProfitInclusiveVat = sellingInclusive - usableCostExVat * (1 + vat);
 		const margin = sellingInclusive === 0 ? 0 : grossProfitInclusiveVat / sellingInclusive * 100;
 		return {
-			purchaseExVat: money$23(purchaseExVat),
-			usableCostExVat: money$23(usableCostExVat),
-			sellingExVat: money$23(sellingExVat),
-			grossProfitInclusiveVat: money$23(grossProfitInclusiveVat),
-			grossMarginPercentOnInclusiveSales: money$23(margin)
+			purchaseExVat: money$24(purchaseExVat),
+			usableCostExVat: money$24(usableCostExVat),
+			sellingExVat: money$24(sellingExVat),
+			grossProfitInclusiveVat: money$24(grossProfitInclusiveVat),
+			grossMarginPercentOnInclusiveSales: money$24(margin)
 		};
 	}
 	//#endregion
@@ -23500,16 +24005,16 @@ window.SKEngines = (function() {
 			products: [...t.products, ...w.products.filter((p) => !have.has(p.id))]
 		};
 	}
-	var norm$1 = (s) => String(s || "").trim().replace(/\s+/g, " ").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").toLowerCase();
+	var norm$2 = (s) => String(s || "").trim().replace(/\s+/g, " ").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").toLowerCase();
 	/** Who bought each product, from order lines (product name → customer), strongest buyers first. */
 	function customersFromOrders(t, lines, top = 8) {
-		const byName = new Map(t.products.map((p) => [norm$1(p.name), p.id]));
+		const byName = new Map(t.products.map((p) => [norm$2(p.name), p.id]));
 		t.materials.forEach((m) => {
-			if (!byName.has(norm$1(m.name))) byName.set(norm$1(m.name), "mat:" + m.id);
+			if (!byName.has(norm$2(m.name))) byName.set(norm$2(m.name), "mat:" + m.id);
 		});
 		const agg = /* @__PURE__ */ new Map();
 		for (const l of lines) {
-			const id = byName.get(norm$1(l.product));
+			const id = byName.get(norm$2(l.product));
 			if (!id || id.startsWith("mat:") || !l.customer) continue;
 			const k = id + "|" + l.customer, a = agg.get(k) ?? {
 				customer: l.customer,
@@ -24159,7 +24664,7 @@ window.SKEngines = (function() {
 		bookCashLines: () => bookCashLines,
 		matchBankLines: () => matchBankLines
 	});
-	function money$22(value) {
+	function money$23(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
 	function days$2(a, b) {
@@ -24172,7 +24677,7 @@ window.SKEngines = (function() {
 		for (const e of entries) {
 			let v = 0;
 			for (const l of e.lines) if (l.accountId === cashAccountId) v += (Number(l.debit) || 0) - (Number(l.credit) || 0);
-			v = money$22(v);
+			v = money$23(v);
 			if (v !== 0) out.push({
 				id: e.id,
 				date: String(e.date).slice(0, 10),
@@ -24203,7 +24708,7 @@ window.SKEngines = (function() {
 			if (usedBank.has(b.id)) continue;
 			let best = null, bestScore = Number.POSITIVE_INFINITY;
 			for (const k of book) {
-				if (usedBook.has(k.id) || money$22(k.amount) !== money$22(b.amount)) continue;
+				if (usedBook.has(k.id) || money$23(k.amount) !== money$23(b.amount)) continue;
 				const d = days$2(b.date, k.date);
 				if (d > windowDays) continue;
 				const score = d - (b.reference && norm(b.reference) === norm(k.reference) ? 100 : 0);
@@ -24230,17 +24735,17 @@ window.SKEngines = (function() {
 		};
 	}
 	function bankReconciliationStatement(p) {
-		const sum = (xs) => money$22(xs.reduce((s, x) => s + x.amount, 0));
+		const sum = (xs) => money$23(xs.reduce((s, x) => s + x.amount, 0));
 		const depositsInTransit = sum(p.unmatchedBook.filter((x) => x.amount > 0));
-		const outstandingPayments = money$22(-sum(p.unmatchedBook.filter((x) => x.amount < 0)));
+		const outstandingPayments = money$23(-sum(p.unmatchedBook.filter((x) => x.amount < 0)));
 		const bankOnlyIn = sum(p.unmatchedBank.filter((x) => x.amount > 0));
-		const bankOnlyOut = money$22(-sum(p.unmatchedBank.filter((x) => x.amount < 0)));
-		const adjustedBank = money$22(p.statementBalance + depositsInTransit - outstandingPayments);
-		const adjustedBook = money$22(p.bookBalance + bankOnlyIn - bankOnlyOut);
-		const difference = money$22(adjustedBank - adjustedBook);
+		const bankOnlyOut = money$23(-sum(p.unmatchedBank.filter((x) => x.amount < 0)));
+		const adjustedBank = money$23(p.statementBalance + depositsInTransit - outstandingPayments);
+		const adjustedBook = money$23(p.bookBalance + bankOnlyIn - bankOnlyOut);
+		const difference = money$23(adjustedBank - adjustedBook);
 		return {
-			statementBalance: money$22(p.statementBalance),
-			bookBalance: money$22(p.bookBalance),
+			statementBalance: money$23(p.statementBalance),
+			bookBalance: money$23(p.bookBalance),
 			depositsInTransit,
 			outstandingPayments,
 			bankOnlyIn,
@@ -24251,6 +24756,1039 @@ window.SKEngines = (function() {
 			reconciled: Math.abs(difference) < .005
 		};
 	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/journal-chain-engine.ts
+	var journal_chain_engine_exports = /* @__PURE__ */ __exportAll({
+		GENESIS: () => GENESIS,
+		canonical: () => canonical,
+		coversPeriod: () => coversPeriod,
+		externalInserts: () => externalInserts,
+		markLegacy: () => markLegacy,
+		sealLegacy: () => sealLegacy,
+		sealNew: () => sealNew,
+		sealOf: () => sealOf,
+		sha256: () => sha256,
+		verifyChain: () => verifyChain
+	});
+	var K$1 = [
+		1116352408,
+		1899447441,
+		3049323471,
+		3921009573,
+		961987163,
+		1508970993,
+		2453635748,
+		2870763221,
+		3624381080,
+		310598401,
+		607225278,
+		1426881987,
+		1925078388,
+		2162078206,
+		2614888103,
+		3248222580,
+		3835390401,
+		4022224774,
+		264347078,
+		604807628,
+		770255983,
+		1249150122,
+		1555081692,
+		1996064986,
+		2554220882,
+		2821834349,
+		2952996808,
+		3210313671,
+		3336571891,
+		3584528711,
+		113926993,
+		338241895,
+		666307205,
+		773529912,
+		1294757372,
+		1396182291,
+		1695183700,
+		1986661051,
+		2177026350,
+		2456956037,
+		2730485921,
+		2820302411,
+		3259730800,
+		3345764771,
+		3516065817,
+		3600352804,
+		4094571909,
+		275423344,
+		430227734,
+		506948616,
+		659060556,
+		883997877,
+		958139571,
+		1322822218,
+		1537002063,
+		1747873779,
+		1955562222,
+		2024104815,
+		2227730452,
+		2361852424,
+		2428436474,
+		2756734187,
+		3204031479,
+		3329325298
+	];
+	function sha256(text) {
+		const bytes = new TextEncoder().encode(text), l = bytes.length, n = (l + 9 >> 6) + 1 << 6, m = new Uint8Array(n);
+		m.set(bytes);
+		m[l] = 128;
+		const bits = l * 8;
+		m[n - 4] = bits >>> 24 & 255;
+		m[n - 3] = bits >>> 16 & 255;
+		m[n - 2] = bits >>> 8 & 255;
+		m[n - 1] = bits & 255;
+		m[n - 5] = Math.floor(bits / 2 ** 32) & 255;
+		const h = [
+			1779033703,
+			3144134277,
+			1013904242,
+			2773480762,
+			1359893119,
+			2600822924,
+			528734635,
+			1541459225
+		], w = new Array(64);
+		const r = (x, s) => x >>> s | x << 32 - s;
+		for (let o = 0; o < n; o += 64) {
+			for (let i = 0; i < 16; i++) w[i] = m[o + 4 * i] << 24 | m[o + 4 * i + 1] << 16 | m[o + 4 * i + 2] << 8 | m[o + 4 * i + 3];
+			for (let i = 16; i < 64; i++) {
+				const s0 = r(w[i - 15], 7) ^ r(w[i - 15], 18) ^ w[i - 15] >>> 3, s1 = r(w[i - 2], 17) ^ r(w[i - 2], 19) ^ w[i - 2] >>> 10;
+				w[i] = w[i - 16] + s0 + w[i - 7] + s1 | 0;
+			}
+			let [a, b, c, d, e, f, g, hh] = h;
+			for (let i = 0; i < 64; i++) {
+				const t1 = hh + (r(e, 6) ^ r(e, 11) ^ r(e, 25)) + (e & f ^ ~e & g) + K$1[i] + w[i] | 0;
+				const t2 = (r(a, 2) ^ r(a, 13) ^ r(a, 22)) + (a & b ^ a & c ^ b & c) | 0;
+				hh = g;
+				g = f;
+				f = e;
+				e = d + t1 | 0;
+				d = c;
+				c = b;
+				b = a;
+				a = t1 + t2 | 0;
+			}
+			h[0] = h[0] + a | 0;
+			h[1] = h[1] + b | 0;
+			h[2] = h[2] + c | 0;
+			h[3] = h[3] + d | 0;
+			h[4] = h[4] + e | 0;
+			h[5] = h[5] + f | 0;
+			h[6] = h[6] + g | 0;
+			h[7] = h[7] + hh | 0;
+		}
+		return h.map((x) => (x >>> 0).toString(16).padStart(8, "0")).join("");
+	}
+	var GENESIS = "0".repeat(64);
+	/** Demo entries (the sample company) are cleared at will, so they never enter the chain. */
+	var outside = (e) => e.demo === true;
+	/** The content that must never change once posted («reversedBy» is added later by a reversal and is left out). */
+	function canonical(e) {
+		return JSON.stringify([
+			e.seq ?? 0,
+			e.sealedAt ?? "",
+			e.id,
+			e.date,
+			e.reference ?? "",
+			e.memo ?? "",
+			e.source ?? "",
+			e.sourceId ?? "",
+			e.party ?? "",
+			e.reversalOf ?? "",
+			e.lines.map((l) => [
+				l.accountId,
+				Math.round(l.debit * 100),
+				Math.round(l.credit * 100)
+			])
+		]);
+	}
+	var sealOf = (e, prev) => sha256(prev + "|" + canonical(e));
+	/** Seal every unsealed entry after the last sealed one, in posting order. Returns the count sealed. Mutates the entries. */
+	function sealNew(entries, now) {
+		let last, n = 0;
+		for (const e of entries) if (e.hash && !outside(e)) last = e;
+		let prev = last?.hash ?? GENESIS, seq = last?.seq ?? 0;
+		const from = last ? entries.indexOf(last) + 1 : entries.findIndex((e) => !e.legacy && !outside(e));
+		if (from < 0) return 0;
+		for (let i = from; i < entries.length; i++) {
+			const e = entries[i];
+			if (e.hash || e.legacy || outside(e)) continue;
+			e.seq = ++seq;
+			e.sealedAt = now;
+			e.prev = prev;
+			e.hash = sealOf(e, prev);
+			prev = e.hash;
+			n++;
+		}
+		return n;
+	}
+	/** Mark the entries posted before the chain existed as legacy (outside the chain), so sealing starts clean. */
+	function markLegacy(entries) {
+		let n = 0;
+		for (const e of entries) if (!e.hash && !e.legacy && !outside(e)) {
+			e.legacy = true;
+			n++;
+		}
+		return n;
+	}
+	/** Bring legacy entries into the chain once (they are sealed after the last sealed entry, with today's seal date). */
+	function sealLegacy(entries, now) {
+		const legacy = entries.filter((e) => e.legacy && !e.hash);
+		if (!legacy.length) return 0;
+		const rest = entries.filter((e) => !legacy.includes(e));
+		legacy.forEach((e) => {
+			delete e.legacy;
+		});
+		entries.length = 0;
+		entries.push(...rest, ...legacy);
+		return sealNew(entries, now);
+	}
+	function verifyChain(entries) {
+		const sealed = entries.filter((e) => e.hash && !outside(e)), issues = [];
+		let prev = GENESIS, seq = 0;
+		for (const e of sealed) {
+			if ((e.seq ?? 0) !== seq + 1) issues.push({
+				id: e.id,
+				seq: e.seq,
+				kind: "gap",
+				ar: "انقطاع في التسلسل بعد " + seq + " — قيد محذوف أو مُعاد ترتيبه"
+			});
+			if (e.prev !== prev) issues.push({
+				id: e.id,
+				seq: e.seq,
+				kind: "broken-link",
+				ar: "الختم لا يرتبط بالقيد السابق"
+			});
+			if (sealOf(e, e.prev ?? "") !== e.hash) issues.push({
+				id: e.id,
+				seq: e.seq,
+				kind: "edited",
+				ar: "محتوى القيد تغير بعد ترحيله"
+			});
+			prev = e.hash;
+			seq = e.seq ?? seq + 1;
+		}
+		const firstSealed = entries.findIndex((e) => e.hash && !outside(e));
+		if (firstSealed >= 0) entries.slice(firstSealed).forEach((e) => {
+			if (!e.hash && !e.legacy && !outside(e)) issues.push({
+				id: e.id,
+				kind: "unsealed",
+				ar: "قيد أُضيف دون ختم (خارج سجل التعديلات)"
+			});
+		});
+		const dates = sealed.map((e) => e.date).sort();
+		return {
+			ok: issues.length === 0,
+			issues,
+			sealed: sealed.length,
+			legacy: entries.filter((e) => e.legacy && !e.hash).length,
+			demo: entries.filter(outside).length,
+			total: entries.length,
+			head: sealed.length ? sealed[sealed.length - 1].hash : GENESIS,
+			firstDate: dates[0] ?? null,
+			lastDate: dates[dates.length - 1] ?? null,
+			sealedFrom: sealed.length ? sealed.map((e) => String(e.sealedAt ?? "")).sort()[0] ?? null : null,
+			reversals: entries.filter((e) => e.reversalOf && !outside(e)).length,
+			manual: entries.filter((e) => !outside(e) && (!e.source || e.source === "يدوي")).length
+		};
+	}
+	/** Entries found in storage without a seal after the chain began: they were not saved through the books (the books
+	*  seal on every save), so they are recorded as an integrity event before being sealed. */
+	function externalInserts(stored) {
+		const first = stored.findIndex((e) => e.hash && !outside(e));
+		return first < 0 ? [] : stored.slice(first).filter((e) => !e.hash && !e.legacy && !outside(e)).map((e) => e.id);
+	}
+	/** Does the trail cover a period? (Reliance/Infosys: «operated throughout the year for all relevant transactions»). */
+	function coversPeriod(entries, start, end) {
+		const inP = entries.filter((e) => e.date >= start && e.date <= end && !outside(e)), out = inP.filter((e) => !e.hash);
+		return {
+			entries: inP.length,
+			uncovered: out.length,
+			throughout: inP.length > 0 && out.length === 0
+		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/bank-statement-engine.ts
+	var bank_statement_engine_exports = /* @__PURE__ */ __exportAll({
+		applyConfirmation: () => applyConfirmation,
+		certificationOf: () => certificationOf,
+		certify: () => certify$1,
+		emptyState: () => emptyState$1,
+		forgetRule: () => forgetRule,
+		latinDigits: () => latinDigits,
+		learnRule: () => learnRule,
+		lineHash: () => lineHash,
+		matchId: () => matchId,
+		mergeImport: () => mergeImport,
+		normText: () => normText,
+		parseAmount: () => parseAmount,
+		parseDate: () => parseDate,
+		parseStatement: () => parseStatement,
+		periodRange: () => periodRange,
+		reconState: () => reconState,
+		rejectMatch: () => rejectMatch,
+		suggestMatches: () => suggestMatches,
+		tokens: () => tokens$1,
+		unconfirm: () => unconfirm
+	});
+	var emptyState$1 = () => ({
+		lines: [],
+		confirmed: [],
+		rejected: [],
+		rules: [],
+		certifications: [],
+		imports: []
+	});
+	var money$22 = (v) => Math.round((v + Number.EPSILON) * 100) / 100;
+	var AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
+	var FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
+	var latinDigits = (s) => String(s ?? "").replace(/[٠-٩]/g, (d) => String(AR_DIGITS.indexOf(d))).replace(/[۰-۹]/g, (d) => String(FA_DIGITS.indexOf(d)));
+	/** Arabic text folded for comparison: digits Latin, tashkeel gone, alef/ya/ta-marbuta unified, lower case, one space */
+	function normText(s) {
+		return latinDigits(s).replace(/[ً-ْـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/[^\p{L}\p{N}\s\-/]/gu, " ").toLowerCase().replace(/\s+/g, " ").trim();
+	}
+	/** «1,234.50» «١٬٢٣٤٫٥٠» «(1,234)» «1 234,50 SAR» «−35 ر.س» «35 CR» → number; null when it is not a number */
+	function parseAmount(v) {
+		if (typeof v === "number") return Number.isFinite(v) ? money$22(v) : null;
+		let t = latinDigits(String(v ?? "")).trim();
+		if (!t) return null;
+		t = t.replace(/\b(sar|rs|s\.r\.?)\b/gi, "").replace(/ريال|ر\.?\s?س\.?/g, "").replace(/[‎‏‪-‮]/g, "").trim();
+		let sign = 1;
+		if (/^\(.*\)$/.test(t)) {
+			sign = -1;
+			t = t.slice(1, -1);
+		}
+		if (/^[-−–]/.test(t)) {
+			sign = -1;
+			t = t.slice(1);
+		} else if (/[-−–]$/.test(t)) {
+			sign = -1;
+			t = t.slice(0, -1);
+		}
+		if (/\b(dr|debit|مدين)\b/i.test(t)) {
+			sign = -1;
+			t = t.replace(/\b(dr|debit|مدين)\b/gi, "");
+		}
+		if (/\b(cr|credit|دائن)\b/i.test(t)) t = t.replace(/\b(cr|credit|دائن)\b/gi, "");
+		t = t.replace(/[\s ]/g, "").replace(/٫/g, ".").replace(/٬/g, ",").replace(/^\+/, "");
+		if (/^\d{1,3}(\.\d{3})+,\d{1,2}$/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
+		else if (/^\d+,\d{1,2}$/.test(t) && !/^\d{1,3},\d{3}$/.test(t)) t = t.replace(",", ".");
+		else t = t.replace(/,/g, "");
+		if (!/^\d+(\.\d+)?$/.test(t)) return null;
+		return money$22(sign * parseFloat(t));
+	}
+	/** ISO date or '' with a flag: dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd, yyyy/mm/dd, two-digit years, a time after
+	the date; a year between 1300 and 1499 is Hijri-looking and is flagged, never converted */
+	function parseDate(v) {
+		if (v instanceof Date && !isNaN(v.getTime())) return { iso: v.toISOString().slice(0, 10) };
+		let t = latinDigits(String(v ?? "")).trim().replace(/[‎‏]/g, "");
+		if (!t) return {
+			iso: "",
+			flag: "unparsed"
+		};
+		t = t.replace(/\s*[T ]\s*\d{1,2}:\d{2}(:\d{2})?.*$/, "").replace(/هـ|ه$|AH$/i, "").trim();
+		let y = 0, m = 0, d = 0, mt;
+		if (mt = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/.exec(t)) {
+			y = +mt[1];
+			m = +mt[2];
+			d = +mt[3];
+		} else if (mt = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(t)) {
+			d = +mt[1];
+			m = +mt[2];
+			y = +mt[3];
+		} else if (mt = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2})$/.exec(t)) {
+			d = +mt[1];
+			m = +mt[2];
+			y = 2e3 + +mt[3];
+		} else if (mt = /^(\d{4})(\d{2})(\d{2})$/.exec(t)) {
+			y = +mt[1];
+			m = +mt[2];
+			d = +mt[3];
+		} else return {
+			iso: "",
+			flag: "unparsed"
+		};
+		if (y >= 1300 && y <= 1499) return {
+			iso: "",
+			flag: "hijri"
+		};
+		if (m > 12 && d <= 12) [m, d] = [d, m];
+		if (m < 1 || m > 12 || d < 1 || d > 31 || y < 1900 || y > 2200) return {
+			iso: "",
+			flag: "unparsed"
+		};
+		const dt = new Date(Date.UTC(y, m - 1, d));
+		if (dt.getUTCMonth() !== m - 1) return {
+			iso: "",
+			flag: "unparsed"
+		};
+		return { iso: dt.toISOString().slice(0, 10) };
+	}
+	var dayDiff = (a, b) => {
+		const x = Date.parse(a + "T00:00:00Z"), y = Date.parse(b + "T00:00:00Z");
+		return Number.isFinite(x) && Number.isFinite(y) ? Math.round(Math.abs(x - y) / 864e5) : Number.POSITIVE_INFINITY;
+	};
+	var ageDays = (from, to) => {
+		const x = Date.parse(from + "T00:00:00Z"), y = Date.parse(to + "T00:00:00Z");
+		return Number.isFinite(x) && Number.isFinite(y) ? Math.max(0, Math.round((y - x) / 864e5)) : 0;
+	};
+	var SYN = {
+		date: /^(تاريخ|التاريخ|تاريخ (العمليه|المعامله|القيد|الحركه|التنفيذ|الاستحقاق)|date|transaction date|posting date|value date|txn date|trans\.? date)$/,
+		description: /^(البيان|الوصف|التفاصيل|تفاصيل|وصف (العمليه|المعامله)|تفاصيل (العمليه|المعامله)|description|details|narrative|particulars|transaction details|remarks|memo|narration)$/,
+		debit: /^(مدين|خصم|صادر|سحب|مسحوبات|المسحوبات|مبلغ مدين|debit|debits|withdrawal|withdrawals|dr|money out|paid out|debit amount)$/,
+		credit: /^(دائن|ايداع|وارد|ايداعات|الايداعات|مبلغ دائن|credit|credits|deposit|deposits|cr|money in|paid in|credit amount)$/,
+		amount: /^(المبلغ|مبلغ|القيمه|قيمه|مبلغ العمليه|amount|transaction amount|value|net amount)$/,
+		balance: /^(الرصيد|رصيد|الرصيد بعد|الرصيد الجاري|الرصيد المتبقي|balance|running balance|closing balance|available balance|ledger balance)$/,
+		reference: /^(المرجع|رقم المرجع|رقم العمليه|رقم المعامله|رقم الحواله|رقم الاشاره|الرقم المرجعي|reference|ref|ref no|ref\.? no\.?|reference no|reference number|transaction id|txn id|transaction ref|trace no|رقم الايصال)$/,
+		type: /^(نوع العمليه|النوع|نوع|type|transaction type|d\/c|dr\/cr|مدين\/دائن|cr\/dr)$/
+	};
+	function findHeader(rows) {
+		let best = {
+			row: -1,
+			score: 0,
+			map: null
+		};
+		for (let r = 0; r < Math.min(rows.length, 25); r++) {
+			const map = {
+				date: -1,
+				description: -1,
+				debit: -1,
+				credit: -1,
+				amount: -1,
+				balance: -1,
+				reference: -1,
+				type: -1
+			};
+			let score = 0;
+			(rows[r] || []).forEach((cell, i) => {
+				const h = normText(String(cell ?? "")).replace(/[()]/g, "").replace(/\s*\(?(sar|ر س|ريال)\)?$/, "").trim();
+				if (!h) return;
+				for (const k of Object.keys(SYN)) if (map[k] < 0 && SYN[k].test(h)) {
+					map[k] = i;
+					score += k === "date" ? 3 : k === "type" ? 1 : 2;
+					break;
+				}
+			});
+			const hasMoney = map.amount >= 0 || map.debit >= 0 || map.credit >= 0;
+			if (map.date >= 0 && hasMoney && score > best.score) best = {
+				row: r,
+				score,
+				map
+			};
+		}
+		return best;
+	}
+	var BANKS = [
+		{
+			id: "alrajhi",
+			re: /الراجحي|al ?rajhi|rajhi/i,
+			label: "مصرف الراجحي"
+		},
+		{
+			id: "snb",
+			re: /الاهلي|الأهلي|snb|alahli|al ?ahli|ncb|البنك الاهلي السعودي|saudi national bank/i,
+			label: "البنك الأهلي السعودي"
+		},
+		{
+			id: "riyad",
+			re: /بنك الرياض|riyad ?bank|riyadbank/i,
+			label: "بنك الرياض"
+		},
+		{
+			id: "alinma",
+			re: /الانماء|الإنماء|alinma/i,
+			label: "مصرف الإنماء"
+		},
+		{
+			id: "sab",
+			re: /\bsab\b|sabb|ساب|البنك السعودي الاول|البنك السعودي الأول|saudi awwal|saudi british/i,
+			label: "البنك السعودي الأول (ساب)"
+		}
+	];
+	function guessBank(rows, headerRow, lines) {
+		const title = rows.slice(0, Math.max(headerRow, 0) + 1).flat().map((c) => String(c ?? "")).join(" ");
+		for (const b of BANKS) if (b.re.test(title)) return {
+			guess: b.id,
+			confidence: .9,
+			evidence_ar: "اسم البنك في رأس الكشف: " + b.label
+		};
+		const counts = /* @__PURE__ */ new Map();
+		for (const l of lines) for (const b of BANKS) if (b.re.test(l.description + " " + l.reference)) counts.set(b.id, (counts.get(b.id) || 0) + 1);
+		const top = [...counts].sort((a, b) => b[1] - a[1])[0];
+		if (top && top[1] >= Math.max(2, lines.length * .2)) return {
+			guess: top[0],
+			confidence: .5,
+			evidence_ar: "اسم البنك يتكرر في البيان (" + top[1] + " سطراً)"
+		};
+		return {
+			guess: "unknown",
+			confidence: 0,
+			evidence_ar: "لم يظهر اسم البنك في الكشف"
+		};
+	}
+	/** sha256 over date | amount | folded description | reference | balance | occurrence (n-th identical line of the import) */
+	function lineHash(line, occurrence = 1) {
+		return sha256([
+			line.date || "raw:" + (line.dateRaw ?? ""),
+			money$22(line.amount).toFixed(2),
+			normText(line.description ?? ""),
+			normText(line.reference ?? ""),
+			line.balance == null ? "" : money$22(line.balance).toFixed(2),
+			String(occurrence)
+		].join("|")).slice(0, 24);
+	}
+	function parseStatement(input, opts = {}) {
+		const rows = Array.isArray(input) ? input.map((r) => Array.isArray(r) ? r.map((c) => String(c ?? "")) : [String(r ?? "")]) : [input.headers.map(String), ...input.rows.map((r) => r.map((c) => String(c ?? "")))];
+		const warnings_ar = [];
+		const empty = {
+			date: -1,
+			description: -1,
+			debit: -1,
+			credit: -1,
+			amount: -1,
+			balance: -1,
+			reference: -1,
+			type: -1
+		};
+		const h = findHeader(rows);
+		if (!h.map) {
+			warnings_ar.push("لم أجد صف العناوين: يلزم عمود للتاريخ وعمود للمبلغ (أو مدين/دائن). الأسماء المعروفة: التاريخ، البيان، مدين، دائن، المبلغ، الرصيد، المرجع.");
+			return {
+				lines: [],
+				warnings_ar,
+				bank: {
+					guess: opts.bank ?? "unknown",
+					confidence: 0,
+					evidence_ar: ""
+				},
+				columns: empty,
+				headerRow: -1,
+				skipped: rows.length
+			};
+		}
+		const map = h.map;
+		if (map.description < 0) warnings_ar.push("لا عمود للبيان — ستُطابق السطور بالمبلغ والتاريخ فقط.");
+		if (map.debit < 0 && map.credit < 0 && map.type < 0 && map.balance < 0) warnings_ar.push("عمود مبلغ واحد بلا مدين/دائن ولا رصيد: الإشارة تُقرأ من علامة المبلغ كما وردت.");
+		const pre = [];
+		let skipped = 0, hijri = 0, unparsed = 0, noAmount = 0;
+		for (let r = h.row + 1; r < rows.length; r++) {
+			const row = rows[r] || [];
+			if (!row.some((c) => String(c ?? "").trim())) {
+				skipped++;
+				continue;
+			}
+			const cell = (i) => i >= 0 ? String(row[i] ?? "").trim() : "";
+			const dateRaw = cell(map.date), dt = parseDate(dateRaw);
+			const description = cell(map.description), reference = cell(map.reference);
+			const balance = map.balance >= 0 ? parseAmount(cell(map.balance)) : null;
+			let amount = null;
+			if (map.debit >= 0 || map.credit >= 0) {
+				const dr = map.debit >= 0 ? parseAmount(cell(map.debit)) : null, cr = map.credit >= 0 ? parseAmount(cell(map.credit)) : null;
+				if (dr == null && cr == null) amount = null;
+				else amount = money$22((cr == null ? 0 : Math.abs(cr)) - (dr == null ? 0 : Math.abs(dr)));
+			} else if (map.amount >= 0) {
+				amount = parseAmount(cell(map.amount));
+				if (amount != null && map.type >= 0) {
+					const t = normText(cell(map.type));
+					if (/^(d|dr|debit|مدين|خصم|سحب|صادر)$/.test(t)) amount = -Math.abs(amount);
+					else if (/^(c|cr|credit|دائن|ايداع|وارد)$/.test(t)) amount = Math.abs(amount);
+				}
+			}
+			if (!dateRaw && (amount == null || /المجموع|الاجمالي|total|closing|opening|الرصيد الافتتاحي|رصيد افتتاحي/i.test(normText(description)))) {
+				skipped++;
+				continue;
+			}
+			if (amount == null || amount === 0) {
+				noAmount++;
+				skipped++;
+				continue;
+			}
+			if (dt.flag === "hijri") hijri++;
+			else if (dt.flag === "unparsed") unparsed++;
+			pre.push({
+				date: dt.iso,
+				amount,
+				description,
+				reference,
+				balance,
+				dateFlag: dt.flag,
+				raw: row.map((c) => String(c ?? "")),
+				dateRaw
+			});
+		}
+		if (map.debit < 0 && map.credit < 0 && map.type < 0 && map.balance >= 0 && pre.length > 1 && pre.every((l) => l.amount > 0 && l.balance != null)) {
+			let fixed = 0;
+			for (let i = 1; i < pre.length; i++) {
+				const delta = money$22(pre[i].balance - pre[i - 1].balance);
+				if (Math.abs(delta) === pre[i].amount && delta < 0) {
+					pre[i].amount = -pre[i].amount;
+					fixed++;
+				}
+			}
+			if (fixed) warnings_ar.push("قُرئت إشارة " + fixed + " سطراً من حركة الرصيد (عمود مبلغ واحد بلا مدين/دائن).");
+		}
+		const seen = /* @__PURE__ */ new Map();
+		const lines = pre.map((l, i) => {
+			const base = lineHash(l, 1), n = (seen.get(base) || 0) + 1;
+			seen.set(base, n);
+			const { dateRaw: _d, ...rest } = l;
+			return {
+				id: n === 1 ? base : lineHash(l, n),
+				seq: i + 1,
+				...rest
+			};
+		});
+		if (hijri) warnings_ar.push(hijri + " سطراً بتاريخ هجري (سنة 13xx–14xx) — لم يُحوَّل؛ صدّر الكشف بالتقويم الميلادي أو أدخل التاريخ يدوياً.");
+		if (unparsed) warnings_ar.push(unparsed + " سطراً بتاريخ لم يُقرأ — تظهر بلا تاريخ ولا تُطابق تلقائياً.");
+		if (noAmount) warnings_ar.push(noAmount + " صفاً بلا مبلغ تُركت (عناوين فرعية أو مجاميع).");
+		if (!lines.length) warnings_ar.push("لم يُقرأ أي سطر بعد صف العناوين.");
+		return {
+			lines,
+			warnings_ar,
+			bank: opts.bank ? {
+				guess: opts.bank,
+				confidence: 1,
+				evidence_ar: "حدده المستخدم"
+			} : guessBank(rows, h.row, lines),
+			columns: map,
+			headerRow: h.row,
+			skipped
+		};
+	}
+	/** add an import to the state; lines whose hash is already there are duplicates and are not added */
+	function mergeImport(state, parsed, ts) {
+		const have = new Set(state.lines.map((l) => l.id));
+		const added = parsed.lines.filter((l) => !have.has(l.id));
+		const dated = parsed.lines.map((l) => l.date).filter(Boolean).sort();
+		const log = {
+			ts,
+			bank: parsed.bank?.guess ?? "unknown",
+			count: parsed.lines.length,
+			added: added.length,
+			duplicates: parsed.lines.length - added.length,
+			from: dated[0] || "",
+			to: dated[dated.length - 1] || ""
+		};
+		const lines = [...state.lines, ...added].sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999") || a.seq - b.seq || a.id.localeCompare(b.id));
+		return {
+			state: {
+				...state,
+				lines,
+				imports: [...state.imports, log]
+			},
+			added: added.length,
+			duplicates: log.duplicates
+		};
+	}
+	var FEE_RE = /رسوم|رسم|عموله|عمولة|اجور|fee|fees|charge|charges|commission|svc chg|service charge|اشتراك|subscription/i;
+	var VAT_RE$1 = /ضريبه|ضريبة|القيمه المضافه|القيمة المضافة|vat|tax/i;
+	var STOP$1 = /* @__PURE__ */ new Set([
+		"من",
+		"الى",
+		"إلى",
+		"في",
+		"على",
+		"عن",
+		"و",
+		"the",
+		"of",
+		"to",
+		"from",
+		"for",
+		"and",
+		"at",
+		"by",
+		"ref",
+		"no",
+		"rrn",
+		"id"
+	]);
+	/** the stable tokens of a description: words of 3+ letters, no digits, no dates, no stop words */
+	function tokens$1(s) {
+		return [...new Set(normText(s).split(" ").filter((w) => w.length >= 3 && !/\d/.test(w) && !STOP$1.has(w)))].sort();
+	}
+	/** the alphabetic prefix of a reference: «RENT-2026-05» → «rent», «INV0042» → «inv» */
+	var refPrefix = (ref) => (normText(ref ?? "").match(/^[a-z؀-ۿ]{2,}/) || [""])[0];
+	var refToken = (ref) => normText(ref ?? "").replace(/\s+/g, "");
+	var matchId = (bankIds, bookIds) => sha256([...bankIds].sort().join(",") + "|" + [...bookIds].sort().join(",")).slice(0, 16);
+	var r2c = (c) => Math.round(Math.max(0, Math.min(1, c)) * 100) / 100;
+	/** suggestions for the unmatched bank lines against the unmatched book lines, best first; confirmed and rejected ones
+	(state) are left out */
+	function suggestMatches(lines, book, rules = [], opts = {}, state) {
+		const windowDays = opts.days ?? 5, maxGroup = opts.maxGroup ?? 6, feeCode = opts.feeAccountCode ?? "6300", vatRate = opts.vatRate ?? .15;
+		const usedBank = /* @__PURE__ */ new Set(), usedBook = /* @__PURE__ */ new Set();
+		for (const c of state?.confirmed ?? []) {
+			c.bankIds.forEach((x) => usedBank.add(x));
+			c.bookIds.forEach((x) => usedBook.add(x));
+		}
+		const rejected = new Set((state?.rejected ?? []).map((r) => r.id));
+		const bank = lines.filter((l) => !usedBank.has(l.id) && l.date).sort((a, b) => a.date.localeCompare(b.date) || a.seq - b.seq);
+		const books = book.filter((k) => !usedBook.has(k.id)).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+		const out = [];
+		const takenBank = /* @__PURE__ */ new Set(), takenBook = /* @__PURE__ */ new Set();
+		const push = (m) => {
+			const id = matchId(m.bankIds, m.bookIds);
+			if (rejected.has(id)) return false;
+			out.push({
+				id,
+				diff: money$22(m.amountBank - m.amountBook),
+				...m,
+				confidence: r2c(m.confidence)
+			});
+			m.bankIds.forEach((x) => takenBank.add(x));
+			m.bookIds.forEach((x) => takenBook.add(x));
+			return true;
+		};
+		const text = (l) => normText(l.description + " " + l.reference);
+		const inWindow = (b, k) => dayDiff(b.date, k.date) <= windowDays;
+		for (const b of bank) {
+			if (takenBank.has(b.id)) continue;
+			const t = text(b).replace(/\s+/g, "");
+			const cands = books.filter((k) => !takenBook.has(k.id) && refToken(k.reference).length >= 3 && t.includes(refToken(k.reference)));
+			if (!cands.length) continue;
+			const exact = cands.filter((k) => money$22(k.amount) === money$22(b.amount));
+			const pick = (exact.length ? exact : cands).sort((x, y) => dayDiff(b.date, x.date) - dayDiff(b.date, y.date))[0];
+			const d = dayDiff(b.date, pick.date), same = money$22(pick.amount) === money$22(b.amount);
+			const reasons = ["المرجع «" + pick.reference + "» ورد في بيان البنك"];
+			if (same) reasons.push("المبلغ متساوٍ");
+			else reasons.push("المبلغ مختلف: " + money$22(b.amount - pick.amount).toFixed(2));
+			if (Number.isFinite(d)) reasons.push(d === 0 ? "نفس اليوم" : "فارق " + d + " يوم");
+			push({
+				kind: "reference",
+				bankIds: [b.id],
+				bookIds: [pick.id],
+				amountBank: b.amount,
+				amountBook: pick.amount,
+				confidence: same ? .98 - Math.min(d, 30) * .002 : .6,
+				reasons_ar: reasons
+			});
+		}
+		const ruleFor = (b) => {
+			const tk = new Set(tokens$1(b.description + " " + b.reference)), side = b.amount >= 0 ? "in" : "out";
+			return rules.filter((r) => r.side === side && r.pattern.length && r.pattern.every((p) => tk.has(p))).sort((x, y) => y.pattern.length - x.pattern.length || y.hits - x.hits)[0];
+		};
+		for (const b of bank) {
+			if (takenBank.has(b.id)) continue;
+			const r = ruleFor(b);
+			if (!r) continue;
+			const cands = books.filter((k) => !takenBook.has(k.id) && Math.sign(k.amount) === Math.sign(b.amount) && inWindow(b, k) && (r.bookRefPrefix && refPrefix(k.reference) === r.bookRefPrefix || r.bookMemo && normText(k.memo ?? "") === r.bookMemo));
+			if (cands.length) {
+				const pick = cands.sort((x, y) => Math.abs(x.amount - b.amount) - Math.abs(y.amount - b.amount) || dayDiff(b.date, x.date) - dayDiff(b.date, y.date))[0];
+				const same = money$22(pick.amount) === money$22(b.amount), close = Math.abs(pick.amount - b.amount) <= Math.abs(b.amount) * .01;
+				if (same || close) push({
+					kind: "rule",
+					bankIds: [b.id],
+					bookIds: [pick.id],
+					amountBank: b.amount,
+					amountBook: pick.amount,
+					confidence: same ? .95 : .75,
+					reasons_ar: ["قاعدة متعلَّمة «" + r.label_ar + "» (" + r.hits + " مطابقة سابقة)", same ? "المبلغ متساوٍ" : "فارق صغير في المبلغ " + money$22(b.amount - pick.amount).toFixed(2)],
+					ruleId: r.id
+				});
+			}
+		}
+		for (const b of bank) {
+			if (takenBank.has(b.id)) continue;
+			const cands = books.filter((k) => !takenBook.has(k.id) && money$22(k.amount) === money$22(b.amount) && inWindow(b, k)).sort((x, y) => dayDiff(b.date, x.date) - dayDiff(b.date, y.date));
+			if (!cands.length) continue;
+			const pick = cands[0], d = dayDiff(b.date, pick.date), amb = cands.length > 1 && dayDiff(b.date, cands[1].date) === d;
+			const reasons = ["المبلغ متساوٍ", d === 0 ? "نفس اليوم" : "فارق " + d + " يوم"];
+			if (amb) reasons.push(cands.length + " قيود بالمبلغ نفسه في النافذة — تأكد قبل الاعتماد");
+			push({
+				kind: "amount",
+				bankIds: [b.id],
+				bookIds: [pick.id],
+				amountBank: b.amount,
+				amountBook: pick.amount,
+				confidence: (amb ? .7 : .9) - d * .04,
+				reasons_ar: reasons
+			});
+		}
+		for (const b of bank) {
+			if (takenBank.has(b.id)) continue;
+			const pool = books.filter((k) => !takenBook.has(k.id) && Math.sign(k.amount) === Math.sign(b.amount) && inWindow(b, k) && Math.abs(k.amount) <= Math.abs(b.amount)).slice(0, 14);
+			if (pool.length < 2) continue;
+			const target = Math.round(Math.abs(b.amount) * 100), cents = pool.map((k) => Math.round(Math.abs(k.amount) * 100));
+			let found = null;
+			const walk = (i, sum, picked) => {
+				if (found || picked.length > maxGroup) return;
+				if (sum === target && picked.length >= 2) {
+					found = picked.slice();
+					return;
+				}
+				if (sum >= target || i >= pool.length) return;
+				walk(i + 1, sum + cents[i], [...picked, i]);
+				walk(i + 1, sum, picked);
+			};
+			walk(0, 0, []);
+			if (!found) continue;
+			const ks = found.map((i) => pool[i]);
+			push({
+				kind: "many-to-one",
+				bankIds: [b.id],
+				bookIds: ks.map((k) => k.id),
+				amountBank: b.amount,
+				amountBook: money$22(ks.reduce((s, k) => s + k.amount, 0)),
+				confidence: .8 - Math.max(0, ks.length - 2) * .03,
+				reasons_ar: [(b.amount >= 0 ? "تحصيل مجمّع" : "سداد مجمّع") + " لـ " + ks.length + " قيود مجموعها يساوي سطر البنك", "المراجع: " + ks.map((k) => k.reference || k.id).join("، ")]
+			});
+		}
+		const feeLines = bank.filter((b) => !takenBank.has(b.id) && b.amount < 0 && FEE_RE.test(normText(b.description)) && !VAT_RE$1.test(normText(b.description)));
+		const vatLines = bank.filter((b) => !takenBank.has(b.id) && b.amount < 0 && VAT_RE$1.test(normText(b.description)));
+		for (const f of feeLines) {
+			const v = vatLines.find((x) => !takenBank.has(x.id) && x.date === f.date && Math.abs(money$22(Math.abs(f.amount) * vatRate) - Math.abs(x.amount)) <= .01);
+			if (v) push({
+				kind: "fee+vat",
+				bankIds: [f.id, v.id],
+				bookIds: [],
+				amountBank: money$22(f.amount + v.amount),
+				amountBook: 0,
+				confidence: .8,
+				reasons_ar: ["رسوم بنكية وضريبتها (" + Math.round(vatRate * 100) + "٪) في اليوم نفسه", "تُرحَّل إلى " + feeCode + " والضريبة إلى حساب ضريبة المدخلات"],
+				suggestedAccountCode: feeCode
+			});
+			else push({
+				kind: "fee",
+				bankIds: [f.id],
+				bookIds: [],
+				amountBank: f.amount,
+				amountBook: 0,
+				confidence: .7,
+				reasons_ar: ["بيان رسوم/عمولة بنكية بلا قيد في الدفاتر", "تُرحَّل إلى " + feeCode],
+				suggestedAccountCode: feeCode
+			});
+		}
+		for (const v of vatLines) {
+			if (takenBank.has(v.id)) continue;
+			push({
+				kind: "fee",
+				bankIds: [v.id],
+				bookIds: [],
+				amountBank: v.amount,
+				amountBook: 0,
+				confidence: .55,
+				reasons_ar: ["بيان ضريبة على خدمة بنكية بلا رسوم مرافقة في اليوم نفسه"],
+				suggestedAccountCode: opts.vatAccountCode ?? "1400"
+			});
+		}
+		for (const b of bank) {
+			if (takenBank.has(b.id)) continue;
+			const r = ruleFor(b);
+			if (!r || r.kind !== "recurring") continue;
+			const sameAmt = r.amount != null && money$22(r.amount) === money$22(b.amount);
+			push({
+				kind: "rule-post",
+				bankIds: [b.id],
+				bookIds: [],
+				amountBank: b.amount,
+				amountBook: 0,
+				confidence: sameAmt ? .65 : .5,
+				reasons_ar: ["يشبه «" + r.label_ar + "» المتكرر (" + r.hits + " مرة) ولا قيد له في الدفاتر بعد", sameAmt ? "المبلغ المعتاد" : "المبلغ يختلف عن المعتاد"],
+				ruleId: r.id
+			});
+		}
+		return out.sort((a, b) => b.confidence - a.confidence || a.bankIds[0].localeCompare(b.bankIds[0]));
+	}
+	function applyConfirmation(state, match, who, ts) {
+		if (state.confirmed.some((c) => c.id === match.id)) return state;
+		const used = new Set(state.confirmed.flatMap((c) => [...c.bankIds, ...c.bookIds]));
+		if ([...match.bankIds, ...match.bookIds].some((x) => used.has(x))) return state;
+		return {
+			...state,
+			confirmed: [...state.confirmed, {
+				...match,
+				who: String(who || ""),
+				ts
+			}],
+			rejected: state.rejected.filter((r) => r.id !== match.id)
+		};
+	}
+	function rejectMatch(state, match, who, ts) {
+		if (state.rejected.some((r) => r.id === match.id)) return state;
+		return {
+			...state,
+			rejected: [...state.rejected, {
+				id: match.id,
+				who: String(who || ""),
+				ts
+			}]
+		};
+	}
+	/** undo a confirmation: the lines go back to the unmatched lists (a certified period is not touched) */
+	function unconfirm(state, matchId) {
+		return {
+			...state,
+			confirmed: state.confirmed.filter((c) => c.id !== matchId)
+		};
+	}
+	/** learn from a confirmed match: the bank description's tokens, the side, the amount when fixed, and the book side's
+	reference prefix / memo; the same pattern seen again raises its hits */
+	function learnRule(state, match, book, ts) {
+		const bl = state.lines.filter((l) => match.bankIds.includes(l.id));
+		if (!bl.length) return state;
+		const pattern = tokens$1(bl.map((l) => l.description).join(" "));
+		if (!pattern.length) return state;
+		const side = bl[0].amount >= 0 ? "in" : "out";
+		const ks = book.filter((k) => match.bookIds.includes(k.id));
+		const isFee = match.kind === "fee" || match.kind === "fee+vat" || !ks.length && FEE_RE.test(normText(bl[0].description));
+		const prefix = ks.length ? refPrefix(ks[0].reference) : "", memo = ks.length ? normText(ks[0].memo ?? "") : "";
+		const label = ks.length ? ks[0].memo || ks[0].reference || bl[0].description : bl[0].description;
+		const key = pattern.join(" ") + "|" + side;
+		const idx = state.rules.findIndex((r) => r.pattern.join(" ") + "|" + r.side === key);
+		const amount = money$22(match.amountBank);
+		if (idx >= 0) {
+			const r = state.rules[idx], next = {
+				...r,
+				hits: r.hits + 1,
+				lastTs: ts,
+				amount: r.amount != null && money$22(r.amount) === amount ? r.amount : null,
+				bookRefPrefix: r.bookRefPrefix || prefix,
+				bookMemo: r.bookMemo || memo
+			};
+			return {
+				...state,
+				rules: state.rules.map((x, i) => i === idx ? next : x)
+			};
+		}
+		const rule = {
+			id: "rule-" + sha256(key).slice(0, 12),
+			pattern,
+			side,
+			amount,
+			bookRefPrefix: prefix,
+			bookMemo: memo,
+			label_ar: String(label).slice(0, 60),
+			kind: isFee ? "fee" : "recurring",
+			hits: 1,
+			lastTs: ts
+		};
+		return {
+			...state,
+			rules: [...state.rules, rule]
+		};
+	}
+	function forgetRule(state, ruleId) {
+		return {
+			...state,
+			rules: state.rules.filter((r) => r.id !== ruleId)
+		};
+	}
+	var aging = (dates, today) => {
+		const a = {
+			d0_7: 0,
+			d8_30: 0,
+			d31_90: 0,
+			d90p: 0,
+			oldest: 0
+		};
+		for (const d of dates) {
+			const n = d ? ageDays(d, today) : 0;
+			a.oldest = Math.max(a.oldest, n);
+			if (n <= 7) a.d0_7++;
+			else if (n <= 30) a.d8_30++;
+			else if (n <= 90) a.d31_90++;
+			else a.d90p++;
+		}
+		return a;
+	};
+	/** the continuous picture: both unmatched sides with their age, what changed since the last certification */
+	function reconState(state, book, opts) {
+		const usedBank = /* @__PURE__ */ new Set(), usedBook = /* @__PURE__ */ new Set();
+		for (const c of state.confirmed) {
+			c.bankIds.forEach((x) => usedBank.add(x));
+			c.bookIds.forEach((x) => usedBook.add(x));
+		}
+		const unmatchedBank = state.lines.filter((l) => !usedBank.has(l.id)), unmatchedBook = book.filter((k) => !usedBook.has(k.id));
+		const last = state.certifications.length ? state.certifications[state.certifications.length - 1] : null;
+		const sinceTs = last ? last.ts : "", sinceDate = last ? last.range.end : "";
+		const sinceLast = {
+			certifiedUntil: sinceDate,
+			certifiedAt: sinceTs,
+			importedLines: state.imports.filter((i) => !sinceTs || i.ts > sinceTs).reduce((s, i) => s + i.added, 0),
+			confirmed: state.confirmed.filter((c) => !sinceTs || c.ts > sinceTs).length,
+			unmatchedBank: unmatchedBank.filter((l) => !sinceDate || !l.date || l.date > sinceDate).length,
+			unmatchedBook: unmatchedBook.filter((k) => !sinceDate || k.date > sinceDate).length
+		};
+		return {
+			lines: state.lines.length,
+			confirmed: state.confirmed.length,
+			rules: state.rules.length,
+			unmatchedBank,
+			unmatchedBook,
+			unmatchedBankAmount: money$22(unmatchedBank.reduce((s, l) => s + l.amount, 0)),
+			unmatchedBookAmount: money$22(unmatchedBook.reduce((s, k) => s + k.amount, 0)),
+			agingBank: aging(unmatchedBank.map((l) => l.date), opts.today),
+			agingBook: aging(unmatchedBook.map((k) => k.date), opts.today),
+			lastCertification: last,
+			sinceLast
+		};
+	}
+	/** 'YYYY-MM' → its first and last day; 'YYYY-MM-DD..YYYY-MM-DD' as given */
+	function periodRange(period) {
+		const m = /^(\d{4})-(\d{2})$/.exec(period);
+		if (m) {
+			const y = +m[1], mo = +m[2];
+			return {
+				start: `${m[1]}-${m[2]}-01`,
+				end: new Date(Date.UTC(y, mo, 0)).toISOString().slice(0, 10)
+			};
+		}
+		const r = /^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/.exec(period);
+		if (r) return {
+			start: r[1],
+			end: r[2]
+		};
+		return {
+			start: "",
+			end: ""
+		};
+	}
+	/** certify a period: who, when, the evidence hash (given, or sha256 of the confirmed matches and the open items of the
+	period) and how many items were still unmatched — the shape the close checklist reads */
+	function certify$1(state, period, who, ts, evidenceHash, book = []) {
+		const range = periodRange(period);
+		const within = (d) => !!d && (!range.start || d >= range.start) && (!range.end || d <= range.end);
+		const usedBank = /* @__PURE__ */ new Set(), usedBook = /* @__PURE__ */ new Set();
+		for (const c of state.confirmed) {
+			c.bankIds.forEach((x) => usedBank.add(x));
+			c.bookIds.forEach((x) => usedBook.add(x));
+		}
+		const openBank = state.lines.filter((l) => within(l.date) && !usedBank.has(l.id)).map((l) => l.id).sort();
+		const openBook = book.filter((k) => within(k.date) && !usedBook.has(k.id)).map((k) => k.id).sort();
+		const matched = state.confirmed.filter((c) => state.lines.some((l) => c.bankIds.includes(l.id) && within(l.date)));
+		const hash = evidenceHash || sha256(JSON.stringify({
+			period,
+			matched: matched.map((c) => c.id).sort(),
+			openBank,
+			openBook
+		}));
+		const certification = {
+			period,
+			who: String(who || ""),
+			ts,
+			evidenceHash: hash,
+			unmatchedCount: openBank.length + openBook.length,
+			range,
+			matched: matched.length
+		};
+		return {
+			state: {
+				...state,
+				certifications: [...state.certifications.filter((c) => c.period !== period), certification]
+			},
+			certification
+		};
+	}
+	/** the certification of a period, for the close checklist (null when the period was never certified) */
+	var certificationOf = (state, period) => state.certifications.find((c) => c.period === period) ?? null;
 	//#endregion
 	//#region app/src/engine/fusion/finance/cash-flow-engine.ts
 	var cash_flow_engine_exports = /* @__PURE__ */ __exportAll({ buildCashFlow: () => buildCashFlow });
@@ -24296,6 +25834,387 @@ window.SKEngines = (function() {
 			unclassified: total("unclassified"),
 			netChange: money$21(activities.reduce((sum, a) => sum + a.amount, 0))
 		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/finance/close-checklist-engine.ts
+	var close_checklist_engine_exports = /* @__PURE__ */ __exportAll({
+		CLOSE_TASK_IDS: () => CLOSE_TASK_IDS,
+		EMPTY_LOCK_STATE: () => EMPTY_LOCK_STATE,
+		buildChecklist: () => buildChecklist,
+		canPost: () => canPost,
+		certify: () => certify,
+		isLocked: () => isLocked,
+		lockLog: () => lockLog,
+		lockPeriod: () => lockPeriod,
+		readiness: () => readiness,
+		signOff: () => signOff,
+		unlockPeriod: () => unlockPeriod
+	});
+	var EMPTY_LOCK_STATE = Object.freeze({
+		locks: [],
+		log: []
+	});
+	var DAY$2 = 864e5;
+	var ISO = /^\d{4}-\d{2}-\d{2}$/;
+	var day$1 = (s) => String(s ?? "").slice(0, 10);
+	var isIso = (s) => ISO.test(day$1(s));
+	var addDays$1 = (iso, n) => new Date(Date.parse(iso) + n * DAY$2).toISOString().slice(0, 10);
+	var clean$2 = (v, max = 200) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
+	var quarterEnd = (end) => +end.slice(5, 7) % 3 === 0;
+	/** the task list in close order; due = period end + dueDays (the VAT return keeps its statutory deadline) */
+	var DEFS = {
+		bank_recon: {
+			title_ar: "اعتماد مطابقة البنك",
+			why_ar: "كشف البنك مطابق لحساب النقدية حتى نهاية الفترة، ومعتمد بدليل",
+			mode: "system",
+			owner: "accountant",
+			dueDays: 5,
+			requiresEvidence: true
+		},
+		ar_aging: {
+			title_ar: "مراجعة أعمار الذمم المدينة",
+			why_ar: "كل رصيد عميل مُراجَع وتصنيفه العمري صحيح",
+			mode: "human",
+			owner: "accountant",
+			dueDays: 5,
+			requiresEvidence: false
+		},
+		ap_aging: {
+			title_ar: "مراجعة أعمار الذمم الدائنة",
+			why_ar: "كل رصيد مورد مُراجَع والفواتير غير المسجلة مضافة",
+			mode: "human",
+			owner: "accountant",
+			dueDays: 5,
+			requiresEvidence: false
+		},
+		inventory_count: {
+			title_ar: "جرد المخزون",
+			why_ar: "الكميات على الرفوف مقابل حساب المخزون في الفترة",
+			mode: "system",
+			owner: "accountant",
+			dueDays: 3,
+			requiresEvidence: false
+		},
+		vat_return: {
+			title_ar: "إعداد إقرار الضريبة",
+			why_ar: "الربع ينتهي بهذه الفترة: الإقرار معدّ وقيد الإقفال مرحّل",
+			mode: "system",
+			owner: "accountant",
+			dueDays: 28,
+			requiresEvidence: false
+		},
+		accruals: {
+			title_ar: "المستحقات والمصروفات المقدمة",
+			why_ar: "مصروفات الفترة مسجلة فيها وإن لم تصل فواتيرها",
+			mode: "human",
+			owner: "accountant",
+			dueDays: 5,
+			requiresEvidence: false
+		},
+		depreciation: {
+			title_ar: "الإهلاك",
+			why_ar: "قيد إهلاك الفترة مرحّل لكل أصل ثابت",
+			mode: "human",
+			owner: "accountant",
+			dueDays: 5,
+			requiresEvidence: false
+		},
+		fx_revaluation: {
+			title_ar: "إعادة تقييم العملات",
+			why_ar: "الأرصدة بعملة أجنبية مقيّمة بسعر نهاية الفترة",
+			mode: "human",
+			owner: "accountant",
+			dueDays: 5,
+			requiresEvidence: false
+		},
+		intercompany: {
+			title_ar: "مطابقة الشركات الشقيقة",
+			why_ar: "أرصدة الأطراف ذات العلاقة متطابقة من الجانبين",
+			mode: "human",
+			owner: "accountant",
+			dueDays: 7,
+			requiresEvidence: false
+		},
+		management_review: {
+			title_ar: "مراجعة الإدارة",
+			why_ar: "الإدارة راجعت قوائم الفترة وتغيراتها واعتمدتها",
+			mode: "human",
+			owner: "admin",
+			dueDays: 10,
+			requiresEvidence: false
+		},
+		final_lock: {
+			title_ar: "الإقفال النهائي",
+			why_ar: "بعد الإقفال لا يُقبل قيد بتاريخ داخل الفترة",
+			mode: "system",
+			owner: "admin",
+			dueDays: 12,
+			requiresEvidence: false
+		}
+	};
+	var CLOSE_TASK_IDS = Object.freeze(Object.keys(DEFS));
+	function assertPeriod(period) {
+		if (!period || !isIso(period.start) || !isIso(period.end) || period.start > period.end) throw new Error("CLOSE_PERIOD_INVALID");
+		if (!clean$2(period.id)) throw new Error("CLOSE_PERIOD_ID_REQUIRED");
+	}
+	/** the deterministic checklist of a period: the same inputs always give the same tasks, statuses and details */
+	function buildChecklist(period, books = {}, opts) {
+		assertPeriod(period);
+		if (!isIso(opts?.today)) throw new Error("CLOSE_TODAY_REQUIRED");
+		const today = day$1(opts.today);
+		const owners = opts.owners || {}, signs = opts.signOffs || {}, certs = opts.certifications || {};
+		const lockState = opts.lock || EMPTY_LOCK_STATE;
+		const tasks = [];
+		const push = (id, fact, status, detail_ar, dueOverride) => {
+			const def = DEFS[id];
+			const due = dueOverride && isIso(dueOverride) ? day$1(dueOverride) : addDays$1(period.end, def.dueDays);
+			const signOff = def.mode === "human" && signs[id] ? signs[id] : null;
+			const certification = def.requiresEvidence && certs[id] ? certs[id] : null;
+			tasks.push({
+				id,
+				title_ar: def.title_ar,
+				why_ar: def.why_ar,
+				mode: def.mode,
+				owner: clean$2(owners[id]) || def.owner,
+				due,
+				status,
+				detail_ar,
+				fact,
+				requiresEvidence: def.requiresEvidence,
+				signOff,
+				certification,
+				overdue: status !== "done" && status !== "na" && today > due
+			});
+		};
+		const human = (id, applies, naDetail) => {
+			if (!applies) return push(id, null, "na", naDetail);
+			const s = signs[id];
+			if (s && clean$2(s.who) && isIso(s.ts)) return push(id, null, "done", "وقّع " + clean$2(s.who) + " في " + day$1(s.ts) + (clean$2(s.note) ? " — " + clean$2(s.note) : ""));
+			push(id, null, "pending", "يحتاج توقيع المسؤول");
+		};
+		const recTo = isIso(books.bankReconciledTo) ? day$1(books.bankReconciledTo) : "";
+		const recOk = !!recTo && recTo >= period.end, cert = certs.bank_recon;
+		const certified = !!(cert && clean$2(cert.evidenceHash) && clean$2(cert.who) && isIso(cert.ts));
+		push("bank_recon", recOk, recOk && certified ? "done" : "pending", !recOk ? recTo ? "آخر مطابقة معتمدة حتى " + recTo + " — قبل نهاية الفترة" : "لم تُعتمد مطابقة بنكية بعد" : certified ? "مطابقة حتى " + recTo + " · اعتمدها " + clean$2(cert.who) + " بدليل " + clean$2(cert.evidenceHash).slice(0, 12) + "…" : "المطابقة تصل نهاية الفترة وتنتظر اعتماداً بدليل (كشف البنك)");
+		human("ar_aging", true, "");
+		human("ap_aging", true, "");
+		if (books.hasInventory === false) push("inventory_count", null, "na", "لا مخزون لدى الشركة");
+		else {
+			const c = isIso(books.inventoryCountDate) ? day$1(books.inventoryCountDate) : "";
+			const ok = !!c && c >= period.start && c <= period.end;
+			push("inventory_count", ok, ok ? "done" : "pending", ok ? "جُرد في " + c : c ? "آخر جرد في " + c + " — خارج الفترة" : "لم يُرحّل جرد لهذه الفترة");
+		}
+		if (!quarterEnd(period.end)) push("vat_return", null, "na", "الإقرار ربع سنوي — لا إقرار في هذه الفترة");
+		else {
+			const due = isIso(books.vatDue) ? day$1(books.vatDue) : null, settled = books.vatSettled === true;
+			push("vat_return", settled, settled ? "done" : due && today > due ? "blocked" : "pending", settled ? "أُقفلت ضريبة الربع" : due ? today > due ? "فات موعد الإقرار " + due + " ولم يُقفل" : "الإقرار غير معدّ · آخر موعد " + due : "الإقرار غير معدّ", due);
+		}
+		human("accruals", true, "");
+		human("depreciation", books.hasFixedAssets !== false, "لا أصول ثابتة في الدليل");
+		human("fx_revaluation", books.hasForeignCurrency === true, "لا أرصدة بعملة أجنبية");
+		human("intercompany", books.hasIntercompany === true, "لا أطراف ذات علاقة في الدفاتر");
+		human("management_review", true, "");
+		const locked = isLocked(lockState, period);
+		const open = tasks.filter((t) => t.status !== "done" && t.status !== "na");
+		const tbBad = books.trialBalanceBalanced === false, pend = Number(books.pendingPostings) || 0;
+		const pre = [tbBad ? "ميزان المراجعة غير متزن" : "", pend ? pend + " عملية بانتظار الترحيل" : ""].filter(Boolean);
+		push("final_lock", locked, locked ? "done" : open.length || pre.length ? "blocked" : "pending", locked ? "مقفلة — " + describeLock(lockState, period) : pre.length ? pre.join(" · ") : open.length ? open.length + " مهمة مفتوحة قبل الإقفال" : "جاهز للإقفال");
+		return {
+			period: { ...period },
+			today,
+			tasks
+		};
+	}
+	/** a human sign-off on a task: who, a note and the injected time; a system task is never signed by hand */
+	function signOff(task, who, note, ts, role) {
+		if (!task || task.mode !== "human") throw new Error("CLOSE_SIGNOFF_HUMAN_ONLY");
+		if (task.status === "na") throw new Error("CLOSE_SIGNOFF_NOT_APPLICABLE");
+		if (!clean$2(who)) throw new Error("CLOSE_SIGNOFF_WHO_REQUIRED");
+		if (!isIso(ts)) throw new Error("CLOSE_SIGNOFF_TS_REQUIRED");
+		const s = {
+			who: clean$2(who, 80),
+			note: clean$2(note, 500),
+			ts: String(ts),
+			...clean$2(role) ? { role: clean$2(role, 40) } : {}
+		};
+		return {
+			...task,
+			signOff: s,
+			status: "done",
+			detail_ar: "وقّع " + s.who + " في " + day$1(s.ts) + (s.note ? " — " + s.note : ""),
+			overdue: false
+		};
+	}
+	/** a reconciliation certified with its evidence (a SHA-256 hex of the statement or working paper) and the certifier */
+	function certify(reconciliation, evidenceHash, who, ts, note) {
+		if (!reconciliation || !reconciliation.requiresEvidence) throw new Error("CLOSE_CERTIFY_NO_EVIDENCE_TASK");
+		const h = clean$2(evidenceHash, 128).toLowerCase();
+		if (!/^[0-9a-f]{64}$/.test(h)) throw new Error("CLOSE_CERTIFY_HASH_INVALID");
+		if (!clean$2(who)) throw new Error("CLOSE_CERTIFY_WHO_REQUIRED");
+		if (!isIso(ts)) throw new Error("CLOSE_CERTIFY_TS_REQUIRED");
+		const c = {
+			evidenceHash: h,
+			who: clean$2(who, 80),
+			ts: String(ts),
+			...clean$2(note) ? { note: clean$2(note, 500) } : {}
+		};
+		const done = reconciliation.fact === true;
+		return {
+			...reconciliation,
+			certification: c,
+			status: done ? "done" : reconciliation.status,
+			overdue: done ? false : reconciliation.overdue,
+			detail_ar: done ? "اعتمدها " + c.who + " بدليل " + h.slice(0, 12) + "…" : "اعتُمدت بدليل لكن المطابقة في الدفاتر لا تصل نهاية الفترة"
+		};
+	}
+	/** percent and blockers: the lock is the outcome and is not counted among the work; na tasks are not counted */
+	function readiness(checklist) {
+		const work = checklist.tasks.filter((t) => t.id !== "final_lock" && t.status !== "na");
+		const done = work.filter((t) => t.status === "done");
+		const open = work.filter((t) => t.status !== "done");
+		const lock = checklist.tasks.find((t) => t.id === "final_lock");
+		const locked = !!lock && lock.status === "done";
+		const lockPre = lock && lock.status === "blocked" && !open.length ? [lock] : [];
+		const blockers = [
+			...open.filter((t) => t.status === "blocked"),
+			...open.filter((t) => t.status === "pending"),
+			...lockPre
+		].map((t) => ({
+			id: t.id,
+			title_ar: t.title_ar,
+			detail_ar: t.detail_ar,
+			status: t.status,
+			owner: t.owner,
+			due: t.due
+		}));
+		return {
+			pct: work.length ? Math.round(done.length / work.length * 100) : 0,
+			done: done.length,
+			of: work.length,
+			ready: !locked && !open.length && !lockPre.length,
+			locked,
+			overdue: work.filter((t) => t.overdue).length,
+			blockers
+		};
+	}
+	var norm$1 = (s) => ({
+		locks: Array.isArray(s?.locks) ? s.locks : [],
+		log: Array.isArray(s?.log) ? s.log : []
+	});
+	var overlaps = (l, p) => l.start <= p.end && p.start <= l.end;
+	function isLocked(state, period) {
+		return norm$1(state).locks.some((l) => l.periodId === period.id || overlaps(l, period));
+	}
+	function describeLock(state, period) {
+		const l = norm$1(state).locks.find((x) => x.periodId === period.id || overlaps(x, period));
+		return l ? "أقفلها " + l.who + " في " + day$1(l.ts) : "";
+	}
+	function lockPeriod(state, period, who, ts) {
+		assertPeriod(period);
+		const s = norm$1(state);
+		if (!clean$2(who)) return {
+			ok: false,
+			state: s,
+			reason_ar: "اسم من يُقفل الفترة مطلوب"
+		};
+		if (!isIso(ts)) return {
+			ok: false,
+			state: s,
+			reason_ar: "وقت الإقفال مطلوب"
+		};
+		if (isLocked(s, period)) return {
+			ok: false,
+			state: s,
+			reason_ar: "الفترة مقفلة من قبل — " + describeLock(s, period)
+		};
+		const event = {
+			seq: s.log.length + 1,
+			kind: "lock",
+			periodId: period.id,
+			start: period.start,
+			end: period.end,
+			who: clean$2(who, 80),
+			ts: String(ts)
+		};
+		const lock = {
+			periodId: period.id,
+			start: period.start,
+			end: period.end,
+			who: event.who,
+			ts: event.ts
+		};
+		return {
+			ok: true,
+			event,
+			state: {
+				locks: [...s.locks, lock],
+				log: [...s.log, event]
+			}
+		};
+	}
+	/** an unlock needs a reason: it is written to the log with who and when, and the lock itself is removed */
+	function unlockPeriod(state, period, who, reason, ts) {
+		assertPeriod(period);
+		const s = norm$1(state);
+		if (!clean$2(who)) return {
+			ok: false,
+			state: s,
+			reason_ar: "اسم من يفتح الإقفال مطلوب"
+		};
+		if (clean$2(reason).length < 3) return {
+			ok: false,
+			state: s,
+			reason_ar: "سبب فتح الإقفال مطلوب"
+		};
+		if (!isIso(ts)) return {
+			ok: false,
+			state: s,
+			reason_ar: "وقت فتح الإقفال مطلوب"
+		};
+		const hit = s.locks.filter((l) => l.periodId === period.id || overlaps(l, period));
+		if (!hit.length) return {
+			ok: false,
+			state: s,
+			reason_ar: "الفترة غير مقفلة"
+		};
+		const event = {
+			seq: s.log.length + 1,
+			kind: "unlock",
+			periodId: period.id,
+			start: period.start,
+			end: period.end,
+			who: clean$2(who, 80),
+			reason: clean$2(reason, 500),
+			ts: String(ts)
+		};
+		return {
+			ok: true,
+			event,
+			state: {
+				locks: s.locks.filter((l) => !hit.includes(l)),
+				log: [...s.log, event]
+			}
+		};
+	}
+	/** the ledger's question: may an entry carry this date? No state (or no locks) → yes, unchanged behaviour */
+	function canPost(state, entryDate) {
+		const s = norm$1(state), d = day$1(entryDate);
+		if (!s.locks.length) return { ok: true };
+		if (!isIso(d)) return {
+			ok: false,
+			reason_ar: "تاريخ القيد غير صالح"
+		};
+		const lock = s.locks.find((l) => d >= l.start && d <= l.end);
+		if (!lock) return { ok: true };
+		return {
+			ok: false,
+			lock,
+			reason_ar: "الفترة " + lock.start + " → " + lock.end + " مقفلة (أقفلها " + lock.who + " في " + day$1(lock.ts) + ") — اختر تاريخاً خارجها أو افتح الإقفال بسبب مسجَّل"
+		};
+	}
+	/** the log in order, newest last, exactly as written */
+	function lockLog(state) {
+		return [...norm$1(state).log].sort((a, b) => a.seq - b.seq);
 	}
 	//#endregion
 	//#region app/src/engine/fusion/finance/entry-learner-engine.ts
@@ -24781,7 +26700,7 @@ window.SKEngines = (function() {
 		const pats = [...mem.patterns].sort((a, b) => b.count + b.confirmed - (a.count + a.confirmed)).slice(0, limit).map((p) => "[" + p.id + "] " + p.title + " (" + p.count + " مرة، " + p.journal + "): " + p.legs.map((l) => (l.side === "D" ? "من " : "إلى ") + l.account + " " + l.name + " " + Math.round(l.share * 100) + "٪").join("، ") + (p.vatRate ? "، ض.ق.م " + Math.round(p.vatRate * 100) + "٪" : "") + " — كلمات: " + Object.entries(p.words).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([w]) => w).join(" "));
 		return "دليل الحسابات: " + acc + "\n\nأنماط القيود المتعلمة:\n" + pats.join("\n") + (mem.rules.length ? "\n\nقواعد علمها المحاسب:\n" + mem.rules.slice(-20).map((r) => "«" + r.example.slice(0, 60) + "» ← [" + r.patternId + "]").join("\n") : "") + (mem.notes.length ? "\n\nمن تقارير المدير المالي:\n" + mem.notes.slice(-15).map((n) => "• " + n.text.slice(0, 200)).join("\n") : "");
 	}
-	var S$1 = (description) => ({
+	var S$2 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
 	});
@@ -24791,16 +26710,16 @@ window.SKEngines = (function() {
 		required
 	});
 	var AI_SCHEMA = OBJ({
-		patternId: S$1("معرّف النمط من الذاكرة إن طابق، أو فارغ"),
-		title: S$1("وصف قصير للقيد"),
-		journal: S$1("الدفتر أو اليومية والمستند الذي يُسجل فيه"),
+		patternId: S$2("معرّف النمط من الذاكرة إن طابق، أو فارغ"),
+		title: S$2("وصف قصير للقيد"),
+		journal: S$2("الدفتر أو اليومية والمستند الذي يُسجل فيه"),
 		lines: {
 			type: "ARRAY",
 			items: OBJ({
-				account: S$1("رقم الحساب من الدليل"),
-				name: S$1(),
-				debit: S$1("مبلغ أو 0"),
-				credit: S$1("مبلغ أو 0")
+				account: S$2("رقم الحساب من الدليل"),
+				name: S$2(),
+				debit: S$2("مبلغ أو 0"),
+				credit: S$2("مبلغ أو 0")
 			}, [
 				"account",
 				"name",
@@ -24812,12 +26731,12 @@ window.SKEngines = (function() {
 			type: "NUMBER",
 			description: "0 إلى 1"
 		},
-		reason: S$1("لماذا هذا القيد، من الذاكرة"),
-		question: S$1("سؤال للمحاسب إن لم تكن متأكداً، وإلا فارغ"),
+		reason: S$2("لماذا هذا القيد، من الذاكرة"),
+		question: S$2("سؤال للمحاسب إن لم تكن متأكداً، وإلا فارغ"),
 		extracted: OBJ({
-			amount: S$1(),
-			date: S$1(),
-			party: S$1(),
+			amount: S$2(),
+			date: S$2(),
+			party: S$2(),
 			vatIncluded: { type: "BOOLEAN" }
 		}, [])
 	}, [
@@ -24950,7 +26869,7 @@ window.SKEngines = (function() {
 		nightAudit: () => nightAudit
 	});
 	var sar$8 = (h) => h / 100;
-	var int = (v) => Number.isInteger(v) && v >= 0;
+	var int$1 = (v) => Number.isInteger(v) && v >= 0;
 	/** a guest's deposit ahead of the stay: cash (with its VAT) against the deposits liability */
 	function depositJournal(x, vatRate, a) {
 		if (!String(x.guest || "").trim()) throw new Error("حدد الضيف أو الحجز");
@@ -24993,7 +26912,7 @@ window.SKEngines = (function() {
 		const guest = String(x.guest || "").trim();
 		if (!guest) throw new Error("حدد الضيف أو الحجز");
 		if (!Number.isInteger(x.roomsSold) || x.roomsSold < 0) throw new Error("عدد الغرف المباعة غير صالح");
-		if (!int(x.roomRevenueHalalas) || !int(x.fbRevenueHalalas ?? 0)) throw new Error("الإيرادات يجب أن تكون أعداداً صحيحة غير سالبة بالهللة");
+		if (!int$1(x.roomRevenueHalalas) || !int$1(x.fbRevenueHalalas ?? 0)) throw new Error("الإيرادات يجب أن تكون أعداداً صحيحة غير سالبة بالهللة");
 		const room = x.roomRevenueHalalas, fb = x.fbRevenueHalalas ?? 0, revenue = room + fb;
 		if (revenue <= 0) throw new Error("لا إيراد في هذه الليلة");
 		const applied = Math.min(Math.max(0, x.depositLeftHalalas ?? 0), revenue);
@@ -25407,271 +27326,14 @@ window.SKEngines = (function() {
 		};
 	}
 	//#endregion
-	//#region app/src/engine/fusion/finance/journal-chain-engine.ts
-	var journal_chain_engine_exports = /* @__PURE__ */ __exportAll({
-		GENESIS: () => GENESIS,
-		canonical: () => canonical,
-		coversPeriod: () => coversPeriod,
-		externalInserts: () => externalInserts,
-		markLegacy: () => markLegacy,
-		sealLegacy: () => sealLegacy,
-		sealNew: () => sealNew,
-		sealOf: () => sealOf,
-		sha256: () => sha256,
-		verifyChain: () => verifyChain
-	});
-	var K = [
-		1116352408,
-		1899447441,
-		3049323471,
-		3921009573,
-		961987163,
-		1508970993,
-		2453635748,
-		2870763221,
-		3624381080,
-		310598401,
-		607225278,
-		1426881987,
-		1925078388,
-		2162078206,
-		2614888103,
-		3248222580,
-		3835390401,
-		4022224774,
-		264347078,
-		604807628,
-		770255983,
-		1249150122,
-		1555081692,
-		1996064986,
-		2554220882,
-		2821834349,
-		2952996808,
-		3210313671,
-		3336571891,
-		3584528711,
-		113926993,
-		338241895,
-		666307205,
-		773529912,
-		1294757372,
-		1396182291,
-		1695183700,
-		1986661051,
-		2177026350,
-		2456956037,
-		2730485921,
-		2820302411,
-		3259730800,
-		3345764771,
-		3516065817,
-		3600352804,
-		4094571909,
-		275423344,
-		430227734,
-		506948616,
-		659060556,
-		883997877,
-		958139571,
-		1322822218,
-		1537002063,
-		1747873779,
-		1955562222,
-		2024104815,
-		2227730452,
-		2361852424,
-		2428436474,
-		2756734187,
-		3204031479,
-		3329325298
-	];
-	function sha256(text) {
-		const bytes = new TextEncoder().encode(text), l = bytes.length, n = (l + 9 >> 6) + 1 << 6, m = new Uint8Array(n);
-		m.set(bytes);
-		m[l] = 128;
-		const bits = l * 8;
-		m[n - 4] = bits >>> 24 & 255;
-		m[n - 3] = bits >>> 16 & 255;
-		m[n - 2] = bits >>> 8 & 255;
-		m[n - 1] = bits & 255;
-		m[n - 5] = Math.floor(bits / 2 ** 32) & 255;
-		const h = [
-			1779033703,
-			3144134277,
-			1013904242,
-			2773480762,
-			1359893119,
-			2600822924,
-			528734635,
-			1541459225
-		], w = new Array(64);
-		const r = (x, s) => x >>> s | x << 32 - s;
-		for (let o = 0; o < n; o += 64) {
-			for (let i = 0; i < 16; i++) w[i] = m[o + 4 * i] << 24 | m[o + 4 * i + 1] << 16 | m[o + 4 * i + 2] << 8 | m[o + 4 * i + 3];
-			for (let i = 16; i < 64; i++) {
-				const s0 = r(w[i - 15], 7) ^ r(w[i - 15], 18) ^ w[i - 15] >>> 3, s1 = r(w[i - 2], 17) ^ r(w[i - 2], 19) ^ w[i - 2] >>> 10;
-				w[i] = w[i - 16] + s0 + w[i - 7] + s1 | 0;
-			}
-			let [a, b, c, d, e, f, g, hh] = h;
-			for (let i = 0; i < 64; i++) {
-				const t1 = hh + (r(e, 6) ^ r(e, 11) ^ r(e, 25)) + (e & f ^ ~e & g) + K[i] + w[i] | 0;
-				const t2 = (r(a, 2) ^ r(a, 13) ^ r(a, 22)) + (a & b ^ a & c ^ b & c) | 0;
-				hh = g;
-				g = f;
-				f = e;
-				e = d + t1 | 0;
-				d = c;
-				c = b;
-				b = a;
-				a = t1 + t2 | 0;
-			}
-			h[0] = h[0] + a | 0;
-			h[1] = h[1] + b | 0;
-			h[2] = h[2] + c | 0;
-			h[3] = h[3] + d | 0;
-			h[4] = h[4] + e | 0;
-			h[5] = h[5] + f | 0;
-			h[6] = h[6] + g | 0;
-			h[7] = h[7] + hh | 0;
-		}
-		return h.map((x) => (x >>> 0).toString(16).padStart(8, "0")).join("");
-	}
-	var GENESIS = "0".repeat(64);
-	/** Demo entries (the sample company) are cleared at will, so they never enter the chain. */
-	var outside = (e) => e.demo === true;
-	/** The content that must never change once posted («reversedBy» is added later by a reversal and is left out). */
-	function canonical(e) {
-		return JSON.stringify([
-			e.seq ?? 0,
-			e.sealedAt ?? "",
-			e.id,
-			e.date,
-			e.reference ?? "",
-			e.memo ?? "",
-			e.source ?? "",
-			e.sourceId ?? "",
-			e.party ?? "",
-			e.reversalOf ?? "",
-			e.lines.map((l) => [
-				l.accountId,
-				Math.round(l.debit * 100),
-				Math.round(l.credit * 100)
-			])
-		]);
-	}
-	var sealOf = (e, prev) => sha256(prev + "|" + canonical(e));
-	/** Seal every unsealed entry after the last sealed one, in posting order. Returns the count sealed. Mutates the entries. */
-	function sealNew(entries, now) {
-		let last, n = 0;
-		for (const e of entries) if (e.hash && !outside(e)) last = e;
-		let prev = last?.hash ?? GENESIS, seq = last?.seq ?? 0;
-		const from = last ? entries.indexOf(last) + 1 : entries.findIndex((e) => !e.legacy && !outside(e));
-		if (from < 0) return 0;
-		for (let i = from; i < entries.length; i++) {
-			const e = entries[i];
-			if (e.hash || e.legacy || outside(e)) continue;
-			e.seq = ++seq;
-			e.sealedAt = now;
-			e.prev = prev;
-			e.hash = sealOf(e, prev);
-			prev = e.hash;
-			n++;
-		}
-		return n;
-	}
-	/** Mark the entries posted before the chain existed as legacy (outside the chain), so sealing starts clean. */
-	function markLegacy(entries) {
-		let n = 0;
-		for (const e of entries) if (!e.hash && !e.legacy && !outside(e)) {
-			e.legacy = true;
-			n++;
-		}
-		return n;
-	}
-	/** Bring legacy entries into the chain once (they are sealed after the last sealed entry, with today's seal date). */
-	function sealLegacy(entries, now) {
-		const legacy = entries.filter((e) => e.legacy && !e.hash);
-		if (!legacy.length) return 0;
-		const rest = entries.filter((e) => !legacy.includes(e));
-		legacy.forEach((e) => {
-			delete e.legacy;
-		});
-		entries.length = 0;
-		entries.push(...rest, ...legacy);
-		return sealNew(entries, now);
-	}
-	function verifyChain(entries) {
-		const sealed = entries.filter((e) => e.hash && !outside(e)), issues = [];
-		let prev = GENESIS, seq = 0;
-		for (const e of sealed) {
-			if ((e.seq ?? 0) !== seq + 1) issues.push({
-				id: e.id,
-				seq: e.seq,
-				kind: "gap",
-				ar: "انقطاع في التسلسل بعد " + seq + " — قيد محذوف أو مُعاد ترتيبه"
-			});
-			if (e.prev !== prev) issues.push({
-				id: e.id,
-				seq: e.seq,
-				kind: "broken-link",
-				ar: "الختم لا يرتبط بالقيد السابق"
-			});
-			if (sealOf(e, e.prev ?? "") !== e.hash) issues.push({
-				id: e.id,
-				seq: e.seq,
-				kind: "edited",
-				ar: "محتوى القيد تغير بعد ترحيله"
-			});
-			prev = e.hash;
-			seq = e.seq ?? seq + 1;
-		}
-		const firstSealed = entries.findIndex((e) => e.hash && !outside(e));
-		if (firstSealed >= 0) entries.slice(firstSealed).forEach((e) => {
-			if (!e.hash && !e.legacy && !outside(e)) issues.push({
-				id: e.id,
-				kind: "unsealed",
-				ar: "قيد أُضيف دون ختم (خارج سجل التعديلات)"
-			});
-		});
-		const dates = sealed.map((e) => e.date).sort();
-		return {
-			ok: issues.length === 0,
-			issues,
-			sealed: sealed.length,
-			legacy: entries.filter((e) => e.legacy && !e.hash).length,
-			demo: entries.filter(outside).length,
-			total: entries.length,
-			head: sealed.length ? sealed[sealed.length - 1].hash : GENESIS,
-			firstDate: dates[0] ?? null,
-			lastDate: dates[dates.length - 1] ?? null,
-			sealedFrom: sealed.length ? sealed.map((e) => String(e.sealedAt ?? "")).sort()[0] ?? null : null,
-			reversals: entries.filter((e) => e.reversalOf && !outside(e)).length,
-			manual: entries.filter((e) => !outside(e) && (!e.source || e.source === "يدوي")).length
-		};
-	}
-	/** Entries found in storage without a seal after the chain began: they were not saved through the books (the books
-	*  seal on every save), so they are recorded as an integrity event before being sealed. */
-	function externalInserts(stored) {
-		const first = stored.findIndex((e) => e.hash && !outside(e));
-		return first < 0 ? [] : stored.slice(first).filter((e) => !e.hash && !e.legacy && !outside(e)).map((e) => e.id);
-	}
-	/** Does the trail cover a period? (Reliance/Infosys: «operated throughout the year for all relevant transactions»). */
-	function coversPeriod(entries, start, end) {
-		const inP = entries.filter((e) => e.date >= start && e.date <= end && !outside(e)), out = inP.filter((e) => !e.hash);
-		return {
-			entries: inP.length,
-			uncovered: out.length,
-			throughout: inP.length > 0 && out.length === 0
-		};
-	}
-	//#endregion
 	//#region app/src/engine/fusion/finance/ledger-engine.ts
 	var ledger_engine_exports = /* @__PURE__ */ __exportAll({
 		buildGeneralLedger: () => buildGeneralLedger,
 		buildTrialBalance: () => buildTrialBalance,
 		isPeriodLocked: () => isPeriodLocked,
 		periodTrialBalance: () => periodTrialBalance,
+		postJournalEntry: () => postJournalEntry,
+		postingAllowed: () => postingAllowed,
 		reverseJournalEntry: () => reverseJournalEntry,
 		validateJournalEntry: () => validateJournalEntry
 	});
@@ -25679,10 +27341,33 @@ window.SKEngines = (function() {
 	function money$20(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
-	function validateJournalEntry(entry) {
+	/** the period guard on its own: {ok:true} without a context, else the close engine's Arabic refusal */
+	function postingAllowed(date, ctx) {
+		if (!ctx) return { ok: true };
+		if (ctx.lockDate && isPeriodLocked(date, ctx.lockDate)) return {
+			ok: false,
+			reason_ar: "الفترة مقفلة حتى " + ctx.lockDate.slice(0, 10)
+		};
+		if (ctx.lockState) {
+			const r = canPost(ctx.lockState, date);
+			if (!r.ok) return {
+				ok: false,
+				reason_ar: r.reason_ar
+			};
+		}
+		return { ok: true };
+	}
+	function validateJournalEntry(entry, ctx) {
 		const issues = [];
 		let totalDebit = 0;
 		let totalCredit = 0;
+		if (ctx) {
+			const guard = postingAllowed(entry?.date, ctx);
+			if (!guard.ok) issues.push({
+				code: "PERIOD_LOCKED",
+				reason_ar: guard.reason_ar
+			});
+		}
 		if (!Array.isArray(entry.lines) || entry.lines.length < 2) issues.push({ code: "JOURNAL_TOO_FEW_LINES" });
 		(Array.isArray(entry.lines) ? entry.lines : []).forEach((line, lineIndex) => {
 			if (typeof line.accountId !== "string" || !line.accountId.trim()) issues.push({
@@ -25817,6 +27502,23 @@ window.SKEngines = (function() {
 				credit: money$20(Number(line.debit) || 0),
 				...line.description ? { description: "عكس: " + line.description } : {}
 			}))
+		};
+	}
+	/** the engine's posting path: validate (with the optional lock context) and append; nothing is written on refusal */
+	function postJournalEntry(entries, entry, ctx) {
+		const v = validateJournalEntry(entry, ctx);
+		if (!v.valid) {
+			const lock = v.issues.find((i) => i.code === "PERIOD_LOCKED");
+			return {
+				ok: false,
+				entries,
+				issues: v.issues,
+				...lock ? { reason_ar: lock.reason_ar } : {}
+			};
+		}
+		return {
+			ok: true,
+			entries: [...entries, entry]
 		};
 	}
 	function isPeriodLocked(date, lockDate) {
@@ -27949,7 +29651,7 @@ window.SKEngines = (function() {
 	/** Products vs services (Apple's gross-margin table) — only when the accounts reveal both. */
 	function productsServices(fs) {
 		const rev = line$1(fs, "revenue")?.accounts ?? [], cogs = line$1(fs, "cogs")?.accounts ?? [];
-		const isSvc = (n) => SERVICE.test(norm$3(n));
+		const isSvc = (n) => SERVICE.test(norm$4(n));
 		const sum = (xs, p) => xs.reduce((s, a) => s + (p ? a.prior ?? 0 : a.current), 0);
 		const rs = rev.filter((a) => isSvc(a.name)), rp = rev.filter((a) => !isSvc(a.name)), cs = cogs.filter((a) => isSvc(a.name)), cp = cogs.filter((a) => !isSvc(a.name));
 		if (!rs.length || !rp.length) return null;
@@ -28121,7 +29823,7 @@ window.SKEngines = (function() {
 	function ppeNote(fs) {
 		const accs = line$1(fs, "ppe")?.accounts ?? [];
 		if (!accs.length) return null;
-		const acc = accs.filter((a) => ACCUM.test(norm$3(a.name))), gross = accs.filter((a) => !ACCUM.test(norm$3(a.name)));
+		const acc = accs.filter((a) => ACCUM.test(norm$4(a.name))), gross = accs.filter((a) => !ACCUM.test(norm$4(a.name)));
 		const s = (xs, p) => xs.reduce((t, a) => t + (p ? a.prior ?? 0 : a.current), 0);
 		return {
 			rows: gross.map((a) => ({
@@ -29791,7 +31493,7 @@ window.SKEngines = (function() {
 		const tol = (n) => Number.isInteger(n) ? Math.max(.5, n * 5e-4) : .051;
 		return numbersIn(text).filter((n) => !p.allowed.some((a) => Math.abs(a - n) <= tol(n)));
 	}
-	var S = (description) => ({
+	var S$1 = (description) => ({
 		type: "STRING",
 		...description ? { description } : {}
 	});
@@ -29805,18 +31507,18 @@ window.SKEngines = (function() {
 		properties,
 		required
 	});
-	var PARAS = (d) => A(S(), d);
+	var PARAS = (d) => A(S$1(), d);
 	var NARRATIVE_SCHEMA = O({
 		chairLetter: O({
-			title: S(),
+			title: S$1(),
 			paragraphs: PARAS("6–8 فقرات")
 		}, ["title", "paragraphs"]),
 		ceoReview: O({
-			title: S(),
+			title: S$1(),
 			paragraphs: PARAS("5–7 فقرات"),
 			kpiCommentary: A(O({
-				kpi: S(),
-				comment: S()
+				kpi: S$1(),
+				comment: S$1()
 			}, ["kpi", "comment"]), "تعليق على 4–6 مؤشرات")
 		}, [
 			"title",
@@ -29824,18 +31526,18 @@ window.SKEngines = (function() {
 			"kpiCommentary"
 		]),
 		strategy: O({ pillars: A(O({
-			title: S(),
-			text: S()
+			title: S$1(),
+			text: S$1()
 		}, ["title", "text"]), "3–4 محاور") }, ["pillars"]),
 		performanceReview: O({ paragraphs: PARAS("4–6 فقرات تحليل") }, ["paragraphs"]),
 		liquidity: O({ paragraphs: PARAS("2–3 فقرات") }, ["paragraphs"]),
 		principalRisks: O({
-			intro: S("شهية المخاطر وإطار إدارتها"),
+			intro: S$1("شهية المخاطر وإطار إدارتها"),
 			risks: A(O({
-				category: S(),
-				title: S(),
-				description: S(),
-				management: S(),
+				category: S$1(),
+				title: S$1(),
+				description: S$1(),
+				management: S$1(),
 				trend: {
 					type: "STRING",
 					enum: [
@@ -29853,18 +31555,18 @@ window.SKEngines = (function() {
 			]), "6–8 مخاطر")
 		}, ["intro", "risks"]),
 		viability: O({
-			period: S(),
+			period: S$1(),
 			assessment: PARAS("3 أجزاء"),
 			scenarios: A(O({
-				scenario: S(),
-				risks: S(),
-				impact: S()
+				scenario: S$1(),
+				risks: S$1(),
+				impact: S$1()
 			}, [
 				"scenario",
 				"risks",
 				"impact"
 			]), "2–3 سيناريوهات"),
-			conclusion: S()
+			conclusion: S$1()
 		}, [
 			"period",
 			"assessment",
@@ -29872,10 +31574,10 @@ window.SKEngines = (function() {
 			"conclusion"
 		]),
 		kams: A(O({
-			title: S("نفس العنوان المعطى"),
-			matter: S(),
-			procedures: A(S(), "4–7 إجراءات تبدأ بفعل"),
-			disclosure: S()
+			title: S$1("نفس العنوان المعطى"),
+			matter: S$1(),
+			procedures: A(S$1(), "4–7 إجراءات تبدأ بفعل"),
+			disclosure: S$1()
 		}, [
 			"title",
 			"matter",
@@ -29885,9 +31587,9 @@ window.SKEngines = (function() {
 		auditCommittee: O({
 			paragraphs: PARAS("3–4 فقرات"),
 			matters: A(O({
-				area: S(),
-				matter: S(),
-				conclusion: S()
+				area: S$1(),
+				matter: S$1(),
+				conclusion: S$1()
 			}, [
 				"area",
 				"matter",
@@ -30120,9 +31822,9 @@ window.SKEngines = (function() {
 			] }
 		};
 	}
-	var str = (x, max = 2400) => String(x ?? "").replace(/\s+/g, " ").trim().slice(0, max);
+	var str$1 = (x, max = 2400) => String(x ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 	var arr = (x) => Array.isArray(x) ? x : [];
-	var paras = (x, max = 10) => arr(x).map((y) => str(y)).filter(Boolean).slice(0, max);
+	var paras = (x, max = 10) => arr(x).map((y) => str$1(y)).filter(Boolean).slice(0, max);
 	var TRENDS = [
 		"ارتفاع",
 		"ثبات",
@@ -30132,58 +31834,58 @@ window.SKEngines = (function() {
 		const r = raw ?? {}, fb = fallbackNarrative(p);
 		const n = {
 			chairLetter: {
-				title: str(r.chairLetter?.title, 120) || fb.chairLetter.title,
+				title: str$1(r.chairLetter?.title, 120) || fb.chairLetter.title,
 				paragraphs: paras(r.chairLetter?.paragraphs)
 			},
 			ceoReview: {
-				title: str(r.ceoReview?.title, 120) || fb.ceoReview.title,
+				title: str$1(r.ceoReview?.title, 120) || fb.ceoReview.title,
 				paragraphs: paras(r.ceoReview?.paragraphs),
 				kpiCommentary: arr(r.ceoReview?.kpiCommentary).map((x) => ({
-					kpi: str(x.kpi, 120),
-					comment: str(x.comment, 600)
+					kpi: str$1(x.kpi, 120),
+					comment: str$1(x.comment, 600)
 				})).filter((x) => x.kpi && x.comment).slice(0, 8)
 			},
 			strategy: { pillars: arr(r.strategy?.pillars).map((x) => ({
-				title: str(x.title, 120),
-				text: str(x.text, 800)
+				title: str$1(x.title, 120),
+				text: str$1(x.text, 800)
 			})).filter((x) => x.title && x.text).slice(0, 6) },
 			performanceReview: { paragraphs: paras(r.performanceReview?.paragraphs) },
 			liquidity: { paragraphs: paras(r.liquidity?.paragraphs, 5) },
 			principalRisks: {
-				intro: str(r.principalRisks?.intro, 1500),
+				intro: str$1(r.principalRisks?.intro, 1500),
 				risks: arr(r.principalRisks?.risks).map((x) => ({
-					category: str(x.category, 120),
-					title: str(x.title, 160),
-					description: str(x.description, 900),
-					management: str(x.management, 900),
+					category: str$1(x.category, 120),
+					title: str$1(x.title, 160),
+					description: str$1(x.description, 900),
+					management: str$1(x.management, 900),
 					trend: TRENDS.includes(x.trend) ? x.trend : "ثبات"
 				})).filter((x) => x.title && x.description && x.management).slice(0, 10)
 			},
 			viability: {
-				period: str(r.viability?.period, 80),
+				period: str$1(r.viability?.period, 80),
 				assessment: paras(r.viability?.assessment, 5),
 				scenarios: arr(r.viability?.scenarios).map((x) => ({
-					scenario: str(x.scenario, 400),
-					risks: str(x.risks, 300),
-					impact: str(x.impact, 400)
+					scenario: str$1(x.scenario, 400),
+					risks: str$1(x.risks, 300),
+					impact: str$1(x.impact, 400)
 				})).filter((x) => x.scenario).slice(0, 4),
-				conclusion: str(r.viability?.conclusion, 900)
+				conclusion: str$1(r.viability?.conclusion, 900)
 			},
 			kams: p.kams.map((k, i) => {
-				const x = arr(r.kams).find((y) => str(y.title, 300) === k.title) ?? arr(r.kams)[i] ?? {};
+				const x = arr(r.kams).find((y) => str$1(y.title, 300) === k.title) ?? arr(r.kams)[i] ?? {};
 				return {
 					title: k.title,
-					matter: str(x.matter, 1600),
-					procedures: arr(x.procedures).map((y) => str(y, 500)).filter(Boolean).slice(0, 9),
-					disclosure: str(x.disclosure, 600)
+					matter: str$1(x.matter, 1600),
+					procedures: arr(x.procedures).map((y) => str$1(y, 500)).filter(Boolean).slice(0, 9),
+					disclosure: str$1(x.disclosure, 600)
 				};
 			}),
 			auditCommittee: {
 				paragraphs: paras(r.auditCommittee?.paragraphs, 6),
 				matters: arr(r.auditCommittee?.matters).map((x) => ({
-					area: str(x.area, 160),
-					matter: str(x.matter, 900),
-					conclusion: str(x.conclusion, 700)
+					area: str$1(x.area, 160),
+					matter: str$1(x.matter, 900),
+					conclusion: str$1(x.conclusion, 700)
 				})).filter((x) => x.area && x.conclusion).slice(0, 8)
 			},
 			sustainability: { paragraphs: paras(r.sustainability?.paragraphs, 5) },
@@ -30523,7 +32225,7 @@ window.SKEngines = (function() {
 	/** The nature of one expense account (by name; cost of revenue defaults to goods and materials). */
 	function natureOf(name, lineKey) {
 		if (BY_LINE[lineKey]) return BY_LINE[lineKey];
-		const n = norm$3(name), hit = NATURE.find((x) => x.kws.some((k) => n.includes(norm$3(k))));
+		const n = norm$4(name), hit = NATURE.find((x) => x.kws.some((k) => n.includes(norm$4(k))));
 		return hit ? {
 			key: hit.key,
 			ar: hit.ar
@@ -30572,7 +32274,7 @@ window.SKEngines = (function() {
 		"opex",
 		"zakat",
 		"fin"
-	].includes(l.section)).flatMap((l) => l.accounts).filter((a) => kws.some((k) => norm$3(a.name).includes(norm$3(k))));
+	].includes(l.section)).flatMap((l) => l.accounts).filter((a) => kws.some((k) => norm$4(a.name).includes(norm$4(k))));
 	function movement(title, opening, closing, charge, chargeAr, paidAr, note) {
 		if (opening === null) return {
 			title,
@@ -30695,9 +32397,9 @@ window.SKEngines = (function() {
 	}
 	var ALLOW = /خسائر ائتمانيه|مخصص|ديون مشكوك|اضمحلال|allowance|provision|impair/;
 	function creditRisk(fs) {
-		const allowance = (line(fs, "receivables")?.accounts ?? []).filter((a) => ALLOW.test(norm$3(a.name)) || a.current < 0).reduce((t, a) => t + a.current, 0);
+		const allowance = (line(fs, "receivables")?.accounts ?? []).filter((a) => ALLOW.test(norm$4(a.name)) || a.current < 0).reduce((t, a) => t + a.current, 0);
 		const gross = cur(fs, "receivables") - allowance, cash = cur(fs, "cash");
-		const other = (line(fs, "prepayments")?.accounts ?? []).filter((a) => /تامينات مسترده|ودائع|ودايع|deposit|مدينون اخرون|ذمم مدينه اخرى/.test(norm$3(a.name))).reduce((t, a) => t + a.current, 0);
+		const other = (line(fs, "prepayments")?.accounts ?? []).filter((a) => /تامينات مسترده|ودائع|ودايع|deposit|مدينون اخرون|ذمم مدينه اخرى/.test(norm$4(a.name))).reduce((t, a) => t + a.current, 0);
 		const maxExposure = cash + gross + allowance + other;
 		const table = {
 			title: "التعرض لمخاطر الائتمان",
@@ -33470,7 +35172,7 @@ window.SKEngines = (function() {
 	function money$3(value) {
 		return Math.round((value + Number.EPSILON) * 100) / 100;
 	}
-	function utf8(value) {
+	function utf8$1(value) {
 		return new TextEncoder().encode(value);
 	}
 	function bytesToBase64(bytes) {
@@ -33488,7 +35190,7 @@ window.SKEngines = (function() {
 		];
 		const bytes = [];
 		fields.forEach((field, index) => {
-			const encoded = utf8(field);
+			const encoded = utf8$1(field);
 			if (encoded.length > 255) throw new Error("TLV_FIELD_TOO_LONG");
 			bytes.push(index + 1, encoded.length, ...encoded);
 		});
@@ -34010,6 +35712,531 @@ window.SKEngines = (function() {
 			netCost: money(netCost),
 			costPerUsableKg: usable === 0 ? 0 : money(netCost / usable)
 		};
+	}
+	//#endregion
+	//#region app/src/engine/fusion/system/ai-guard-engine.ts
+	var ai_guard_engine_exports = /* @__PURE__ */ __exportAll({
+		DEFAULT_POLICY: () => DEFAULT_POLICY,
+		FORBIDDEN_TRACE_FIELDS: () => FORBIDDEN_TRACE_FIELDS,
+		TOKEN_LABEL: () => TOKEN_LABEL,
+		candidateNames: () => candidateNames,
+		emptyCounts: () => emptyCounts,
+		filterTrace: () => filterTrace,
+		maskBody: () => maskBody,
+		maskText: () => maskText,
+		nameRule: () => nameRule,
+		preflight: () => preflight,
+		responseText: () => responseText,
+		sha256Hex: () => sha256Hex,
+		tokenCount: () => tokenCount,
+		traceRecord: () => traceRecord,
+		traceSafe: () => traceSafe,
+		traceSummary: () => traceSummary,
+		unmask: () => unmask,
+		unmaskResponse: () => unmaskResponse,
+		utf8Bytes: () => utf8Bytes
+	});
+	var TOKEN_LABEL = Object.freeze({
+		iban: "آيبان",
+		email: "بريد",
+		vat: "ضريبي",
+		nationalId: "هوية",
+		cr: "سجل",
+		phone: "هاتف",
+		name: "عميل"
+	});
+	var KINDS = [
+		"iban",
+		"email",
+		"vat",
+		"nationalId",
+		"cr",
+		"phone",
+		"name"
+	];
+	var emptyCounts = () => ({
+		iban: 0,
+		email: 0,
+		vat: 0,
+		nationalId: 0,
+		cr: 0,
+		phone: 0,
+		name: 0
+	});
+	var D = "[0-9\\u0660-\\u0669]";
+	var S = "[\\s\\-.]?";
+	var NOT_BEFORE = "(?<![\\p{L}\\p{N}@._-])";
+	var NOT_AFTER = "(?![\\p{L}\\p{N}])";
+	var NOT_DIGIT_BEFORE = "(?<![0-9\\u0660-\\u0669+])";
+	var NOT_DIGIT_AFTER = "(?![0-9\\u0660-\\u0669])";
+	var rx = (src, flags = "gu") => new RegExp(src, flags);
+	var RULES = [
+		{
+			kind: "iban",
+			re: rx(`${NOT_BEFORE}SA(?:${S}${D}){22}${NOT_AFTER}`, "giu")
+		},
+		{
+			kind: "email",
+			re: rx(`[\\p{L}\\p{N}._%+-]+@[\\p{L}\\p{N}.-]+\\.[\\p{L}]{2,}`, "gu")
+		},
+		{
+			kind: "vat",
+			re: rx(`${NOT_DIGIT_BEFORE}3${D}{14}${NOT_DIGIT_AFTER}`)
+		},
+		{
+			kind: "cr",
+			re: rx(`(?:س\\.?\\s?ت\\.?|سجل\\s+تجاري|رقم\\s+السجل|CR)\\s*[:#：]?\\s*${D}{10}${NOT_DIGIT_AFTER}`, "giu")
+		},
+		{
+			kind: "nationalId",
+			re: rx(`${NOT_DIGIT_BEFORE}[12\\u0661\\u0662]${D}{9}${NOT_DIGIT_AFTER}`)
+		},
+		{
+			kind: "cr",
+			re: rx(`${NOT_DIGIT_BEFORE}[47\\u0664\\u0667]${D}{9}${NOT_DIGIT_AFTER}`)
+		},
+		{
+			kind: "phone",
+			re: rx(`${NOT_DIGIT_BEFORE}(?:(?:\\+|00|٠٠)${S})?(?:966|٩٦٦)${S}[5\\u0665](?:${S}${D}){8}${NOT_DIGIT_AFTER}`)
+		},
+		{
+			kind: "phone",
+			re: rx(`${NOT_DIGIT_BEFORE}[0\\u0660][5\\u0665](?:${S}${D}){8}${NOT_DIGIT_AFTER}`)
+		},
+		{
+			kind: "phone",
+			re: rx(`${NOT_DIGIT_BEFORE}\\+${D}{1,3}(?:${S}${D}){7,12}${NOT_DIGIT_AFTER}`)
+		}
+	];
+	var escapeRx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	var normalizeName = (s) => String(s ?? "").normalize("NFC").replace(/[ً-ْٰـ]/g, "").replace(/\s+/g, " ").trim();
+	function nameRegex(name) {
+		return normalizeName(name).split("").map((ch) => {
+			if (/[اأإآٱ]/.test(ch)) return "[اأإآٱ]";
+			if (/[ةه]/.test(ch)) return "[ةه]";
+			if (/[ىي]/.test(ch)) return "[ىي]";
+			if (ch === " ") return "\\s+";
+			return escapeRx(ch) + (/[\p{L}]/u.test(ch) ? "[\\u064B-\\u0652\\u0670\\u0640]*" : "");
+		}).join("");
+	}
+	var foldWord = (w) => w.toLowerCase().replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
+	/** of a master list that may hold 30,000 names, only the names whose every word (3+ letters) occurs in the text can match —
+	the regex is built from those alone (a word may carry an attached clitic: لمؤسسة، وشركة) */
+	function candidateNames(names, text) {
+		const words = /* @__PURE__ */ new Set();
+		for (const w of normalizeName(text).split(/[^\p{L}\p{N}]+/u)) {
+			if (!w) continue;
+			const f = foldWord(w);
+			words.add(f);
+			if (/^[ولبكف]/.test(f) && f.length > 3) words.add(f.slice(1));
+		}
+		return (names ?? []).filter((n) => {
+			const parts = normalizeName(n).split(" ").filter((w) => w.length >= 3);
+			return parts.length > 0 && parts.every((w) => words.has(foldWord(w)));
+		});
+	}
+	/** the master-data names as one alternation, the longest first (so «شركة الوادي للحوم» wins over «شركة الوادي») */
+	function nameRule(names, text) {
+		const pool = text == null ? names ?? [] : candidateNames(names, text);
+		const list = [...new Set(pool.map(normalizeName).filter((n) => n.length >= 3))].sort((a, b) => b.length - a.length);
+		if (!list.length) return null;
+		return rx(`(?:(?<=^|[^\\p{L}\\p{N}])|(?<=(?:^|[^\\p{L}\\p{N}])[ولبكف]))(?:${list.map(nameRegex).join("|")})(?![\\p{L}\\p{N}])`, "giu");
+	}
+	var digitsOnly = (raw) => raw.replace(/[\s\-.]/g, "").replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632)).toUpperCase();
+	var canonPhone = (raw) => {
+		const d = digitsOnly(raw).replace(/^\+/, "").replace(/^00/, "");
+		return /^9665\d{8}$/.test(d) ? "0" + d.slice(3) : d;
+	};
+	var canon = (kind, raw) => kind === "name" ? normalizeName(raw).toLowerCase() : kind === "phone" ? canonPhone(raw) : digitsOnly(raw);
+	var tokenOf = (kind, n) => `[${TOKEN_LABEL[kind]}-${n}]`;
+	var TOKEN_RE = /\[(آيبان|بريد|ضريبي|هوية|سجل|هاتف|عميل)-(\d+)\]/gu;
+	function spans(text, names) {
+		const found = [];
+		const rules = [...RULES];
+		const nr = nameRule(names, text);
+		if (nr) rules.push({
+			kind: "name",
+			re: nr
+		});
+		for (const { kind, re } of rules) {
+			re.lastIndex = 0;
+			for (const m of text.matchAll(re)) {
+				const start = m.index ?? 0, end = start + m[0].length;
+				if (!m[0]) continue;
+				if (found.some((s) => start < s.end && end > s.start)) continue;
+				found.push({
+					start,
+					end,
+					kind,
+					raw: m[0]
+				});
+			}
+		}
+		return found.sort((a, b) => a.start - b.start);
+	}
+	function maskText(text, opts = {}) {
+		const src = String(text ?? "");
+		const map = { ...opts.map ?? {} };
+		const counts = emptyCounts();
+		const byCanon = /* @__PURE__ */ new Map();
+		const next = {
+			iban: 0,
+			email: 0,
+			vat: 0,
+			nationalId: 0,
+			cr: 0,
+			phone: 0,
+			name: 0
+		};
+		for (const [tok, raw] of Object.entries(map)) {
+			const m = /^\[(.+)-(\d+)\]$/u.exec(tok);
+			if (!m) continue;
+			const kind = KINDS.find((k) => TOKEN_LABEL[k] === m[1]);
+			if (!kind) continue;
+			next[kind] = Math.max(next[kind], Number(m[2]));
+			byCanon.set(kind + "|" + canon(kind, raw), tok);
+		}
+		let out = "", pos = 0, total = 0;
+		for (const s of spans(src, opts.names)) {
+			const key = s.kind + "|" + canon(s.kind, s.raw);
+			let tok = byCanon.get(key);
+			if (!tok) {
+				tok = tokenOf(s.kind, ++next[s.kind]);
+				byCanon.set(key, tok);
+				map[tok] = s.raw;
+			}
+			out += src.slice(pos, s.start) + tok;
+			pos = s.end;
+			counts[s.kind]++;
+			total++;
+		}
+		out += src.slice(pos);
+		return {
+			masked: out,
+			map,
+			counts,
+			total
+		};
+	}
+	/** the answer back to the real values; a token the map does not know stays as it is */
+	function unmask(text, map) {
+		return String(text ?? "").replace(TOKEN_RE, (tok) => tok in map ? map[tok] : tok);
+	}
+	/** how many tokens of the map a text still carries (0 after unmask) */
+	var tokenCount = (text) => (String(text ?? "").match(TOKEN_RE) ?? []).length;
+	function mapParts(parts, fn) {
+		return parts ? parts.map((p) => p && typeof p.text === "string" ? {
+			...p,
+			text: fn(p.text)
+		} : p) : parts;
+	}
+	/** every text part of the request (system instruction and all turns) masked with ONE shared map; inline documents untouched */
+	function maskBody(body, opts = {}) {
+		let map = { ...opts.map ?? {} };
+		const counts = emptyCounts();
+		let total = 0;
+		const texts = [];
+		const run = (t) => {
+			const r = maskText(t, {
+				names: opts.names,
+				map
+			});
+			map = r.map;
+			total += r.total;
+			for (const k of KINDS) counts[k] += r.counts[k];
+			texts.push(r.masked);
+			return r.masked;
+		};
+		const out = { ...body };
+		if (body.systemInstruction) out.systemInstruction = {
+			...body.systemInstruction,
+			parts: mapParts(body.systemInstruction.parts, run)
+		};
+		if (Array.isArray(body.contents)) out.contents = body.contents.map((c) => c && Array.isArray(c.parts) ? {
+			...c,
+			parts: mapParts(c.parts, run)
+		} : c);
+		return {
+			body: out,
+			map,
+			counts,
+			total,
+			text: texts.join("\n")
+		};
+	}
+	/** the answer's text parts un-masked on the device */
+	function unmaskResponse(res, map) {
+		if (!res || !Array.isArray(res.candidates)) return res;
+		return {
+			...res,
+			candidates: res.candidates.map((c) => c && c.content && Array.isArray(c.content.parts) ? {
+				...c,
+				content: {
+					...c.content,
+					parts: mapParts(c.content.parts, (t) => unmask(t, map))
+				}
+			} : c)
+		};
+	}
+	/** the answer's text, for sizes and the trace */
+	function responseText(res) {
+		return (res?.candidates ?? []).flatMap((c) => c?.content?.parts ?? []).map((p) => typeof p?.text === "string" ? p.text : "").join("\n");
+	}
+	var DEFAULT_POLICY = Object.freeze({
+		maxUnmasked: 0,
+		maxUnmaskedNames: 0,
+		maxBytes: 6e5,
+		tableRows: 40
+	});
+	var utf8Bytes = (text) => {
+		let n = 0;
+		for (const ch of String(text ?? "")) {
+			const c = ch.codePointAt(0) ?? 0;
+			n += c < 128 ? 1 : c < 2048 ? 2 : c < 65536 ? 3 : 4;
+		}
+		return n;
+	};
+	function preflight(text, policy = {}) {
+		const p = {
+			...DEFAULT_POLICY,
+			...policy
+		};
+		const src = String(text ?? "");
+		const reasons = [];
+		const bytes = utf8Bytes(src);
+		const r = maskText(src, { names: p.names });
+		const residualIds = r.total - r.counts.name;
+		if (residualIds > p.maxUnmasked) reasons.push(`بقي ${residualIds} معرّفاً غير مُقنَّع (هواتف/آيبان/هويات/أرقام ضريبية) — الحد ${p.maxUnmasked}`);
+		if (r.counts.name > p.maxUnmaskedNames) reasons.push(`بقي ${r.counts.name} اسماً من بيانات الشركة الأساسية غير مُقنَّع — الحد ${p.maxUnmaskedNames}`);
+		if (bytes > p.maxBytes) reasons.push(`حجم الطلب ${bytes} بايت يتجاوز الحد ${p.maxBytes}`);
+		const rows = src.split(/\r?\n/).filter((l) => {
+			if (/\[(عميل|هاتف)-\d+\]/u.test(l)) return true;
+			const m = maskText(l, { names: p.names });
+			return m.counts.name > 0 || m.counts.phone > 0;
+		}).length;
+		if (rows >= p.tableRows) reasons.push(`النص يحمل جدول عملاء (${rows} سطراً بأسماء أو هواتف) — لا يُرسل جدول العملاء إلى مزود خارجي`);
+		return {
+			allowed: reasons.length === 0,
+			reasons,
+			residual: r.counts,
+			bytes,
+			tableLines: rows
+		};
+	}
+	var str = (v, max = 200) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
+	var int = (v) => {
+		const n = Math.round(Number(v));
+		return Number.isFinite(n) && n >= 0 ? n : 0;
+	};
+	/** one row; never carries the prompt or the answer — the caller passes promptHash = sha256Hex(masked prompt) */
+	function traceRecord(input) {
+		const kinds = {};
+		for (const k of KINDS) {
+			const n = int(input.maskedKinds?.[k]);
+			if (n) kinds[k] = n;
+		}
+		const outcome = input.outcome === "error" || input.outcome === "blocked" ? input.outcome : "ok";
+		return {
+			id: str(input.id, 40) || "ai-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+			ts: str(input.ts, 40) || (/* @__PURE__ */ new Date()).toISOString(),
+			company: str(input.company, 80),
+			gate: str(input.gate, 20),
+			screen: str(input.screen, 60),
+			provider: str(input.provider, 20),
+			model: str(input.model, 80),
+			purpose: str(input.purpose, 60) || str(input.screen, 60) || "عام",
+			promptHash: /^[0-9a-f]{64}$/i.test(String(input.promptHash ?? "")) ? String(input.promptHash).toLowerCase() : "",
+			maskedCount: int(input.maskedCount),
+			maskedKinds: kinds,
+			inputBytes: int(input.inputBytes),
+			outputBytes: int(input.outputBytes),
+			outcome,
+			durationMs: int(input.durationMs),
+			userNote: str(input.userNote, 280),
+			error: outcome === "ok" ? "" : str(input.error, 200)
+		};
+	}
+	/** the trace must never hold these */
+	var FORBIDDEN_TRACE_FIELDS = Object.freeze([
+		"prompt",
+		"text",
+		"body",
+		"contents",
+		"response",
+		"answer",
+		"map",
+		"key",
+		"apiKey"
+	]);
+	function traceSafe(row) {
+		if (!row || typeof row !== "object") return false;
+		return !FORBIDDEN_TRACE_FIELDS.some((f) => f in row);
+	}
+	function traceSummary(rows) {
+		const s = {
+			total: 0,
+			ok: 0,
+			error: 0,
+			blocked: 0,
+			masked: 0,
+			inputBytes: 0,
+			outputBytes: 0,
+			byProvider: {},
+			byPurpose: {},
+			byOutcome: {
+				ok: 0,
+				error: 0,
+				blocked: 0
+			}
+		};
+		for (const r of rows) {
+			s.total++;
+			s[r.outcome]++;
+			s.byOutcome[r.outcome]++;
+			s.masked += r.maskedCount;
+			s.inputBytes += r.inputBytes;
+			s.outputBytes += r.outputBytes;
+			s.byProvider[r.provider] = (s.byProvider[r.provider] ?? 0) + 1;
+			s.byPurpose[r.purpose] = (s.byPurpose[r.purpose] ?? 0) + 1;
+		}
+		return s;
+	}
+	function filterTrace(rows, f = {}) {
+		const q = str(f.q, 80).toLowerCase();
+		return rows.filter((r) => (!f.purpose || r.purpose === f.purpose) && (!f.provider || r.provider === f.provider) && (!f.outcome || r.outcome === f.outcome) && (!q || [
+			r.screen,
+			r.model,
+			r.userNote,
+			r.company,
+			r.promptHash
+		].some((v) => String(v).toLowerCase().includes(q))));
+	}
+	var K = new Uint32Array([
+		1116352408,
+		1899447441,
+		3049323471,
+		3921009573,
+		961987163,
+		1508970993,
+		2453635748,
+		2870763221,
+		3624381080,
+		310598401,
+		607225278,
+		1426881987,
+		1925078388,
+		2162078206,
+		2614888103,
+		3248222580,
+		3835390401,
+		4022224774,
+		264347078,
+		604807628,
+		770255983,
+		1249150122,
+		1555081692,
+		1996064986,
+		2554220882,
+		2821834349,
+		2952996808,
+		3210313671,
+		3336571891,
+		3584528711,
+		113926993,
+		338241895,
+		666307205,
+		773529912,
+		1294757372,
+		1396182291,
+		1695183700,
+		1986661051,
+		2177026350,
+		2456956037,
+		2730485921,
+		2820302411,
+		3259730800,
+		3345764771,
+		3516065817,
+		3600352804,
+		4094571909,
+		275423344,
+		430227734,
+		506948616,
+		659060556,
+		883997877,
+		958139571,
+		1322822218,
+		1537002063,
+		1747873779,
+		1955562222,
+		2024104815,
+		2227730452,
+		2361852424,
+		2428436474,
+		2756734187,
+		3204031479,
+		3329325298
+	]);
+	function utf8(text) {
+		const out = [];
+		for (const ch of String(text ?? "")) {
+			const c = ch.codePointAt(0) ?? 0;
+			if (c < 128) out.push(c);
+			else if (c < 2048) out.push(192 | c >> 6, 128 | c & 63);
+			else if (c < 65536) out.push(224 | c >> 12, 128 | c >> 6 & 63, 128 | c & 63);
+			else out.push(240 | c >> 18, 128 | c >> 12 & 63, 128 | c >> 6 & 63, 128 | c & 63);
+		}
+		return Uint8Array.from(out);
+	}
+	function sha256Hex(text) {
+		const msg = utf8(text), len = msg.length, bitLen = len * 8;
+		const padded = new Uint8Array(len + 9 + 63 >> 6 << 6);
+		padded.set(msg);
+		padded[len] = 128;
+		const dv = new DataView(padded.buffer);
+		dv.setUint32(padded.length - 8, Math.floor(bitLen / 4294967296));
+		dv.setUint32(padded.length - 4, bitLen >>> 0);
+		const H = new Uint32Array([
+			1779033703,
+			3144134277,
+			1013904242,
+			2773480762,
+			1359893119,
+			2600822924,
+			528734635,
+			1541459225
+		]);
+		const W = /* @__PURE__ */ new Uint32Array(64);
+		const rotr = (x, n) => x >>> n | x << 32 - n;
+		for (let off = 0; off < padded.length; off += 64) {
+			for (let i = 0; i < 16; i++) W[i] = dv.getUint32(off + i * 4);
+			for (let i = 16; i < 64; i++) {
+				const s0 = rotr(W[i - 15], 7) ^ rotr(W[i - 15], 18) ^ W[i - 15] >>> 3, s1 = rotr(W[i - 2], 17) ^ rotr(W[i - 2], 19) ^ W[i - 2] >>> 10;
+				W[i] = W[i - 16] + s0 + W[i - 7] + s1 >>> 0;
+			}
+			let [a, b, c, d, e, f, g, h] = H;
+			for (let i = 0; i < 64; i++) {
+				const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25), ch = e & f ^ ~e & g, t1 = h + S1 + ch + K[i] + W[i] >>> 0;
+				const t2 = (rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) + (a & b ^ a & c ^ b & c) >>> 0;
+				h = g;
+				g = f;
+				f = e;
+				e = d + t1 >>> 0;
+				d = c;
+				c = b;
+				b = a;
+				a = t1 + t2 >>> 0;
+			}
+			H[0] = H[0] + a >>> 0;
+			H[1] = H[1] + b >>> 0;
+			H[2] = H[2] + c >>> 0;
+			H[3] = H[3] + d >>> 0;
+			H[4] = H[4] + e >>> 0;
+			H[5] = H[5] + f >>> 0;
+			H[6] = H[6] + g >>> 0;
+			H[7] = H[7] + h >>> 0;
+		}
+		return [...H].map((x) => x.toString(16).padStart(8, "0")).join("");
 	}
 	//#endregion
 	//#region app/src/engine/fusion/system/company-context.ts
@@ -35991,6 +38218,7 @@ window.SKEngines = (function() {
 			goingConcern: going_concern_engine_exports,
 			governance: governance_engine_exports,
 			issues: issues_engine_exports,
+			journalRisk: journal_risk_engine_exports,
 			kam: kam_engine_exports,
 			materiality: materiality_engine_exports,
 			openingRequests: opening_requests_engine_exports,
@@ -36022,7 +38250,9 @@ window.SKEngines = (function() {
 			advances: advances_engine_exports,
 			agency: agency_engine_exports,
 			bankReconciliation: bank_reconciliation_engine_exports,
+			bankStatement: bank_statement_engine_exports,
 			cashFlow: cash_flow_engine_exports,
+			closeChecklist: close_checklist_engine_exports,
 			entryLearner: entry_learner_engine_exports,
 			hotel: hotel_engine_exports,
 			insuranceClaims: insurance_claims_engine_exports,
@@ -36097,6 +38327,7 @@ window.SKEngines = (function() {
 			yield: yield_engine_exports
 		},
 		system: {
+			aiGuard: ai_guard_engine_exports,
 			companyContext: company_context_exports,
 			modelBooks: model_books_engine_exports,
 			relationshipHealth: relationship_health_engine_exports,

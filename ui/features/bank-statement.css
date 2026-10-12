@@ -1,0 +1,37 @@
+/* كشف البنك والمطابقة المستمرة — the continuous card under «مطابقة البنك»: four counters, the suggestions, the two
+   unmatched sides, the learned rules, the period certification. Tokens only; 4 px grid. */
+.skbs .card-b h4{margin:8px 0 0;font-size:var(--sk-fs);display:flex;align-items:baseline;gap:8px}
+.skbs .card-b h4 small{font-weight:600;font-size:var(--sk-fs-xs);color:var(--sk-ink-3)}
+.skbs-import input[type="file"]{display:none}
+.skbs-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.skbs-t{display:grid;gap:4px;padding:12px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2);min-width:0;border-inline-start:4px solid var(--sk-info)}
+.skbs-t .k{font-size:var(--sk-fs-xs);color:var(--sk-ink-3)}
+.skbs-t b{font-size:var(--sk-fs-xl);font-variant-numeric:tabular-nums;line-height:1.2}
+.skbs-t small{font-size:var(--sk-fs-2xs);color:var(--sk-ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.skbs-t.tone-ok{border-inline-start-color:var(--sk-ok)}
+.skbs-t.tone-warn{border-inline-start-color:var(--sk-warn);background:var(--sk-warn-soft)}
+.skbs-t.tone-bad{border-inline-start-color:var(--sk-bad);background:var(--sk-bad-soft)}
+.skbs-since{margin:0;font-size:var(--sk-fs-s);color:var(--sk-ink-2)}
+.skbs-sugg td{vertical-align:top}
+.skbs-sugg td div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}
+.skbs-why{margin:4px 0 0;padding:0 16px 0 0;font-size:var(--sk-fs-2xs);color:var(--sk-ink-3);display:grid;gap:2px}
+.skbs-act{display:grid;gap:4px;white-space:nowrap}
+.skbs-sides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.skbs-side{display:grid;gap:8px;min-width:0}
+.skbs-side h4{margin:0}
+.skbs-side ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.skbs-side li{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:8px 12px;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);background:var(--sk-surface);font-size:var(--sk-fs-s)}
+.skbs-side li .d{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.skbs-side li .n,.skbs-side li b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.skbs-side li small{color:var(--sk-ink-3);font-size:var(--sk-fs-2xs);white-space:nowrap}
+.skbs-rules{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.skbs-rules li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:8px 12px;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);background:var(--sk-surface-2)}
+.skbs-rules li b{font-size:var(--sk-fs-s)}
+.skbs-rules li small{grid-column:1;color:var(--sk-ink-3);font-size:var(--sk-fs-2xs)}
+.skbs-rules li .linkish{grid-column:2;grid-row:1 / span 2}
+.skbs-cert{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.skbs-cert .sk-field{max-width:200px}
+.skbs-hash{font-family:var(--sk-font-mono)}
+.skbs-empty{margin:0;font-size:var(--sk-fs-s);color:var(--sk-ink-3)}
+@media(max-width:900px){.skbs-g{grid-template-columns:1fr 1fr}.skbs-sides{grid-template-columns:1fr}}
+@media(max-width:520px){.skbs-side li{grid-template-columns:auto minmax(0,1fr);row-gap:4px}.skbs-sugg td div{max-width:200px}}

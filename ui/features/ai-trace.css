@@ -1,0 +1,26 @@
+/* S.kosif — سجل الذكاء الاصطناعي (ui/features/ai-trace.js): a card of «الأجهزة والمزامنة» */
+.ait{display:flex;flex-direction:column;gap:var(--sk-4)}
+.ait-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:var(--sk-2)}
+.ait-kpi{display:flex;flex-direction:column;gap:var(--sk-1);padding:var(--sk-3);border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2);min-width:0}
+.ait-kpi b{font-size:var(--sk-fs-xl);line-height:1.2;font-variant-numeric:tabular-nums;color:var(--sk-ink)}
+.ait-kpi span{font-size:var(--sk-fs-xs);font-weight:700;color:var(--sk-ink-3)}
+.ait-kpi.good b{color:var(--sk-ok)}
+.ait-kpi.warn b{color:var(--sk-warn)}
+.ait-kpi.bad b{color:var(--sk-bad)}
+.ait-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--sk-3)}
+.ait-table{max-height:60vh}
+.ait-table td{vertical-align:top}
+.ait-table code{font:500 var(--sk-fs-xs)/1.5 var(--sk-font-mono);color:var(--sk-ink-2)}
+.ait-hash{direction:ltr;unicode-bidi:isolate;letter-spacing:.02em}
+.ait-err,.ait-note{display:block;max-width:280px;margin-top:var(--sk-1);white-space:normal;font-size:var(--sk-fs-2xs);line-height:1.6;color:var(--sk-ink-3)}
+.ait-err{color:var(--sk-bad)}
+.ait-policy{border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2)}
+.ait-policy summary{padding:var(--sk-3) var(--sk-4);cursor:pointer;font-weight:700;font-size:var(--sk-fs-s);color:var(--sk-ink-2)}
+.ait-policy-b{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--sk-3);padding:0 var(--sk-4) var(--sk-4)}
+.ait-policy-b .hint{grid-column:1/-1;margin:0}
+.ait-check{display:flex;align-items:center;gap:var(--sk-2);grid-column:1/-1;min-height:44px;font-size:var(--sk-fs-s);font-weight:700;color:var(--sk-ink-2)}
+.ait-check input{width:20px;height:20px;margin:0;accent-color:var(--sk-brand)}
+@media (max-width:760px){
+  .ait-table{max-height:none}
+  .ait-err,.ait-note{max-width:200px}
+}

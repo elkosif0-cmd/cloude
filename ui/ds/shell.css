@@ -714,6 +714,25 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 .skclose-steps .tx{display:grid;gap:2px;min-width:0}.skclose-steps .tx small{color:var(--sk-ink-3);font-size:var(--sk-fs-xs)}.skclose-steps .note{font-size:var(--sk-fs-xs);color:var(--sk-ink-2);font-weight:600}
 .skclose-steps .st-na{opacity:.75}
 @media (max-width:620px){.skclose-steps li{grid-template-columns:auto 1fr;row-gap:6px}.skclose-steps .sk-pill{grid-column:2;justify-self:start}.skclose-steps li>.btn{grid-column:2;justify-self:start}}
+/* close management: the checklist card, its readiness ring, owners and due dates, the lock row and the lock log */
+.skcl .card-h{align-items:center}
+.skcl-ring{position:relative;flex:none;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--rc,var(--sk-brand)) calc(var(--p,0)*1%),var(--sk-surface-3) 0);font-size:var(--sk-fs-xs);font-weight:800;color:var(--sk-ink)}
+.skcl-ring::before{content:"";position:absolute;inset:8px;border-radius:50%;background:var(--sk-surface)}
+.skcl-ring i{position:relative;font-style:normal}
+.skcl-ring.tone-ok{--rc:var(--sk-ok-mark)}.skcl-ring.tone-warn{--rc:var(--sk-warn-mark)}.skcl-ring.tone-bad{--rc:var(--sk-bad-mark)}
+.skcl-tasks li{grid-template-columns:1fr auto auto auto}
+.skcl-tasks .st-done .tx b{color:var(--sk-ink-2)}
+.skcl-tasks .late time{color:var(--sk-bad);font-weight:700}
+.skcl-meta{display:grid;gap:4px;justify-items:start;font-size:var(--sk-fs-xs);color:var(--sk-ink-2)}
+.skcl-owner{font-size:var(--sk-fs-xs);padding:4px 8px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);color:var(--sk-ink)}
+.skcl-act{display:grid;gap:4px;justify-items:end}
+.skcl-ev{display:grid;gap:4px;font-size:var(--sk-fs-xs);color:var(--sk-ink-2)}
+.skcl-lock{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 0;padding:12px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2)}
+.skcl-lock .tx{display:grid;gap:4px;min-width:0}.skcl-lock .tx small{color:var(--sk-ink-3);font-size:var(--sk-fs-xs)}
+.skcl-log{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:4px}
+.skcl-log li{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);font-size:var(--sk-fs-xs)}
+.skcl-log small{color:var(--sk-ink-3)}
+@media (max-width:620px){.skcl-tasks li{grid-template-columns:1fr auto}.skcl-tasks .skcl-meta,.skcl-tasks .skcl-act{grid-column:1 / -1;justify-items:start}}
 .kx-views .kx-n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-inline-start:4px;border-radius:99px;background:var(--sk-brand);color:var(--sk-on-brand);font-style:normal;font-size:var(--sk-fs-2xs);font-weight:800}
 .kx-views .kx-tool{color:var(--sk-brand)}
 .tbr-sv-start{margin-bottom:10px}
