@@ -27,7 +27,7 @@ permissions:
 jobs:
   deploy:
     # CI repair branch never deploys to Cloudflare Pages, including previews.
-    if: github.ref_name != 'fix/tbreview-duplicate-open-20261012' && github.ref_name != 'integration/earth-accounting-verified-20261012' && github.ref_name != 'audit/claude-source-fanout-20261012'
+    if: github.ref_name != 'fix/tbreview-duplicate-open-20261012' && github.ref_name != 'integration/earth-accounting-verified-20261012' && github.ref_name != 'audit/claude-source-fanout-20261012' && github.ref_name != 'audit/claude-source-retry-20261012'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
