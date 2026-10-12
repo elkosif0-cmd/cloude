@@ -25643,6 +25643,10 @@ window.SKEngines = (function() {
 		let totalCredit = 0;
 		if (!Array.isArray(entry.lines) || entry.lines.length < 2) issues.push({ code: "JOURNAL_TOO_FEW_LINES" });
 		(Array.isArray(entry.lines) ? entry.lines : []).forEach((line, lineIndex) => {
+			if (typeof line.accountId !== "string" || !line.accountId.trim()) issues.push({
+				code: "LINE_ACCOUNT_REQUIRED",
+				lineIndex
+			});
 			const debit = Number(line.debit);
 			const credit = Number(line.credit);
 			if (!Number.isFinite(debit) || !Number.isFinite(credit)) {

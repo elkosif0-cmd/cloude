@@ -1072,3 +1072,12 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Risks / conflicts: Merge retains current production security/branding; verify the rendered site and deploy logs after promotion. Do not expose private preview payloads. Maintain rollback branch.
 - Unfinished: Publish branch, verify preview deployment, advance main after green gates, validate Cloudflare production and canonical URL; update status.
 - NEXT ACTION: Finish verified staged promotion with rollback available.
+
+
+### TASK CHATGPT-20261012-ISSUE267 — Public Claude audit: evidence-backed journal account guard
+- Agent: ChatGPT (isolated sub-scope; Claude remains architectural lead). Owner approval: integrate all safely validated results into the official app; paid AI permitted only when truly needed.
+- Status: LOCAL ENGINE QA GREEN; PR/CI and production release pending.
+- Based solely on public artifact `claude-public-source-audit-38237575694`, 606 Messages API requests (25 substantive, 581 silent), 14 public repos/570 public branches; estimated prior cost USD 4.0392; no new paid provider calls.
+- Branch: `integration/journal-account-guard-20261012`; code: finance/ledger-engine.ts accountId guard, new journal-account-required.test.ts, regenerated ui/core/engines.js; decisions: docs/registry/CLAUDE_SOURCE_AUDIT_INTEGRATION_38237575694.md.
+- Windows laptop validations: finance 121/121, engine 575/575 across 119 files, TypeScript four tsconfigs PASS, generated engine --check PASS. No production write, Cloudflare deployment or auto-main merge. PR264 has separate showcase E2E 3/64 failure; must not claim full CI success.
+- NEXT: open draft PR referencing #267, review GitHub checks, resolve blockers, then request verified merge/release gate.
