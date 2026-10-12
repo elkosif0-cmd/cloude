@@ -26,6 +26,7 @@ permissions:
 
 jobs:
   deploy:
+    if: github.ref_name != 'feature/secure-claude-workspace-review-20261012'
     # CI repair branch never deploys to Cloudflare Pages, including previews.
     if: github.ref_name != 'fix/tbreview-duplicate-open-20261012' && github.ref_name != 'integration/earth-accounting-verified-20261012'
     runs-on: ubuntu-latest
