@@ -40,6 +40,13 @@ test('look variants do not override visible brand with old SQC in CSS',()=>{
  assert.match(shell,/content:"KOSIF EARTH"/);
  assert.match(theme,/content:"KOSIF EARTH"/);
 });
+test('every current non-heritage theme uses approved KOSIF EARTH marks, not the old cloud logo',()=>{
+ assert.doesNotMatch(shell,/background:url\(\.\/art\/kosif-cloud\.svg\)/);
+ assert.match(shell,/background:url\(\.\/art\/brand\/kosif-earth-icon\.svg\)/);
+ assert.match(theme,/background:url\(\.\/art\/brand\/kosif-earth-icon\.svg\)/);
+ const office=text('../ui/ds/earth-office.css');
+ assert.match(office,/background:url\(\.\/art\/brand\/kosif-earth-mark\.svg\)/);
+});
 test('generated phone assets and private-preview gate remain valid',()=>{
  const dir=new URL('../dist/',import.meta.url);
  const shipped=JSON.parse(fs.readFileSync(new URL('manifest.webmanifest',dir),'utf8'));

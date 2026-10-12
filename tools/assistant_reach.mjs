@@ -14,6 +14,16 @@ p.on('pageerror', (e) => errs.push(e.message.slice(0, 120)));
 const ready = () => p.waitForFunction(() => window.SKosifAssistant && window.SKosifCore && window.SK && SK.caps && !document.querySelector('.skdemo-overlay'), { timeout: 90000 });
 await p.goto(URL_); await ready();
 await p.waitForTimeout(3000); await ready(); // the demo company may reload the page once after its first load
+// A chat session is valid only after the accountant explicitly binds the company
+// and local user. This isolated preview test uses the real scope-switch operation;
+// no storage seeding, unsafe bypass, or private company is permitted.
+await p.waitForFunction(()=>window.SKosifSpace&&SK.company.current()?.id==='demo-co'&&!SKosifSpace.busy(),null,{timeout:30000});
+const bound=await p.evaluate(async()=>{
+  const co=SK.company.current();
+  return SKosifSpace.switchTo(co.id,co.name,{reload:false,demo:true});
+});
+if(!bound)throw new Error('Could not bind the synthetic demo company for assistant reach test');
+await p.waitForFunction(()=>SKosifSpace.chatScopeSnapshot().status==='stable',null,{timeout:15000});
 const caps = await p.evaluate(() => SK.caps.all().map((c) => ({ id: c.id, group: c.group, label: c.label, hubLabel: c.hubLabel, hub: c.hub || null })));
 const fails = [];
 let n = 0;

@@ -377,6 +377,10 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
    scroll container, so it never stuck and sat at the very end of every page); screens chosen in «الأجهزة والمزامنة» */
 .skb{display:none}
 @media (max-width:900px){
+  /* Fixed bottom tabs overlay the viewport, not the scroll container.
+     Account for them when focus or scrollIntoView brings an input/action into view. */
+  :root{scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+
   .skb{position:fixed;inset-inline:0;bottom:0;z-index:30;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;
     padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--sk-surface) 94%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--sk-line)}
   .skb button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:52px;padding:4px 2px;border:0;border-radius:12px;background:transparent;color:var(--sk-ink-3);font:inherit;font-size:var(--sk-fs-xs);font-weight:600;cursor:pointer;min-width:0;-webkit-tap-highlight-color:transparent}
@@ -396,7 +400,7 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 .sk-rail-mini:hover{color:var(--sk-rail-ink);border-style:solid}
 @media (max-width:900px){.sk-rail-mini{display:none}}
 @media (min-width:901px){
-  :root[data-rail="mini"]{--sk-rail-w:78px}
+  :root[data-rail="mini"]:not(#x):not(#y){--sk-rail-w:78px}
   :root[data-rail="mini"]:not(#x):not(#y) .rail{padding:0 8px var(--sk-4);background-image:none;overflow-x:hidden}
   :root[data-rail="mini"]:not(#x):not(#y) .rail .brand{display:flex;justify-content:center;padding:var(--sk-4) 0 var(--sk-3)}
   :root[data-rail="mini"]:not(#x):not(#y) .rail .brand>div{display:none}
@@ -609,7 +613,7 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 .skx-theme:hover .pv{transform:translateY(-1px);transition:transform .15s var(--sk-ease)}
 /* one identity: the KOSIF brand block on the rail in every look except «تراث الوادي» and «الدفتر» (colours from the rail tokens) */
 :root:is([data-look="najd"],[data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-items:center;column-gap:10px;row-gap:0;padding:var(--sk-5) var(--sk-3) var(--sk-4);border-bottom:1px solid color-mix(in srgb,var(--sk-rail-ink) 10%,transparent);direction:ltr}
-:root:is([data-look="najd"],[data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand::before{grid-row:1/3;width:54px;height:38px;border-radius:0;box-shadow:none;padding:0;border:0;background:url(./art/kosif-cloud.svg) center/contain no-repeat;-webkit-mask-image:none;mask-image:none}
+:root:is([data-look="najd"],[data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand::before{grid-row:1/3;width:54px;height:38px;border-radius:0;box-shadow:none;padding:0;border:0;background:url(./art/brand/kosif-earth-icon.svg) center/contain no-repeat;-webkit-mask-image:none;mask-image:none}
 :root:is([data-look="najd"],[data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand-mark{display:none}
 :root:is([data-look="najd"],[data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail .brand>div:not(.brand-mark){display:flex;flex-direction:column;align-items:flex-start;min-width:0}
 :root:is([data-look="najd"],[data-look="aurora"],[data-look="vivid"],[data-look="oasis"],[data-look="graphite"],[data-look="onyx"],[data-look="executive"],[data-look="audit"],[data-look="midnight"]):not(#x) .rail #app-name{display:block;margin:0;font:700 0/1 var(--sk-font);color:var(--sk-rail-ink)}
