@@ -1,0 +1,55 @@
+name: KOSIF Evidence First Claude Review - One Shot
+on:
+  push:
+    branches:
+      - audit/claude-1000-20261012
+    paths:
+      - .github/workflows/claude-evidence-first-review.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kosif-evidence-one-shot-20261012
+  cancel-in-progress: false
+
+jobs:
+  evidence-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GITHUB_REPOSITORY: elkosif0-cmd/cloude
+      GITHUB_TOKEN: ${{ github.token }}
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - name: Checkout trusted audit branch without persistence
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify syntax, no-deploy isolation and budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/claude_evidence_first.py
+          grep -F "if: github.ref_name != 'audit/claude-1000-20261012'" .github/workflows/pages-deploy.yml
+          python3 - <<'PY'
+          import importlib.util
+          s=importlib.util.spec_from_file_location("agent","tools/claude_evidence_first.py")
+          m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
+          assert m.BUDGET_CENTS == 1500
+          assert m.STOP_SECS <= 390
+          assert m.TASK_LIMIT <= 180
+          assert m.TASKS_CONCURRENT <= 12
+          print("Evidence-review guardrails verified.")
+          PY
+      - name: Inventory unique GitHub branches and run one capped Claude session
+        shell: bash
+        run: python3 tools/claude_evidence_first.py --launch
+      - name: Keep audit results, actual session costs and unfinished review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kosif-evidence-review-${{ github.run_id }}
+          path: claude-evidence-review/
+          if-no-files-found: warn
+          retention-days: 14
