@@ -1,0 +1,37 @@
+name: KOSIF Claude Opus Live Accounting Audit Test
+on:
+  push:
+    branches:
+      - feature/claude-secure-accounting-council-20261012
+    paths:
+      - .github/workflows/claude-live-validation.yml
+permissions:
+  contents: read
+concurrency:
+  group: kosif-claude-live-20261012
+  cancel-in-progress: false
+jobs:
+  claude-live-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate model probe and limit of three calls
+        run: |
+          set -euo pipefail
+          node --check tools/claude-live-validation.mjs
+          test -n "$ANTHROPIC_API_KEY"
+      - name: Validate real Anthropic Claude Opus on synthetic accounting and audit cases
+        run: node tools/claude-live-validation.mjs
+      - name: Retain sanitized validation receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-live-${{ github.run_id }}
+          path: claude-live-validation/
+          if-no-files-found: warn
+          retention-days: 7
