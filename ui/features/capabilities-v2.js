@@ -13,9 +13,9 @@ const ROLE_KEY="skosif_cap_v2_preview_role";
 const MAX_BYTES=131072;
 const PERMISSIONS={
   owner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read","ai:run"],
-  partner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"],
+  partner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read","ai:run"],
   manager:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read","ai:run"],
-  senior:["providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"],
+  senior:["providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read","ai:run"],
   viewer:["providers:read","session:read","workspace:list","workspace:read","document:list","document:read","integrity:read"]
 };
 const ROLE_AR={owner:"مالك",partner:"شريك",manager:"مدير",senior:"مسؤول أول",viewer:"مشاهدة فقط"};
