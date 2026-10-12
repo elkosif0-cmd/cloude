@@ -219,7 +219,7 @@ function providersHTML(){
     '<section class="skv2-panel"><h4>عقل Claude للحسابات والمراجعة</h4>'+
     '<p class="skv2-note">يراجع Claude ملخصات رقمية مجمعة من مساحة الشركة المتصلة فقط، ولا يطلع على القيود الخام أو ملفات العملاء. النتائج استشارية وتتطلب اعتماد المحاسب. يلزم Cloudflare Access وربط D1 وتهيئة المفتاح السري داخل Worker.</p>'+
     '<label class="sk-field"><span>المهمة</span><select id="skv2-claude-task"><option value="accounting-analysis">تحليل الحسابات</option><option value="audit-review">تخطيط المراجعة والمخاطر</option><option value="reconciliation">اقتراح خطوات المطابقة</option></select></label>'+
-    '<label class="sk-field"><span>سؤال اختياري (بدون أسماء عملاء أو بيانات بنكية)</span><input id="skv2-claude-question" maxlength="800" placeholder="ما أهم المؤشرات التي تحتاج المراجعة؟"></label>'+
+    '<p class="skv2-note">اختر المهمة فقط؛ لن يُسمح بإرسال أسئلة حرة أو تفاصيل شخصية. يراجع Claude الأرقام الملخّصة الموجودة في مساحة الشركة.</p>'+
     '<div class="skv2-actions"><button type="button" class="btn primary" id="skv2-claude-run" '+(canRun?'':'disabled')+'>تحليل آمن بواسطة Claude</button></div>'+
     (state.claudeResult?'<div class="skv2-okbox" role="status"><b>رد Claude — مراجعة بشرية مطلوبة</b><p style="white-space:pre-wrap">'+esc(state.claudeResult.answer||"")+'</p><small>'+esc(state.claudeResult.model||"")+' · ملخصات الشركة فقط</small></div>':'')+
     (!canRun?'<p class="skv2-note">غير متاح حاليًا: اربط Worker واحفظ Snapshot للشركة، وتحقق من صلاحياتك وتكوين خدمة Claude.</p>':'')+
@@ -273,10 +273,10 @@ function bind(){
     if(!state.workspace || !state.session){toast("اربط مساحة الشركة أولاً","err");return}
     claudeRun.disabled=true;
     try{
-      const task=$("#skv2-claude-task",root).value,question=$("#skv2-claude-question",root).value.trim();
+      const task=$("#skv2-claude-task",root).value;
       const result=await api("/api/capabilities-v2/workspaces/"+
         encodeURIComponent(state.workspace.id)+"/ai/claude",
-        {method:"POST",body:JSON.stringify({task,question}),timeoutMs:45000});
+        {method:"POST",body:JSON.stringify({task}),timeoutMs:45000});
       if(!result.requiresHumanApproval||result.scope!=="workspace-aggregates-only")throw new Error("استجابة Claude لا تلتزم بسياسة المراجعة");
       state.claudeResult=result;
       toast("اكتمل تحليل Claude، ويحتاج مراجعة بشرية","ok");paint();
