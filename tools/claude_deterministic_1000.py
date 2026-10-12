@@ -272,7 +272,7 @@ def worker(pair):
         f"path: {task['path']}; blob sha: {task['sha']}. "
         "SOURCE START:\n" + source + "\nSOURCE END"
     )
-    payload = {"model": model, "max_tokens": max_tokens, "temperature": 0,
+    payload = {"model": model, "max_tokens": max_tokens,
                "system": "You are a finance-software code auditor. Read supplied code and respond only with compact valid JSON. Never reveal keys, credentials, private data, or verbatim code.",
                "messages": [{"role": "user", "content": prompt}]}
     try:
@@ -301,11 +301,29 @@ def worker(pair):
                 "model": model, "reason": str(e)[:160]})
 
 
+def smoke_test():
+    """One small real request before source reviews: prevents 1,000 invalid calls."""
+    resp = get(API + "/v1/messages", payload={
+        "model": "claude-haiku-5-5", "max_tokens": 128,
+        "messages": [{"role": "user", "content": "Reply with exactly OK."}]
+    }, headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"],
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json"}, attempts=1)
+    if not any(b.get("type") == "text" and b.get("text", "").strip()
+               for b in resp.get("content", [])):
+        raise RuntimeError("Claude smoke returned no visible text; refusing 1000 tasks")
+    estimate = cost("claude-haiku-5-5", resp.get("usage", {}))
+    with lock:
+        state["billed_estimate"] += estimate
+    print("ANTHROPIC_SMOKE_OK", round(estimate, 7), flush=True)
+
+
 def main():
     if os.getenv("GITHUB_REPOSITORY") != "elkosif0-cmd/cloude":
         raise RuntimeError("Protected repository scope mismatch")
     if not os.getenv("ANTHROPIC_API_KEY"):
         raise RuntimeError("Missing protected MOON secret, no paid review started")
+    smoke_test()
     tasks, coverage = discover()
     print("INVENTORY", json.dumps({k:v for k,v in coverage.items() if k!="errors"}), flush=True)
     if "--dry-run" in __import__("sys").argv:
@@ -320,6 +338,8 @@ def main():
               "cost_is_estimate_not_provider_invoice": True,
               "seconds": round(time.monotonic()-started_at, 1)}
     (OUTPUT / "status.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    if state["finished"] == 0:
+        raise RuntimeError("No Claude source review succeeded; check sanitized API failures")
     print("CLAUDE_ACTUAL_COMPLETIONS", state["finished"], "SPEND_ESTIMATE_USD",
           round(state["billed_estimate"], 4), "FAILURES", state["failed"], flush=True)
 
