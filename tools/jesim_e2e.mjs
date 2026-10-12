@@ -33,7 +33,16 @@ try{
     const suggestAndPost=async(text,amount)=>{
       await p.evaluate(()=>SKosifCore.go('jesim'));await p.waitForSelector('[data-js-tab="suggest"]',{timeout:15000});
       await p.click('[data-js-tab="suggest"]');await p.waitForSelector('[data-jd="text"]',{timeout:15000});
-      await p.fill('[data-jd="text"]',text);await p.fill('[data-jd="amount"]',String(amount));await p.click('[data-js="run"]');
+      await p.fill('[data-jd="text"]',text);await p.fill('[data-jd="amount"]',String(amount));
+      // On phones the bottom nav is fixed. Bring the actual button into
+      // the unobstructed middle of the screen; do not force-click or bypass UI.
+      await p.locator('[data-js="run"]').evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
+      await p.waitForFunction(()=>{const el=document.querySelector('[data-js="run"]'),nav=document.querySelector('#skb');
+        if(!el||!nav)return false;
+        const r=el.getBoundingClientRect(),n=nav.getBoundingClientRect();
+        return r.top>=0&&r.bottom<=innerHeight&&(getComputedStyle(nav).display==='none'||r.bottom<n.top-8);
+      },null,{timeout:5000});
+      await p.click('[data-js="run"]');
       try{await p.waitForSelector('.js-res [data-js="post"]',{state:'visible',timeout:15000})}
       catch(e){console.log('[jesim-e2e]',label,'no post button after suggesting — state',await diag());throw e}
       await p.click('.js-res [data-js="post"]');
