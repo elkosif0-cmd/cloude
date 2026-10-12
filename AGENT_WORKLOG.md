@@ -1212,5 +1212,6 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
   - Scorecard regenerated (the committed one still said 5 of 18).
 - Evidence / tests: `node tools/constitution_guard.mjs --check` → 18 rules, 18 pass; `node --test tools/earth_scoped_audit_trail.test.mjs` → 10/10.
 - Risks / conflicts: production is cef0983 (Cloudflare deployment eda7ae06, direct upload; rollback ddf7706f = 4a3d3d2). Automatic deploys still need the `CLOUDFLARE_API_TOKEN` secret from the owner.
-- Unfinished: `tools/company_entry_e2e.mjs` still has 6 stale door checks (crystal world behind the Earth door; the meat sector now lists a model company too).
+- Update: `tools/company_entry_e2e.mjs` — the 6 door checks that stopped S.kosif before the accounting suites (red on 4a3d3d2 and cef0983 too) now describe the Earth door: the hidden crystal world draws no frames, and a sector's model companies are not counted as the user's own.
+- Unfinished: the door still mounts the hidden crystal world (wasted WebGL context) — product decision, not changed here.
 - NEXT ACTION: CI on the PR, merge on green, publish main from the Pages deploy artifact, verify live.
