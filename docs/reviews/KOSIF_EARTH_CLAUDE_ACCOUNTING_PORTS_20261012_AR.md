@@ -33,7 +33,7 @@
 - **PR #259**: https://github.com/elkosif0-cmd/cloude/pull/259
 - الملف: `app/src/engine/fusion/finance/ledger-engine.ts`.
 - تعديلات محلية من دون نسخ SQL: رفض القيد عديم الحركة أو الذي به أقل من سطرين، ورفض NaN/Infinity والقيم غير العددية؛ وإضافة `posting-guards.test.ts`.
-- اختبار محلي عبر Vitest: **14 / 14 نجاح** على ملفات `posting-guards.test.ts` و`ledger-engine.test.ts` و`ledger-controls.test.ts`.
+- الاختبارات المحلية: **119 / 119 نجاح** عبر **26 ملفًا** من وحدة المالية، وفحص TypeScript (`tsc -p tsconfig.fusion.json --noEmit`) نجح. منها **14 / 14 نجاح** على ملفات `posting-guards.test.ts` و`ledger-engine.test.ts` و`ledger-controls.test.ts`.
 - PR لا يزال Draft؛ فشل S.kosif Production Build بسبب ESLint `no-dupe-keys` قديم في `ui/features/tb-review.js` من main، وإصلاحه مستقل في **PR #257**. لا تكفي الاختبارات المحدودة لإجازة دمج PR259.
 - **لا يشمل PR259** فرض صلاحيات المستخدم على سيرفر، أو قاعدة بيانات PostgreSQL، أو منع ترحيل قيد معتمد مكرر على مستوى التخزين. هذه مراحل أخرى تحتاج تنفيذ خادمي واختبارات عزل مستقلة.
 
