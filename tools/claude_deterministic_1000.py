@@ -216,10 +216,10 @@ def model_for(task, index):
     # Up to 12 specialist workers and 2 chief reviewers for high-risk systems.
     high = any(k in text for k in ("security", "tenant", "company", "journal", "ledger", "vat"))
     if index < 2 and high:
-        return "claude-opus-5-5", 1050
+        return "claude-opus-5-5", 2400
     if index < 18 and high:
-        return "claude-sonnet-5-5", 900
-    return "claude-haiku-5-5", 620
+        return "claude-sonnet-5-5", 2000
+    return "claude-haiku-5-5", 1500
 
 
 def record(row):
@@ -304,7 +304,7 @@ def worker(pair):
 def smoke_test():
     """One small real request before source reviews: prevents 1,000 invalid calls."""
     resp = get(API + "/v1/messages", payload={
-        "model": "claude-haiku-5-5", "max_tokens": 128,
+        "model": "claude-haiku-5-5", "max_tokens": 512,
         "messages": [{"role": "user", "content": "Reply with exactly OK."}]
     }, headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"],
                 "anthropic-version": "2023-06-01",
