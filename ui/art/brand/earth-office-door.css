@@ -134,6 +134,31 @@ button.submit:hover:not(:disabled){box-shadow:0 14px 32px -14px rgba(15,87,54,.5
 }
 .earth-door-steps strong{color:#176b4b}
 .earth-door-steps .arrow{color:#79a587;font-weight:700}
+/* A restrained, timeline-driven ink stroke inspired by hand-drawn storytelling.
+   Decorative only: it never delays navigation or conveys mandatory state. */
+.earth-door-steps .earth-steps-ink{
+  display:block;
+  flex:0 0 100%;
+  width:min(320px,92%);
+  height:12px;
+  margin:0 auto;
+  pointer-events:none;
+  overflow:visible;
+}
+.earth-door-steps .earth-steps-ink path{
+  fill:none;
+  stroke:#218861;
+  stroke-width:2.4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:100;
+  stroke-dashoffset:100;
+  animation:earth-ink-draw 1.25s cubic-bezier(.22,.72,.23,1) .2s forwards;
+}
+@keyframes earth-ink-draw{to{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){
+  .earth-door-steps .earth-steps-ink path{animation:none;stroke-dashoffset:0}
+}
 .co-hint{color:#627968}
 @media(max-width:820px){
   body{background-image:linear-gradient(180deg,rgba(17,57,36,.13),rgba(252,255,251,.66)),url(./earth-office-sunlit-mobile.webp);background-attachment:scroll}
