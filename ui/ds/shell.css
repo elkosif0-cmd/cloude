@@ -396,7 +396,7 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 .sk-rail-mini:hover{color:var(--sk-rail-ink);border-style:solid}
 @media (max-width:900px){.sk-rail-mini{display:none}}
 @media (min-width:901px){
-  :root[data-rail="mini"]{--sk-rail-w:78px}
+  :root[data-rail="mini"]:not(#x):not(#y){--sk-rail-w:78px}
   :root[data-rail="mini"]:not(#x):not(#y) .rail{padding:0 8px var(--sk-4);background-image:none;overflow-x:hidden}
   :root[data-rail="mini"]:not(#x):not(#y) .rail .brand{display:flex;justify-content:center;padding:var(--sk-4) 0 var(--sk-3)}
   :root[data-rail="mini"]:not(#x):not(#y) .rail .brand>div{display:none}
