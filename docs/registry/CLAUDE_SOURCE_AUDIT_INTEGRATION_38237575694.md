@@ -26,7 +26,7 @@
 - `ui/core/engines.js`: deterministic regenerated bundle, so browser and TypeScript logic match.
 - Local authorised Windows laptop: targeted finance suite **121/121**, full `npm run check` **575/575 across 119 files**, four TypeScript tsconfigs passed, `node tools/build_engines.mjs --check` passed; tenant/company-context regression **7/7** passed.
 - GitHub CI and browser E2E require their own status; `pages-deploy.yml` explicitly excludes this branch from Cloudflare deployment (including preview). **No Cloudflare deployment**.
-- Independent earlier PR #264 has an unrelated **showcase-picker E2E 3 failures** (61 pass / 3 fail); do not misclassify the overall release as green.
+- Investigated earlier PR #264's **showcase-picker E2E 3 failures** (61 pass / 3 fail): assertion hard-coded 47 catalog entries while source-backed browser catalog had 48. Updated the test to compare the actual set of auditable IDs against the runtime model catalog, rather than changing business data or hiding a model. Chromium browser preview check **64/64 passed** (laptop, 390px and 320px). Full PR CI and release still need their own checks.
 
 ## Paid-provider policy
 The owner subsequently allowed paid AI use if needed to diagnose or correct failures. This integration used **zero new paid Anthropic API calls**: the verified archived results and deterministic tests were sufficient. Future provider calls need a concrete defect-driven purpose and cost log.
