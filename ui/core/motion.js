@@ -38,20 +38,22 @@ function countUp(){
   const v=document.getElementById("view");if(!v||!v.querySelectorAll)return 0;
   /* the figure is the element's text, or its leading text node when a unit element follows (`36 <small>يوم</small>`) */
   const node=e=>e.children.length===0?e:(e.firstChild&&e.firstChild.nodeType===3?e.firstChild:null);
-  const els=[...v.querySelectorAll(".stat .v,.num")].filter(e=>!e.hasAttribute("data-sk-counted")&&node(e)&&NUM.test((node(e).textContent||"").trim())).slice(0,COUNT_MAX);
+  const els=[...v.querySelectorAll(".stat .v .n,.stat .v,.num,.card .n")].filter(e=>!e.hasAttribute("data-sk-counted")&&node(e)&&NUM.test((node(e).textContent||"").trim())).slice(0,COUNT_MAX);
   for(const e of els){
     const t=node(e),raw=t.textContent.trim(),m=NUM.exec(raw),sign=m[1],body=m[2],unit=m[3]||"";
     const dec=(body.split(".")[1]||"").length,grouped=body.includes(","),target=parseFloat(body.replace(/,/g,""));
     if(!isFinite(target)||target===0)continue;
     e.setAttribute("data-sk-counted","1");e.classList.add("sk-counting");
     const fmt=n=>{let s=n.toFixed(dec);if(grouped)s=s.replace(/\B(?=(\d{3})+(?!\d))/g,",");return sign+s+unit};
-    const t0=performance.now();
+    const t0=performance.now();let done=false;
+    const end=()=>{if(done)return;done=true;t.textContent=raw;e.classList.remove("sk-counting")};
     const step=now=>{
+      if(done)return;
       const p=Math.min(1,(now-t0)/COUNT_MS),k=1-Math.pow(1-p,3);
-      if(p<1){t.textContent=fmt(target*k);requestAnimationFrame(step)}
-      else{t.textContent=raw;e.classList.remove("sk-counting")}
+      if(p<1){t.textContent=fmt(target*k);requestAnimationFrame(step)}else end();
     };
-    requestAnimationFrame(step);counted++;
+    requestAnimationFrame(step);setTimeout(end,COUNT_MS+120);   /* a hidden tab gets no frames: the figure still lands */
+    counted++;
   }
   return els.length;
 }
@@ -63,11 +65,23 @@ function enter(force){
   list.forEach((n,i)=>n.style.setProperty("--sk-i",String(i)));
   v.classList.remove("sk-enter");void v.offsetWidth;v.classList.add("sk-enter");
   clearTimeout(timer);timer=setTimeout(()=>{v.classList.remove("sk-enter");list.forEach(n=>n.style.removeProperty("--sk-i"))},LIFE);
-  reveal(all.slice(MAX));countUp();opened=Date.now();
+  reveal(all.slice(MAX));countUp();opened=Date.now();watch(v);
   count++;return true;
 }
 /* a re-render of the open screen: no choreography, but figures painted while it is still settling count up once */
 function settle(){if(!enter(false)&&opened&&Date.now()-opened<SETTLE)countUp()}
+/* screens paint their figures asynchronously (data, workers) without an event: watch the view while it settles */
+let mo=null,debounce=0;
+function watch(v){
+  if(typeof MutationObserver!=="function")return;
+  if(mo)mo.disconnect();
+  mo=new MutationObserver(()=>{
+    if(Date.now()-opened>=SETTLE){mo.disconnect();mo=null;return}
+    clearTimeout(debounce);debounce=setTimeout(countUp,60);
+  });
+  mo.observe(v,{childList:true,subtree:true});
+  setTimeout(()=>{if(mo){mo.disconnect();mo=null}},SETTLE+100);
+}
 function boot(){
   if(!window.SK||!SK.bus){setTimeout(boot,200);return}
   SK.bus.on("nav",()=>setTimeout(()=>enter(false),0));
