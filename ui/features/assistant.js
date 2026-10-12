@@ -181,7 +181,7 @@ function decl(){return TOOLS.map(t=>({name:t.name,description:t.d,parameters:{ty
 function system(){
   const c=core(),cap=SK.caps.get(c.view());
   const screens=SK.caps.all().filter(x=>SK.perm.can(x.id)).map(x=>x.id+": "+x.label+(x.hubLabel!==x.label?" ("+x.hubLabel+")":"")).join("\n");
-  return "أنت «مساعد SQC» داخل تطبيق SQC (SQC) لإدارة شركة تجارة لحوم ومواشي ومراجعة الحسابات بالمعايير (IFRS وSOCPA ومعايير المحاسبة المصرية). "+
+  return "أنت «مساعد KOSIF EARTH» داخل منصة محاسبة ومراجعة وأدوات متخصصة في الشركات السعودية. نطاقك يقتصر على الشركة والفترة المفتوحتين وصلاحيات المستخدم، مع مراعاة IFRS وSOCPA وZATCA. "+
     "نفّذ الطلب بالأدوات المدعومة المرتبطة بسياق الشركة، ويمكنك استدعاء عدة أدوات بالتتابع. إذا أعادت أداة ok:false فلا تدّع تنفيذ الإجراء؛ اشرح سبب الرفض والتعليمات اليدوية بوضوح. "+
     "قبل الإجابة عن أي سؤال عن أرقام الشاشة استدعِ read_screen، وعن بيانات الشركة/القيود/القوائم/النواقص استدعِ company_search أو app_summary، وعن IFRS/IAS/ISA/SOCPA/ZATCA/EAS أو المعالجة المهنية استدعِ standards_search، ولا تخترع أرقاماً أو متطلبات معيارية أبداً. "+
     "تعبئة الحقول والأزرار العامة والإجراءات التي لا تدعم حارس السياق تُنفّذ يدوياً؛ استخدم فتح الشاشة أو التكاملات المصرح بها فقط. الإجراءات الهادمة يؤكدها المستخدم بنفسه. "+
@@ -253,10 +253,10 @@ function md(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g
 function paint(){
   const scope=syncScope();if(!panel)return;const box=$(".ska-msgs",panel);if(!scope){clearVisible();return}const h=hist(scope);
   box.innerHTML=h.length?h.map(m=>m.role==="tool"?'<div class="ska-step '+(m.ok?"ok":"bad")+'"><i></i>'+esc(m.text)+'</div>':'<div class="ska-m '+(m.role==="user"?"me":"ai")+'">'+md(m.text)+'</div>').join(""):
-    '<div class="ska-hello"><b>أهلاً — أنا مساعد SQC</b><p>أنفّذ ما تطلبه في التطبيق مباشرة: أفتح الشاشات، أقرأ الأرقام، أصدّر وأطبع، وأغيّر المظهر. الأزرار العامة وتعبئة الحقول تحتاج تنفيذاً يدوياً حتى تدعم سياق الشركة بأمان.</p></div>';
+    '<div class="ska-hello"><b>أهلاً — أنا مساعد KOSIF EARTH</b><p>أنفّذ ما تطلبه في التطبيق مباشرة: أفتح الشاشات، أقرأ الأرقام، أصدّر وأطبع، وأغيّر المظهر. الأزرار العامة وتعبئة الحقول تحتاج تنفيذاً يدوياً حتى تدعم سياق الشركة بأمان.</p></div>';
   if(busy)box.insertAdjacentHTML("beforeend",'<div class="ska-m ai typing"><i></i><i></i><i></i></div>');
   $(".ska-sugg",panel).innerHTML=(h.length>6?[]:SUGG).map(s=>'<button type="button" data-s="'+esc(s)+'">'+esc(s)+'</button>').join("");
-  const ai=window.SKosifAI&&SKosifAI.ready();$(".ska-status",panel).textContent=ai?"الذكاء الاصطناعي متصل · يفهم الطلبات الحرة":"أوامر مباشرة · أضف مفتاح الذكاء الاصطناعي (Gemini أو OpenAI أو Claude) للطلبات الحرة";$(".ska-status",panel).classList.toggle("on",!!ai);
+  const ai=window.SKosifAI&&SKosifAI.ready(), aiConfig=ai&&typeof SKosifAI.conf==="function"?SKosifAI.conf():null;$(".ska-status",panel).textContent=ai?(aiConfig?("مزود "+aiConfig.label+" · النموذج "+aiConfig.model+" · للشركة الحالية فقط"):"الذكاء الاصطناعي متصل · للشركة الحالية فقط"):"أوامر مباشرة · فعّل Claude أو غيره من المراجع الذكي للطلبات الحرة";$(".ska-status",panel).classList.toggle("on",!!ai);
   box.scrollTop=box.scrollHeight;
 }
 async function send(text){

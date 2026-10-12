@@ -120,6 +120,7 @@
     "council",
     "followup",
     "tbreview",
+    "journalrisk",
     "codex",
     "masterdata",
     "reportingintake",
@@ -1670,6 +1671,31 @@
    "gateway": "audit",
    "also": [
     "accounting"
+   ]
+  },
+  {
+   "id": "journalrisk",
+   "label": "مخاطر القيود",
+   "sub": "درجة مخاطر لكل قيد في الدفاتر بلا عينة: يدوي، مستدير، وسيط، عطلة، تكرار، بنفورد",
+   "group": "audit",
+   "hub": "tbreview",
+   "tier": "MANAGEMENT",
+   "module": "ui/features/journal-risk.js + SKEngines.audit.journalRisk + ui/components/charts.js",
+   "data": [
+    "skosif_ledger_v1 (قراءة فقط — لا تخزين خاص بالشاشة)"
+   ],
+   "legacy": "جديد — نقل «تقييم 100% من القيود» من SEE journal-signals و KOSIF audit studio engine.js",
+   "decision": "New",
+   "kw": "مخاطر القيود قيد يدوي مبلغ مستدير حساب وسيط معلق طرف ذو علاقة عطلة نهاية الأسبوع إقفال الفترة قيود مكررة بنفورد benford journal entry testing ISA 240",
+   "adv": false,
+   "en": "Journal Entry Risk",
+   "feeds": [
+    "tbreview",
+    "risks"
+   ],
+   "gateway": "tools",
+   "also": [
+    "audit"
    ]
   },
   {

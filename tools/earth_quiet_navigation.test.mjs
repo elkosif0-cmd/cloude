@@ -41,7 +41,8 @@ test('unverified screens fall back to capability descriptions rather than fabric
  const hubs=caps.filter(c=>!c.hub);
  assert.equal(hubs.length,37);
  assert.ok(hubs.every(c=>typeof c.sub==='string'&&c.sub.length>=8));
- assert.ok(guide.includes('النتيجة التي توفرها الشاشة وفق وصفها أعلاه'));
+ assert.ok(guide.includes('لا تعتمد على الوصف وحده كدليل لإنجاز المعالجة'));
+ assert.ok(guide.includes('ليس تأكيداً بأن كل المعالجات أو الصادرات مكتملة'));
  assert.ok(guide.includes('s.sk.caps.members(s.hub.id)'), 'available sub-pages derived from real registry');
 });
 test('screen guide does not access customer payloads, storage, network or write company state',()=>{

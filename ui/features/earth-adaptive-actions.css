@@ -1,0 +1,27 @@
+/* Adaptive disclosure — complements the full screen guide without duplicating it. */
+.earth-adaptive{display:inline-block;vertical-align:middle;max-width:min(100%,460px);
+ margin:4px 0 8px;border:1px solid var(--sk-line-2);
+ border-radius:var(--sk-r);background:var(--sk-surface);color:var(--sk-ink);
+ font:400 13px/1.7 var(--sk-font)}
+.earth-adaptive__summary{cursor:pointer;list-style-position:inside;
+ padding:8px 12px;min-height:40px;color:var(--sk-brand);font-weight:700;
+ overflow-wrap:anywhere}
+.earth-adaptive__contents{display:grid;gap:12px;padding:12px 16px;
+ border-top:1px solid var(--sk-line)}
+.earth-adaptive__description{margin:0;color:var(--sk-ink-2);line-height:1.8}
+.earth-adaptive__actions{display:flex;flex-wrap:wrap;gap:8px}
+.earth-adaptive__action{border:1px solid var(--sk-line-2);border-radius:var(--sk-r);
+ background:var(--sk-brand-soft);color:var(--sk-brand);
+ font:600 13px/1.6 var(--sk-font);min-height:44px;padding:8px 12px;
+ cursor:pointer;max-width:100%;overflow-wrap:anywhere}
+.earth-adaptive__action:hover{background:var(--sk-surface-3)}
+.earth-adaptive__note{display:block;font-size:11px;color:var(--sk-ink-3)}
+.earth-adaptive[data-ready="false"]{border-style:dashed}
+@media(max-width:650px){
+ .earth-adaptive{display:block;width:100%;max-width:100%;box-sizing:border-box}
+ .earth-adaptive__actions{display:grid;grid-template-columns:minmax(0,1fr)}
+ .earth-adaptive__action{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+ .earth-adaptive,.earth-adaptive *{animation-duration:0s;transition-duration:0s;scroll-behavior:auto}
+}

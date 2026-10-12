@@ -559,7 +559,7 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
 :root[data-look="aurora"] body{background:radial-gradient(900px 520px at 100% -10%,rgba(123,97,255,.16),transparent 60%),radial-gradient(800px 520px at -10% 30%,rgba(0,179,255,.14),transparent 60%),radial-gradient(700px 500px at 60% 110%,rgba(10,102,255,.1),transparent 60%),var(--sk-bg) fixed}
 :root[data-look="aurora"][data-theme="dark"] body{background:radial-gradient(900px 520px at 100% -10%,rgba(123,97,255,.22),transparent 60%),radial-gradient(800px 520px at -10% 30%,rgba(0,179,255,.14),transparent 60%),var(--sk-bg) fixed}
 :root[data-look="aurora"] .card,:root[data-look="aurora"] .skc-card,:root[data-look="aurora"] .sk-kpi,:root[data-look="aurora"] .sk-ph,:root[data-look="aurora"] .topbar{background:color-mix(in srgb,var(--sk-surface) 74%,transparent)!important;backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);border-color:color-mix(in srgb,var(--sk-line) 70%,transparent)!important}
-:root[data-look="aurora"] .rail{background:var(--sk-grad-rail)!important;backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-inline-start:1px solid var(--sk-line)}
+:root[data-look="aurora"] .rail{background:var(--sk-grad-rail);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-inline-start:1px solid var(--sk-line)}
 :root[data-look="aurora"] .nav-btn[aria-current="page"]{background:var(--sk-rail-active);color:var(--sk-brand);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sk-brand) 22%,transparent)}
 :root[data-look="aurora"] .btn.primary{background:var(--sk-grad-brand);border:0;box-shadow:0 10px 24px -12px rgba(10,102,255,.6)}
 /* النابض — the attached dashboard's light theme: soft colour light, indigo actions, gradient scrollbars */
@@ -714,6 +714,25 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 .skclose-steps .tx{display:grid;gap:2px;min-width:0}.skclose-steps .tx small{color:var(--sk-ink-3);font-size:var(--sk-fs-xs)}.skclose-steps .note{font-size:var(--sk-fs-xs);color:var(--sk-ink-2);font-weight:600}
 .skclose-steps .st-na{opacity:.75}
 @media (max-width:620px){.skclose-steps li{grid-template-columns:auto 1fr;row-gap:6px}.skclose-steps .sk-pill{grid-column:2;justify-self:start}.skclose-steps li>.btn{grid-column:2;justify-self:start}}
+/* close management: the checklist card, its readiness ring, owners and due dates, the lock row and the lock log */
+.skcl .card-h{align-items:center}
+.skcl-ring{position:relative;flex:none;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--rc,var(--sk-brand)) calc(var(--p,0)*1%),var(--sk-surface-3) 0);font-size:var(--sk-fs-xs);font-weight:800;color:var(--sk-ink)}
+.skcl-ring::before{content:"";position:absolute;inset:8px;border-radius:50%;background:var(--sk-surface)}
+.skcl-ring i{position:relative;font-style:normal}
+.skcl-ring.tone-ok{--rc:var(--sk-ok-mark)}.skcl-ring.tone-warn{--rc:var(--sk-warn-mark)}.skcl-ring.tone-bad{--rc:var(--sk-bad-mark)}
+.skcl-tasks li{grid-template-columns:1fr auto auto auto}
+.skcl-tasks .st-done .tx b{color:var(--sk-ink-2)}
+.skcl-tasks .late time{color:var(--sk-bad);font-weight:700}
+.skcl-meta{display:grid;gap:4px;justify-items:start;font-size:var(--sk-fs-xs);color:var(--sk-ink-2)}
+.skcl-owner{font-size:var(--sk-fs-xs);padding:4px 8px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);color:var(--sk-ink)}
+.skcl-act{display:grid;gap:4px;justify-items:end}
+.skcl-ev{display:grid;gap:4px;font-size:var(--sk-fs-xs);color:var(--sk-ink-2)}
+.skcl-lock{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 0;padding:12px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2)}
+.skcl-lock .tx{display:grid;gap:4px;min-width:0}.skcl-lock .tx small{color:var(--sk-ink-3);font-size:var(--sk-fs-xs)}
+.skcl-log{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:4px}
+.skcl-log li{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);font-size:var(--sk-fs-xs)}
+.skcl-log small{color:var(--sk-ink-3)}
+@media (max-width:620px){.skcl-tasks li{grid-template-columns:1fr auto}.skcl-tasks .skcl-meta,.skcl-tasks .skcl-act{grid-column:1 / -1;justify-items:start}}
 .kx-views .kx-n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-inline-start:4px;border-radius:99px;background:var(--sk-brand);color:var(--sk-on-brand);font-style:normal;font-size:var(--sk-fs-2xs);font-weight:800}
 .kx-views .kx-tool{color:var(--sk-brand)}
 .tbr-sv-start{margin-bottom:10px}
@@ -752,3 +771,14 @@ body{line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimize
 .skn-search:has(.skn-search-status:not([hidden])) input{
   padding-inline-end:96px;
 }
+
+
+/* Copper Executive: optional premium look, no overrides for the approved default office. */
+:root[data-look="copper"] .rail{background:var(--sk-grad-rail);border-inline-start:1px solid rgba(231,165,116,.22)}
+:root[data-look="copper"] .nav-btn[aria-current="page"]{background:var(--sk-rail-active);color:var(--sk-rail-ink);box-shadow:inset -3px 0 0 var(--sk-brand-2)}
+:root[data-look="copper"] .nav-btn[aria-current="page"] svg{color:var(--sk-rail-ink)}
+:root[data-look="copper"] .card,:root[data-look="copper"] .skc-card{border-color:var(--sk-line)}
+:root[data-look="copper"] .card-h h3{border-inline-start:3px solid var(--sk-brand);padding-inline-start:var(--sk-2)}
+:root[data-look="copper"] .btn.primary{background:var(--sk-grad-brand);color:var(--sk-on-brand);border-color:transparent}
+:root[data-look="copper"] body{background:radial-gradient(650px 360px at 85% -10%,rgba(172,95,55,.055),transparent 75%),var(--sk-bg)}
+@media (prefers-reduced-motion:reduce){:root[data-look="copper"] *, :root[data-look="copper"] *::before,:root[data-look="copper"] *::after{scroll-behavior:auto}}

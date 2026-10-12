@@ -8,6 +8,8 @@
   const enter = document.getElementById('kosif-earth-enter');
   const sound = document.getElementById('kosif-earth-sound');
   if (!overlay || !video || !skip || !enter) return;
+  /* the code-rendered story (earth-story.js) owns the overlay when it runs; the film is the fallback */
+  if (document.documentElement.classList.contains('es-on')) return;
 
   const prefers = (query) => !!(window.matchMedia && window.matchMedia(query).matches);
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;

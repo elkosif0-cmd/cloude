@@ -147,6 +147,8 @@ button.submit:disabled{opacity:.65;cursor:default}
 </style>
 <link rel="stylesheet" href="./art/brand/earth-intro-20261009.css">
 <link rel="stylesheet" href="./art/brand/earth-office-door.css">
+<link rel="stylesheet" href="./art/brand/earth-motion.css">
+<link rel="stylesheet" href="./art/brand/earth-story.css">
 </head>
 <body data-locked="1" data-locked-name="تصيف" data-locked-id="co-private" data-locked-sector="meat">
 <section id="kosif-earth-intro" class="earth-intro" role="dialog" aria-modal="true" aria-label="مقدمة KOSIF EARTH السينمائية" hidden>
@@ -179,7 +181,7 @@ button.submit:disabled{opacity:.65;cursor:default}
 <h2 id="gates-t" class="sr-only">اختر القسم</h2>
 <p class="sub" id="gates-help">اختر ما تريد إنجازه أولاً. كل شركة لها مساحة مستقلة، والربط بين الأقسام اختياري فقط.</p>
 <div class="gate-list" id="gate-list" role="list" aria-label="الأقسام"></div>
-<div class="earth-door-steps" aria-label="مسار العمل"><strong>هدفك</strong><span class="arrow" aria-hidden="true">←</span><span>الخطوات</span><span class="arrow" aria-hidden="true">←</span><strong>النتيجة</strong></div>
+<div class="earth-door-steps" aria-label="مسار العمل"><strong>هدفك</strong><span class="arrow" aria-hidden="true">←</span><span>الخطوات</span><span class="arrow" aria-hidden="true">←</span><strong>النتيجة</strong><svg class="earth-steps-ink" viewBox="0 0 320 14" aria-hidden="true" focusable="false"><path pathLength="100" d="M5 9 C68 2 121 12 169 7 S255 3 315 6"/></svg></div>
 <p class="co-hint">ابدأ بالهدف، ثم اتبع الخطوات حتى النتيجة. بيانات كل شركة تبقى في مساحتها وحدها.</p>
 </section>
 <section id="sectors" hidden aria-labelledby="sectors-t">
@@ -428,6 +430,8 @@ const uf=$("f");if(uf&&uf.addEventListener)uf.addEventListener("submit",()=>{if(
 window.SQCEntry=Object.freeze({companies,paint:()=>show(state.step||"gates"),show,go,world:()=>world,gate:()=>state.gate,sector:()=>state.sector,step:()=>state.step,gates:()=>GATES.slice(),sectors:()=>SECTORS.slice(),corpus:()=>CORPUS.slice()});
 })();
 </script>
+<script src="./art/brand/earth-story.js" defer></script>
 <script src="./art/brand/earth-intro-20261009.js" defer></script>
 <script src="./art/crystal-world.js" defer></script>
+<script src="./art/brand/earth-motion.js" defer></script>
 </body></html>

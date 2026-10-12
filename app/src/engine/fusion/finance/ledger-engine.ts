@@ -1,3 +1,5 @@
+import { canPost, type LockState } from './close-checklist-engine';
+
 export type JournalLine = {
   accountId: string;
   debit: number;
@@ -20,11 +22,21 @@ export type JournalIssueCode =
   | 'LINE_NON_FINITE_AMOUNT'
   | 'LINE_ACCOUNT_REQUIRED'
   | 'JOURNAL_TOO_FEW_LINES'
-  | 'JOURNAL_EMPTY_TOTAL';
+  | 'JOURNAL_EMPTY_TOTAL'
+  | 'PERIOD_LOCKED';
 
 export type JournalIssue = {
   code: JournalIssueCode;
   lineIndex?: number;
+  /** the engine's Arabic refusal (period locks) */
+  reason_ar?: string;
+};
+
+/** optional posting context: the close-management lock state and/or the books' single lock date.
+ *  Omitted (the default) → the validation is unchanged. */
+export type PostingContext = {
+  lockState?: LockState | null;
+  lockDate?: string | null;
 };
 
 export type ValidationResult = {
@@ -51,10 +63,27 @@ function money(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-export function validateJournalEntry(entry: JournalEntry): ValidationResult {
+/** the period guard on its own: {ok:true} without a context, else the close engine's Arabic refusal */
+export function postingAllowed(date: string, ctx?: PostingContext | null): { ok: boolean; reason_ar?: string } {
+  if (!ctx) return { ok: true };
+  if (ctx.lockDate && isPeriodLocked(date, ctx.lockDate)) return { ok: false, reason_ar: 'الفترة مقفلة حتى ' + ctx.lockDate.slice(0, 10) };
+  if (ctx.lockState) {
+    const r = canPost(ctx.lockState, date);
+    if (!r.ok) return { ok: false, reason_ar: r.reason_ar };
+  }
+  return { ok: true };
+}
+
+export function validateJournalEntry(entry: JournalEntry, ctx?: PostingContext | null): ValidationResult {
   const issues: JournalIssue[] = [];
   let totalDebit = 0;
   let totalCredit = 0;
+
+  // Period-close lock (optional context): a locked period refuses the posting before anything else is read.
+  if (ctx) {
+    const guard = postingAllowed(entry?.date, ctx);
+    if (!guard.ok) issues.push({ code: 'PERIOD_LOCKED', reason_ar: guard.reason_ar });
+  }
 
   // A posting must contain at least two distinct lines and a positive monetary movement.
   // These are the same baseline controls required by the source posting engine audited in
@@ -199,6 +228,17 @@ export function reverseJournalEntry(entry: JournalEntry, params: { id: string; d
       ...(line.description ? { description: 'عكس: ' + line.description } : {}),
     })),
   };
+}
+
+/** the engine's posting path: validate (with the optional lock context) and append; nothing is written on refusal */
+export function postJournalEntry(entries: JournalEntry[], entry: JournalEntry, ctx?: PostingContext | null):
+  { ok: true; entries: JournalEntry[] } | { ok: false; entries: JournalEntry[]; issues: JournalIssue[]; reason_ar?: string } {
+  const v = validateJournalEntry(entry, ctx);
+  if (!v.valid) {
+    const lock = v.issues.find((i) => i.code === 'PERIOD_LOCKED');
+    return { ok: false, entries, issues: v.issues, ...(lock ? { reason_ar: lock.reason_ar } : {}) };
+  }
+  return { ok: true, entries: [...entries, entry] };
 }
 
 export function isPeriodLocked(date: string, lockDate?: string | null): boolean {

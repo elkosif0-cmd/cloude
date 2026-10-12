@@ -1,0 +1,81 @@
+/* KOSIF EARTH • motion-graphics layer for the front door (with ui/art/brand/earth-motion.js).
+   Decoration over working UI: the entrance choreography (wordmark, claim, section cards, the goal → steps → result path),
+   a living light in the visual column (orbit ring, drifting sun rays, pointer parallax), 3D tilt and a light sweep on the
+   cards, and a re-stagger whenever the door moves to the sectors or the companies. Colours come from the door tokens only.
+   `html.em-lite` (reduced motion, save-data, ≤2 GB devices) keeps everything static; nothing here delays or moves data. */
+
+/* ---------- ambient light in the visual column ---------- */
+.em-on .visual{overflow:hidden}
+.em-on .visual .em-rays{position:absolute;inset:-20%;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(42% 60% at 70% 18%,rgba(255,255,255,.30),transparent 70%),
+    conic-gradient(from 210deg at 72% 12%,transparent 0 40%,rgba(255,255,255,.12) 46%,transparent 52%,rgba(255,255,255,.08) 58%,transparent 64%);
+  animation:em-rays 22s ease-in-out infinite alternate;
+  transform:translate3d(calc(var(--em-mx,0) * -8px),calc(var(--em-my,0) * -6px),0)}
+.em-on .visual .em-orbit{position:absolute;inset-inline-end:clamp(12px,4%,40px);top:clamp(28px,8%,80px);width:min(44%,260px);aspect-ratio:1;
+  pointer-events:none;z-index:0;opacity:.85;
+  transform:translate3d(calc(var(--em-mx,0) * 10px),calc(var(--em-my,0) * 8px),0)}
+.em-on .em-orbit .ring{fill:none;stroke:var(--sk-on-brand,#fff);stroke-opacity:.35;stroke-width:1;
+  stroke-dasharray:420;stroke-dashoffset:420;animation:em-draw 2.4s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .3s forwards}
+.em-on .em-orbit .ring.r2{stroke-opacity:.18;stroke-dasharray:4 10;stroke-dashoffset:0;animation:em-spin 60s linear infinite;transform-origin:50% 50%}
+.em-on .em-orbit .dot{fill:var(--sk-on-brand,#fff);transform-origin:50% 50%;animation:em-spin 14s linear infinite}
+.em-on .em-orbit .dot.d2{animation-duration:23s;animation-direction:reverse;opacity:.7}
+.em-on .em-orbit .dot.d3{animation-duration:37s;opacity:.5}
+.em-on .em-orbit .core{fill:var(--sk-on-brand,#fff);opacity:.9;animation:em-pulse 3.2s ease-in-out infinite}
+.em-on .visual .wm,.em-on .visual .claim{position:relative;z-index:1}
+
+/* ---------- entrance choreography (plays once, after the film or at once) ---------- */
+.em-on .visual .wm{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(8px)}
+.em-on .visual .claim h2,.em-on .visual .claim p,.em-on .visual .claim i,
+.em-on .card>div:first-child,.em-on #login-title,.em-on #gates .sub,.em-on #gates .gate,
+.em-on .earth-door-steps,.em-on #gates .co-hint{opacity:0;transform:translateY(14px);filter:blur(6px)}
+.em-ready.em-on .visual .wm{animation:em-wipe .9s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .15s forwards}
+.em-ready.em-on .visual .claim h2{animation:em-rise .8s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .45s forwards}
+.em-ready.em-on .visual .claim p{animation:em-rise .8s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .6s forwards}
+.em-ready.em-on .visual .claim i{animation:em-rise .8s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .7s forwards}
+.em-ready.em-on .card>div:first-child{animation:em-rise .7s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .2s forwards}
+.em-ready.em-on #login-title{animation:em-rise .7s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .3s forwards}
+.em-ready.em-on #gates .sub{animation:em-rise .7s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .4s forwards}
+.em-ready.em-on #gates .gate{animation:em-rise .75s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) calc(.5s + var(--i,0) * 110ms) forwards}
+.em-ready.em-on .earth-door-steps{animation:em-rise .7s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .95s forwards}
+.em-ready.em-on #gates .co-hint{animation:em-rise .7s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) 1.05s forwards}
+
+/* the goal → steps → result path: a light travels along the arrows after the cards have landed */
+.em-ready.em-on .earth-door-steps .arrow{display:inline-block;animation:em-arrow 2.6s ease-in-out 1.6s infinite}
+.em-ready.em-on .earth-door-steps .arrow+span+.arrow,.em-ready.em-on .earth-door-steps .arrow~.arrow{animation-delay:2.1s}
+.em-ready.em-on .earth-door-steps strong:last-child{animation:em-rise .7s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) .95s forwards,em-glow 2.6s ease-in-out 2.6s infinite}
+
+/* ---------- the next steps of the door (sectors, companies, bundle list) rise when they appear ---------- */
+.em-on .em-play>*{animation:em-rise .6s var(--sk-ease-out,cubic-bezier(.16,1,.3,1)) calc(var(--i,0) * 55ms) both}
+
+/* ---------- cards answer the pointer: tilt, light sweep, press ---------- */
+@media (hover:hover) and (pointer:fine){
+  .em-on .gate,.em-on .sector,.em-on .co,.em-on .corpus-co{transform-style:preserve-3d;transition:transform 260ms var(--sk-ease-out,cubic-bezier(.16,1,.3,1)),box-shadow 260ms var(--sk-ease-out,cubic-bezier(.16,1,.3,1))}
+  .em-on .gate.em-tilt,.em-on .sector.em-tilt{transform:perspective(900px) rotateX(calc(var(--em-ry,0) * -5deg)) rotateY(calc(var(--em-rx,0) * 7deg)) translateY(-3px);box-shadow:var(--sk-shadow-2)}
+  .em-on .gate{position:relative;overflow:hidden}
+  .em-on .gate::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.35) 48%,transparent 62%);
+    transform:translateX(-130%);transition:transform 0s}
+  .em-on .gate:hover::after{transform:translateX(130%);transition:transform .9s var(--sk-ease-out,cubic-bezier(.16,1,.3,1))}
+  .em-on .gate:active,.em-on .sector:active{transform:perspective(900px) scale(.985)}
+}
+
+/* ---------- pointer parallax for the whole visual (set by the script as --em-mx / --em-my in −1 … 1) ---------- */
+.em-on .visual .em-rays,.em-on .visual .em-orbit{transition:transform 600ms var(--sk-ease-out,cubic-bezier(.16,1,.3,1))}
+
+@keyframes em-rise{to{opacity:1;transform:none;filter:none}}
+@keyframes em-wipe{to{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
+@keyframes em-draw{to{stroke-dashoffset:0}}
+@keyframes em-spin{to{transform:rotate(360deg)}}
+@keyframes em-pulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.35);opacity:.55}}
+@keyframes em-rays{to{transform:translate3d(calc(var(--em-mx,0) * -8px + 14px),calc(var(--em-my,0) * -6px - 10px),0) rotate(3deg)}}
+@keyframes em-arrow{0%,100%{opacity:.55;transform:translateX(0)}40%{opacity:1;transform:translateX(-4px)}}
+@keyframes em-glow{0%,100%{text-shadow:none}50%{text-shadow:0 0 14px var(--sk-brand-soft,transparent)}}
+
+/* ---------- lite: everything visible at once, nothing moves ---------- */
+.em-lite .em-rays,.em-lite .em-orbit{display:none}
+@media (prefers-reduced-motion:reduce){
+  .em-on .visual .wm,.em-on .visual .claim h2,.em-on .visual .claim p,.em-on .visual .claim i,.em-on .card>div:first-child,.em-on #login-title,
+  .em-on #gates .sub,.em-on #gates .gate,.em-on .earth-door-steps,.em-on #gates .co-hint,.em-on .em-play>*{opacity:1;transform:none;filter:none;clip-path:none;animation:none}
+  .em-on .em-rays,.em-on .em-orbit *,.em-on .earth-door-steps .arrow{animation:none}
+}

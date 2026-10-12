@@ -4,7 +4,8 @@
    no server of ours sees the key or the documents. Features build every request in the Gemini shape and read the Gemini
    answer shape; SKEngines.audit.aiProviders translates both ways for OpenAI and Claude.
      SKosifAI.ready()            key present for the chosen provider?
-     SKosifAI.generate(body)     → the answer in the Gemini shape (throws an Arabic message on failure)
+     SKosifAI.generate(body)     → the answer in the Gemini shape (throws an Arabic message on failure); opts.purpose / opts.userNote
+                                   name the call in the AI trace log (ui/core/ai-guard.js masks the request and records every call)
      SKosifAI.models()           → the models this key can use
      SKosifAI.cardHTML() / bindCard(node, onChange)   the settings card used by the review screens */
 (()=>{
@@ -43,13 +44,18 @@ async function generateFor(id,body,opts={}){
   const cp=window.SKosifCompanyPlatform,gate=SK.gate&&SK.gate.current?SK.gate.current():"";
   if(gate!=="audit"&&cp&&cp.aiEnabled&&!cp.aiEnabled()){const e=new Error("الذكاء الاصطناعي غير مفعّل لهذه الشركة — فعّله من «مكتبة الأدوات › ملف قدرات الشركة».");e.code="ai-disabled";throw e}
   const c=need(id),first=opts.model||c.model,tries=[first,...(opts.model?[]:PV().fallbackModels(c.provider,first,c.models))];let last=null;
+  /* FOUNDATION §3.0‑9 (ui/core/ai-guard.js): identifiers and the company's own names leave as tokens, the answer is un-masked here,
+     and every call — ok, error or blocked — is one row of the AI trace log; a blocked request throws before anything is sent */
+  const g=SK.aiGuard&&SK.aiGuard.open?await SK.aiGuard.open(body,{provider:c.provider,model:first,purpose:opts.purpose,userNote:opts.userNote}):null;
+  if(g)body=g.body;
   for(const model of tries){
     const w=PV().buildRequest(c.provider,body,model,c.key);
     try{const data=await send(w.url,{method:"POST",headers:w.headers,body:JSON.stringify(w.body)},opts.timeout,opts.signal,c.provider);
       if(model!==first){setConf({model},c.provider);toast("النموذج «"+first+"» غير متاح الآن — أكمل «"+model+"» واعتُمد لهذا الجهاز","info")}
-      return PV().toGeminiResponse(c.provider,data)}
-    catch(e){last=e;if(!(e&&e.status&&PV().retryWithOtherModel(e.status))||(opts.signal&&opts.signal.aborted))throw e}
+      const out=PV().toGeminiResponse(c.provider,data);return g?g.done(out,model):out}
+    catch(e){last=e;if(!(e&&e.status&&PV().retryWithOtherModel(e.status))||(opts.signal&&opts.signal.aborted)){if(g)g.fail(e,model);throw e}}
   }
+  if(g)g.fail(last,tries[tries.length-1]);
   throw last;
 }
 async function generate(body,opts={}){

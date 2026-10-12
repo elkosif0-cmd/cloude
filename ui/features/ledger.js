@@ -35,7 +35,11 @@ const families=d=>[["close","الإقفال",[["close","الإقفال الشه�
 const familyOf=(fs,t)=>(fs.find(([,,tabs])=>tabs.some(([id])=>id===t))||fs[0]);
 const allTabs=d=>families(d).flatMap(([,,tabs])=>tabs.map(([id])=>id));
 const db=()=>{const d=load(KEY,{})||{};return{...d,accounts:Array.isArray(d.accounts)?d.accounts:[],entries:Array.isArray(d.entries)?d.entries:[],lockDate:typeof d.lockDate==="string"?d.lockDate:""}};
-const locked=(d,date)=>E().ledger.isPeriodLocked(date,d.lockDate);
+/* a date is closed by the books' single lock date or by a close-management period lock (month-close.js →
+   close-checklist-engine.canPost); lockWhy is the engine's Arabic refusal the screens show */
+const periodLock=date=>{try{const C=window.SKosifClose;return C&&C.canPost?C.canPost(date):{ok:true}}catch{return{ok:true}}};
+const locked=(d,date)=>E().ledger.isPeriodLocked(date,d.lockDate)||!periodLock(date).ok;
+const lockWhy=(d,date)=>E().ledger.isPeriodLocked(date,d.lockDate)?"الفترة مقفلة حتى "+d.lockDate:(periodLock(date).reason_ar||"الفترة مقفلة");
 /* operations already in the books: a reversed entry frees its operation to be posted again */
 const postedSources=d=>new Set(d.entries.filter(e=>!e.reversedBy).map(e=>e.sourceId).filter(Boolean));
 /* every save seals the entries posted since the last one into the journal's audit trail (edit log): a SHA-256 chain,
@@ -74,7 +78,7 @@ async function reviewDraft(d){
   if(!current())return;
   const entry=draftEntry(d),v=E().ledger.validateJournalEntry(entry),issues=[...new Set((v.issues||[]).map(i=>ISSUE[i.code]||i.code))];
   if(entry.lines.length<2)issues.unshift("القيد يحتاج سطرين على الأقل بحسابات ومبالغ");
-  if(locked(d,entry.date))issues.unshift("التاريخ داخل فترة مقفلة حتى "+d.lockDate);
+  if(locked(d,entry.date))issues.unshift(lockWhy(d,entry.date));
   let standards=[],det=issues.length?"الفحص الحتمي: "+issues.join(" · "):"الفحص الحتمي: القيد متزن وبنيته صالحة للحفظ.";
   try{
     if(!issues.length&&window.SKEngines?.reports?.tbImport&&window.SKEngines?.audit?.tbReview){
@@ -1137,7 +1141,7 @@ function bind(root){
       if(entry.lines.length<2){err.textContent="القيد يحتاج سطرين على الأقل بحسابات ومبالغ";return}
       const v=E().ledger.validateJournalEntry(entry);
       if(!v.valid){err.textContent=[...new Set(v.issues.map(i=>ISSUE[i.code]||i.code))].join(" · ");return}
-      if(locked(d,entry.date)){err.textContent="التاريخ داخل فترة مقفلة (حتى "+d.lockDate+") — اختر تاريخاً بعدها أو افتح الإقفال";return}
+      if(locked(d,entry.date)){err.textContent=lockWhy(d,entry.date)+" — اختر تاريخاً خارج الفترة المقفلة أو افتح الإقفال";return}
       d.entries.push(entry);put(d);draft=null;toast("حُفظ القيد","ok");
     }
     else if(a==="rev-entry"){
@@ -1181,7 +1185,7 @@ function bind(root){
       const err=$("#lg-cerr",root);err.textContent="";if(!SK.ui.validate(root))return;
       const kind=$("#lg-ck",root).value,party=$("#lg-cp",root).value.trim(),amount=r2(String($("#lg-ca",root).value).replace("٫",".").replace(/[٠-٩]/g,x=>"٠١٢٣٤٥٦٧٨٩".indexOf(x))),date=$("#lg-cd",root).value||today(),method=$("#lg-cm",root).value;
       if(!(amount>0)){err.textContent="أدخل مبلغاً أكبر من صفر";return}
-      if(locked(d,date)){err.textContent="التاريخ داخل فترة مقفلة (حتى "+d.lockDate+")";return}
+      if(locked(d,date)){err.textContent=lockWhy(d,date);return}
       const ref=$("#lg-cr",root).value.trim(),en=E().partyLedger.buildSettlementEntry({id:SK.ui.uid("je"),date,kind:kind==="ar"?"collection":"payment",party,amount,cashAccountId:byCode(d,"1100"),controlAccountId:byCode(d,kind==="ar"?"1200":"2100"),reference:ref||undefined});
       d.entries.push({...en,memo:(kind==="ar"?"تحصيل من ":"سداد إلى ")+party+" ("+method+")",source:kind==="ar"?"تحصيل":"سداد",method});put(d);
       SK.audit&&SK.audit.log("ledger",{act:kind==="ar"?"collection":"payment",amount});toast((kind==="ar"?"سُجّل التحصيل: ":"سُجّل السداد: ")+money(amount),"ok");
@@ -1331,7 +1335,7 @@ function syncSource(prefix,want){
 function postEntry(journal,meta={}){
   const d=db(),date=String(journal&&journal.date||"").slice(0,10);
   if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return {ok:false,error:"تاريخ القيد غير صالح"};
-  if(locked(d,date))return {ok:false,error:"الفترة مقفلة حتى "+d.lockDate};
+  if(locked(d,date))return {ok:false,code:"LOCKED_PERIOD",error:lockWhy(d,date)};
   if(meta.sourceId&&postedSources(d).has(meta.sourceId))return {ok:false,error:"رُحّلت هذه العملية من قبل",duplicate:true};
   const missing=(journal.lines||[]).map(l=>l.accountId).filter(id=>!d.accounts.some(a=>a.id===id));
   if(missing.length)return {ok:false,error:"حساب غير موجود في الدليل"};
@@ -1366,6 +1370,8 @@ window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().ac
   vat:qid=>vatCalc(db(),qid),quarters:y=>quarters(y),balance:(code,asOf)=>balanceOf(db(),code,asOf||today()),
   trialBalance:end=>E().ledger.buildTrialBalance(db().entries.filter(e=>String(e.date).slice(0,10)<=end)),
   lockTo:date=>{const d=db();if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||(d.lockDate&&d.lockDate>=date))return false;d.lockDate=date;put(d);SK.audit&&SK.audit.log("ledger",{act:"lock",to:date});return true},
+  /* the single lock date steps back (a close-management unlock, logged there with its reason); "" clears it */
+  unlockTo:date=>{const d=db();const to=date&&/^\d{4}-\d{2}-\d{2}$/.test(date)?date:"";if(!d.lockDate||(to&&to>=d.lockDate))return false;SK.audit&&SK.audit.log("ledger",{act:"unlock",from:d.lockDate,to});d.lockDate=to;put(d);return true},
   sendToReview:async()=>window.SKosifTBReview?SKosifTBReview.fromBooks():false,
   /* the audit trail and the revenue reconciliation for the month-end close and the report pack */
   trail:()=>{const t=trailOf(db());return t?{...t.v,ok:t.v.ok&&!t.events.length,coverage:t.cov,events:t.events.length,since:t.since}:null},
@@ -1393,7 +1399,7 @@ window.SKosifLedger=Object.freeze({entries:()=>db().entries,accounts:()=>db().ac
     const entry={id:SK.ui.uid("je"),date:x.date||today(),reference:String(x.reference||""),memo:String(x.memo||""),source:x.source||"محاكي القيود",
       lines:src.map(l=>({accountId:resolved(l.resolved).id,debit:r2(l.debit),credit:r2(l.credit)}))};
     const v=E().ledger.validateJournalEntry(entry);if(!v.valid)return{ok:false,code:"INVALID_ENTRY",error:[...new Set(v.issues.map(i=>ISSUE[i.code]||i.code))].join(" · ")};
-    if(locked(d,entry.date))return{ok:false,code:"LOCKED_PERIOD",error:"التاريخ داخل فترة مقفلة (حتى "+d.lockDate+")"};
+    if(locked(d,entry.date))return{ok:false,code:"LOCKED_PERIOD",error:lockWhy(d,entry.date)};
     d.accounts.push(...staged);d.entries.push(entry);put(d);SK.audit&&SK.audit.log("ledger",{act:"post",source:entry.source,createdAccounts:staged.map(a=>a.code)});
     return{ok:true,id:entry.id,createdAccounts:staged.map(a=>({id:a.id,code:a.code,name:a.name}))}},
   sync:(prefix,want)=>syncSource(prefix,want),locked:date=>locked(db(),date)});

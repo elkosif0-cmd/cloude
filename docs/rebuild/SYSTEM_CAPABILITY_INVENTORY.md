@@ -2,7 +2,7 @@
 
 Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do not edit by hand.
 
-Total capabilities: **78** (screens). Cross-cutting capabilities are listed after the table.
+Total capabilities: **79** (screens). Cross-cutting capabilities are listed after the table.
 
 | ID | Capability | Module | Current Location | Data Used | Dependencies | Status | Keep/Remove/Merge/Rebuild |
 |---|---|---|---|---|---|---|---|
@@ -67,6 +67,7 @@ Total capabilities: **78** (screens). Cross-cutting capabilities are listed afte
 | `auditinbox` | صندوق استلام المراجعة | ui/features/audit-inbox.js + ui/core/company-platform.js | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › يومي | `skosif_company_platform_v1`, `IDB skosif-company-documents-v1` | SKosifCore, IndexedDB | Working | New |
 | `codex` | المدونة المحاسبية والمعايير | ui/features/codex.js + SKEngines.audit.{codex,standardsUpdate} | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › يومي (مشترك مع: البرنامج المحاسبي الكامل) | `skosif_codex_updates_v1` | SKosifCore | Working | Rebuild |
 | `auditbench` | المرجع العالمي للمراجعة | ui/features/audit-bench.js + SKEngines.audit.{globalBenchmarks,materiality} + SKEngines.reports.{peerBenchmarks,globalCorpus} | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › يومي (مشترك مع: البرنامج المحاسبي الكامل) | `لا بيانات محلية — مرجع ثابت من حزمة البحث العالمية` | SKosifCore | Working | Rebuild |
+| `journalrisk` | مخاطر القيود | ui/features/journal-risk.js + SKEngines.audit.journalRisk + ui/components/charts.js | الأدوات المساعدة › المراجعة والمراجعة المالية › مركز المراجعة › يومي (مشترك مع: المراجعة والتدقيق) | `skosif_ledger_v1 (قراءة فقط — لا تخزين خاص بالشاشة)` | SKosifCore | Working | New |
 | `corpuslab` | مختبر الشركات العالمية | ui/features/corpus-lab.js + SKEngines.reports.corpusCompanies + SKEngines.audit.{corpusReplay,openingRequests,globalBenchmarks} | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › يومي (مشترك مع: البرنامج المحاسبي الكامل) | `لا بيانات محلية — القوائم المنشورة من حزمة البحث العالمية` | SKosifCore | Working | Rebuild |
 | `auditdesk` | الاستوديو المتقدم | ui/audit (v5) | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › يومي | `audit studio IDB` | SKosifCore | Working | Keep |
 | `auditdocs` | المستندات والأدلة | ui/audit (v5) + ui/audit-bridge.js | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › يومي | `IDB sales_lines`, `skosif_v31_supplier_batches`, `skosif_erp_finance_v1`, `skosif_v38_ledger` | SKosifCore, IndexedDB | Working | Keep |

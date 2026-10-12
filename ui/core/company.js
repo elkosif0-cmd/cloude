@@ -21,6 +21,9 @@ const space=()=>window.SKosifSpace||null;
 const SCOPES=Object.freeze({accounting:"FULL_ACCOUNTING",audit:"AUDIT_ONLY",tools:"TOOLS_ONLY"});
 const scopeOfRec=rec=>rec&&Object.values(SCOPES).includes(rec.ownerScope)?rec.ownerScope:SCOPES.accounting;
 const gateNow=()=>{try{return SK.gate&&SK.gate.current?SK.gate.current():"accounting"}catch{return "accounting"}};
+/* An unregistered workspace is not always an accounting company.
+   Preserve every existing explicit ownerScope; only infer for a brand-new
+   record from the gate that created/opened it. Never infer from display name. */
 const scopeForUnregistered=()=>SCOPES[gateNow()]||SCOPES.accounting;
 function books(){
   const d=load(CO,{})||{};
@@ -104,6 +107,9 @@ function reconcile(){
     d.rest.companies=[...d.companies,{id:cur.id,name:cur.name,country:cur.country,currency:cur.currency,ownerScope:cur.ownerScope}];
     changed.push("books-record");
   }else if(cur.id==="space-tools"&&gateNow()==="tools"&&!rec.ownerScope){
+    /* One narrowly scoped repair for the reserved legacy tools-home ID.
+       Never reinterpret arbitrary companies, or any record with an explicit
+       ownerScope (including FULL_ACCOUNTING) merely because tools opened it. */
     d.rest.companies=d.companies.map(c=>c.id===cur.id?{...c,ownerScope:SCOPES.tools}:c);
     changed.push("reserved-tools-scope");
   }
