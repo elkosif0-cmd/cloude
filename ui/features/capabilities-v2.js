@@ -213,7 +213,7 @@ function providersHTML(){
   ];
   const rows=remote.length?remote:local;
   const claude=rows.find(p=>p.id==="claude");
-  const canRun=Boolean(cfg().apiBase && state.workspace && claude?.configured &&
+  const canRun=Boolean(cfg().apiBase && state.workspace && claude?.canRun &&
     state.session && ["owner","partner","manager","senior"].includes(workspaceRole()));
   return '<div class="skv2-providers">'+rows.map(p=>'<div><span class="skv2-provider-dot '+(p.status==="ready"||p.status==="configured"?"ok":"")+'"></span><div><b>'+esc(p.name||p.id)+'</b><small>'+esc(p.id)+' · '+esc(p.dataPolicy||"summary-only")+'</small></div>'+badge(p.status==="ready"||p.status==="configured",p.status||"unknown")+'</div>').join("")+'</div>'+
     '<section class="skv2-panel"><h4>عقل Claude للحسابات والمراجعة</h4>'+
