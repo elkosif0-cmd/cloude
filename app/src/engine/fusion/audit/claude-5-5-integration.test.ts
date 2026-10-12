@@ -43,6 +43,40 @@ describe('KOSIF EARTH Claude 5.5 accounting and audit adapter', () => {
     expect(messages[2].content[0].content).toContain('scope_denied');
   });
 
+  it('uses schema-constrained JSON for audit reports with nested evidence and no tools', () => {
+    const input: GeminiBody = {
+      contents: [{ role: 'user', parts: [{ text: 'حلل الميزان الاصطناعي' }] }],
+      generationConfig: { responseMimeType: 'application/json', responseSchema: {
+        type: 'OBJECT',
+        properties: {
+          balanced: { type: 'BOOLEAN' },
+          findings: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
+            code: { type: 'STRING' }, risk: { type: 'STRING' }
+          }, required: ['code', 'risk'] } }
+        }, required: ['balanced', 'findings']
+      } }
+    };
+    const request = buildRequest('anthropic', input, 'claude-opus-5-5', 'sk-ant-PROTECTED');
+    expect(request.body.output_config).toEqual({ format: { type: 'json_schema', schema: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        balanced: { type: 'boolean' },
+        findings: { type: 'array', items: { type: 'object', additionalProperties: false,
+          properties: { code: { type: 'string' }, risk: { type: 'string' } },
+          required: ['code', 'risk'] } }
+      },
+      required: ['balanced', 'findings']
+    } } });
+    expect(JSON.stringify(request.body)).not.toContain('sk-ant-PROTECTED');
+    const withTool = buildRequest('anthropic', {
+      ...input,
+      tools: [{ functionDeclarations: [{ name: 'company_search',
+        parameters: { type: 'OBJECT', properties: { query: { type: 'STRING' } } } }] }]
+    }, 'claude-opus-5-5', 'sk-ant-PROTECTED');
+    expect(withTool.body).not.toHaveProperty('output_config');
+  });
+
   it('respects Claude refusal and token limit rather than claiming successful accounting output', () => {
     const refusal = toGeminiResponse('anthropic', { content: [], stop_reason: 'refusal' }) as { candidates: { finishReason: string }[] };
     const trunc = toGeminiResponse('anthropic', { content: [{ type: 'text', text: 'partial' }], stop_reason: 'max_tokens' }) as { candidates: { finishReason: string }[] };
