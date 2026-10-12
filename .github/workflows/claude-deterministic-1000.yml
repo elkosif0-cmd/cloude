@@ -8,6 +8,7 @@ on:
       - .github/workflows/claude-deterministic-1000.yml
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: kosif-claude-deterministic-1000-20261012
   cancel-in-progress: false
@@ -33,6 +34,27 @@ jobs:
           grep -F 'MAX_WORKERS = 1000' tools/claude_deterministic_1000.py
           grep -F "if: github.ref_name != 'audit/claude-1000-20261012'" .github/workflows/pages-deploy.yml
           test -n "$ANTHROPIC_API_KEY"
+      - name: Restore verified public SHA manifest from previous run artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/kosif-scope-manifest
+          gh run download 38239913562 -R elkosif0-cmd/cloude -n kosif-claude-deterministic-38239913562 -D /tmp/kosif-scope-manifest
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          source=Path('/tmp/kosif-scope-manifest/manifest.json')
+          scopes=json.loads(source.read_text(encoding='utf-8'))
+          assert len(scopes)==1000, 'Expected 1000 pinned public scopes'
+          assert all(set(('repo','branch','path','sha')).issubset(r) and
+                     r['repo'].split('/')[0] in ('elkosif0-cmd','kosif199022-jpg')
+                     for r in scopes), 'Unsafe manifest content'
+          dest=Path('tools/claude-public-1000-source-manifest.json')
+          dest.write_text(json.dumps(scopes,ensure_ascii=False),encoding='utf-8')
+          print('Restored 1000 verified public Git SHA tasks for code reading')
+          PY
       - name: Run independent budget-metered Claude API source reviewers
         run: python3 tools/claude_deterministic_1000.py
       - name: Preserve source manifest, real token receipts, and findings
