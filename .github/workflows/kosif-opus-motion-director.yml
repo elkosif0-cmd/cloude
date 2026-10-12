@@ -1,0 +1,61 @@
+name: KOSIF Opus 5.5 Motion Direction
+on:
+  workflow_dispatch:
+    inputs:
+      brief:
+        description: Safe non-secret visual production brief
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: kosif-opus-motion
+  cancel-in-progress: false
+jobs:
+  design:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+      CREATIVE_BRIEF: ${{ inputs.brief }}
+    steps:
+      - name: Live Opus 5.5 creative direction
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,json,sys,urllib.request,urllib.error
+          key=os.environ.get('ANTHROPIC_API_KEY','')
+          if not key:
+              print('OPUS_STATUS: MISSING_SECRET');sys.exit(1)
+          headers={'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json'}
+          def call(url,body=None):
+              req=urllib.request.Request(url,headers=headers,method='POST' if body is not None else 'GET',data=json.dumps(body,ensure_ascii=False).encode() if body is not None else None)
+              try:
+                  with urllib.request.urlopen(req,timeout=120) as r:return json.load(r)
+              except urllib.error.HTTPError as e:
+                  print('OPUS_STATUS: HTTP_'+str(e.code));sys.exit(1)
+          models=call('https://api.anthropic.com/v1/models?limit=100').get('data',[])
+          candidates=[m for m in models if 'opus-5-5' in m.get('id','').lower()]
+          if not candidates:
+              print('OPUS_STATUS: MODEL_UNAVAILABLE')
+              print('AVAILABLE_OPUS:',','.join(m.get('id','') for m in models if 'opus' in m.get('id','').lower())[:700])
+              sys.exit(1)
+          model=sorted(candidates,key=lambda m:m.get('created_at',''),reverse=True)[0]['id']
+          prompt=('Act as a top-tier senior motion design director + creative coder. '
+            'Produce a concrete Arabic professional vertical 9:16 motion plan for source footage and clean speech, not a slideshow. '
+            'Provide precise timeline with 8-10 scene/time segments for 49 seconds, large kinetic Arabic typography, actual lightweight SVG and HTML Canvas animations, moving shapes, visual accents that track visual content, cuts, speed ramps only if dialogue stays intelligible, '
+            'typography style, palette, readable area, 5-8 micro-transitions, audio dynamics. '
+            'Focus on high perceived production value, smooth 30fps offline deterministic render. '
+            'Do not invent factual marketing claims, brand/logo, word-for-word dialogue, stock footage, faces or spoken text. '
+            'Footage: presenter 0-22s and butcher handling hanging lamb 23-43s, closeup 43-49s. The voice must be preserved. '
+            'Give crisp actionable Arabic title copy tied to visuals. Include suggestions how to render with KOSIF Motion 6.1 html_render.py / FFmpeg if realistic. '
+            'Target 800-1100 words max. Brief: '+os.environ.get('CREATIVE_BRIEF','')[:1900])
+          req={'model':model,'max_tokens':7000,'messages':[{'role':'user','content':prompt}]}
+          result=call('https://api.anthropic.com/v1/messages',req)
+          message='\n'.join(p.get('text','') for p in result.get('content',[]) if p.get('type')=='text')
+          if not message.strip():
+              print('OPUS_STATUS: EMPTY_RESPONSE');print('USAGE:',json.dumps(result.get('usage',{})));sys.exit(1)
+          print('OPUS_STATUS: SUCCESS');print('OPUS_MODEL:',result.get('model'))
+          print('OPUS_PLAN_BEGIN');print(message[:16000]);print('OPUS_PLAN_END')
+          print('OPUS_USAGE:',json.dumps(result.get('usage',{})))
+          PY
