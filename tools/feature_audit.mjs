@@ -230,14 +230,16 @@ await p.evaluate(()=>SKosifLegacy.open('crm'));await p.waitForTimeout(3500);
 const LG=await (async()=>{const fr=p.frames().find(f=>f.url().includes('/legacy/crm'));if(!fr)return{};return fr.evaluate(()=>{const t=document.documentElement.outerHTML;const ph=[...new Set(t.match(/(?<!\d)05\d{8}(?!\d)/g)||[])];return{v:document.title.includes('V8.2'),phones:ph.length,clean:ph.every(x=>/^05000000\d\d$/.test(x))}})})();
 ok('الأنظمة الأصلية','استعادة متابعة العملاء V8.2 وV31 وV33 وV40 داخل الأدوات المساعدة — ببيانات تجريبية فقط',LG.v&&LG.clean&&await p.evaluate(()=>document.querySelectorAll('.lg-card').length===4));
 {const cdn=[];p.on('request',r=>{if(/cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com\/ajax\/libs\/(?!font-awesome)/.test(r.url()))cdn.push(r.url())});
-const LIB={};for(const id of ['v31','v33','v40']){await p.evaluate(x=>SKosifLegacy.open(x),id);
-  // Wait for the real embedded page to load, rather than assuming a fixed 4s
-  // covers slower iPhones or Windows CI runners. Never bypass the library check.
-  await p.waitForFunction(x=>[...document.querySelectorAll('iframe')].some(f=>f.src.includes('/legacy/'+x)&&f.contentDocument?.readyState==='complete'),id,{timeout:15000});
+const LIB={};for(const id of ['v31','v33','v40']){
+  await p.evaluate(x=>SKosifLegacy.open(x),id);
+  /* Wait for the right iframe document to finish its navigation, not a fixed sleep. */
+  await p.waitForFunction(x=>[...document.querySelectorAll('iframe')].some(f=>f.src.includes('/legacy/'+x)&&f.contentDocument?.readyState==='complete'),id,{timeout:30000});
   const fr=p.frames().find(f=>f.url().includes('/legacy/'+id));
   LIB[id]=fr?await fr.evaluate(async()=>{
-    if(window.__aghnamLoadHeavy)await window.__aghnamLoadHeavy(); /* V40 lazy export code */
-    return typeof window.Chart==='function'&&typeof window.XLSX==='object'&&!!(window.jspdf&&window.jspdf.jsPDF)&&typeof window.html2canvas==='function';
+    if(window.__aghnamLoadHeavy)await window.__aghnamLoadHeavy();
+    const ready=()=>typeof window.Chart==='function'&&typeof window.XLSX==='object'&&!!(window.jspdf&&window.jspdf.jsPDF)&&typeof window.html2canvas==='function';
+    if(ready())return true;
+    return new Promise(resolve=>{const until=Date.now()+25000;const tick=()=>{if(ready())return resolve(true);if(Date.now()>=until)return resolve(false);setTimeout(tick,250)};tick()});
   }).catch(()=>false):false;
 }
 console.log('Local legacy-library audit',JSON.stringify(LIB),'Unexpected external scripts',JSON.stringify(cdn));
