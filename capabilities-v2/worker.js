@@ -241,9 +241,13 @@ function providerRegistry(env) {
         return {id:provider.id,name:provider.name,execution:"server",providerType:"decision",status:configured?"configured":"unconfigured",configured,canRun:configured,model:env?.JEV_MODEL||null,dataPolicy:"summary-only",lastCheckedAt:checkedAt};
       }
       const configured = Boolean(env?.[provider.keyName] && env?.[provider.modelName]);
-      return {id:provider.id,name:provider.name,execution:provider.execution,providerType:provider.providerType,status:configured?"configured":"unconfigured",configured,canRun:false,model:configured?String(env[provider.modelName]).slice(0,120):null,dataPolicy:"summary-only",lastCheckedAt:checkedAt};
+      // An API key alone never implies that users may invoke a paid model:
+      // the dedicated Claude route also needs Access, D1 and explicit enablement.
+      const canRun = configured && provider.id==="claude" && env?.AI_ENABLED==="true" &&
+        Boolean(normalizeAccessConfig(env)) && Boolean(env?.DB?.prepare);
+      return {id:provider.id,name:provider.name,execution:provider.execution,providerType:provider.providerType,status:canRun?"ready":configured?"configured":"unconfigured",configured,canRun:Boolean(canRun),model:configured?String(env[provider.modelName]).slice(0,120):null,dataPolicy:"summary-only",lastCheckedAt:checkedAt};
     }),
-    limitation:"LLM execution stays disabled here until a separately authenticated and rate-limited execution route is configured.",
+    limitation:"Claude is enabled only after verified Cloudflare Access, workspace ACL, D1 quotas and AI_ENABLED=true. Other LLM providers remain registry-only.",
   };
 }
 
