@@ -211,8 +211,13 @@ async function reviewWithClaude(question,task){
   if(!cfg().apiBase || !state.session || !state.providers?.providers?.some(p=>p.id==="claude"&&p.canRun))
     throw new Error("خدمة Claude الآمنة غير مهيأة على الخادم");
   const currentCompany=companyRef().id;
+  const companyScope=window.SKosifSpace?.chatScopeSnapshot?.();
+  if(!companyScope || companyScope.status!=="stable" || companyScope.companyId!==currentCompany)
+    throw new Error("أكّد الشركة والمستخدم الحاليين قبل مراجعة Claude");
+  const scopeToken=companyScope.token;
+  const validScope=()=>{const x=window.SKosifSpace?.chatScopeSnapshot?.();return x?.status==="stable"&&x.companyId===currentCompany&&x.token===scopeToken};
   const id=await ensureRemoteWorkspace();
-  if(companyRef().id!==currentCompany)throw new Error("تغيّرت الشركة أثناء الطلب");
+  if(!validScope()||companyRef().id!==currentCompany)throw new Error("تغيّر سياق الشركة أثناء الطلب");
   const snapshot=safeSummary();
   const data={
     task,question,consent:true,
@@ -227,7 +232,7 @@ async function reviewWithClaude(question,task){
   const result=await api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/ai/review",{
     method:"POST",body:JSON.stringify(data),timeoutMs:30000
   });
-  if(companyRef().id!==currentCompany)throw new Error("تغيّرت الشركة؛ تم تجاهل الإجابة حفاظاً على العزل");
+  if(!validScope()||companyRef().id!==currentCompany)throw new Error("تغيّرت الشركة؛ تم تجاهل الإجابة حفاظاً على العزل");
   return result;
 }
 function claudeHTML(){
