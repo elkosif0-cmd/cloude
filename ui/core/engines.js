@@ -17,6 +17,7 @@ window.SKEngines = (function() {
 	var ai_providers_engine_exports = /* @__PURE__ */ __exportAll({
 		PROVIDERS: () => PROVIDERS,
 		buildRequest: () => buildRequest,
+		claudeModelForTier: () => claudeModelForTier,
 		errorMessage: () => errorMessage,
 		fallbackModels: () => fallbackModels,
 		friendlyError: () => friendlyError$1,
@@ -67,12 +68,15 @@ window.SKEngines = (function() {
 			keyLink: "https://platform.claude.com/settings/keys",
 			models: [
 				"claude-opus-5-5",
-				"claude-sonnet-5",
-				"claude-haiku-4-5"
+				"claude-sonnet-5-5",
+				"claude-haiku-5-5"
 			],
 			host: "api.anthropic.com"
 		}
 	};
+	function claudeModelForTier(tier) {
+		return tier === "critical" ? "claude-opus-5-5" : tier === "financial" ? "claude-sonnet-5-5" : "claude-haiku-5-5";
+	}
 	var isProvider = (x) => x === "gemini" || x === "openai" || x === "anthropic";
 	/** Gemini's OpenAPI subset (OBJECT, STRING …) → standard JSON Schema (object, string …). */
 	function toJsonSchema(s) {
