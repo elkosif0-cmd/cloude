@@ -75,6 +75,9 @@ jobs:
       - name: Company AI developer scope and safe import/export tests
         run: node --test tools/earth_ai_developer.test.mjs
 
+      - name: Verify model-company bootstrap waits for completed workspace handoff
+        run: node --test tools/earth_demo_boot_retry.test.mjs
+
       - name: "P5: every bundle company opened as an audit file reaches the corpus replay; scorecard regression"
         run: node --test tools/corpus_same_results.test.mjs && node tools/corpus_scorecard.mjs --check
 
