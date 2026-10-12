@@ -1,5 +1,5 @@
 name: KOSIF Claude Deterministic 1000 Source Workers
-# Retry after API model 5.5 sampling validation fix; one preflight before any parallel work.
+# Retry with publicly accessible raw source; verify Git blob SHA before Claude review.
 on:
   push:
     branches:
