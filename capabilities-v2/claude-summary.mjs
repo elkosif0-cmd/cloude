@@ -8,6 +8,11 @@ export const CLAUDE_TASKS = Object.freeze({
   "reconciliation": "Suggest reconciliation steps based on aggregated balances only. Never claim transactions have been reconciled.",
 });
 const ALLOWED_CONTEXT = ["financeSummary", "inventorySummary", "reporting", "period", "preferences"];
+const METRIC_ALLOWLIST = Object.freeze({
+  financeSummary:new Set(["receipts","payments","net","flowCount","month"]),
+  inventorySummary:new Set(["tracked","reorderAlerts","movementCount","countSessions"]),
+  reporting:new Set(["savedIncomeStatements","lastNetProfit","lastMonth"]),
+});
 const DEFAULT_DAILY_LIMIT = 5;
 const CONTENT_LIMIT = 2048;
 const response = (data, status=200) => new Response(JSON.stringify(data), {
@@ -41,7 +46,7 @@ export function allowedAggregate(state) {
       if (!source || typeof source!=="object" || Array.isArray(source)) continue;
       const metrics={};
       for (const [name,value] of Object.entries(source)) {
-        if (!/^[A-Za-z][A-Za-z0-9_]{0,50}$/.test(name)) continue;
+        if (!METRIC_ALLOWLIST[k].has(name)) continue;
         if (typeof value==="number" && Number.isFinite(value)) metrics[name]=value;
         else if ((name==="month"||name==="lastMonth")&&typeof value==="string"&&/^\d{4}-\d{2}$/.test(value)) metrics[name]=value;
       }
