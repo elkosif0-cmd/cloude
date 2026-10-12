@@ -25,6 +25,7 @@ window.SKEngines = (function() {
 		modelsFrom: () => modelsFrom,
 		modelsRequest: () => modelsRequest,
 		retryWithOtherModel: () => retryWithOtherModel,
+		strictJsonSchema: () => strictJsonSchema,
 		toGeminiResponse: () => toGeminiResponse,
 		toJsonSchema: () => toJsonSchema
 	});
@@ -89,6 +90,19 @@ window.SKEngines = (function() {
 		if (s.properties) out.properties = Object.fromEntries(Object.entries(s.properties).map(([k, v]) => [k, toJsonSchema(v)]));
 		if (s.required) out.required = [...s.required];
 		return out;
+	}
+	/** Anthropic constrained JSON output requires closed object schemas.
+	* Apply it recursively without mutating the caller's Gemini schema. */
+	function strictJsonSchema(s) {
+		const json = toJsonSchema(s);
+		if (json.type === "object") {
+			const props = s.properties ?? {};
+			if (!Object.keys(props).length) return json;
+			json.properties = Object.fromEntries(Object.entries(props).map(([k, v]) => [k, strictJsonSchema(v)]));
+			json.additionalProperties = false;
+		}
+		if (json.type === "array" && s.items) json.items = strictJsonSchema(s.items);
+		return json;
 	}
 	var systemText = (b) => (b.systemInstruction?.parts ?? []).map((p) => p.text ?? "").filter(Boolean).join("\n\n");
 	function jsonInstruction(b) {
@@ -261,6 +275,10 @@ window.SKEngines = (function() {
 			messages
 		};
 		if (sys) out.system = sys;
+		if (body.generationConfig?.responseMimeType === "application/json" && body.generationConfig.responseSchema?.properties && Object.keys(body.generationConfig.responseSchema.properties).length && !decl.length) out.output_config = { format: {
+			type: "json_schema",
+			schema: strictJsonSchema(body.generationConfig.responseSchema)
+		} };
 		if (decl.length) out.tools = decl.map((d) => ({
 			name: d.name,
 			description: d.description ?? "",

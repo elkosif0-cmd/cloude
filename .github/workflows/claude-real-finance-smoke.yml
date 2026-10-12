@@ -1,0 +1,38 @@
+name: KOSIF Claude Opus 5.5 Real Accounting Smoke
+on:
+  push:
+    branches:
+      - integration/claude-ai-audit-20261012
+    paths:
+      - .github/workflows/claude-real-finance-smoke.yml
+      - tools/claude_finance_smoke.py
+permissions:
+  contents: read
+concurrency:
+  group: opus-real-finance-smoke-20261012
+  cancel-in-progress: false
+jobs:
+  claude-finance-synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check tests and no production publishing
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/claude_finance_smoke.py
+          grep -F "if: github.ref_name != 'integration/claude-ai-audit-20261012'" .github/workflows/pages-deploy.yml
+      - name: Execute real Claude Opus max effort on synthetic trial balances
+        run: python3 tools/claude_finance_smoke.py
+      - name: Preserve model, token receipts and test results, never source or secrets
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-opus-real-finance-${{ github.run_id }}
+          path: claude-finance-smoke/results.json
+          if-no-files-found: warn
+          retention-days: 14

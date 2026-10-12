@@ -54,6 +54,19 @@ export function toJsonSchema(s: GSchema | undefined): Record<string, unknown> {
   if (s.required) out.required = [...s.required];
   return out;
 }
+/** Anthropic constrained JSON output requires closed object schemas.
+ * Apply it recursively without mutating the caller's Gemini schema. */
+export function strictJsonSchema(s: GSchema): Record<string, unknown> {
+  const json = toJsonSchema(s);
+  if (json.type === 'object') {
+    const props = (s.properties ?? {});
+    if (!Object.keys(props).length) return json;
+    json.properties = Object.fromEntries(Object.entries(props).map(([k, v]) => [k, strictJsonSchema(v)]));
+    json.additionalProperties = false;
+  }
+  if (json.type === 'array' && s.items) json.items = strictJsonSchema(s.items);
+  return json;
+}
 const systemText = (b: GeminiBody) => (b.systemInstruction?.parts ?? []).map((p) => p.text ?? '').filter(Boolean).join('\n\n');
 /* JSON answers: OpenAI's json_object mode and Claude both follow a schema given in the instructions; the answer is still parsed
    leniently and normalized by the calling engine, exactly as for Gemini */
@@ -136,6 +149,15 @@ export function buildRequest(provider: ProviderId, body: GeminiBody, model: stri
   });
   const out: Record<string, unknown> = { model, max_tokens: maxOut, messages };
   if (sys) out.system = sys;
+  // Unlike a free-text JSON instruction, Claude structured output gives a
+  // machine-validated response for financial/audit schemas. Never combine it
+  // with function-calling requests, whose output is already tool-structured.
+  if (body.generationConfig?.responseMimeType === 'application/json' &&
+      body.generationConfig.responseSchema?.properties &&
+      Object.keys(body.generationConfig.responseSchema.properties).length && !decl.length) {
+    out.output_config = { format: { type: 'json_schema',
+      schema: strictJsonSchema(body.generationConfig.responseSchema) } };
+  }
   if (decl.length) out.tools = decl.map((d) => ({ name: d.name, description: d.description ?? '', input_schema: toJsonSchema(d.parameters ?? { type: 'OBJECT', properties: {} }) }));
   const headers: Record<string, string> = { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' };
   /* refusal fallback on the models that support it: the server re-runs a declined request on a suitable model */
