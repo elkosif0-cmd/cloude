@@ -24,6 +24,7 @@
 - `app/src/engine/fusion/finance/ledger-engine.ts`: reject journal lines whose `accountId` is not a non-empty trimmed string; no automatic mutation or entries posted.
 - `app/src/engine/fusion/finance/journal-account-required.test.ts`: test blank, whitespace, missing, non-string identifiers; prove normal 15% VAT balanced journal still passes.
 - `ui/core/engines.js`: deterministic regenerated bundle, so browser and TypeScript logic match.
+- `ui/features/ledger.js`: Arabic user-facing error text for the new `LINE_ACCOUNT_REQUIRED` validator code; no change to company/workspace storage or posting authorization.
 - Local authorised Windows laptop: targeted finance suite **121/121**, full `npm run check` **575/575 across 119 files**, four TypeScript tsconfigs passed, `node tools/build_engines.mjs --check` passed; tenant/company-context regression **7/7** passed.
 - GitHub CI and browser E2E require their own status; `pages-deploy.yml` explicitly excludes this branch from Cloudflare deployment (including preview). **No Cloudflare deployment**.
 - Investigated earlier PR #264's **showcase-picker E2E 3 failures** (61 pass / 3 fail): assertion hard-coded 47 catalog entries while source-backed browser catalog had 48. Updated the test to compare the actual set of auditable IDs against the runtime model catalog, rather than changing business data or hiding a model. Chromium browser preview check **64/64 passed** (laptop, 390px and 320px). Full PR CI and release still need their own checks.
