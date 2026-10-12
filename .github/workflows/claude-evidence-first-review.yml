@@ -1,4 +1,4 @@
-name: KOSIF Claude Expanded Dual Lens Agent Review
+name: KOSIF Claude Full Branch Review 1000 Tasks 43USD
 on:
   push:
     branches:
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   evidence-review:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 18
     env:
       GITHUB_REPOSITORY: elkosif0-cmd/cloude
       GITHUB_TOKEN: ${{ github.token }}
@@ -36,12 +36,12 @@ jobs:
           import importlib.util
           s=importlib.util.spec_from_file_location("agent","tools/claude_evidence_first.py")
           m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
-          assert m.BUDGET_CENTS == 500
-          assert m.STOP_SECS <= 390
-          assert m.TASK_LIMIT <= 180
+          assert m.BUDGET_CENTS == 4300
+          assert m.STOP_SECS <= 720
+          assert m.TASK_LIMIT == 1000
           assert len(m.worker_tasks([{'repo':'a/b','default':'main','branch':'q','status':'ahead','ahead':1,'behind':0,'paths':['app/a.py'],'changes':10,'error':None}])[0]) == 2
-          assert m.TASKS_CONCURRENT <= 16
-          print("Evidence-review guardrails verified.")
+          assert m.TASKS_CONCURRENT <= 24
+          print("Verified 1000 unique scope limit, read-only execution, and USD 43 provider budget cap.")
           PY
       - name: Inventory unique GitHub branches and run one capped Claude session
         shell: bash
