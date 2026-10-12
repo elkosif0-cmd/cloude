@@ -1,0 +1,41 @@
+name: KOSIF Claude Opus Actual Finance Audit Smoke
+on:
+  push:
+    branches:
+      - feature/secure-claude-workspace-review-20261012
+    paths:
+      - .github/workflows/claude-finance-smoke.yml
+permissions:
+  contents: read
+concurrency:
+  group: claude-real-finance-smoke-20261012
+  cancel-in-progress: false
+jobs:
+  verified-claude:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - name: Checkout without token persistence
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check model and maximum synthetic test cost
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/claude_finance_smoke.py
+          grep -F 'MODEL="claude-opus-5-5"' tools/claude_finance_smoke.py
+          grep -F 'SPEND_GUARD_USD=0.35' tools/claude_finance_smoke.py
+          test -n "$ANTHROPIC_API_KEY"
+      - name: Live accounting, reconciliation and audit sample tests
+        run: python3 tools/claude_finance_smoke.py
+      - name: Preserve actual Claude receipts without customer data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-opus-synthetic-finance-${{ github.run_id }}
+          path: claude-smoke-results/
+          if-no-files-found: warn
+          retention-days: 14

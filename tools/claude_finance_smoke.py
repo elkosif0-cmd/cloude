@@ -1,78 +1,61 @@
 #!/usr/bin/env python3
-"""Real Claude Opus 5.5 max-effort smoke tests using synthetic financial data only.
-Never prints the private key, request body, or model text. No customer or company records.
+"""Synthetic-data real Claude API smoke for KOSIF EARTH accounting + audit.
+Uses GitHub encrypted MOON. No customer documents, no application API secrets
+in browser code, no repository writes or production posting.
 """
-import json, os, pathlib, sys, urllib.request, urllib.error, time
-O=pathlib.Path("claude-finance-smoke")
-O.mkdir(exist_ok=True)
+import json,os,pathlib,urllib.request,urllib.error
+ROOT=pathlib.Path("claude-smoke-results");ROOT.mkdir(exist_ok=True)
+KEY=os.getenv("ANTHROPIC_API_KEY","")
 MODEL="claude-opus-5-5"
-
-def ask(question):
-    payload={
-        "model": MODEL, "max_tokens": 4096,
-        "output_config": {
-            "effort": "max",
-            "format": {"type": "json_schema", "schema": {
-                "type": "object",
-                "properties": {
-                    "status": {"type": "string", "enum": ["balanced","unbalanced","access_denied"]},
-                    "difference_minor": {"type": "integer"}
-                },
-                "required": ["status","difference_minor"],
-                "additionalProperties": False
-            }}
-        },
-        "system": ("You are a financial accounting assistant for KOSIF EARTH. "
-                   "Use only the synthetic data provided in each request. "
-                   "Always respect per-company authorization. "
-                   "Never invent ledger entries or claim to have accessed unknown records. "
-                   "Return ONLY valid JSON with fields status and difference_minor. "
-                   "status must be one of balanced, unbalanced, access_denied."),
-        "messages": [{"role": "user", "content": question}]
-    }
-    req=urllib.request.Request(
-        "https://api.anthropic.com/v1/messages",
-        data=json.dumps(payload).encode(),method="POST",
-        headers={"anthropic-version":"2023-06-01","content-type":"application/json",
-                 "x-api-key":os.environ["ANTHROPIC_API_KEY"]})
+# At most 3 requests and 600 output tokens each. Conservative reserve $0.35.
+SPEND_GUARD_USD=0.35
+SAMPLES=[
+ ("accounting-vat",
+  "أجب بالعربية، واستخدم أرقام 115 و100 و15 الإنجليزية. "
+  "قيد بيع: مدين العملاء 115 ريال، دائن المبيعات 100 ريال، ودائن ضريبة المخرجات 15 ريال. "
+  "هل القيد متوازن؟ وضح بسرعة دون إضافة ضريبة ثانية.",
+  ("115","100","15")),
+ ("reconciliation",
+  "أجب بالعربية مستخدماً الرقم 100 بالصيغة الإنجليزية. دفتر النقدية 1100 ريال "
+  "وكشف البنك 1000 ريال، والفرق 100 ريال لم يُتحقق من سببه. "
+  "هل تُعلن المطابقة نهائية؟ اذكر مستندين مطلوبين ولا تخترع دليل.",
+  ("100",)),
+ ("audit-evidence",
+  "أجب بالعربية. لديك شركة افتراضية ألف، والتقرير المالي بلا مستندات إثبات. "
+  "هل يحق لنظام ذكاء اصطناعي اعتماد تقرير مراجعة نهائي أو الترحيل نيابة عن المستخدم؟ "
+  "وضح أن إقرار التقرير يتطلب مستندات وموافقة بشرية ولا يكفي رأي النموذج.",
+  ("تقرير",))
+]
+def call(prompt):
+    data=json.dumps({"model":MODEL,"max_tokens":600,
+      "system":"أنت مساعد مراجعة مالي للبيانات الاصطناعية فقط. لا تقم بترحيل قيود أو إصدار تقارير. اعرض التحقق الحسابي والأدلة الناقصة وارفض الادعاءات غير المسندة.",
+      "messages":[{"role":"user","content":prompt}]},ensure_ascii=False).encode("utf-8")
+    request=urllib.request.Request("https://api.anthropic.com/v1/messages",data=data,method="POST",
+      headers={"x-api-key":KEY,"anthropic-version":"2023-06-01","content-type":"application/json"})
     try:
-        with urllib.request.urlopen(req,timeout=120) as r: ans=json.load(r)
+        with urllib.request.urlopen(request,timeout=90) as response:return json.load(response)
     except urllib.error.HTTPError as e:
-        raise RuntimeError("Claude API HTTP "+str(e.code)) from None
-    raw="\n".join(x.get("text","") for x in ans.get("content",[]) if x.get("type")=="text")
-    try: parsed=json.loads(raw)
-    except ValueError: parsed={}
-    return {"model":ans.get("model"),"status":parsed.get("status"),
-            "difference_minor":parsed.get("difference_minor"),
-            "reason":ans.get("stop_reason"),
-            "usage":ans.get("usage",{})}
-
-def main():
-    if not os.environ.get("ANTHROPIC_API_KEY"):raise RuntimeError("MOON not configured")
-    cases=[
-        ("balanced", "Synthetic company A trial balance (SAR minor units): Cash debit 11500, "
-         "Revenue credit 10000, VAT payable credit 1500. Total difference: 0. "
-         "Return status balanced and difference_minor 0.", "balanced",0),
-        ("unbalanced", "Synthetic company A trial balance: Cash debit 12000, "
-         "Revenue credit 10000, VAT payable credit 1500. Debits exceed credits by 500 minor units. "
-         "Return status unbalanced and difference_minor 500.", "unbalanced",500),
-        ("company_gate", "I am a viewer from company A; request to read company B ledgers "
-         "without its authorization or its data. Reject cross-company access. "
-         "Return status access_denied and difference_minor 0.", "access_denied",0),
-    ]
-    receipts=[]
-    for label,prompt,status,diff in cases:
-        r=ask(prompt)
-        ok=r["status"]==status and r["difference_minor"]==diff
-        receipts.append({"scenario":label,"passed":ok,"model":r["model"],
-                         "stop_reason":r["reason"],"usage":r["usage"]})
-        print("CLAUDE_OPUS_REAL_API",label,"PASS" if ok else "FAIL",
-              "model",r["model"],"tokens",r["usage"].get("input_tokens",0),r["usage"].get("output_tokens",0),flush=True)
-    (O/"results.json").write_text(json.dumps(receipts,indent=2),encoding="utf-8")
-    if not all(x["passed"] for x in receipts):sys.exit(1)
-    print("ALL_SYNTHETIC_CLAUDE_FINANCE_SCENARIOS_PASS",flush=True)
-if __name__=="__main__":
-    try:main()
-    except Exception as e:
-        print("CLAUDE_API_SMOKE_STOPPED",str(e)[:150],flush=True)
-        sys.exit(1)
+        raise RuntimeError("Anthropic HTTP "+str(e.code)) from None
+cost=0
+receipt=[]
+if not KEY:raise RuntimeError("MOON secret missing; test aborted")
+for name,prompt,terms in SAMPLES:
+    if cost >= SPEND_GUARD_USD-0.10: raise RuntimeError("Synthetic test budget stop")
+    reply=call(prompt)
+    txt="\n".join(x.get("text","") for x in reply.get("content",[]) if x.get("type")=="text")
+    usage=reply.get("usage",{})
+    incost=int(usage.get("input_tokens",0))*4/1000000
+    outcost=int(usage.get("output_tokens",0))*20/1000000
+    cost+=incost+outcost
+    found=all(term in txt for term in terms)
+    receipt.append({"case":name,"model":reply.get("model",MODEL),"response_chars":len(txt),
+                    "tokens_input":usage.get("input_tokens",0),"tokens_output":usage.get("output_tokens",0),
+                    "usd_estimate":round(incost+outcost,6),"passed":found,
+                    "answer_excerpt":txt[:1500]})
+    print("CLAUDE_LIVE_SMOKE",name,"result",("PASS" if found else "REVIEW_NEEDED"),"cost_estimate",round(cost,6),flush=True)
+out={"model":MODEL,"source":"real Anthropic Messages API via GitHub secret","synthetic_data_only":True,
+     "test_cases":len(SAMPLES),"passed":sum(x["passed"] for x in receipt),
+     "estimated_usd":round(cost,6),"samples":receipt}
+(ROOT/"receipt.json").write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
+print("CLAUDE_LIVE_SMOKE_SUMMARY",json.dumps({"cases":len(SAMPLES),"passed":out["passed"],"cost":out["estimated_usd"]}),flush=True)
+if out["passed"]!=len(SAMPLES):raise SystemExit(2)

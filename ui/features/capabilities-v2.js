@@ -12,12 +12,13 @@ const LOCAL_KEY="skosif_cap_v2_local_workspace";
 const ROLE_KEY="skosif_cap_v2_preview_role";
 const MAX_BYTES=131072;
 const PERMISSIONS={
-  owner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"],
-  partner:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"],
-  manager:["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"],
-  senior:["providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"],
+  owner:["ai:review","providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"],
+  partner:["ai:review","providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"],
+  manager:["ai:review","providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"],
+  senior:["ai:review","providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"],
   viewer:["providers:read","session:read","workspace:list","workspace:read","document:list","document:read","integrity:read"]
 };
+let claudeDraft="",claudeDraftCompany=""; // ephemeral: never persisted or shared across companies
 const ROLE_AR={owner:"مالك",partner:"شريك",manager:"مدير",senior:"مسؤول أول",viewer:"مشاهدة فقط"};
 const ALLOWED=["version","company","period","ui","theme","layout","preferences","inventorySummary","financeSummary","reporting","approvals","notes","alerts","jev","sourceRefs"];
 const FORBIDDEN=new Set(["customers","customerPhones","phones","emails","orders","rawTransactions","bankDetails","attachments","fileBytes","evidenceBytes","apiKey","apiKeys","secret","secrets","password","token","tokens","accessToken","refreshToken","cardNumbers","iban","ibans"]);
@@ -130,6 +131,21 @@ async function api(path,options={}){
     return d;
   } finally {clearTimeout(timer)}
 }
+async function reviewWithClaude(task,text,consentToSend){
+  if(!consentToSend)throw new Error("يلزم الموافقة الصريحة على إرسال النص إلى Claude.");
+  const currentCompany=companyRef().id;
+  const id=await ensureRemoteWorkspace();
+  const result=await api("/api/capabilities-v2/workspaces/"+encodeURIComponent(id)+"/ai/review",{
+    method:"POST",timeoutMs:70000,
+    body:JSON.stringify({consentToSend:true,task,text:String(text||"")})
+  });
+  // Even a valid response must not be displayed after the company changes.
+  if(companyRef().id!==currentCompany || result.workspace_id!==id)
+    throw new Error("تم تغيير الشركة أثناء المراجعة؛ النتيجة لم تُعرض.");
+  if(!result.review_only || !result.human_approval_required)
+    throw new Error("رد المراجعة لا يضمن موافقة بشرية.");
+  return result;
+}
 async function remoteSession(){return api("/api/capabilities-v2/session")}
 async function remoteProviders(){return api("/api/capabilities-v2/providers")}
 async function listRemote(){return api("/api/capabilities-v2/workspaces")}
@@ -215,6 +231,20 @@ function providersHTML(){
   return '<div class="skv2-providers">'+rows.map(p=>'<div><span class="skv2-provider-dot '+(p.status==="ready"||p.status==="configured"?"ok":"")+'"></span><div><b>'+esc(p.name||p.id)+'</b><small>'+esc(p.id)+' · '+esc(p.dataPolicy||"summary-only")+'</small></div>'+badge(p.status==="ready"||p.status==="configured",p.status||"unknown")+'</div>').join("")+'</div>'+
     '<p class="skv2-note">مفاتيح OpenAI/Gemini/Claude لا تُخزن ولا تُدخل في المتصفح. سجل المزودات يعرض حالة الإعداد فقط.</p>';
 }
+function claudeHTML(){
+  const answer=claudeDraftCompany===companyRef().id?claudeDraft:"";
+  return '<section class="skv2-panel"><h4>مراجع Claude للمحاسبة والمراجعة</h4>'+
+    '<p class="skv2-note">تحليل فقط، ولا يُرحّل القيود أو يعتمد التقارير. يعمل فقط عند تفعيل Worker المحمي وصلاحيات الشركة. النص يُرسل إلى Anthropic بعد موافقتك.</p>'+
+    '<label class="sk-field"><span>المجال</span><select id="skv2-claude-task">'+
+    '<option value="accounting">الحسابات والقيود</option><option value="audit">المراجعة وإثباتات الفحص</option>'+
+    '<option value="reconciliation">المطابقة والتسويات</option></select></label>'+
+    '<label class="sk-field"><span>البيانات المطلوب تحليلها (نص مختصر دون مفاتيح أو بيانات لا يحق إرسالها)</span>'+
+    '<textarea id="skv2-claude-text" rows="7" maxlength="12000" placeholder="اكتب مسألة محاسبية أو حالة للمراجعة..."></textarea></label>'+
+    '<label class="sk-field"><input id="skv2-claude-consent" type="checkbox"> أوافق على إرسال هذا النص إلى Claude للمراجعة فقط</label>'+
+    '<div class="skv2-actions"><button type="button" class="btn primary" id="skv2-claude-run">طلب مراجعة Claude</button></div>'+
+    '<div class="skv2-note" aria-live="polite" id="skv2-claude-result" style="white-space:pre-wrap">'+
+    (answer?esc(answer):"لم تطلب مراجعة بعد.")+'</div></section>';
+}
 function integrityHTML(){
   const d=localData();
   return '<div class="skv2-actions"><button class="btn primary" id="skv2-integrity-run">فحص السلسلة المحلية</button><button class="btn" id="skv2-audit-csv" '+(!d.audit.length?'disabled':'')+'>تصدير السجل CSV</button></div>'+
@@ -232,6 +262,7 @@ function connectHTML(){
 function bodyHTML(){
   if(state.tab==="roles")return rolesHTML();
   if(state.tab==="providers")return providersHTML();
+  if(state.tab==="claude")return claudeHTML();
   if(state.tab==="integrity")return integrityHTML();
   if(state.tab==="connect")return connectHTML();
   return overviewHTML();
@@ -240,7 +271,7 @@ function paint(){
   if(!root||!root.isConnected)return;
   root.innerHTML='<section class="card skv2-card"><div class="card-h"><div><h3>مركز القدرات v2</h3><p>الصلاحيات، المزامنة، النزاهة، وإدارة Workspace — منقولة إلى بنية SQC بدون أزرار عائمة.</p></div>'+badge(Boolean(cfg().apiBase),cfg().apiBase?"D1 جاهز للاتصال":"Local fallback")+'</div>'+
     '<div class="card-b"><nav class="skv2-tabs">'+[
-      ["overview","نظرة عامة"],["roles","الأدوار والصلاحيات"],["providers","مزودات الذكاء"],["integrity","النزاهة"],["connect","الربط السحابي"]
+      ["overview","نظرة عامة"],["roles","الأدوار والصلاحيات"],["providers","مزودات الذكاء"],["claude","مراجع Claude"],["integrity","النزاهة"],["connect","الربط السحابي"]
     ].map(([k,l])=>'<button type="button" data-skv2-tab="'+k+'" class="'+(state.tab===k?"active":"")+'">'+l+'</button>').join("")+'</nav><div class="skv2-body">'+bodyHTML()+'</div></div></section>';
   bind();
 }
@@ -258,6 +289,22 @@ async function testRemote(){
 }
 function bind(){
   $$("[data-skv2-tab]",root).forEach(b=>b.onclick=()=>{state.tab=b.dataset.skv2Tab;paint()});
+  const cl=$("#skv2-claude-run",root);
+  if(cl)cl.onclick=async()=>{
+    const text=$("#skv2-claude-text",root).value;
+    const task=$("#skv2-claude-task",root).value;
+    const consent=$("#skv2-claude-consent",root).checked;
+    const company=companyRef().id;
+    cl.disabled=true;cl.textContent="جاري مراجعة Claude...";
+    try {
+      const data=await reviewWithClaude(task,text,consent);
+      if(companyRef().id!==company)return;
+      claudeDraft=String(data.answer||"");claudeDraftCompany=company;
+      const result=$("#skv2-claude-result",root);
+      if(result)result.textContent=claudeDraft+"\n\nمسودة تحتاج اعتمادك؛ لم يُغيّر البرنامج أي قيد.";
+    }catch(e){toast("لم تكتمل مراجعة Claude: "+e.message,"err")}
+    finally{cl.disabled=false;cl.textContent="طلب مراجعة Claude"}
+  };
   const sl=$("#skv2-save-local",root);if(sl)sl.onclick=async()=>{const r=await saveLocalSnapshot(safeSummary());if(r.error)return toast(r.error,"err");toast("تم حفظ Revision "+r.workspace.revision,"ok");paint()};
   const pv=$("#skv2-push",root);if(pv)pv.onclick=async()=>{pv.disabled=true;try{const r=await pushRemote();toast("تمت المزامنة إلى D1 — Revision "+r.workspace.revision,"ok");await testRemote()}catch(e){toast(e.status===409?"تعارض Revision — أعد المحاولة بعد تحديث الحالة":"فشل المزامنة: "+e.message,"err");pv.disabled=false}};
   const sh=$("#skv2-share",root);if(sh)sh.onclick=async()=>{const v=await SK.form("مشاركة الشركة",[{key:"subject",label:"بريد المستخدم",type:"email",required:true,placeholder:"user@example.com"},{key:"role",label:"الدور",type:"select",value:"viewer",options:[["partner","شريك"],["manager","مدير"],["senior","محاسب أول"],["viewer","مشاهدة فقط"]]}],{ok:"منح الوصول",message:"في المساحات الحساسة مثل تصيف لن تظهر الشركة للمستخدم أصلًا قبل هذا المنح الصريح."});if(!v)return;sh.disabled=true;try{await shareRemote(v.subject,v.role);toast("تم منح الوصول للشركة","ok")}catch(e){toast("تعذر المشاركة: "+e.message,"err")}finally{sh.disabled=false}};
@@ -286,6 +333,7 @@ window.SKosifCapabilitiesV2=Object.freeze({
   listDocuments:listRemoteDocuments,
   uploadDocument:uploadRemoteDocument,
   deleteDocument:deleteRemoteDocument,
+  reviewWithClaude,
   workspaceId:()=>workspaceIdFor(cfg()),
   config:()=>({...cfg()})
 });
