@@ -188,7 +188,7 @@ function confirmDialog(message,opts={}){
   return new Promise(resolve=>{
     const prev=document.activeElement,id="sk-dialog-"+(++dialogId);
     const w=document.createElement("div");w.className="skd-wrap";w.setAttribute("role","presentation");
-    w.innerHTML='<div class="skd" role="alertdialog" aria-modal="true" aria-labelledby="'+id+'"><h3 id="'+id+'">'+esc(opts.title||"تأكيد")+'</h3><p>'+esc(message)+'</p><div class="skd-acts">'+
+    w.innerHTML='<div class="skd" role="alertdialog" aria-modal="true" aria-labelledby="'+id+'"><h3 id="'+id+'">'+esc(opts.title||"تأكيد")+'</h3><p>'+esc(message)+'</p><div class="skd-acts'+(!opts.alert && String(opts.cancel||"إلغاء").length<=12 && String(opts.ok||"تأكيد").length<=12 ? ' skd-acts-short' : '')+'">'+
       (opts.alert?'':'<button type="button" class="btn" data-r="0">'+esc(opts.cancel||"إلغاء")+'</button>')+
       '<button type="button" class="btn '+(opts.danger?'danger':'primary')+'" data-r="1">'+esc(opts.ok||(opts.alert?"حسناً":"تأكيد"))+'</button></div></div>';
     let settled=false,release=()=>{};

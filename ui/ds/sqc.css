@@ -330,3 +330,10 @@ bdi,[dir=ltr],a[href^="tel:"],a[href^="mailto:"],.sk-number{unicode-bidi:isolate
    in «دفتر KOSIF» they are toned to ink and saffron, as the door's film, and the crystals turn to amber glass (crystal-world.js) */
 :root[data-look="kosif"][data-brand="ledger"] .skc-world{background:linear-gradient(90deg,rgba(18,33,28,.66),rgba(18,33,28,.20)),url(./art/brand/earth-office-sunlit-4k.webp) center/cover no-repeat}
 :root[data-look="kosif"][data-brand="ledger"] .skc-world video{filter:none}
+
+/* Small, readable confirmation actions belong on one row at phone widths above 360px.
+   Larger captions keep the stacked sheet treatment; 320px still stacks full width. */
+@media (min-width:361px) and (max-width:600px){
+  .skd .skd-acts.skd-acts-short{flex-direction:row;flex-wrap:nowrap}
+  .skd .skd-acts.skd-acts-short>.btn{width:auto;flex:1 1 0;min-width:0}
+}

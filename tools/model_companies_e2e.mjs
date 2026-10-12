@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
 const base = (process.argv[2] || 'http://127.0.0.1:8765/').replace(/[?#].*$/, '').replace(/(index|app-safe)\.html$/, '').replace(/\/?$/, '/');
 const fails = [], ok = (name, cond, detail) => { if (!cond) fails.push(name + (detail ? ' — ' + detail : '')); };
 const ready = (p) => p.waitForFunction(() => window.SK && window.SKosifCore && window.SKosifSpace && SK.demo && SK.demo.settled() && !document.querySelector('.skdemo-overlay') && !SKosifSpace.busy() && window.SKosifLedger, null, { timeout: 120000 });
-const MODELS = [['model-health', 'health'], ['model-education', 'education'], ['model-manufacturing', 'manufacturing'], ['model-bakery', 'bakery'], ['model-agriculture', 'agriculture'], ['model-trade', 'trade']];
+const MODELS = [['model-health', 'health'], ['model-education', 'education'], ['model-meat-factory', 'meat'], ['model-manufacturing', 'manufacturing'], ['model-bakery', 'bakery'], ['model-agriculture', 'agriculture'], ['model-trade', 'trade']];
 
 const browser = await chromium.launch();
 try {
@@ -53,6 +53,18 @@ try {
       ok('the hospital: its books fit the browser storage comfortably', r.bytes < 3_000_000, String(r.bytes));
     }
     if (id === 'model-education') ok('the school: fees still deferred and fees earned', await p.evaluate(() => SKosifLedger.balance('2410', '2026-09-30') < 0 && SKosifLedger.balance('4090', '2026-09-30') < 0));
+    if (id === 'model-meat-factory') {
+      ok('meat factory: 72 synthetic production batches with complete journals', await p.evaluate(() => {
+        const es=SKosifLedger.entries();
+        return es.filter(e=>e.meatBatch&&e.meatBatch.cutting).length===72 &&
+          es.filter(e=>e.source==='مبيعات الجملة').length===72 &&
+          es.filter(e=>e.source==='مشتريات').length>=144;
+      }));
+      ok('meat factory: large synthetic revenue and remaining inventory', await p.evaluate(() =>
+        SKosifLedger.balance('4000','2026-09-30') < -800_000_000 &&
+        SKosifLedger.balance('1320','2026-09-30') > 0 &&
+        SKosifLedger.balance('1330','2026-09-30') > 0));
+    }
     if (id === 'model-manufacturing') ok('the factory: no work left in progress', await p.evaluate(() => SKosifLedger.balance('1380', '2026-09-30') === 0));
     ok(id + ': a closed month refuses a new entry', await p.evaluate(() => { const a = SKosifLedger.accounts(), c = (k) => a.find((x) => x.code === k).id;
       const out = SKosifLedger.postEntry({ id: 'x', date: '2026-08-15', reference: 'T', memo: 'T', lines: [{ accountId: c('6300'), debit: 1, credit: 0 }, { accountId: c('1100'), debit: 0, credit: 1 }] }); return !out.ok && /مقفلة/.test(out.error); }));

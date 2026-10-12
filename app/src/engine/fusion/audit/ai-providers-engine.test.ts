@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildRequest, fallbackModels, friendlyError, modelsFrom, PROVIDERS, retryWithOtherModel, toGeminiResponse, toJsonSchema, type GeminiBody } from './ai-providers-engine';
+import { buildRequest, claudeModelForTier, fallbackModels, friendlyError, modelsFrom, PROVIDERS, retryWithOtherModel, toGeminiResponse, toJsonSchema, type GeminiBody } from './ai-providers-engine';
 
 const body: GeminiBody = {
   systemInstruction: { parts: [{ text: 'أنت مراجع.' }] },
@@ -73,6 +73,21 @@ describe('responses', () => {
     expect(modelsFrom('anthropic', { data: [{ id: 'claude-opus-5' }] })).toEqual(['claude-opus-5']);
     expect(friendlyError('anthropic', 401)).toContain('Anthropic Claude');
     expect(friendlyError('openai', 0)).toContain('api.openai.com');
+  });
+  it('exposes current Claude 5.5 API models and chooses the right effort tier', () => {
+    expect(PROVIDERS.anthropic.models).toEqual([
+      'claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5',
+    ]);
+    expect(claudeModelForTier('routine')).toBe('claude-haiku-5-5');
+    expect(claudeModelForTier('financial')).toBe('claude-sonnet-5-5');
+    expect(claudeModelForTier('critical')).toBe('claude-opus-5-5');
+    for (const model of PROVIDERS.anthropic.models) {
+      const w = buildRequest('anthropic', { contents: [{ role: 'user', parts: [{ text: 'test' }] }] }, model, 'sk-ant-TEST');
+      expect(w.body.model).toBe(model);
+      expect(w.url).toBe('https://api.anthropic.com/v1/messages');
+    }
+    expect(fallbackModels('anthropic', 'claude-sonnet-5')).toContain('claude-sonnet-5-5');
+    expect(fallbackModels('anthropic', 'claude-haiku-4-5')).toContain('claude-haiku-5-5');
   });
   it('accepts both AI Studio key shapes and falls back to another model when one is retired or overloaded', () => {
     expect(PROVIDERS.gemini.keyPattern.test('AIzaSyA-1234567890abcdefghijk')).toBe(true);

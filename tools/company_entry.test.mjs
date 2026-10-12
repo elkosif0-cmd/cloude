@@ -75,7 +75,7 @@ test('a sector lists its own companies only; the private company only as the loc
   assert.ok(g.els['co-t'].textContent.includes('المستشفيات'));
   g.fire('co-back','click');assert.deepEqual(g.visible(),['sectors'],'back from the companies of a sector returns to the sectors');
   g.sector('meat');
-  assert.deepEqual(g.cards().map(c=>[c.id,c.locked,c.demo]),[['co-private',true,false],['demo-co',false,true]]);
+  assert.deepEqual(g.cards().map(c=>[c.id,c.locked,c.demo]),[['co-private',true,false],['demo-co',false,true],['model-meat-factory',false,false]]);
   assert.ok(!g.cards().some(c=>c.id==='space-main'),'the private company\'s space is only the locked card');
   g.click(g.cards()[1]);
   assert.deepEqual(g.intent(),{id:'demo-co',name:'شركة الوادي التجريبية للحوم',demo:true,gate:'accounting',sector:'meat'});
