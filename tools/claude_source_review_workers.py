@@ -267,7 +267,7 @@ def review(item):
         source = read_public_raw(public_raw_url)
         # Reject any source that differs from Git's pinned blob identity.
         git_blob_sha = hashlib.sha1(
-            b"blob " + str(len(source)).encode() + b"\\x00" + source).hexdigest()
+            b"blob " + str(len(source)).encode() + b"\x00" + source).hexdigest()
         if git_blob_sha != item["blob_sha"]:
             return {"status": "not_read", "repo": repo, "path": item["path"],
                     "sha": item["blob_sha"], "reason": "raw source SHA mismatch"}
@@ -357,7 +357,7 @@ def main():
                           first["branch_commit"] + "/" +
                           urllib.parse.quote(first["path"], safe="/"))
         sample = read_public_raw(public_raw_url)
-        sha = hashlib.sha1(b"blob " + str(len(sample)).encode() + b"\\x00" + sample).hexdigest()
+        sha = hashlib.sha1(b"blob " + str(len(sample)).encode() + b"\x00" + sample).hexdigest()
         if sha != first["blob_sha"]:
             raise RuntimeError("Preflight public-source blob SHA mismatch")
         logger("DRY_RUN_VALIDATED_1000_UNIQUE_JOBS_AND_RAW_BLOB " + sha)
