@@ -565,3 +565,6 @@ export default {
     return jsonResponse({service:"S.kosif Capabilities v2",status:"ready",api:"/api/capabilities-v2/session"});
   }
 };
+
+// Named exports for contract/regression tests without data-URL module rewriting.
+export {workspaceAccessContext,validateWorkspaceInput};
