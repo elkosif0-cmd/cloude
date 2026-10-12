@@ -1,4 +1,4 @@
-name: KOSIF Evidence First Claude Review - One Shot
+name: KOSIF Claude Expanded Dual Lens Agent Review
 on:
   push:
     branches:
@@ -36,10 +36,11 @@ jobs:
           import importlib.util
           s=importlib.util.spec_from_file_location("agent","tools/claude_evidence_first.py")
           m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
-          assert m.BUDGET_CENTS == 1500
+          assert m.BUDGET_CENTS == 500
           assert m.STOP_SECS <= 390
           assert m.TASK_LIMIT <= 180
-          assert m.TASKS_CONCURRENT <= 12
+          assert len(m.worker_tasks([{'repo':'a/b','default':'main','branch':'q','status':'ahead','ahead':1,'behind':0,'paths':['app/a.py'],'changes':10,'error':None}])[0]) == 2
+          assert m.TASKS_CONCURRENT <= 16
           print("Evidence-review guardrails verified.")
           PY
       - name: Inventory unique GitHub branches and run one capped Claude session
