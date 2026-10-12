@@ -6,6 +6,7 @@ describe('comparative trial-balance numeric integrity', () => {
     const tb = parseTrialBalance(
       'code,name,debit,credit,prior\n1100,Cash,100,,not-a-number\n3100,Capital,,100,-100');
     expect(tb.errors).toMatchObject([{ line: 2, code: 'AMOUNT_NOT_NUMERIC' }]);
+    expect(tb.ok).toBe(false);
     expect(tb.rows.map(r => r.code)).toEqual(['3100']);
     expect(tb.rows[0].prior).toBe(-10000);
   });
@@ -14,6 +15,7 @@ describe('comparative trial-balance numeric integrity', () => {
     const tb = parseTrialBalance(
       'code,name,debit,credit,priorDebit,priorCredit\n1100,Cash,100,,wrong,0\n3100,Capital,,100,0,100');
     expect(tb.errors).toMatchObject([{ line: 2, code: 'AMOUNT_NOT_NUMERIC' }]);
+    expect(tb.ok).toBe(false);
     expect(tb.rows).toHaveLength(1);
     expect(tb.rows[0].prior).toBe(-10000);
   });
@@ -22,6 +24,7 @@ describe('comparative trial-balance numeric integrity', () => {
     const tb = parseTrialBalance(
       'code,name,debit,credit,priorDebit,priorCredit\n1100,Cash,100,,100,wrong\n3100,Capital,,100,0,100');
     expect(tb.errors).toMatchObject([{ line: 2, code: 'AMOUNT_NOT_NUMERIC' }]);
+    expect(tb.ok).toBe(false);
     expect(tb.rows.map(r => r.code)).toEqual(['3100']);
   });
 
@@ -39,6 +42,7 @@ describe('comparative trial-balance numeric integrity', () => {
     const tb = parseTrialBalance(
       'code,name,debit,credit,prior\n1100,"Cash, bank\nand hand",100,,not-a-number\n3100,Capital,,100,-100');
     expect(tb.errors).toMatchObject([{ line: 2, code: 'AMOUNT_NOT_NUMERIC' }]);
+    expect(tb.ok).toBe(false);
     expect(tb.rows[0]).toMatchObject({ code: '3100', line: 4 });
   });
 });
