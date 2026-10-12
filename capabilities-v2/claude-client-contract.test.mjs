@@ -19,6 +19,10 @@ test('the model receives anonymous aggregate financial metrics, never company id
   for(const k of ['receipts','payments','inventoryItems','reorderAlerts','netProfit'])assert.ok(code.includes(k));
   assert.doesNotMatch(code,/company:\s*|companyName|customers|iban|documents|attachments|rawLedger/);
   assert.match(code,/companyRef\(\)\.id!==currentCompany/);
+  assert.match(code,/companyScope\.status!=="stable"/);
+  assert.match(code,/companyScope\.companyId!==currentCompany/);
+  assert.match(code,/scopeToken/);
+  assert.match(code,/if\(!validScope\(\)\|\|companyRef\(\)\.id!==currentCompany\)/);
 });
 test('Claude is advertised runnable only after server-side Access and AI limiter are ready',()=>{
   assert.match(worker,/provider\.id==="claude"/);
