@@ -26,7 +26,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile tools/opus_security_review_once.py
           grep -F '"model":"claude-opus-5-5", "max_tokens":4096' tools/opus_security_review_once.py
-          grep -F "if: github.ref_name != 'feat/secure-claude-workspace-review-20261012'" .github/workflows/pages-deploy.yml
+          grep -F "github.ref_name != 'feat/secure-claude-workspace-review-20261012'" .github/workflows/pages-deploy.yml
           test -n "$ANTHROPIC_API_KEY"
       - name: One Claude Opus review of public financial code
         run: python3 tools/opus_security_review_once.py
