@@ -69,7 +69,7 @@ jobs:
           if messages:
               raw=messages[-1][:14000]
               raw=re.sub(r'(?i)(sk-ant-[A-Za-z0-9_-]+|github_pat_[A-Za-z0-9_-]+|ghp_[A-Za-z0-9_-]+|AKIA[0-9A-Z]{16})','[REDACTED]',raw)
-              raw=re.sub(r'(?im)^.*(api[_ -]?key|secret[_ -]?key|authorization:|private[_ -]?key).*, '[REDACTED SENSITIVE LINE]',raw)
+              raw='\n'.join('[REDACTED SENSITIVE LINE]' if any(term in line.lower() for term in ('api_key','secret_key','authorization:','private_key')) else line for line in raw.splitlines())
               print('## Last Claude coordinator report (sanitized)\\n'+raw)
           else:
               print('No agent.message text found in session events.')
