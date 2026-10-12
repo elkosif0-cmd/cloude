@@ -6,6 +6,7 @@ execute repository code, open PRs, merge, or deploy. All API charges are capped
 by an Anthropic-managed session budget (subject to in-flight overshoot).
 """
 import json
+import re
 import os
 import sys
 import time
@@ -246,6 +247,11 @@ def launch(refs, skipped):
                     visible.append(part.get("text", "")[:15000])
     report = "\n\n".join(reversed(visible))
     if report:
+        # Never put untrusted secret-looking text into public GitHub artifacts.
+        report = re.sub(r"(?i)(sk-ant-[a-z0-9_-]+|ghp_[a-z0-9_-]+|github_pat_[a-z0-9_-]+)", "[REDACTED]", report)
+        report = "\\n".join("[REDACTED SENSITIVE LINE]" if any(k in line.lower() for k in
+            ("api_key=", "authorization:", "private_key=", "secret_key=", "password="))
+            else line for line in report.splitlines())
         Path("claude-swarm-report.md").write_text(report, encoding="utf-8")
     Path("claude-swarm-status.json").write_text(
         json.dumps({"session_id": session_id, "status": status,
