@@ -233,7 +233,7 @@ ok('الأنظمة الأصلية','استعادة متابعة العملاء V
 const LIB={};for(const id of ['v31','v33','v40']){await p.evaluate(x=>SKosifLegacy.open(x),id);
   // Wait for the real embedded page to load, rather than assuming a fixed 4s
   // covers slower iPhones or Windows CI runners. Never bypass the library check.
-  await p.waitForFunction(x=>[...document.querySelectorAll('iframe')].some(f=>f.src.includes('/legacy/'+x)),id,{timeout:15000});
+  await p.waitForFunction(x=>[...document.querySelectorAll('iframe')].some(f=>f.src.includes('/legacy/'+x)&&f.contentDocument?.readyState==='complete'),id,{timeout:15000});
   const fr=p.frames().find(f=>f.url().includes('/legacy/'+id));
   LIB[id]=fr?await fr.evaluate(async()=>{
     if(window.__aghnamLoadHeavy)await window.__aghnamLoadHeavy(); /* V40 lazy export code */
