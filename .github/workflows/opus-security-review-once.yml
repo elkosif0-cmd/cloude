@@ -1,0 +1,40 @@
+name: KOSIF Claude Opus Security Review Once
+on:
+  push:
+    branches:
+      - feat/secure-claude-workspace-review-20261012
+    paths:
+      - .github/workflows/opus-security-review-once.yml
+permissions:
+  contents: read
+concurrency:
+  group: kosif-opus-security-review-once-20261012
+  cancel-in-progress: false
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.MOON }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate single-request model budget, no deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/opus_security_review_once.py
+          grep -F '"model":"claude-opus-5-5", "max_tokens":4096' tools/opus_security_review_once.py
+          grep -F "if: github.ref_name != 'feat/secure-claude-workspace-review-20261012'" .github/workflows/pages-deploy.yml
+          test -n "$ANTHROPIC_API_KEY"
+      - name: One Claude Opus review of public financial code
+        run: python3 tools/opus_security_review_once.py
+      - name: Preserve model report and token receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opus-security-review-${{ github.run_id }}
+          path: opus-security-review/
+          if-no-files-found: warn
+          retention-days: 14
