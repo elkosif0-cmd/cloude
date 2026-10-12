@@ -233,7 +233,7 @@ ok('الأنظمة الأصلية','استعادة متابعة العملاء V
 const LIB={};for(const id of ['v31','v33','v40']){
   await p.evaluate(x=>SKosifLegacy.open(x),id);
   /* Wait for the right iframe document to finish its navigation, not a fixed sleep. */
-  await p.waitForFunction(x=>[...document.querySelectorAll('iframe')].some(f=>f.src.includes('/legacy/'+x)&&f.contentDocument?.readyState==='complete'),id,{timeout:30000});
+  await p.waitForFunction(x=>[...document.querySelectorAll('iframe')].some(f=>f.src.includes('/legacy/'+x)&&f.contentDocument?.URL.includes('/legacy/'+x+'.html')&&f.contentDocument.readyState==='complete'),id,{timeout:30000});
   const fr=p.frames().find(f=>f.url().includes('/legacy/'+id));
   LIB[id]=fr?await fr.evaluate(async()=>{
     if(window.__aghnamLoadHeavy)await window.__aghnamLoadHeavy();
