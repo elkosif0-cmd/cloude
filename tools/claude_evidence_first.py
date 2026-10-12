@@ -195,6 +195,30 @@ def worker_tasks(rows):
     return [[t] for t in tasks[:TASK_LIMIT]], candidates
 
 
+def upload_manifest(groups, counts):
+    # Only public repository/ref/path metadata; never a source file or credential.
+    data = json.dumps({"scope": counts, "tasks": [group[0] for group in groups]},
+                      ensure_ascii=False).encode("utf-8")
+    boundary = "KOSIF_PUBLIC_SCOPE_20261012"
+    body = (("--" + boundary + "\r\nContent-Disposition: form-data; name=\\"purpose\\"\r\n\r\nagent\r\n").encode()
+            + ("--" + boundary + "\r\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"review-scopes.json\\"\r\nContent-Type: application/json\r\n\r\n").encode()
+            + data + ("\r\n--" + boundary + "--\r\n").encode())
+    req = urllib.request.Request(ANTHROPIC + "/v1/files", data=body,
+        method="POST", headers={
+            "x-api-key": os.environ["ANTHROPIC_API_KEY"],
+            "anthropic-version": "2023-06-01",
+            "anthropic-beta": "files-api-2025-04-14",
+            "content-type": "multipart/form-data; boundary=" + boundary})
+    try:
+        with urllib.request.urlopen(req, timeout=45) as resp:
+            file_id = json.load(resp)["id"]
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError("Scope manifest upload HTTP " + str(exc.code)) from None
+    if not file_id.startswith("file_"):
+        raise RuntimeError("Invalid scope file ID from Claude")
+    return file_id
+
+
 def run_paid(groups, counts):
     if not os.getenv("ANTHROPIC_API_KEY"):
         raise RuntimeError("MOON repository secret missing, no Claude session opened")
