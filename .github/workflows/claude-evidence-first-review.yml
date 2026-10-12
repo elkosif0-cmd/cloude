@@ -1,4 +1,4 @@
-name: KOSIF Claude Opus-Haiku Validation Retry
+name: KOSIF Claude Opus-Haiku Source Agents
 on:
   push:
     branches:
