@@ -29,7 +29,9 @@ def main():
         "scopes just to make the integration easier."
     )
     body={
-        "model":"claude-opus-5-5", "max_tokens":4096,
+        "model":"claude-opus-5-5", "max_tokens":16000,
+        "thinking":{"type":"adaptive"},
+        "output_config":{"effort":"high"},
         "system":instruction,
         "messages":[{"role":"user","content":"AUDIT THESE PUBLIC CODE SNIPPETS:\nSERVER\n"+snippet+
             "\nROUTES AND AUTH\n"+routes+"\nCLIENT\n"+client_part}]
