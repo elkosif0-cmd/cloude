@@ -26,10 +26,8 @@ permissions:
 
 jobs:
   deploy:
-    # AI provider model update must pass validation before going live.
-    if: github.ref_name != 'fix/claude-55-app-models-20261012'
-    # CI repair branch never deploys to Cloudflare Pages, including previews.
-    if: github.ref_name != 'fix/tbreview-duplicate-open-20261012' && github.ref_name != 'integration/earth-accounting-verified-20261012'
+    # Do not publish restricted test/integration branches; production main remains deployable.
+    if: github.ref_name != 'fix/claude-55-app-models-20261012' && github.ref_name != 'fix/tbreview-duplicate-open-20261012' && github.ref_name != 'integration/earth-accounting-verified-20261012'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
