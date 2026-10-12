@@ -277,21 +277,22 @@ def run_paid(groups, counts):
             "type": "limited", "allow_package_managers": False,
             "allowed_hosts": ["github.com", "api.github.com", "raw.githubusercontent.com"]}}
     })
-    # Bound request size; priority rankings mean high-value ahead branches are first.
-    lines = [f"SHARD {i + 1:03}: " + json.dumps(group, ensure_ascii=False,
-             separators=(",", ":")) for i, group in enumerate(groups)]
+    # The full deterministic scope is mounted as a file, NEVER transcribed
+    # into the prompt; this prevents corrupted or duplicated SHARD entries.
     instructions = (
-        "Launch a single Dynamic Workflow. Delegate these SHARD entries to "
-        "independent Haiku workers; each reviews unique source scope and reports "
-        "integration candidates with cited repo/branch/path and line ranges, expected benefit, "
-        "risks, and tests that MUST be done before merge. "
-        "No full code content is attached; retrieve it, otherwise do not claim full source review or a "
-        "safe implementation until source is inspected. "
-        "Prioritize accounting, audit, finance, tenant permissions and RTL. "
-        "Finish within 11 minutes; no retry loops. "
-        "At end aggregate Arabic evidence-based findings and actual worker successes/failures "
-        "and unreviewed scopes. Reference the numbers in the provided scope. "
-        + json.dumps(counts, ensure_ascii=False) + "\n" + "\n".join(lines))
+        "Start one real Dynamic Workflow using the predefined Haiku agent. "
+        "Read the 1000 unique public GitHub task scopes directly from "
+        "/mnt/session/uploads/review-scopes.json using the read/bash tool. "
+        "Never transcribe/recreate task rows manually. "
+        "Prefer actual-source-file-review scopes, then historic branch checks. "
+        "For each task, inspect actual public source or report NOT_READ. "
+        "Do not exceed 24 concurrently or 1000 lifetime agents; record the "
+        "true worker success/failed/unlaunched counts. Stop near 11 minutes "
+        "or the shared provider USD43 cap, whichever first. "
+        "Return Arabic file/line evidence, feature integration priorities, "
+        "financial correctness, tenant isolation and license/test risks. "
+        "No pushing, merging, deployment or new paid sessions."
+    )
     session = api(ANTHROPIC + "/v1/sessions", is_anthropic=True, data={
         "agent": agent["id"], "environment_id": env["id"],
         "title": "KOSIF EARTH unique branch feature scan",
@@ -299,8 +300,11 @@ def run_paid(groups, counts):
             "amount": str(BUDGET_CENTS), "currency": "USD"}},
         "initial_events": [{"type": "user.message",
                             "content": [{"type": "text", "text": instructions}]}],
-        "resources": [{"type": "github_repository",
+        "resources": [{"type": "file", "file_id": file_id,
+                       "mount_path": "/review-scopes.json"},
+                      {"type": "github_repository",
                        "url": "https://github.com/elkosif0-cmd/cloude",
+                       "branch": "audit/claude-1000-20261012",
                        "mount_path": "/workspace/cloude",
                        "authorization_token": os.environ["GITHUB_TOKEN"]}]
     })
