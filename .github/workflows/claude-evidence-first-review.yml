@@ -1,4 +1,4 @@
-name: KOSIF Claude Opus-Haiku Mounted Manifest Review
+name: KOSIF Claude Opus-Haiku Validation Retry
 on:
   push:
     branches:
