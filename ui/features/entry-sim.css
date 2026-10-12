@@ -45,3 +45,11 @@
   .js-er input[data-je="name"]{grid-column:1/-1;order:-1}
   .js-er button{grid-column:1/-1;justify-self:end}
 }
+
+/* Keep the simulator's suggest/post controls in the tappable viewport above
+   the fixed phone navigation during automatic scroll-to-focus and touch input. */
+@media (max-width:900px){
+  .js-shell [data-js="run"],.js-shell [data-js="post"]{
+    scroll-margin-block-end:calc(96px + env(safe-area-inset-bottom));
+  }
+}
