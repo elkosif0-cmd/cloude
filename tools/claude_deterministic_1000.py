@@ -189,18 +189,27 @@ def discover():
 
 
 def source_blob(task):
+    # Public raw HTTP avoids GitHub API secondary-rate-limit HTTP 403 after
+    # enumerating hundreds of branch trees. Verify exact Git blob SHA-1.
+    import hashlib
+    ref = urllib.parse.quote(task["branch"], safe="/")
+    path = urllib.parse.quote(task["path"], safe="/")
     repo = urllib.parse.quote(task["repo"], safe="/")
-    # Blob SHAs always resolve original file content regardless of branch movement.
-    blob = gh(f"/repos/{repo}/git/blobs/{task['sha']}")
-    if blob.get("encoding") != "base64":
-        raise ValueError("GitHub blob encoding is not base64")
-    data = base64.b64decode(blob.get("content", ""), validate=False)
-    if len(data) > MAX_BYTES or b"\x00" in data:
+    url = f"https://raw.githubusercontent.com/{repo}/{ref}/{path}"
+    req = urllib.request.Request(url, headers={"User-Agent": "KOSIF-public-source-review"})
+    with urllib.request.urlopen(req, timeout=40) as response:
+        if response.status != 200:
+            raise ValueError("Public source fetch failed")
+        data = response.read(MAX_BYTES + 1)
+    if len(data) > MAX_BYTES or b"\\x00" in data:
         raise ValueError("Source unexpectedly too large or binary")
+    expected = task["sha"]
+    actual = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\\x00" + data).hexdigest()
+    if actual != expected:
+        raise ValueError("Source SHA does not match Git manifest; not sent to Claude")
     content = data.decode("utf-8")
-    # A file may be named innocently but contain credentials or secrets.
-    if re.search(r"(?im)^\s*(?:sk-ant-|github_pat_|ghp_|-----BEGIN .*PRIVATE KEY-----)", content):
-        raise ValueError("Credential-like content blocked")
+    if re.search(r"(?:sk-ant-|github_pat_|ghp_)[a-zA-Z0-9_-]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----", content):
+        raise ValueError("Credential-like source content blocked")
     return content
 
 
@@ -324,7 +333,26 @@ def main():
     if not os.getenv("ANTHROPIC_API_KEY"):
         raise RuntimeError("Missing protected MOON secret, no paid review started")
     smoke_test()
-    tasks, coverage = discover()
+    cached = pathlib.Path("tools/claude-public-1000-source-manifest.json")
+    if cached.is_file():
+        tasks = json.loads(cached.read_text(encoding="utf-8"))
+        if not isinstance(tasks, list) or len(tasks) != MAX_WORKERS:
+            raise RuntimeError("Pinned public manifest must contain exactly 1000 scopes")
+        for t in tasks:
+            if (not all(k in t for k in ("repo", "branch", "path", "sha"))
+                    or not code_path(t["path"])
+                    or t["repo"].split("/")[0] not in OWNERS
+                    or not re.fullmatch(r"[a-f0-9]{40}", t["sha"])):
+                raise RuntimeError("Invalid unsafe public manifest scope")
+        coverage = {"selected_unique_source_files": len(tasks),
+                    "pinned_manifest": True,
+                    "public_only": True,
+                    "branch_scope_source": "GitHub actions run 38239913562",
+                    "errors": []}
+        (OUTPUT / "coverage.json").write_text(json.dumps(coverage, indent=2), encoding="utf-8")
+        (OUTPUT / "manifest.json").write_text(json.dumps(tasks, ensure_ascii=False, indent=2), encoding="utf-8")
+    else:
+        tasks, coverage = discover()
     print("INVENTORY", json.dumps({k:v for k,v in coverage.items() if k!="errors"}), flush=True)
     if "--dry-run" in __import__("sys").argv:
         print("DRY_RUN_NO_CLAUDE_COST", flush=True)
