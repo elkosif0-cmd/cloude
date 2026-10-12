@@ -10,9 +10,11 @@
 "use strict";
 const reduce=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch{return false}};
 const MAX=10,LIFE=900,COUNT_MS=720,COUNT_MAX=24;
-/* a plain figure: Latin digits, optional thousands commas, decimals, sign and percent — anything else is left alone */
-const NUM=/^[-+]?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?%?$/;
-let last="",timer=0,count=0,counted=0;
+/* a plain figure: Latin digits, optional thousands commas, decimals, a sign, and a percent or a short unit («ر.س») —
+   anything else (words, mixed text, dates) is left alone */
+const NUM=/^([-+]?)((?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?)(%|\s[^\d,]{1,8})?$/;
+const SETTLE=3000;   /* a screen keeps painting its figures for a moment after it opens (async data); count those too */
+let last="",timer=0,count=0,counted=0,opened=0;
 function view(){const c=window.SKosifCore;return c&&c.view?String(c.view()||""):""}
 /* the screen's blocks: the direct children of #view, or of the module's mount node when the core only hosts it */
 function blocks(){
@@ -34,18 +36,20 @@ function reveal(list){
 function countUp(){
   if(reduce()||typeof requestAnimationFrame!=="function")return 0;
   const v=document.getElementById("view");if(!v||!v.querySelectorAll)return 0;
-  const els=[...v.querySelectorAll(".stat .v,.num")].filter(e=>!e.hasAttribute("data-sk-counted")&&e.children.length===0&&NUM.test((e.textContent||"").trim())).slice(0,COUNT_MAX);
+  /* the figure is the element's text, or its leading text node when a unit element follows (`36 <small>يوم</small>`) */
+  const node=e=>e.children.length===0?e:(e.firstChild&&e.firstChild.nodeType===3?e.firstChild:null);
+  const els=[...v.querySelectorAll(".stat .v,.num")].filter(e=>!e.hasAttribute("data-sk-counted")&&node(e)&&NUM.test((node(e).textContent||"").trim())).slice(0,COUNT_MAX);
   for(const e of els){
-    const raw=e.textContent.trim(),pct=raw.endsWith("%"),sign=/^[-+]/.test(raw)?raw[0]:"",body=raw.replace(/[%+-]/g,"");
+    const t=node(e),raw=t.textContent.trim(),m=NUM.exec(raw),sign=m[1],body=m[2],unit=m[3]||"";
     const dec=(body.split(".")[1]||"").length,grouped=body.includes(","),target=parseFloat(body.replace(/,/g,""));
     if(!isFinite(target)||target===0)continue;
     e.setAttribute("data-sk-counted","1");e.classList.add("sk-counting");
-    const fmt=n=>{let s=n.toFixed(dec);if(grouped)s=s.replace(/\B(?=(\d{3})+(?!\d))/g,",");return sign+s+(pct?"%":"")};
+    const fmt=n=>{let s=n.toFixed(dec);if(grouped)s=s.replace(/\B(?=(\d{3})+(?!\d))/g,",");return sign+s+unit};
     const t0=performance.now();
     const step=now=>{
       const p=Math.min(1,(now-t0)/COUNT_MS),k=1-Math.pow(1-p,3);
-      if(p<1){e.textContent=fmt(target*k);requestAnimationFrame(step)}
-      else{e.textContent=raw;e.classList.remove("sk-counting")}
+      if(p<1){t.textContent=fmt(target*k);requestAnimationFrame(step)}
+      else{t.textContent=raw;e.classList.remove("sk-counting")}
     };
     requestAnimationFrame(step);counted++;
   }
@@ -59,13 +63,15 @@ function enter(force){
   list.forEach((n,i)=>n.style.setProperty("--sk-i",String(i)));
   v.classList.remove("sk-enter");void v.offsetWidth;v.classList.add("sk-enter");
   clearTimeout(timer);timer=setTimeout(()=>{v.classList.remove("sk-enter");list.forEach(n=>n.style.removeProperty("--sk-i"))},LIFE);
-  reveal(all.slice(MAX));countUp();
+  reveal(all.slice(MAX));countUp();opened=Date.now();
   count++;return true;
 }
+/* a re-render of the open screen: no choreography, but figures painted while it is still settling count up once */
+function settle(){if(!enter(false)&&opened&&Date.now()-opened<SETTLE)countUp()}
 function boot(){
   if(!window.SK||!SK.bus){setTimeout(boot,200);return}
   SK.bus.on("nav",()=>setTimeout(()=>enter(false),0));
-  SK.bus.on("render",()=>setTimeout(()=>enter(false),0));
+  SK.bus.on("render",()=>setTimeout(settle,0));
   setTimeout(()=>enter(false),0);
 }
 boot();

@@ -34,7 +34,10 @@ function app(){
   const el=(text,cls)=>({nodeType:1,text,children:[],attrs:{},classes:new Set([cls]),
     get textContent(){return this.text},set textContent(v){this.text=v},hasAttribute(k){return k in this.attrs},setAttribute(k,v){this.attrs[k]=v},
     classList:{add:c=>{},remove:c=>{},contains:c=>false},style:{props:{},setProperty(k,v){this.props[k]=v},removeProperty(k){delete this.props[k]}}});
-  const figures=[el('1,234.50','v'),el('87%','num'),el('نص','num'),el('0','num')];
+  const figures=[el('1,234.50','v'),el('87%','num'),el('نص','num'),el('0','num'),el('158,200 ر.س','v')];
+  /* a stat whose unit is a child element: the leading text node is the figure */
+  const unit={nodeType:3,text:'36',get textContent(){return this.text},set textContent(v){this.text=v}};
+  figures.push(Object.assign(el('','v'),{children:[{}],firstChild:unit}));
   const view={id:'view',children:[el('','card')],offsetWidth:1,classList:{set:new Set(),add(c){this.set.add(c)},remove(c){this.set.delete(c)},contains(c){return this.set.has(c)}},querySelectorAll:()=>figures};
   const ctx={console,String,Math,Number,parseFloat,isFinite,setTimeout:(fn,ms)=>{timers.push({fn,ms});return timers.length},clearTimeout(){},
     requestAnimationFrame:fn=>{frames.push(fn);return frames.length},performance:{now:()=>now},
@@ -46,16 +49,17 @@ function app(){
 
 test('figures count up from zero and end on exactly the rendered text; words and zeros are left alone',()=>{
   const a=app();a.timers.splice(0).forEach(t=>t.fn());
-  assert.equal(a.ctx.SK.motion.counted(),2,'1,234.50 and 87% are counted; «نص» and 0 are not');
+  assert.equal(a.ctx.SK.motion.counted(),4,'1,234.50, 87%, 158,200 ر.س and the 36 before its unit are counted; «نص» and 0 are not');
   a.tick(0);
-  const [big,pct,word,zero]=a.figures;
+  const [big,pct,word,zero,cur,withUnit]=a.figures;
   assert.equal(word.text,'نص');assert.equal(zero.text,'0');
   a.tick(300);
+  assert.match(cur.text,/^\d{1,3}(,\d{3})* ر\.س$/,'the unit stays while the figure moves');
   assert.match(big.text,/^\d{1,3}(,\d{3})*\.\d{2}$/,'grouped with two decimals while moving');
   assert.ok(parseFloat(big.text.replace(/,/g,''))>0 && parseFloat(big.text.replace(/,/g,''))<1234.5);
   assert.match(pct.text,/^\d+%$/);
   a.tick(1000);a.tick(100);
-  assert.equal(big.text,'1,234.50');assert.equal(pct.text,'87%');
+  assert.equal(big.text,'1,234.50');assert.equal(pct.text,'87%');assert.equal(cur.text,'158,200 ر.س');assert.equal(withUnit.firstChild.text,'36');
   assert.equal(big.attrs['data-sk-counted'],'1');
 });
 
