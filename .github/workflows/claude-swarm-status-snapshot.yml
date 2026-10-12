@@ -56,5 +56,21 @@ jobs:
               f.write('## Claude managed session snapshot\n\n')
               for k in ['status','workflow_runs_started','workflow_runs_ended','workflow_threads_created','events_seen','events_truncated','remaining_open_runs','last_stop_reason']:
                   f.write(f'- **{k}**: {out[k]}\n')
-          # Never print untrusted repository data or raw agent message content.
+          # Only public-repo review summary from the primary session; never print tool results or secret files.
+          import re
+          messages=[]
+          for event in all_events:
+              if event.get('type') != 'agent.message':
+                  continue
+              parts=event.get('content') or []
+              if isinstance(parts,str): parts=[{'type':'text','text':parts}]
+              body='\\n'.join(p.get('text','') for p in parts if isinstance(p,dict) and p.get('type')=='text')
+              if body.strip(): messages.append(body)
+          if messages:
+              raw=messages[-1][:14000]
+              raw=re.sub(r'(?i)(sk-ant-[A-Za-z0-9_-]+|github_pat_[A-Za-z0-9_-]+|ghp_[A-Za-z0-9_-]+|AKIA[0-9A-Z]{16})','[REDACTED]',raw)
+              raw=re.sub(r'(?im)^.*(api[_ -]?key|secret[_ -]?key|authorization:|private[_ -]?key).*, '[REDACTED SENSITIVE LINE]',raw)
+              print('## Last Claude coordinator report (sanitized)\\n'+raw)
+          else:
+              print('No agent.message text found in session events.')
           PY
