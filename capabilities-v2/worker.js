@@ -1,3 +1,4 @@
+import {runClaudeSummary} from "./claude-summary.mjs";
 /* S.kosif Capabilities v2 — port of kosif-stable-capabilities-v2 governance/runtime capabilities.
    Server capabilities: Cloudflare Access verification, RBAC, multi-tenant workspace revisions,
    optimistic concurrency, append-only integrity chain, provider registry and secure headers. */
@@ -31,9 +32,9 @@ const WORKSPACE_FORBIDDEN_KEYS = new Set([
 ]);
 
 export const ROLE_PERMISSIONS = Object.freeze({
-  owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"]),
+  owner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read","ai:run"]),
   partner: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","workspace:archive","workspace:share","document:list","document:read","document:write","document:delete","integrity:read"]),
-  manager: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"]),
+  manager: Object.freeze(["providers:read","session:read","workspace:create","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read","ai:run"]),
   senior: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","workspace:write","document:list","document:read","document:write","integrity:read"]),
   viewer: Object.freeze(["providers:read","session:read","workspace:list","workspace:read","document:list","document:read","integrity:read"]),
 });
@@ -483,6 +484,7 @@ async function deleteDocument(env,auth,id,documentId) {
 }
 
 const routes = [
+  ["POST", /^\/api\/capabilities-v2\/workspaces\/(wsp_[a-f0-9]{26})\/ai\/claude$/, "ai:run", "ai-claude"],
   ["GET", /^\/api\/capabilities-v2\/providers$/, "providers:read", "providers"],
   ["GET", /^\/api\/capabilities-v2\/session$/, "session:read", "session"],
   ["GET", /^\/api\/capabilities-v2\/workspaces$/, "workspace:list", "list"],
@@ -503,7 +505,7 @@ async function handleApi(request,env,url) {
   if(request.method==="OPTIONS")return new Response(null,{status:204,headers:corsHeaders(request,env)});
   const found=routes.find(([method,re])=>method===request.method&&re.test(url.pathname));
   if(!found)return jsonResponse({error:"route_not_authorized"},403,corsHeaders(request,env));
-  const [method,re,permission,action]=found,subject=await authenticatedSubject(request,env);
+  const [method,re,permission,action]=found,subject=action==="ai-claude" ? await verifyCloudflareAccessSubject(request,env) : await authenticatedSubject(request,env);
   if(!subject)return jsonResponse({error:"authentication_required"},401,corsHeaders(request,env));
   const auth={subject,tenantId:await tenantIdFor(subject),permission},match=url.pathname.match(re);
   try{
@@ -518,12 +520,13 @@ async function handleApi(request,env,url) {
     auth.role=role;
     if(action==="list")return addCors(await listWorkspaces(env,auth),request,env);
     if(action==="create")return addCors(await createWorkspace(request,env,auth),request,env);
-    if(["meta","state","save","archive","share","documents-list","document-upload","document-download","document-delete","integrity"].includes(action)){
+    if(["meta","state","save","archive","share","documents-list","document-upload","document-download","document-delete","integrity","ai-claude"].includes(action)){
       const access=await workspaceAccessContext(db,match[1],auth);
       if(!access)return jsonResponse({error:"not_found"},404,corsHeaders(request,env));
       if(!authorizeRole(access.role,permission))return jsonResponse({error:"permission_denied"},403,corsHeaders(request,env));
       auth.workspaceRole=access.role;auth.workspaceTenantId=access.tenantId;
     }
+    if(action==="ai-claude")return addCors(await runClaudeSummary(request,env,{subject:auth.subject,tenantId:auth.workspaceTenantId,workspaceId:match[1],workspaceRole:auth.workspaceRole}),request,env);
     if(action==="meta")return addCors(await getWorkspaceMeta(env,auth,match[1]),request,env);
     if(action==="state")return addCors(await getWorkspaceState(env,auth,match[1]),request,env);
     if(action==="save")return addCors(await saveWorkspaceState(request,env,auth,match[1]),request,env);
