@@ -188,8 +188,19 @@ export function parseTrialBalance(text: string, opts: { delimiter?: string; over
     if (debit === null || credit === null) { errors.push({ line: lineNo, code: 'AMOUNT_NOT_NUMERIC', message: `مبلغ غير صالح في السطر ${lineNo}` }); return; }
     let prior: Minor | null = null;
     if (columns.priorDebit !== undefined || columns.priorCredit !== undefined) {
-      const pd = cell('priorDebit') ?? 0, pc = cell('priorCredit') ?? 0; prior = pd - pc;
-    } else if (columns.prior !== undefined) prior = cell('prior');
+      const pd = cell('priorDebit'), pc = cell('priorCredit');
+      if (pd === null || pc === null) {
+        errors.push({ line: lineNo, code: 'AMOUNT_NOT_NUMERIC', message: `مبلغ المقارنة غير صالح في السطر ${lineNo}` });
+        return; // A corrupt prior-year balance must never be silently interpreted as zero.
+      }
+      prior = pd - pc;
+    } else if (columns.prior !== undefined) {
+      prior = cell('prior');
+      if (prior === null) {
+        errors.push({ line: lineNo, code: 'AMOUNT_NOT_NUMERIC', message: `رصيد السنة السابقة غير صالح في السطر ${lineNo}` });
+        return;
+      }
+    }
     if (seen.has(code) && code) errors.push({ line: lineNo, code: 'DUPLICATE_ACCOUNT', message: `الحساب ${code} مكرر (السطر ${seen.get(code)} والسطر ${lineNo})` });
     else seen.set(code, lineNo);
     rows.push(makeRow(lineNo, code, name, debit, credit, prior, opts.overrides?.[code]));
