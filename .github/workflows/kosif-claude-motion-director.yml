@@ -48,10 +48,15 @@ jobs:
                   "color palette, 2-3 restrained animation techniques, and a quality-control checklist. "
                   "Source footage and speech must remain unchanged; do not fabricate spoken transcript or factual claims. "
                   "Budget: respond within 650 words. BRIEF: "+brief)
-          body={"model":haiku[0]["id"],"max_tokens":1600,"messages":[{"role":"user","content":prompt}]}\n          if "haiku-5-5" in haiku[0]["id"]:\n              body["thinking"]={"type":"disabled"}
+          body={"model":haiku[0]["id"],"max_tokens":1600,"messages":[{"role":"user","content":prompt}]}
+          if "haiku-5-5" in haiku[0]["id"]:
+              body["thinking"]={"type":"disabled"}
           data=request("https://api.anthropic.com/v1/messages",body)
           text="\n".join(p.get("text","") for p in data.get("content",[]) if p.get("type")=="text")
-          if not text.strip():\n              print("MOTION_STATUS: EMPTY_OUTPUT")\n              sys.exit(1)\n          print("MOTION_STATUS: SUCCESS")
+          if not text.strip():
+              print("MOTION_STATUS: EMPTY_OUTPUT")
+              sys.exit(1)
+          print("MOTION_STATUS: SUCCESS")
           print("MOTION_MODEL:",data.get("model","unknown"))
           print("MOTION_CLAUDE_BEGIN")
           print(text[:8500])
