@@ -26,6 +26,8 @@ permissions:
 
 jobs:
   deploy:
+    # Never publish deep-agent integration staging before verified release.
+    if: github.ref_name != 'integration/kosif-deep-audit-50-20261012'
     # CI repair branch never deploys to Cloudflare Pages, including previews.
     if: github.ref_name != 'fix/tbreview-duplicate-open-20261012' && github.ref_name != 'integration/earth-accounting-verified-20261012'
     runs-on: ubuntu-latest
