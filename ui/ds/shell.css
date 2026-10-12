@@ -377,6 +377,10 @@ body.skn-locked{position:fixed;inset-inline:0;top:var(--skn-lock-top,0px);width:
    scroll container, so it never stuck and sat at the very end of every page); screens chosen in «الأجهزة والمزامنة» */
 .skb{display:none}
 @media (max-width:900px){
+  /* Fixed bottom tabs overlay the viewport, not the scroll container.
+     Account for them when focus or scrollIntoView brings an input/action into view. */
+  :root{scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+
   .skb{position:fixed;inset-inline:0;bottom:0;z-index:30;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;
     padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--sk-surface) 94%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--sk-line)}
   .skb button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:52px;padding:4px 2px;border:0;border-radius:12px;background:transparent;color:var(--sk-ink-3);font:inherit;font-size:var(--sk-fs-xs);font-weight:600;cursor:pointer;min-width:0;-webkit-tap-highlight-color:transparent}
