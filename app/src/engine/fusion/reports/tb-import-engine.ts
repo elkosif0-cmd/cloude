@@ -139,7 +139,7 @@ function finish(rows: TbRow[], errors: TbError[], columns: Record<string, number
   const debit = rows.reduce((a, r) => a + r.debit, 0), credit = rows.reduce((a, r) => a + r.credit, 0);
   const hasPrior = rows.some((r) => r.prior !== null);
   const priorDifference = hasPrior ? rows.reduce((a, r) => a + (r.prior ?? 0), 0) : null;
-  return { ok: rows.length > 0, rows, errors, totals: { debit, credit }, difference: debit - credit, balanced: debit === credit,
+  return { ok: rows.length > 0 && errors.length === 0, rows, errors, totals: { debit, credit }, difference: debit - credit, balanced: debit === credit,
     hasPrior, priorDifference, unclassified: rows.filter((r) => r.type === 'suspense').length, columns, delimiter };
 }
 
