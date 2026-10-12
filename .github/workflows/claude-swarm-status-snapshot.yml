@@ -1,0 +1,60 @@
+name: Claude Swarm Snapshot - Read Only
+on:
+  push:
+    branches:
+      - integration/claude-parallel-branch-audit-20261012
+    paths:
+      - .github/workflows/claude-swarm-status-snapshot.yml
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read existing Claude session, no new agent calls
+        env:
+          MOON: ${{ secrets.MOON }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import collections, json, os, urllib.request, urllib.parse, urllib.error
+          SID='sesn_01E6upcvaBZhfiMX854bj7TR'
+          if not os.getenv('MOON'):
+              raise SystemExit('MOON secret unavailable')
+          def get(path):
+              req=urllib.request.Request('https://api.anthropic.com'+path,headers={
+                  'x-api-key':os.environ['MOON'],'anthropic-version':'2023-06-01',
+                  'anthropic-beta':'managed-agents-2026-04-01','accept':'application/json'},method='GET')
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as res: return json.load(res)
+              except urllib.error.HTTPError as e:
+                  raise RuntimeError('Anthropic HTTP '+str(e.code)+' fetching '+path.split('?')[0]) from None
+          s=get('/v1/sessions/'+SID)
+          all_events=[];cursor=None
+          for page in range(15):
+              q=urllib.parse.urlencode(dict(limit=100,order='asc',**({'page':cursor} if cursor else {})))
+              data=get('/v1/sessions/'+SID+'/events?'+q)
+              all_events+=data.get('data',[])
+              cursor=data.get('next_page')
+              if not cursor: break
+          ct=collections.Counter(e.get('type','unknown') for e in all_events)
+          starts=[e for e in all_events if e.get('type')=='workflow_run.created']
+          ends=[e for e in all_events if e.get('type')=='workflow_run.status_ended']
+          threads={e.get('session_thread_id') for e in all_events if e.get('type')=='session.thread_created' and e.get('workflow_run_id')}
+          stops=[e.get('stop_reason') for e in all_events if e.get('type')=='session.status_idle']
+          opened={e.get('workflow_run_id') for e in starts}
+          completed={e.get('workflow_run_id') for e in ends}
+          out={'status':s.get('status'),'session_id':SID,'workflow_runs_started':len(starts),
+               'workflow_runs_ended':len(ends),'workflow_results':[e.get('result') for e in ends],
+               'workflow_threads_created':len(threads),'events_seen':len(all_events),
+               'events_truncated':bool(cursor),'remaining_open_runs':len(opened-completed),
+               'last_stop_reason':stops[-1] if stops else None,
+               'event_type_counts':dict(ct),'budget':s.get('budget'),'usage':s.get('usage')}
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('## Claude managed session snapshot\n\n')
+              for k in ['status','workflow_runs_started','workflow_runs_ended','workflow_threads_created','events_seen','events_truncated','remaining_open_runs','last_stop_reason']:
+                  f.write(f'- **{k}**: {out[k]}\n')
+          # Never print untrusted repository data or raw agent message content.
+          PY
