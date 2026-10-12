@@ -5,6 +5,7 @@ on:
       - integration/claude-ai-audit-20261012
     paths:
       - .github/workflows/claude-real-finance-smoke.yml
+      - tools/claude_finance_smoke.py
 permissions:
   contents: read
 concurrency:
