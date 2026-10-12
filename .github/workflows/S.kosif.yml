@@ -155,7 +155,7 @@ jobs:
           _b=_re.search(r'<meta name="sqc-build" content="([0-9a-f]{10})">',app)
           assert _b and "./skosif.js?v="+_b.group(1) in app, "build number missing or not the bundle's"
           assert "<title>KOSIF EARTH" in app and "</title>" in app, "product title must identify KOSIF EARTH"
-          assert "KOSIF EARTH" in unlock and "sqc-logo.svg" in unlock, "front door must keep product identity and logo"
+          assert "KOSIF EARTH" in unlock and "art/brand/kosif-earth-wordmark.svg" in unlock, "front door must keep KOSIF EARTH identity and wordmark"
           import json
           assert json.loads(manifest).get("name", "").startswith("KOSIF EARTH"), "manifest app name must match product identity"
           assert "const SEED_B64 = \"\";" in app
