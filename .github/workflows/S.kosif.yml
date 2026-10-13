@@ -87,6 +87,9 @@ jobs:
       - name: Executive pack scope and stale-output guards (synthetic VM)
         run: node --test tools/report_pack_guard.test.mjs tools/report_output_guard.test.mjs
 
+      - name: Commercial report numeric parity and scoped CSV safeguards
+        run: node --test tools/commercial_report_parity_numeric.test.mjs
+
       - name: Test accessible dialogs and spreadsheet export safety
         run: |
           npm install --no-save --no-package-lock --prefix /tmp/sqc-ui linkedom@0.18.13

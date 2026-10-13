@@ -1232,3 +1232,24 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Browser QA unavailable locally: no Chromium installed; browser CDN returned invalid/truncated archives. No production browser pass claimed.
 - Remaining: tenant migration/report/council work in manual-merge branch, competing Claude reviewer contracts, bulk repository imports, governed executable patch pipeline, and full roadmap P0–P10. Preserve these sources; no blanket historical ours merge.
 - NEXT ACTION: GitHub CI/browser verification of this immutable source revision; correlate production Pages deployment with that revision before calling it live.
+
+
+### TASK KOSIFSEE-20261013-COMMERCIAL-PARITY — Verified report engine port
+- Agent: KOSIF See / ChatGPT
+- Status: ACTIVE
+- Goal: Extract the independent commercial-report numeric parity module from an older unmerged branch without merging stale audit/security/runtime code.
+- Scope: company/workspace-scoped read-only synthetic commercial report calculations + CSV safety tests; no live company data, no production credentials, no opinion issuance.
+- Source: `chatgpt/kosif-earth-manual-merge-20261010` branch; current official baseline `3c31e3ecc9811a4611b5f2d0ea869d3726426717`.
+- Branch/worktree: local `kosifsee/commercial-parity-port-20261013` at `C:\KOSIF\earth_parity_port_20261013`; intended main forward-port only after tests.
+- Expected touch set: `app/src/engine/fusion/reports/commercial-report-parity.mjs`, `tools/commercial_report_parity_numeric.test.mjs`, this append-only worklog and live journal.
+- Safeguards: independent no-posting draft module; mandatory source ownership, explicit company VAT, BigInt halala, spreadsheet formula neutralization; do not imply a live UI or certified output.
+- NEXT ACTION: Capture pre-edit journal, transfer the two exact source files, run regression/constitution tests, assess CI and guarded main publish.
+
+
+### UPDATE KOSIFSEE-20261013-COMMERCIAL-PARITY — validated isolated source port
+- Status: TESTED; ready for guarded main forward-port, not independently deployed or UI exposed.
+- Source files: `app/src/engine/fusion/reports/commercial-report-parity.mjs` and `tools/commercial_report_parity_numeric.test.mjs` from historical manual-merge branch; CI step added to `.github/workflows/S.kosif.yml`.
+- Functional scope: four advisory numeric draft reports (catalog gross/net margins; box breakdown; VAT-configured prices; verified collections), scoped company/workspace contracts, halala math with BigInt, CSV injection neutralization. No posting, authorizations or customer records changed.
+- Evidence: 7/7 dedicated tests; combined report-output/pack regressions 105/105; `app npm run check` four TS configs and 678/678 Vitest across 125 files; constitutional guard 18/18; generated engines --check; Git whitespace check; 199-entry preview build; preview privacy tests PASS. Synthetic-only tests.
+- Release limitation: production build intentionally refuses without KOSIF_UNLOCK_PASSWORD; no password or protected company material was accessed or changed. Native browser E2E and Cloudflare production release are not established by these tests.
+- NEXT ACTION: Commit code, CI, worklog and journal; fast-forward official `main` if still current; check GitHub CI and canonical Cloudflare deployment separately. Existing pending draft PRs remain individually gated; do not bulk-merge them.
