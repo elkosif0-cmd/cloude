@@ -1,4 +1,4 @@
-name: Claude Swarm Snapshot - Read Only
+name: Claude Swarm Snapshot - Read Only (2026-10-13)
 on:
   push:
     branches:
@@ -19,7 +19,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import collections, json, os, urllib.request, urllib.parse, urllib.error
-          SID='sesn_01E6upcvaBZhfiMX854bj7TR'
+          SID='sesn_01X27mat1yousxHLLkvH5YNo'
           if not os.getenv('MOON'):
               raise SystemExit('MOON secret unavailable')
           def get(path):
