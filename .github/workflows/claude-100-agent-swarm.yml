@@ -1,6 +1,7 @@
 name: Claude - 100 Agent Read Only Branch Audit
 
 # This file is introduced on a dedicated non-production branch.
+# Owner-requested new swarm run on 2026-10-13: target exactly 100 fresh managed agents.
 # Its one-time branch push starts the first tightly budgeted scan.
 on:
   push:
