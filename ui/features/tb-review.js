@@ -268,7 +268,7 @@ function commitTB(text,label,ctx,overrides,stillCurrent,tb){
   let saved=false;try{saved=save(KEY,d)===true}catch{/* preserve the active stored file on a rejected write */}
   if(!saved){confHTML=previousConf;toast("لم يُحفظ الميزان — تعذر التخزين المحلي. بقي ملف المراجعة السابق وروابط مستنداته كما هي","bad");return false}
   cache=null;tab="tb";setup=false;
-  SK.audit&&SK.audit.log("tbreview",{act:"import",source:label,accounts:tb.rows.length,balanced:tb.balanced});
+  SK.audit&&SK.audit.log("tbreview",{act:"import",source:label,accounts:tb.rows.length,balanced:tb.balanced},"audit");
   toast("استُلم ميزان "+label+": "+tb.rows.length+" حساباً"+(tb.balanced?"، متزن":" — غير متزن، راجع الفرق"),tb.balanced?"ok":"warn");
   return true;
 }

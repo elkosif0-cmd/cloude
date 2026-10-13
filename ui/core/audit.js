@@ -11,8 +11,10 @@ const role=()=>SK.perm?.role?.()||"admin";
 /* Audit engagements are independent client files; the accounting company must
    never decide where their events are recorded. A missing/invalid context fails
    closed rather than silently reusing another file's or company's history. */
-function scopeKey(){
-  const gate=SK.gate?.current?.();
+/* `as` = "audit" records an event of the open audit file whatever screen raised it (a trial balance sent from the
+   books is imported while the ledger is still on screen, yet it is the audit file's history). */
+function scopeKey(as){
+  const gate=as==="audit"?as:SK.gate?.current?.();
   if(!["accounting","audit","tools"].includes(gate))return "";
   if(gate==="audit"){
     /* FOUNDATION §3.0-1: the audit files' registry is read by the audit screen alone;
@@ -56,8 +58,8 @@ function schedule(key){
   dirty.add(key);
   if(!timer)timer=setTimeout(flush,800);
 }
-function log(type,detail={}){
-  const key=scopeKey();
+function log(type,detail={},as){
+  const key=scopeKey(as);
   if(!key)return false;
   const e={at:new Date().toISOString(),type,role:role(),
     view:window.SKosifCore?.view?.()||"",...detail};

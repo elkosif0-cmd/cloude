@@ -110,3 +110,11 @@ test('records are scoped without deleting legacy data or fetching content',()=>{
  const h=harness();h.api.log('data',{key:'synthetic'});h.api.flush();
  assert.equal(h.writes(),1);
 });
+test('an import raised from the books is recorded in the open audit file, not in the company',()=>{
+ const h=harness();h.state.gate='accounting';
+ assert.equal(h.api.log('tbreview',{act:'import'},'audit'),true);
+ assert.equal(h.api.all().length,0);
+ h.state.gate='audit';assert.equal(h.api.all()[0].act,'import');
+ h.registry.active='missing';h.state.gate='accounting';
+ assert.equal(h.api.log('tbreview',{act:'import'},'audit'),false);
+});
