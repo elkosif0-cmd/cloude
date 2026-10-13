@@ -2,7 +2,8 @@
    Six beats on a fixed clock (~27 s): the mark · the lost numbers · one independent space · the steps · growth · the wordmark.
    It owns the existing #kosif-earth-intro overlay (its skip / enter buttons, Escape, focus trap, the seen flag, the progress
    bar); when it runs it marks html.es-on so the film script steps aside. It never runs under reduced motion, save-data,
-   on ≤2 GB devices, on deep links, or twice in a session — the same gates as the film. Decorative only: no data, no auth. */
+   on ≤2 GB devices, on deep links, in a browser driven by automation
+   (the 30 s story would cover the door for every end-to-end suite), or twice in a session — the same gates as the film. Decorative only: no data, no auth. */
 (() => {
   'use strict';
   const overlay = document.getElementById('kosif-earth-intro');
@@ -14,7 +15,7 @@
   const prefers = q => { try { return !!(matchMedia && matchMedia(q).matches); } catch { return false; } };
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   let seen = false; try { seen = sessionStorage.getItem('kosif-earth-intro-seen-v1') === '1'; } catch {}
-  if (seen || location.search || location.hash || prefers('(prefers-reduced-motion: reduce)') || (conn && conn.saveData) ||
+  if (seen || navigator.webdriver || location.search || location.hash || prefers('(prefers-reduced-motion: reduce)') || (conn && conn.saveData) ||
       (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2)) return;
   document.documentElement.classList.add('es-on');
 

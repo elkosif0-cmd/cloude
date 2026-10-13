@@ -48,10 +48,12 @@ try {
     /* the crystal world: mounted after the page painted, animating, sized to the viewport; or absent without WebGL */
     await page.waitForFunction(() => window.SQCEntry && (SQCEntry.world() || !window.SQCCrystal || document.readyState === 'complete'), null, { timeout: 20000 }).catch(() => {});
     await page.waitForTimeout(600);
-    const world = await page.evaluate(async () => { const w = SQCEntry.world(); if (!w) return { mounted: false, gl: !!document.createElement('canvas').getContext('webgl') }; /* two one-second windows, the better one counts: a shared CI runner draws with software GL and hiccups */ let fps = 0; for (let i = 0; i < 2; i++) { const f0 = w.frames(); await new Promise((r) => setTimeout(r, 1000)); fps = Math.max(fps, w.frames() - f0); } const c = document.getElementById('sqc-world'); return { mounted: true, ready: !w.ready || w.ready(), fps, shards: w.shards(), still: w.still(), w: c.width, h: c.height, vw: innerWidth, vh: innerHeight, on: c.classList.contains('on') }; });
+    const world = await page.evaluate(async () => { const w = SQCEntry.world(); if (!w) return { mounted: false, gl: !!document.createElement('canvas').getContext('webgl') }; /* two one-second windows, the better one counts: a shared CI runner draws with software GL and hiccups */ let fps = 0; for (let i = 0; i < 2; i++) { const f0 = w.frames(); await new Promise((r) => setTimeout(r, 1000)); fps = Math.max(fps, w.frames() - f0); } const c = document.getElementById('sqc-world'); return { mounted: true, ready: !w.ready || w.ready(), fps, shards: w.shards(), still: w.still(), w: c.width, h: c.height, vw: innerWidth, vh: innerHeight, on: c.classList.contains('on'), hidden: getComputedStyle(c).display === 'none' }; });
     /* the shaders link in parallel; a driver that has not finished within the window is reported, not failed (the world stays
        a still background until it is ready — an Intel/ANGLE link was measured at 38 s on the owner's machine, 2026-10-07) */
     if (world.mounted && !world.ready) check(`${tag}: the crystal world is mounted and waits for its shaders without holding the page`, world.on && !world.still, JSON.stringify(world));
+    /* the KOSIF EARTH office door covers the world (earth-office-door.css hides the canvas): a hidden canvas has no size and draws nothing */
+    else if (world.mounted && world.hidden) check(`${tag}: the Earth door hides the crystal world, which then draws no frames`, world.on && world.fps === 0, JSON.stringify(world));
     else if (world.mounted) {
       /* 20 fps on a real GPU; a CI runner has no GPU and only proves the world keeps animating */
       const minFps = process.env.CI ? 12 : 20;
@@ -171,8 +173,10 @@ try {
     await page.waitForSelector('#sector-list .sector', { timeout: 10000 });
     await page.click('#sector-list .sector[data-sector="meat"]');
     await page.waitForSelector('#co-list .co', { timeout: 10000 });
-    const listed = await page.evaluate(() => [...document.querySelectorAll('#co-list .co')].map((b) => [b.dataset.name, b.getAttribute('aria-current') === 'true']));
-    check(`${tag}: the meat sector lists the demo company, marked as the last one opened, and no empty phantom company`, listed.length === 1 && listed[0][0] === 'شركة الوادي التجريبية للحوم' && listed[0][1] && !listed.some(([n]) => n === 'الشركة الحالية'), JSON.stringify(listed));
+    const listed = await page.evaluate(() => [...document.querySelectorAll('#co-list .co')].map((b) => [b.dataset.name, b.getAttribute('aria-current') === 'true', b.dataset.id]));
+    /* the sector's model companies (model-…) are listed beside the user's own; only the user's companies are counted here */
+    const own = listed.filter(([, , id]) => !/^model-/.test(id || ''));
+    check(`${tag}: the meat sector lists the demo company, marked as the last one opened, and no empty phantom company`, own.length === 1 && own[0][0] === 'شركة الوادي التجريبية للحوم' && own[0][1] && !listed.some(([n]) => n === 'الشركة الحالية'), JSON.stringify(listed));
     await page.click('#co-list .co[data-id="demo-co"]');
     await page.waitForURL(/\/app-safe(\.html)?([?#]|$)/, { timeout: 30000 });
     await settled(page);

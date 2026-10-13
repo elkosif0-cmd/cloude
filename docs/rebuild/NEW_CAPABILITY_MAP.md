@@ -67,7 +67,7 @@ Generated from `ui/core/capabilities.json` by `tools/capability_docs.py` — do 
 | التصور الموحد 2026 — جسر مساعد التقارير إلى ملف المراجعة | `auditinbox` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › صندوق استلام المراجعة | CORE | admin, accountant |
 | جديد — يحل محل قاعدة معايير smart-trial-balance-review ويكمّل مختبر المعايير | `codex` | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › المدونة المحاسبية والمعايير | MANAGEMENT | admin, accountant, viewer |
 | جديد — من global_financial_and_audit_research_bundle_extended_verified.pdf (12,506 صفحة) | `auditbench` | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › المرجع العالمي للمراجعة | MANAGEMENT | admin |
-| جديد — نقل «تقييم 100% من القيود» من SEE journal-signals و KOSIF audit studio engine.js | `journalrisk` | الأدوات المساعدة › المراجعة والمراجعة المالية › مركز المراجعة › مخاطر القيود | MANAGEMENT | admin, accountant |
+| جديد — نقل «تقييم 100% من القيود» من SEE journal-signals و KOSIF audit studio engine.js | `journalrisk` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › مخاطر القيود | MANAGEMENT | admin, accountant |
 | جديد — تشغيل المراجعة على شركات global_financial_and_audit_research_bundle_extended_verified.pdf ومقارنتها بتقارير مراجعيها | `corpuslab` | المراجعة والتدقيق › المراجعة والمراجعة المالية › المعايير والمدونة › مختبر الشركات العالمية | MANAGEMENT | admin |
 | KOSIF Audit Studio | `auditdesk` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › الاستوديو المتقدم | ADVANCED | admin, accountant |
 | KOSIF Audit Studio | `auditdocs` | المراجعة والتدقيق › المراجعة والمراجعة المالية › مركز المراجعة › المستندات والأدلة | ADVANCED | admin, accountant |

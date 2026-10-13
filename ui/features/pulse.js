@@ -62,7 +62,7 @@ async function loadAll(){
     close=readiness([...steps,...extra],{today:t,deadlines});close.month=SKosifClose.month();
   }catch(e){close=null}}
   /* the bank statement's open items since the last certified period (ui/features/bank-statement.js), when a statement was imported */
-  let bank=null;try{bank=window.SKosifBankStatement&&SKosifBankStatement.pulse?SKosifBankStatement.pulse():null}catch(e){bank=null}
+  let bank=null;try{bank=window.SKosifBankStatement&&window.SKosifBankStatement.pulse?window.SKosifBankStatement.pulse():null}catch(e){bank=null}
   return{t,fig,calls,close,bank,hasSales:!!(res&&!res.empty)};
 }
 function refresh(){if(loading)return loading;loading=loadAll().then(d=>{cache=d;at=Date.now();loading=null;return d}).catch(e=>{loading=null;SK.errors&&SK.errors.report&&SK.errors.report(e,"pulse");return null});return loading}

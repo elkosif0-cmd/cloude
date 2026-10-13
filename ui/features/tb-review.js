@@ -268,7 +268,7 @@ function commitTB(text,label,ctx,overrides,stillCurrent,tb){
   let saved=false;try{saved=save(KEY,d)===true}catch{/* preserve the active stored file on a rejected write */}
   if(!saved){confHTML=previousConf;toast("لم يُحفظ الميزان — تعذر التخزين المحلي. بقي ملف المراجعة السابق وروابط مستنداته كما هي","bad");return false}
   cache=null;tab="tb";setup=false;
-  SK.audit&&SK.audit.log("tbreview",{act:"import",source:label,accounts:tb.rows.length,balanced:tb.balanced});
+  SK.audit&&SK.audit.log("tbreview",{act:"import",source:label,accounts:tb.rows.length,balanced:tb.balanced},"audit");
   toast("استُلم ميزان "+label+": "+tb.rows.length+" حساباً"+(tb.balanced?"، متزن":" — غير متزن، راجع الفرق"),tb.balanced?"ok":"warn");
   return true;
 }
@@ -353,6 +353,8 @@ function canonicalStatements(c){
     limitation:"عرض تحليلي من ربط الميزان في الملف الرئيسي، وليس نسخة كاملة من التقرير المنشور أو إثبات امتثال للإطار. التقرير الكامل وفق إطار المصدر غير مدعوم هنا؛ غير صالح للإصدار. تبقى التسويات والأدلة والاعتمادات في الملف الرئيسي."}));
 }
 window.SKosifTBReview=Object.freeze({newEngagement,fromBooks,loadCorpus,
+  /* The id of the open audit file when it is a registered one, otherwise "" (SK.audit scopes its activity log by it). */
+  activeFile:()=>{const r=load(ENG,null);return r&&r.active&&Array.isArray(r.list)&&r.list.some(e=>e&&e.id===r.active)?r.active:""},
   /* Keep one canonical open implementation (openTab), which is already exported below. */
   current:()=>compute()?tab:"",
   openClient,showcase,picker:()=>bundlePicker(),demo:()=>runDemo(),booksTB,rows:()=>{const c=compute();if(c&&c.sourceOnly)return {sourceOnly:true,sourceKind:"published-statements",rows:[],sig:c.sig,label:c.sourceModel?c.sourceModel.issuer:"source model",ctx:{...c.d.ctx,sourceKind:"published-statements"},unavailableReason:"The embedded studio does not support source provenance; no ledger or audit-evidence transport is permitted."};return c&&c.tb.ok?{mappingUnsupported:!!(c.d.ctx.corpusId&&Object.keys(c.d.overrides||{}).length),canonicalStatements:canonicalStatements(c),rows:studioRows(c),sig:c.sig,label:c.d.ctx.company||"file",ctx:{...c.d.ctx}}:null},load:(text,label,ctx)=>loadTB(text,label,ctx),open:openTab,studio:view=>openTab("studio",view)});

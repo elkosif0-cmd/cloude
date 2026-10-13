@@ -22,7 +22,8 @@ function harness(){
   user:()=>state.user?{id:state.user}:null,
   current:()=>state.space?{id:state.space}:null};
  vm.runInNewContext(source,{
-  SK,window:{SKosifCore:{view:()=>state.view},SKosifSpace:space},
+  SK,window:{SKosifCore:{view:()=>state.view},SKosifSpace:space,
+   SKosifTBReview:{activeFile:()=>registry.list.some(e=>e&&e.id===registry.active)?registry.active:''}},
   localStorage:{setItem:(k,v)=>{writeCount++;values.set(k,v)}},
   addEventListener:()=>{},setTimeout:()=>1,Date,JSON,encodeURIComponent
  });
@@ -108,4 +109,12 @@ test('records are scoped without deleting legacy data or fetching content',()=>{
  assert.doesNotMatch(source,/\bfetch\(/);
  const h=harness();h.api.log('data',{key:'synthetic'});h.api.flush();
  assert.equal(h.writes(),1);
+});
+test('an import raised from the books is recorded in the open audit file, not in the company',()=>{
+ const h=harness();h.state.gate='accounting';
+ assert.equal(h.api.log('tbreview',{act:'import'},'audit'),true);
+ assert.equal(h.api.all().length,0);
+ h.state.gate='audit';assert.equal(h.api.all()[0].act,'import');
+ h.registry.active='missing';h.state.gate='accounting';
+ assert.equal(h.api.log('tbreview',{act:'import'},'audit'),false);
 });

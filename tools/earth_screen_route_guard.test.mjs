@@ -9,8 +9,8 @@ const registry=JSON.parse(read('ui/core/capabilities.json'));
 const caps=registry.capabilities;
 const byId=new Map(caps.map(c=>[c.id,c]));
 const verified=new Set([...src.split('const VERIFIED=Object.freeze({')[1].split('\n});')[0].matchAll(/^\s*([a-z][\w-]+):\s*\{needs:/gm)].map(m=>m[1]));
-test('registry has 78 unique capability ids and each curated guide has a real owner',()=>{
-  assert.equal(caps.length,78);
+test('registry has 79 unique capability ids and each curated guide has a real owner',()=>{
+  assert.equal(caps.length,79);
   assert.equal(byId.size,caps.length);
   assert.equal(verified.size,18);
   for(const id of verified)assert.ok(byId.has(id),'curated guide exists in canonical capabilities: '+id);

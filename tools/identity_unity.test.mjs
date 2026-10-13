@@ -48,8 +48,9 @@ test('the brand art, the door, the manifest and the topbar mark carry no cobalt'
   assert.ok(tb.length > 100);
   assert.deepEqual(tb.match(COBALT), null, 'the topbar SQC mark');
   const m = JSON.parse(read('manifest.webmanifest'));
-  assert.equal(m.theme_color, '#1d1814');
-  assert.equal(m.background_color, '#1d1814');
+  /* the installed app wears the KOSIF EARTH green on paper (ee3b22d0, pinned by tools/identity_check.py) */
+  assert.equal(m.theme_color, '#243e36');
+  assert.equal(m.background_color, '#f3ece2');
 });
 
 test('the crystal world wears the identity on screen; the door asks for «دفتر KOSIF»', () => {
