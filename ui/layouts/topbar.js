@@ -92,13 +92,15 @@ function build(){
   built=true;place();
   return true;
 }
-/* phones: the company/period chips live in the page head of the home screen */
+/* Keep the active company in the global header at every viewport width.
+   On phones the period is a compact secondary control; never move tenant identity
+   into the page content, where it can be confused with the active engagement. */
 const narrow=matchMedia("(max-width:900px)");
 function place(){
-  const box=$("#sk-ctx"),bar=$(".topbar"),ph=$(".sk-ph");if(!box||!bar||!ph)return;
+  const box=$("#sk-ctx"),bar=$(".topbar");if(!box||!bar)return;
   const search=$(".skt-search",bar);
-  if(narrow.matches){if(box.parentElement!==ph)ph.appendChild(box)}
-  else if(box.parentElement!==bar){(search||$(".grow",bar)).before(box)}
+  if(box.parentElement!==bar)(search||$(".grow",bar)).before(box);
+  box.classList.toggle("sk-ctx-mobile",narrow.matches);
 }
 narrow.addEventListener&&narrow.addEventListener("change",place);
 
