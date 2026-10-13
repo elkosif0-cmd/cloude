@@ -1,0 +1,76 @@
+name: KOSIF EARTH Claude live generation smoke
+
+# A single small synthetic request checks that Claude generation actually works.
+# No customer data, production writes, dynamic prompts, or agent fan-out.
+on:
+  push:
+    branches:
+      - audit/claude-api-wiring-20261013
+    paths:
+      - .github/workflows/kosif-claude-live-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    if: github.repository == 'elkosif0-cmd/cloude'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY || secrets.MOON }}
+    steps:
+      - name: One real synthetic Claude Messages API request
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.error
+          import urllib.request
+
+          key = os.getenv("ANTHROPIC_API_KEY", "")
+          if not key:
+              print("CLAUDE_LIVE_STATUS: MISSING_KEY")
+              sys.exit(1)
+          headers = {"x-api-key": key, "anthropic-version": "2023-06-01"}
+          model_request = urllib.request.Request(
+              "https://api.anthropic.com/v1/models?limit=50", headers=headers
+          )
+          try:
+              with urllib.request.urlopen(model_request, timeout=25) as r:
+                  models = json.load(r).get("data", [])
+              names = [m.get("id", "") for m in models if m.get("id", "").startswith("claude-")]
+              if not names:
+                  print("CLAUDE_LIVE_STATUS: NO_CLAUDE_MODEL")
+                  sys.exit(1)
+              # Pick a normal Claude Sonnet or Opus model actually listed for this key.
+              model = next((n for n in names if "sonnet" in n), None)
+              model = model or next((n for n in names if "opus" in n), None) or names[0]
+              payload = json.dumps({
+                  "model": model,
+                  "max_tokens": 80,
+                  "messages": [{"role": "user", "content": "Reply using exactly one token string: KOSIF_READY"}]
+              }).encode()
+              request = urllib.request.Request(
+                  "https://api.anthropic.com/v1/messages",
+                  data=payload, method="POST",
+                  headers={**headers, "content-type": "application/json"},
+              )
+              with urllib.request.urlopen(request, timeout=55) as r:
+                  answer = json.load(r)
+              text = " ".join(v.get("text", "") for v in answer.get("content", []) if v.get("type") == "text")
+              good = "KOSIF_READY" in text
+              usage = answer.get("usage", {})
+              print("CLAUDE_LIVE_STATUS:", "GENERATION_OK" if good else "RESPONSE_REVIEW_REQUIRED")
+              print("CLAUDE_LIVE_MODEL:", answer.get("model", model))
+              print("CLAUDE_LIVE_TOKENS:", usage.get("input_tokens", 0), usage.get("output_tokens", 0))
+              sys.exit(0 if good else 1)
+          except urllib.error.HTTPError as err:
+              print("CLAUDE_LIVE_STATUS: HTTP_" + str(err.code))
+              sys.exit(1)
+          except Exception:
+              print("CLAUDE_LIVE_STATUS: CONNECTION_OR_PARSE_ERROR")
+              sys.exit(1)
+          PY
