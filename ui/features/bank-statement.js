@@ -136,8 +136,6 @@ function mount(root){
 function later(root){lastRoot=root;clearTimeout(timer);timer=setTimeout(()=>mount(root),40)}
 function watch(root){
   if(!root||root.dataset.skbsWatch)return;root.dataset.skbsWatch="1";
-  root.addEventListener("click",e=>{const b=e.target.closest(".skbs [data-bs]");if(b){act(b.dataset.bs,b.dataset.id,root);later(root)}});
-  root.addEventListener("change",async e=>{const f=e.target.closest(".skbs [data-bs-file]");if(!f||!f.files||!f.files[0])return;const file=f.files[0];f.value="";await importFile(file);later(root)});
   /* the ledger repaints its tab by innerHTML: when «مطابقة البنك» is there and this card is not (or the reverse), remount */
   if("MutationObserver" in window)new MutationObserver(()=>{const has=!!root.querySelector(".skbs"),need=!!anchorOf(root);if(has!==need)later(root)}).observe(root,{childList:true,subtree:true});
   later(root);
@@ -149,6 +147,13 @@ function boot(){
   else setTimeout(boot,300);
 }
 boot();
+/* One delegate on the document for the card's buttons and file input: the view element is shared by every screen, so a
+   listener left on it would stay there on the command center and all the others (tools/phone_layout.mjs counts them). */
+const cardRoot=e=>e.target.closest&&e.target.closest(".skbs")?lastRoot||document.getElementById("view"):null;
+if(typeof document!=="undefined"&&document.addEventListener){
+document.addEventListener("click",e=>{const root=cardRoot(e);if(!root)return;const b=e.target.closest(".skbs [data-bs]");if(b){act(b.dataset.bs,b.dataset.id,root);later(root)}});
+document.addEventListener("change",async e=>{const root=cardRoot(e);if(!root)return;const f=e.target.closest(".skbs [data-bs-file]");if(!f||!f.files||!f.files[0])return;const file=f.files[0];f.value="";await importFile(file);later(root)});
+}
 if(SK.bus&&SK.bus.on){SK.bus.on("data",e=>{if(e&&(e.key===KEY||e.key===LEDGER_KEY)&&lastRoot)later(lastRoot)});SK.bus.on("company",()=>{lastRoot=null})}
 window.SKosifBankStatement=Object.freeze({KEY,state:db,model,pulse,importRows:rows=>{const e=E();if(!e)return null;const p=e.parseStatement(rows),s=db(),m=e.mergeImport(s,p,nowIso());put({...m.state,period:s.period});feedLedger(m.state);return{...m,warnings_ar:p.warnings_ar,bank:p.bank}},
   certification:period=>{const e=E();return e?e.certificationOf(db(),period):null},html,version:"1.0.0"});
