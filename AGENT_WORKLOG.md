@@ -1253,3 +1253,21 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Evidence: 7/7 dedicated tests; combined report-output/pack regressions 105/105; `app npm run check` four TS configs and 678/678 Vitest across 125 files; constitutional guard 18/18; generated engines --check; Git whitespace check; 199-entry preview build; preview privacy tests PASS. Synthetic-only tests.
 - Release limitation: production build intentionally refuses without KOSIF_UNLOCK_PASSWORD; no password or protected company material was accessed or changed. Native browser E2E and Cloudflare production release are not established by these tests.
 - NEXT ACTION: Commit code, CI, worklog and journal; fast-forward official `main` if still current; check GitHub CI and canonical Cloudflare deployment separately. Existing pending draft PRs remain individually gated; do not bulk-merge them.
+
+
+### TASK KOSIFSEE-20261013-COUNCIL-RECEIPTS — Standalone council evidence export port
+- Agent: KOSIF See / ChatGPT
+- Status: ACTIVE
+- Source: unmerged `chatgpt/kosif-earth-manual-merge-20261010` branch.
+- Scope: isolated advisory-only council-round receipts and export functions with synthetic unit tests. No approval authority, no live model claim, no hidden tenant switching, no private payload serialization, no public UI activation pending browser review.
+- Expected touch set: `ui/audit/v5/ai-session-receipts.js`, `ui/audit/v5/council-round-export.js`, `tools/ai_session_receipts.test.mjs`, `tools/audit_council_round_export.test.mjs`, isolated CI test, worklog and live journal.
+- NEXT ACTION: snapshot; port exact vetted source; run scoped/corpus security tests plus full release gates; only fast-forward `main` if green; distinguish backend code inclusion from visible end-user feature.
+
+
+### UPDATE KOSIFSEE-20261013-COUNCIL-RECEIPTS — safe forward-port validation
+- Status: TESTED and eligible for guarded main publish; no separate live-provider verification or server approval asserted.
+- Files: new `ui/audit/v5/ai-session-receipts.js`, `council-round-export.js`, `council-round-export-ui.js`, synthetic tests in `tools/ai_session_receipts.test.mjs` and `tools/audit_council_round_export.test.mjs`; small `continuous-council.js` import/init/refresh UI wiring; CI step. Legacy domain machine was NOT copied.
+- Compatibility: historic tests assumed `createEngagement` auto-binds company/workspace. Current independent audit foundation intentionally prohibits this; synthetic test fixtures now explicitly opt into owned scope. Real UI export remains disabled without a present explicitly bound company/workspace. This preserves independent audit files by design.
+- Functional safety: SHA-256 evidence/AI advisory receipts, tamper detection, declared provider identity not equated with live model execution, no automatic approval/ledger posting; CSV/JSON advisory export safely rejects cross-company and missing scope.
+- Evidence: 19/19 new Node tests, four TypeScript configs + 678/678 engine tests across 125 files, constitution guard 18/18, generated engines --check, syntax and diff checks, 202-entry no-private-data preview build, preview privacy checks PASS. Native interactive browser E2E and production deployment not independently verified at this checkpoint.
+- NEXT ACTION: snapshot, commit, fast-forward current main only if unchanged, verify CI/deployment source commit, keep other unresolved branch families unmerged pending individual provenance and functional checks.

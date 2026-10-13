@@ -90,6 +90,9 @@ jobs:
       - name: Commercial report numeric parity and scoped CSV safeguards
         run: node --test tools/commercial_report_parity_numeric.test.mjs
 
+      - name: Advisory council receipts and scope-safe round exports
+        run: node --test tools/ai_session_receipts.test.mjs tools/audit_council_round_export.test.mjs
+
       - name: Test accessible dialogs and spreadsheet export safety
         run: |
           npm install --no-save --no-package-lock --prefix /tmp/sqc-ui linkedom@0.18.13
