@@ -1693,9 +1693,9 @@
     "tbreview",
     "risks"
    ],
-   "gateway": "tools",
+   "gateway": "audit",
    "also": [
-    "audit"
+    "tools"
    ]
   },
   {
