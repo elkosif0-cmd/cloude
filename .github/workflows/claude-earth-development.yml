@@ -1,7 +1,8 @@
 # Claude Code development for the source behind https://earth.kosif.pp.ua/
 # Owner-only comments containing @claude start a paid API run; no scheduled runs or automatic merges.
-# Setup: install https://github.com/apps/claude on this repository, then save ANTHROPIC_API_KEY
-# in Settings > Secrets and variables > Actions > New repository secret.
+# Setup: install https://github.com/apps/claude on this repository, then configure
+# either ANTHROPIC_API_KEY or the existing finance-smoke secret MOON in GitHub Actions.
+# Run the no-cost connection probe before enabling paid generation.
 name: Claude API — KOSIF EARTH development
 
 on:
@@ -36,7 +37,7 @@ jobs:
       - name: Claude Code — propose reviewed development changes
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY || secrets.MOON }}
           trigger_phrase: '@claude'
           base_branch: main
           claude_args: |
