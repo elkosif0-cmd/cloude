@@ -47,6 +47,14 @@
   .js-shell [data-js="run"],.js-shell [data-js="post"]{scroll-margin-block:100px}
 }
 @media (max-width:640px){
+  .js-shell>.sk-seg{justify-self:stretch;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+  .js-shell>.sk-seg button{min-height:44px}
+  .js-doc{grid-template-columns:minmax(0,1fr);gap:var(--sk-3)}
+  .js-doc .sk-field,.js-doc .js-chk{min-width:0}
+  .js-doc input:not([type="checkbox"]),.js-doc textarea,.js-doc .js-chk{min-height:44px}
+  .js-doc .sk-actions,.js-res .sk-actions{display:flex;flex-wrap:wrap;align-items:stretch;gap:var(--sk-3)}
+  .js-doc .sk-actions>.btn,.js-res .sk-actions>.btn{min-height:48px}
+  .js-doc .sk-actions [data-js="run"],.js-res .sk-actions [data-js="post"]{flex:1 0 100%;min-height:52px}
   .js-er{grid-template-columns:1fr 1fr;}
   .js-er input[data-je="name"]{grid-column:1/-1;order:-1}
   .js-er button{grid-column:1/-1;justify-self:end}

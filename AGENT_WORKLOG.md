@@ -1216,3 +1216,19 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Update 2 (found once the lint let the pipeline go further): the 30.8 s «القصة» intro (`ui/art/brand/earth-story.js`, #272) covered the door and blocked every end-to-end suite that enters through it — it now steps aside when `navigator.webdriver` is set (people still see it). The new `journalrisk` screen (79 capabilities) is added to the tools row of `docs/rebuild/FOUR_GATEWAYS_FINANCE_ARCHITECTURE.md` (33) and to `tools/earth_screen_route_guard.test.mjs`.
 - Unfinished: the door still mounts the hidden crystal world (wasted WebGL context) — product decision, not changed here.
 - NEXT ACTION: CI on the PR, merge on green, publish main from the Pages deploy artifact, verify live.
+
+
+### TASK CHATGPT-20261013-BRANCH-RECONCILE — Owner-authorized remaining branch review
+- Status: ACTIVE; source baseline 7e8a300e. Owner explicitly authorizes implementation and integration into official main.
+- Fresh GitHub/Cloudflare resolution: repository elkosif0-cmd/cloude; production project s-kosif, domain earth.kosif.pp.ua. Cloudflare still records the old transferred owner in source config.
+- Current main passes four TypeScript configurations and 678/678 engine tests (125 files). Most older feature branches have already landed through reviewed ports and Claude integration.
+- Scope: inspect all official remote refs; port unique safe mobile simulator and journal rejection wording; preserve period-close locks, scoped audit, current AI worker contract and newer engines. No competing architecture or raw cross-repository copy.
+- NEXT ACTION: validate ports on desktop/phone and run gates; publish exact reviewed commit to main, then correlate deployment. Full cross-repository source coverage and every roadmap phase remain unverified.
+
+### UPDATE CHATGPT-20261013-BRANCH-RECONCILE — validated functional ports
+- Implemented: mobile document form/touch targets from integration/claude-api-accounting-20261012; retained existing 160px safe-area buffer. Added Arabic journal rejection messages, including missing account from integration/journal-account-guard-20261012, without replacing the newer close-lock engine.
+- Metadata coverage: 260 official branch refs, 233 ancestors of main and 27 with commits outside main. File/decision receipts: docs/registry/EARTH_BRANCH_RECONCILIATION_20261013.json. This is not exhaustive cross-repository source coverage and not a claim that all branches were merged.
+- Verified: four TypeScript configs + 678/678 engine tests; 34/34 focused Node tests; constitution 18/18 after correcting local origin to the transferred canonical repository; generated engines --check; preview build 199 entries; source syntax and diff whitespace clean.
+- Browser QA unavailable locally: no Chromium installed; browser CDN returned invalid/truncated archives. No production browser pass claimed.
+- Remaining: tenant migration/report/council work in manual-merge branch, competing Claude reviewer contracts, bulk repository imports, governed executable patch pipeline, and full roadmap P0–P10. Preserve these sources; no blanket historical ours merge.
+- NEXT ACTION: GitHub CI/browser verification of this immutable source revision; correlate production Pages deployment with that revision before calling it live.
