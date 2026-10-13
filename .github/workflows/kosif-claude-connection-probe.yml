@@ -1,0 +1,59 @@
+name: KOSIF EARTH Claude API connection probe
+
+# Diagnostic only. No model generation, repository writes, or production deployment.
+on:
+  push:
+    branches:
+      - audit/claude-api-wiring-20261013
+    paths:
+      - .github/workflows/kosif-claude-connection-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    if: github.repository == 'elkosif0-cmd/cloude'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      # Prefer the dedicated secret; existing finance smoke tests use MOON.
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY || secrets.MOON }}
+    steps:
+      - name: Verify Anthropic connectivity (metadata GET only)
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.error
+          import urllib.request
+
+          key = os.environ.get("ANTHROPIC_API_KEY", "")
+          if not key:
+              print("CLAUDE_KEY_STATUS: MISSING_BOTH_SECRET_NAMES")
+              sys.exit(1)
+
+          request = urllib.request.Request(
+              "https://api.anthropic.com/v1/models?limit=1",
+              headers={
+                  "x-api-key": key,
+                  "anthropic-version": "2023-06-01",
+                  "User-Agent": "KOSIF-EARTH-claude-connection-probe",
+              },
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=25) as response:
+                  payload = json.load(response)
+              ok = isinstance(payload.get("data"), list)
+              print("CLAUDE_KEY_STATUS: VALID" if ok else "CLAUDE_KEY_STATUS: INVALID_RESPONSE")
+              sys.exit(0 if ok else 1)
+          except urllib.error.HTTPError as error:
+              print("CLAUDE_KEY_STATUS: HTTP_" + str(error.code))
+              sys.exit(1)
+          except Exception:
+              print("CLAUDE_KEY_STATUS: NETWORK_ERROR")
+              sys.exit(1)
+          PY
