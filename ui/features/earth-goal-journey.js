@@ -153,7 +153,22 @@ function buildPlan(box,gate,sk,core){
       // Never auto-import into SKosifTBReview or change the Audit gateway.
       const L=window.SKosifLedger;
       if(!L?.open){live.sk.toast?.("شاشة ميزان المراجعة غير جاهزة بعد","warn");return}
-      L.open(goal.tab);
+      try{
+        L.open(goal.tab);
+        // The guide shares the ledger route. On touch devices, a stale guide
+        // can remain above the newly selected tab until the next render event.
+        // Refresh it immediately and focus the actual ledger work surface.
+        queueMicrotask(()=>{
+          sync();
+          const work=document.querySelector('#view .sk-view[data-bound="1"]');
+          if(L.current?.()===goal.tab&&work){
+            work.scrollIntoView({behavior:"auto",block:"start"});
+          }else live.sk.toast?.("تعذر عرض ميزان المراجعة، افتح تبويب الميزان من الدفاتر","warn");
+        });
+      }catch(err){
+        console.error("KOSIF_LEDGER_GOAL_NAVIGATION",err);
+        live.sk.toast?.("تعذر فتح الميزان، حاول من تبويب الدفاتر","warn");
+      }
       return;
     }
     if(live.core.view()!==goal.route)live.core.go(goal.route);
