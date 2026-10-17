@@ -1273,3 +1273,14 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - NEXT ACTION: snapshot, commit, fast-forward current main only if unchanged, verify CI/deployment source commit, keep other unresolved branch families unmerged pending individual provenance and functional checks.
 
 2026-10-13 Mobile header company placement: keep active company and period controls in global topbar at phone and desktop widths; compact phone presentation. Preview build 202 entries and preview privacy checks passed; JavaScript syntax and git diff checks passed. Audit tenant separation is NOT changed by this UI-only patch.
+
+
+### TASK CHATGPT-20261017-EARTH-LUXE-INVENTORY-UX — Accessible inventory tabs and responsive stock dashboard
+- Agent: ChatGPT
+- Status: ACTIVE / ISOLATED UX
+- Owner request: Execute the KOSIF EARTH LUXE interface modernization from the approved detailed report, especially inventory/warehouses usability.
+- Scope: `ui/features/inventory.js` presentation semantics, new scoped `ui/features/inventory-luxe.css`, wiring in `build.py`, focused synthetic source check; no changes to ledger, costing, posting, local data, company authentication or AI behavior.
+- Branch: `chatgpt/earth-luxe-inventory-ux-20261017` from official main; separate from topbar PR #275 to avoid overlapping authorship.
+- Evidence: Existing inventory screen has two button tabs without tab semantics or keyboard arrow support and tables whose horizontal scrolling is not explained on mobile. Existing code stores some inventory lists in historical browser-wide keys; migration/tenant isolation is a separate high-risk security project and is explicitly not claimed by this UX patch.
+- Acceptance: full keyboard Tab/Arrow/Home/End, aria-selected/controls, tab panels, no loss of export/reorder/expiry actions, mobile two-column KPIs and accessible table scroll. CI preview/build and company/ledger guards required before merge or deploy.
+- NEXT ACTION: Implement scoped improvements, test on CI, request review. No production change until gates pass.
