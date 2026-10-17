@@ -50,10 +50,10 @@ function html(){
   const expUrgent=expList.filter(x=>expAnalysis(x).status==="bad").length;
   const expWarn=expList.filter(x=>expAnalysis(x).status==="warn").length;
 
-  return '<div class="sk-ops-nav" style="margin-bottom:12px;" role="tablist">'+
-    '<button type="button" class="'+(invTab==='reorder'?'active':'')+'" id="sk-inv-tab-reorder">تخطيط إعادة الطلب وتغطية المخزون</button>'+
-    '<button type="button" class="'+(invTab==='expiry'?'active':'')+'" id="sk-inv-tab-expiry">⏳ رادار الصلاحية واللحوم المبردة ('+(expUrgent+expWarn)+' تنبيه)</button>'+
-  '</div>'+
+  return '<div class="sk-ops-nav sk-inv-tabs" role="tablist" aria-label="أقسام إدارة المخزون">'+
+    '<button type="button" role="tab" aria-controls="sk-inv-content" aria-selected="'+(invTab==='reorder'?'true':'false')+'" tabindex="'+(invTab==='reorder'?'0':'-1')+'" class="'+(invTab==='reorder'?'active':'')+'" id="sk-inv-tab-reorder">تخطيط إعادة الطلب وتغطية المخزون</button>'+
+    '<button type="button" role="tab" aria-controls="sk-inv-content" aria-selected="'+(invTab==='expiry'?'true':'false')+'" tabindex="'+(invTab==='expiry'?'0':'-1')+'" class="'+(invTab==='expiry'?'active':'')+'" id="sk-inv-tab-expiry">⏳ رادار الصلاحية واللحوم المبردة ('+(expUrgent+expWarn)+' تنبيه)</button>'+
+  '</div><section class="sk-inv-content" id="sk-inv-content" role="tabpanel" tabindex="0" aria-labelledby="sk-inv-tab-'+invTab+'">'+
   (invTab==="reorder" ? [
     '<div class="sk-kpis"><div class="sk-kpi"><span>أصناف متابَعة</span><b>'+list.length+'</b></div><div class="sk-kpi '+(urgent?"bad":"good")+'"><span>إعادة طلب عاجلة</span><b>'+urgent+'</b></div><div class="sk-kpi '+(near?"warn":"good")+'"><span>إعادة طلب قريبة</span><b>'+near+'</b></div><div class="sk-kpi"><span>كمية طلب مقترحة (إجمالي)</span><b>'+nf(list.reduce((s,x)=>s+(x.suggested||0),0))+'</b></div></div>',
     '<div class="sk-grid-2">',
@@ -64,7 +64,7 @@ function html(){
       '<div id="inv-out"></div>',
     '</div></section>',
     '<section class="card"><div class="card-h"><div><h3>الأصناف المحفوظة</h3><p>اضغط على صنف لتعديله.</p></div>'+(list.length?'<div class="sk-actions"><button type="button" class="btn sm" id="inv-csv">CSV</button><button type="button" class="btn sm" id="inv-clear">مسح الكل</button></div>':'')+'</div><div class="card-b">',
-      (list.length?'<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>الصنف</th><th>الحالة</th><th>المخزون</th><th>تغطية</th><th>طلب مقترح</th><th></th></tr></thead><tbody>'+
+      (list.length?'<p class="sk-inv-scroll-hint">يمكن تمرير الجدول أفقياً لعرض جميع التفاصيل.</p><div class="sk-table-wrap" tabindex="0" role="region" aria-label="جدول متابعة الأصناف"><table class="sk-table"><thead><tr><th>الصنف</th><th>الحالة</th><th>المخزون</th><th>تغطية</th><th>طلب مقترح</th><th></th></tr></thead><tbody>'+
         list.map((x,i)=>'<tr><td><button type="button" class="linkish" data-inv-load="'+i+'">'+esc(x.item)+'</button></td><td><span class="sk-pill '+cls(x.status)+'">'+esc(x.status)+'</span></td><td>'+nf(x.stock)+'</td><td>'+nf(x.cover)+' يوم</td><td><b>'+nf(x.suggested)+'</b></td><td><button type="button" class="linkish" data-inv-del="'+i+'" aria-label="حذف">حذف</button></td></tr>').join("")+
       '</tbody></table></div>':'<div class="sk-empty">لا توجد أصناف محفوظة بعد.</div>'),
     '</div></section></div>'
@@ -72,7 +72,7 @@ function html(){
     '<div class="sk-kpis"><div class="sk-kpi"><span>إجمالي دفعات اللحوم</span><b>'+expList.length+' دفعة</b></div><div class="sk-kpi '+(expUrgent?"bad":"good")+'"><span>دفعات حرجة (<= يوم)</span><b>'+expUrgent+'</b></div><div class="sk-kpi '+(expWarn?"warn":"good")+'"><span>قرب الانتهاء (2-3 أيام)</span><b>'+expWarn+'</b></div><div class="sk-kpi accent"><span>الوزن المعرض للخطر</span><b>'+expList.filter(x=>expAnalysis(x).status!=="good").reduce((s,x)=>s+num(x.stockKg),0).toFixed(1)+' كجم</b></div></div>',
     '<section class="card"><div class="card-h"><div><h3>رادار صلاحية وجودة اللحوم المبردة (FIFO & Freshness)</h3><p>متابعة تواريخ الذبح والتعبئة والصلاحية لمنع تلف اللحوم وتوجيه التقطيع والطهي حسب الأولوية.</p></div>',
     '<div class="sk-actions"><button type="button" class="btn sm primary" id="exp-add-btn">+ تسجيل دفعة لحوم</button><button type="button" class="btn sm" id="exp-wa-btn">تقرير الصلاحية (واتساب)</button></div></div><div class="card-b sk-stack">',
-    '<div id="exp-form-box" style="display:none;background:var(--surface-2,#fafafa);padding:12px;border-radius:8px;border:1px solid var(--line,#eee);">',
+    '<div id="exp-form-box" class="sk-inv-exp-form" style="display:none;">',
       '<div class="sk-grid2">',
         '<label class="sk-field"><span>رقم الدفعة (Lot No)</span><input id="exp-f-lot" value="LOT-'+Math.floor(100+Math.random()*900)+'"></label>',
         '<label class="sk-field"><span>الصنف / القطعية</span><input id="exp-f-item" placeholder="مثال: ريش نعيمي مبرد"></label>',
@@ -90,14 +90,14 @@ function html(){
         '<button type="button" class="btn" id="exp-f-cancel">إلغاء</button>',
       '</div>',
     '</div>',
-    '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>رقم الدفعة</th><th>الصنف</th><th>طريقة الحفظ</th><th>الكمية</th><th>تاريخ الانتهاء</th><th>المتبقي</th><th>الإجراء المقترح</th><th></th></tr></thead><tbody>',
+    '<p class="sk-inv-scroll-hint">يمكن تمرير الجدول أفقياً لعرض جميع الدفعات.</p><div class="sk-table-wrap" tabindex="0" role="region" aria-label="دفعات الصلاحية"><table class="sk-table"><thead><tr><th>رقم الدفعة</th><th>الصنف</th><th>طريقة الحفظ</th><th>الكمية</th><th>تاريخ الانتهاء</th><th>المتبقي</th><th>الإجراء المقترح</th><th></th></tr></thead><tbody>',
       expList.map((x,i)=>{
         const an=expAnalysis(x);
         return '<tr><td><b>'+esc(x.id)+'</b></td><td>'+esc(x.item)+'</td><td>'+esc(x.storage)+'</td><td>'+num(x.stockKg).toFixed(1)+' كجم</td><td>'+esc(x.dateExp)+'</td><td><span class="sk-pill '+an.status+'">'+(an.diffDays<0?'منتهي':an.diffDays+' يوم')+'</span></td><td><small>'+esc(an.action)+'</small></td><td><button type="button" class="linkish" data-exp-del="'+i+'" style="color:var(--sk-bad);">حذف</button></td></tr>';
       }).join(""),
     '</tbody></table></div>',
     '</div></section>'
-  ].join(""));
+  ].join(""))+'</section>';
 }
 function out(r){
   const box=$("#inv-out",root);if(!box)return;
@@ -117,6 +117,18 @@ function paint(){
   root.innerHTML=html();
   $("#sk-inv-tab-reorder",root)?.addEventListener("click",()=>{ invTab="reorder"; paint(); });
   $("#sk-inv-tab-expiry",root)?.addEventListener("click",()=>{ invTab="expiry"; paint(); });
+  const tabBar=$(".sk-inv-tabs",root);
+  tabBar?.addEventListener("keydown",e=>{
+    const tabs=$('[role="tab"]',tabBar),at=tabs.indexOf(e.target);
+    if(at<0||!["ArrowRight","ArrowLeft","Home","End"].includes(e.key))return;
+    e.preventDefault();
+    const rtl=document.documentElement.dir!=="ltr";
+    const move=e.key==="Home"?0:e.key==="End"?tabs.length-1:
+      (at+(e.key==="ArrowRight"?(rtl?-1:1):(rtl?1:-1))+tabs.length)%tabs.length;
+    invTab=tabs[move].id==="sk-inv-tab-expiry"?"expiry":"reorder";
+    paint();
+    $("#sk-inv-tab-"+invTab,root)?.focus();
+  });
 
   if(invTab==="reorder"){
     $$("[data-inv]",root).forEach(i=>i.oninput=()=>{form[i.dataset.inv]=i.value});

@@ -1284,3 +1284,13 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 - Branch / PR: `chatgpt/earth-luxe-mobile-topbar-20261017` from main; PR planned after focused changes.
 - Risks: Desktop Commander connected device is offline, so local browser/build/full-suite acceptance cannot be claimed. GitHub CI may be unavailable due to billing. Do not publish unverified changes to production.
 - NEXT ACTION: Implement mobile density and full context accessibility, add bounded regression checks, create draft PR, verify status and hand to Claude lead for release approval.
+
+### TASK CHATGPT-20261017-EARTH-LUXE-INVENTORY-UX — Accessible inventory tabs and responsive stock dashboard
+- Agent: ChatGPT
+- Status: ACTIVE / ISOLATED UX
+- Owner request: Execute the KOSIF EARTH LUXE interface modernization from the approved detailed report, especially inventory/warehouses usability.
+- Scope: `ui/features/inventory.js` presentation semantics, new scoped `ui/features/inventory-luxe.css`, wiring in `build.py`, focused synthetic source check; no changes to ledger, costing, posting, local data, company authentication or AI behavior.
+- Branch: `chatgpt/earth-luxe-inventory-ux-20261017` from official main; separate from topbar PR #275 to avoid overlapping authorship.
+- Evidence: Existing inventory screen has two button tabs without tab semantics or keyboard arrow support and tables whose horizontal scrolling is not explained on mobile. Existing code stores some inventory lists in historical browser-wide keys; migration/tenant isolation is a separate high-risk security project and is explicitly not claimed by this UX patch.
+- Acceptance: full keyboard Tab/Arrow/Home/End, aria-selected/controls, tab panels, no loss of export/reorder/expiry actions, mobile two-column KPIs and accessible table scroll. CI preview/build and company/ledger guards required before merge or deploy.
+- NEXT ACTION: Implement scoped improvements, test on CI, request review. No production change until gates pass.

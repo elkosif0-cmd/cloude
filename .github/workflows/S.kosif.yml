@@ -96,7 +96,7 @@ jobs:
       - name: Test accessible dialogs and spreadsheet export safety
         run: |
           npm install --no-save --no-package-lock --prefix /tmp/sqc-ui linkedom@0.18.13
-          NODE_PATH=/tmp/sqc-ui/node_modules node --test tools/sqc_accessibility.test.mjs tools/sqc_csv_safety.test.mjs tools/vat_display_regression.test.mjs tools/context_display_regression.test.mjs
+          NODE_PATH=/tmp/sqc-ui/node_modules node --test tools/sqc_accessibility.test.mjs tools/sqc_csv_safety.test.mjs tools/vat_display_regression.test.mjs tools/context_display_regression.test.mjs tools/inventory_luxe_ux.test.mjs
 
       - name: Test report display and partial receipt boundaries
         run: node --test tools/receipt_boundary.test.mjs tools/alpro-report-display-regression.test.mjs tools/alpro-report-implementation.test.mjs tools/trial_balance_footer.test.mjs
