@@ -1,0 +1,66 @@
+/* KOSIF EARTH LUXE — scoped visual treatment for inventory and expiry.
+   Uses the shared design tokens; no global or finance-engine overrides. */
+.sk-inv-tabs{
+  display:flex;
+  gap:var(--sk-2);
+  padding:var(--sk-1);
+  margin-block-end:var(--sk-4);
+  border:1px solid var(--sk-line);
+  border-radius:var(--sk-r-l);
+  background:var(--sk-surface-2);
+  overflow-x:auto;
+  max-width:100%;
+  overscroll-behavior-inline:contain;
+}
+.sk-inv-tabs [role="tab"]{
+  flex:1 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:var(--sk-2) var(--sk-4);
+  border:1px solid transparent;
+  border-radius:var(--sk-r);
+  background:transparent;
+  color:var(--sk-ink-2);
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+  white-space:normal;
+  text-align:center;
+}
+.sk-inv-tabs [role="tab"][aria-selected="true"]{
+  color:var(--sk-on-brand);
+  background:var(--sk-brand);
+  border-color:var(--sk-brand);
+}
+.sk-inv-content{min-width:0;max-width:100%}
+.sk-inv-content .sk-grid-2 > .card{min-width:0}
+.sk-inv-content .sk-table-wrap{max-width:100%;overflow-x:auto}
+.sk-inv-content .sk-table{min-width:620px}
+.sk-inv-scroll-hint{
+  font-size:var(--sk-fs-xs);
+  color:var(--sk-ink-3);
+  margin-block:0 var(--sk-2);
+}
+.sk-inv-exp-form{
+  background:var(--sk-surface-2);
+  padding:var(--sk-3);
+  border-radius:var(--sk-r);
+  border:1px solid var(--sk-line);
+}
+@media (max-width:600px){
+  .sk-inv-tabs{gap:var(--sk-1)}
+  .sk-inv-tabs [role="tab"]{padding:var(--sk-2);min-width:0;font-size:var(--sk-fs-xs);line-height:1.6}
+  .sk-inv-content .sk-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sk-inv-content .sk-kpi{padding:var(--sk-3);overflow-wrap:anywhere}
+  .sk-inv-content .sk-kpi b{font-size:var(--sk-fs-l)}
+  .sk-inv-content .card-h{flex-wrap:wrap;gap:var(--sk-2)}
+  .sk-inv-content .card-h .sk-actions{width:100%}
+  .sk-inv-content .card-h .sk-actions .btn{flex:1 1 auto}
+  .sk-inv-content .sk-table{min-width:620px}
+}
+@media print{
+  .sk-inv-scroll-hint{display:none}
+  .sk-inv-content .sk-table-wrap{overflow:visible}
+}
