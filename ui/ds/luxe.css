@@ -12,7 +12,7 @@
 .sk-tb-brand svg.sk-tb-sqc{width:64px;height:24px}
 .sk-tb-brand b{font:800 20px/1 var(--sk-font-latin);letter-spacing:.03em;color:var(--sk-ink)}
 .sk-ctx{display:flex;align-items:center;gap:var(--sk-2);min-width:0;flex:0 1 auto}
-.sk-tb-btn{display:inline-flex;align-items:center;gap:10px;min-width:0;min-height:46px;max-width:270px;padding:5px 12px 5px 10px;border:1px solid var(--sk-line);border-radius:14px;
+.sk-tb-btn{display:inline-flex;align-items:center;gap:8px;min-width:0;min-height:46px;max-width:270px;padding:5px 12px 5px 10px;border:1px solid var(--sk-line);border-radius:14px;
   background:var(--sk-surface);color:var(--sk-ink);font:inherit;text-align:start;cursor:pointer;transition:border-color var(--sk-t),box-shadow var(--sk-t)}
 .sk-tb-btn:hover,.sk-tb-btn[aria-expanded="true"]{border-color:var(--sk-brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--sk-brand) 12%,transparent)}
 .sk-tb-btn .ic{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:10px;background:var(--sk-brand-soft);color:var(--sk-brand)}
@@ -26,7 +26,7 @@
 .sk-tb-icon:hover{color:var(--sk-brand);border-color:var(--sk-brand)}
 .sk-tb-icon svg{width:21px;height:21px}
 .sk-tb-icon .dot{position:absolute;top:-5px;inset-inline-end:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--sk-bad-mark);color:#fff;font:700 11px/20px var(--sk-font);text-align:center;box-shadow:0 0 0 2px var(--sk-surface)}
-.sk-tb-user{display:flex;align-items:center;gap:10px;flex:none;min-height:46px;max-width:230px;padding:3px 10px 3px 3px;border:0;border-radius:16px;background:transparent;color:var(--sk-ink);font:inherit;text-align:start;cursor:pointer}
+.sk-tb-user{display:flex;align-items:center;gap:8px;flex:none;min-height:46px;max-width:230px;padding:3px 10px 3px 3px;border:0;border-radius:16px;background:transparent;color:var(--sk-ink);font:inherit;text-align:start;cursor:pointer}
 .sk-tb-user:hover,.sk-tb-user[aria-expanded="true"]{background:var(--sk-surface-2)}
 .sk-tb-user .tx{display:flex;flex-direction:column;min-width:0}
 .sk-tb-user b{font-size:var(--sk-fs-s);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -37,7 +37,7 @@
 
 /* ================= page head ================= */
 .sk-ph{display:flex;align-items:center;justify-content:space-between;gap:var(--sk-2) var(--sk-4);flex-wrap:wrap;width:100%;max-width:1480px;margin:0 auto;padding:var(--sk-4) var(--sk-6) 0}
-.sk-ph .ttl{display:flex;align-items:center;gap:14px;min-width:0;flex:1 1 380px}
+.sk-ph .ttl{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 380px}
 .sk-ph-ic{width:44px;height:44px;flex:none;display:grid;place-items:center;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface) center/cover no-repeat;color:var(--sk-brand);box-shadow:var(--sk-shadow-1)}
 .sk-ph-ic.has-art svg{display:none}
 .sk-ph-ic svg{width:26px;height:26px}
