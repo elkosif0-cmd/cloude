@@ -1275,6 +1275,16 @@ CLAIMED · ACTIVE · WAITING · BLOCKED · HANDOFF · DONE · SUPERSEDED · PROP
 2026-10-13 Mobile header company placement: keep active company and period controls in global topbar at phone and desktop widths; compact phone presentation. Preview build 202 entries and preview privacy checks passed; JavaScript syntax and git diff checks passed. Audit tenant separation is NOT changed by this UI-only patch.
 
 
+### TASK CHATGPT-20261017-EARTH-LUXE-P1 — Compact accessible topbar without company duplication
+- Agent: ChatGPT
+- Status: ACTIVE (scoped visual UX refinement, no tenant-data mutation)
+- Goal: Execute phase 1 of the user-requested KOSIF EARTH luxe modernization, prioritizing the visible company identity and crowded mobile toolbar.
+- Scope: Existing `ui/layouts/topbar.js`, `ui/ds/luxe.css`, focused UX tests and design handoff only. Preserve section-first routing and all three independent scopes.
+- Preflight: Read `docs/START_HERE.md`, `FOUNDATION.md`, `docs/PRODUCT_MANDATE_ar.md`, `AGENTS.md`, latest worklog, relevant UI files and open PR titles (#241/#242 stacked old UI; latest #268 finance). No broad architecture or company-storage changes.
+- Branch / PR: `chatgpt/earth-luxe-mobile-topbar-20261017` from main; PR planned after focused changes.
+- Risks: Desktop Commander connected device is offline, so local browser/build/full-suite acceptance cannot be claimed. GitHub CI may be unavailable due to billing. Do not publish unverified changes to production.
+- NEXT ACTION: Implement mobile density and full context accessibility, add bounded regression checks, create draft PR, verify status and hand to Claude lead for release approval.
+
 ### TASK CHATGPT-20261017-EARTH-LUXE-INVENTORY-UX — Accessible inventory tabs and responsive stock dashboard
 - Agent: ChatGPT
 - Status: ACTIVE / ISOLATED UX

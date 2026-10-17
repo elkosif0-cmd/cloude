@@ -140,10 +140,21 @@ function paint(){
     const coSub=x.scope==="audit"?"ملف المراجعة"+(x.c&&x.c.currency?" · "+x.c.currency:" · مستقل"):x.scope==="tools"?"مساحة الأدوات · "+(x.c&&x.c.name||"مستقلة"):"البرنامج المحاسبي"+(sec?" · "+sec:"")+(x.c?(x.c.currency?" · "+x.c.currency:"")+(x.cs.length>1?" · "+x.cs.length+" شركات":""):" · أضف الشركة والفترات");
     $("b",co).textContent=coName;
     $("small",co).textContent=coSub;
+    // The name must be accessible in full even when the phone truncates it.
+    const scopeLabel=x.scope==="audit"?"ملف المراجعة: ":x.scope==="tools"?"مساحة الأدوات: ":"الشركة الحالية: ";
+    co.setAttribute("aria-label",scopeLabel+coName);
+    co.setAttribute("title",coName+" — "+coSub);
   }
   if(pe){
     if(x.scope==="tools"){pe.hidden=true}
-    else{pe.hidden=false;$("b",pe).textContent=x.p?x.p.label:"كل الفترات"}
+    else{
+      pe.hidden=false;
+      const periodLabel=x.p?String(x.p.label||"فترة غير محددة"):"كل الفترات";
+      $("b",pe).textContent=periodLabel;
+      const periodContext=(x.scope==="audit"?"فترة المراجعة: ":"الفترة المالية: ")+periodLabel;
+      pe.setAttribute("aria-label",periodContext);
+      pe.setAttribute("title",periodContext);
+    }
   }
   /* bell */
   const dot=$("#sk-tb-bell .dot"),n=window.SKosifNotify?SKosifNotify.unread():0;
@@ -212,6 +223,8 @@ function userMenu(btn){
   openMenu(btn,'<div class="sk-menu-me"><span class="sk-av">'+esc(initials(pr.name))+'</span><span><b>'+esc(pr.name||"بدون اسم")+'</b><small>'+esc((pr.title?pr.title+" · ":"")+"الدور: "+SK.perm.label())+'</small></span></div>'+
     '<button type="button" data-m="profile">'+SK.icon("user")+' تعديل الاسم واللقب</button>'+
     '<button type="button" data-m="theme">'+SK.icon("settings")+(dark?' المظهر النهاري':' المظهر الليلي')+'</button>'+
+    // Small phones hide the redundant bell in the toolbar: retain its destination here.
+    (matchMedia("(max-width:600px)").matches?'<button type="button" data-m="go" data-v="notifications">'+SK.icon("notifications")+' الإشعارات'+(window.SKosifNotify&&SKosifNotify.unread()?' ('+SKosifNotify.unread()+')':'')+'</button>':'')+
     '<button type="button" data-m="go" data-v="devices">'+SK.icon("devices")+' الأجهزة والمزامنة</button>'+
     (d&&d.kind()!=="phone"?'<button type="button" data-m="keys">'+SK.icon("keyboard")+' اختصارات لوحة المفاتيح</button>':'')+
     '<button type="button" data-m="go" data-v="settings">'+SK.icon("settings")+' الإعدادات والدور</button>'+

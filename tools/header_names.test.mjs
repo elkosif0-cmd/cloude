@@ -13,7 +13,7 @@ function setup(){
  const create=d.createElement;d.createElement=tag=>{const n=create(tag);if(tag==='template')n.content=n;return n};
  d.readyState='loading';
  d.body.innerHTML='<div class="maincol"><div class="topbar"><button class="menu-btn">Menu</button><div class="skt-search"></div><div class="grow"></div></div><div id="hdr"></div><main id="view"></main></div>';
- let profile={name:'فريق التسعير',title:'مراجع'};SK.$=(s,r=d)=>r.querySelector(s);SK.load=(key,fallback)=>key==='skosif_profile_v1'?profile:fallback;SK.save=()=>{};SK.org=()=>({});SK.icon=()=>'';SK.caps={get:()=>({en:'Reports'})};SK.perm={label:()=>''};SK.company={current:()=>({id:'a',name:'A',periods:[]}),list:()=>[]};
+ let profile={name:'فريق التسعير',title:'مراجع'};SK.$=(s,r=d)=>r.querySelector(s);SK.load=(key,fallback)=>key==='skosif_profile_v1'?profile:fallback;SK.save=()=>{};SK.org=()=>({});SK.icon=()=>'';SK.caps={get:()=>({en:'Reports'})};SK.perm={label:()=>''};SK.company={current:()=>({id:'a',name:'A',currency:'SAR',periods:[],period:{label:'2026'}}),list:()=>[]};
  h.context.matchMedia=()=>({matches:false,addEventListener(){}});h.context.window.SKosifCore={view:()=> 'reports'};
  vm.runInContext(fs.readFileSync(new URL('../ui/layouts/topbar.js',import.meta.url),'utf8'),h.context);
  return {...h,paint:()=>h.host.SKosifTopbar.paint(),profile:p=>profile=p};
@@ -33,4 +33,21 @@ test('quick-sale header keeps meaningful name when its only text is CSS-hidden a
   hdr.querySelector('span').style.display='none';h.mutations();h.runTimers();
   assert.equal(hdr.querySelector('button').getAttribute('aria-label'),'إضافة بيع');
  }
+});
+
+test('header exposes full current company and period names to assistive technology',()=>{
+ const h=setup();h.paint();
+ const co=h.document.getElementById('sk-tb-co'),pe=h.document.getElementById('sk-tb-pe');
+ assert.equal(co.getAttribute('aria-label'),'الشركة الحالية: A');
+ assert.match(co.getAttribute('title'),/A/);
+ assert.equal(pe.getAttribute('aria-label'),'الفترة المالية: 2026');
+ assert.equal(pe.getAttribute('title'),'الفترة المالية: 2026');
+});
+test('small-phone optional shortcuts remain reachable from user menu',()=>{
+ const js=fs.readFileSync(new URL('../ui/layouts/topbar.js',import.meta.url),'utf8');
+ const css=fs.readFileSync(new URL('../ui/ds/luxe.css',import.meta.url),'utf8');
+ assert.match(js,/data-m="go" data-v="notifications"/);
+ assert.match(js,/data-m="theme"/);
+ assert.match(css,/max-width:600px/);
+ assert.match(css,/\.topbar #sk-tb-bell,\.topbar #sk-tb-theme\{display:none\}/);
 });
