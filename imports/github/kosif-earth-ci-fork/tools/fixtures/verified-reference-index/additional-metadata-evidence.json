@@ -1,0 +1,14 @@
+[
+  {
+    "physical_page": 3204,
+    "text_sha256": "0cb340a7c9a51539e28439e8f38a2613be83ff9e2f85e30237c88d332f9366b2",
+    "path": "page-03204.txt",
+    "purpose": "Allianz SE parent-company accounting basis"
+  },
+  {
+    "physical_page": 3235,
+    "text_sha256": "b64b23626a09eb3a5f375103641d1750830c5a0fa1328d76590dc1e889614963",
+    "path": "page-03235.txt",
+    "purpose": "Allianz SE disclosed HGB / EU Audit Regulation / IDW audit basis"
+  }
+]

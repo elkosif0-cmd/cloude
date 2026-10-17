@@ -1,0 +1,241 @@
+/* S.kosif — أنماط العمليات المتقدمة، حاسبة الشواء، وأوامر الشراء */
+
+.sk-ops-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Nav Sub-tabs */
+.sk-ops-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.sk-ops-nav button {
+  white-space: nowrap;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--line, #e2d8cc);
+  background: var(--surface, #fff);
+  color: var(--ink, #2b1a0f);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sk-ops-nav button:hover {
+  background: var(--surface-2, #fbf5ea);
+  border-color: var(--brand, #8a5a2b);
+}
+.sk-ops-nav button.active {
+  background: var(--brand, #8a5a2b);
+  color: #fff;
+  border-color: var(--brand, #8a5a2b);
+  box-shadow: 0 3px 10px rgba(138, 90, 43, 0.25);
+}
+
+/* BBQ Guests Stepper */
+.sk-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2, #fbf5ea);
+  border: 1px solid var(--line, #e2d8cc);
+  border-radius: 10px;
+  padding: 4px 8px;
+}
+.sk-stepper button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #e2d8cc);
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: var(--ink, #2b1a0f);
+  transition: background 0.15s;
+}
+.sk-stepper button:hover {
+  background: var(--brand, #8a5a2b);
+  color: #fff;
+}
+.sk-stepper input {
+  width: 60px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ink, #2b1a0f);
+}
+
+/* Operational Badges */
+.sk-ops-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.sk-ops-badge.good {
+  background: var(--sk-ok-soft);
+  color: var(--sk-ok);
+  border: 1px solid color-mix(in srgb,var(--sk-ok) 35%,var(--sk-line));
+}
+.sk-ops-badge.warn {
+  background: var(--sk-warn-soft);
+  color: var(--sk-warn);
+  border: 1px solid color-mix(in srgb,var(--sk-warn) 35%,var(--sk-line));
+}
+.sk-ops-badge.bad {
+  background: var(--sk-bad-soft);
+  color: var(--sk-bad);
+  border: 1px solid color-mix(in srgb,var(--sk-bad) 35%,var(--sk-line));
+}
+
+/* Butcher Rating Star */
+.sk-rating-stars {
+  color: var(--sk-warn);
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+}
+
+/* Quote Sheet Preview */
+.sk-quote-preview {
+  background: var(--surface, #fff);
+  border: 1px dashed var(--line, #e2d8cc);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 12px;
+}
+.sk-quote-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line, #e2d8cc);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+/* Subscription Box Cards */
+.sk-sub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 10px;
+}
+.sk-sub-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #e2d8cc);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.sk-sub-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+.sk-sub-card.popular {
+  border-color: var(--brand, #8a5a2b);
+  position: relative;
+}
+.sk-sub-card.popular::before {
+  content: "الأكثر طلباً";
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: var(--brand, #8a5a2b);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+/* Meat Aging Chamber & Maturation Styles */
+.sk-aging-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+.sk-aging-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #e2d8cc);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: all 0.2s ease;
+}
+.sk-aging-card:hover {
+  border-color: var(--brand, #8a5a2b);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+.sk-aging-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--line, #e2d8cc);
+  padding-bottom: 8px;
+}
+.sk-aging-header h4 {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  color: var(--ink, #2b1a0f);
+}
+.sk-aging-meter {
+  width: 100%;
+  height: 8px;
+  background: var(--surface-2, #fbf5ea);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.sk-aging-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sk-warn), var(--sk-ok));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.sk-aging-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: var(--surface-2, #fbf5ea);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.sk-aging-stats dt {
+  color: var(--ink-2, #6b5c4e);
+}
+.sk-aging-stats dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ink, #2b1a0f);
+  text-align: left;
+}
+.sk-aging-flavor {
+  font-size: 0.82rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(138, 90, 43, 0.08);
+  color: var(--brand, #8a5a2b);
+  font-weight: 600;
+}
+

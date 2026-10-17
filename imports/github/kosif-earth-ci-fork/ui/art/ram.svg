@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="أغنام الوادي">
+  <defs><clipPath id="r"><rect width="512" height="512" rx="112"/></clipPath></defs>
+  <rect width="512" height="512" rx="112" fill="#f4ead8"/>
+  <g clip-path="url(#r)">
+  <!-- head and neck -->
+  <path fill="#5b3519" d="M232 196C262 164 318 168 352 206C378 236 398 276 414 302C426 322 416 346 390 350C366 352 344 350 326 360C302 376 296 440 300 520L160 520C176 420 196 334 222 288C230 256 226 222 232 196Z"/>
+  <!-- light face plane -->
+  <path fill="#7a4a24" d="M300 196C328 204 352 232 372 266C386 290 398 306 404 318C392 326 372 324 354 322C340 300 330 272 314 250C304 234 298 214 300 196Z"/>
+  <!-- horn -->
+  <path fill="none" stroke="#9a6632" stroke-width="50" stroke-linecap="round" d="M292 176C286 120 226 90 172 106C114 124 92 192 116 246C140 300 206 314 242 272"/>
+  <path fill="none" stroke="#9a6632" stroke-width="34" stroke-linecap="round" d="M242 272C268 238 250 192 210 190C180 189 168 216 182 234"/>
+  <!-- horn ridges -->
+  <path fill="none" stroke="#6e4420" stroke-width="5" stroke-linecap="round" d="M226 96C246 112 262 132 270 156M136 128C124 144 116 164 114 186M118 262C132 282 152 294 176 298M216 216C226 222 230 234 226 246"/>
+  <!-- eye and nostril -->
+  <path fill="#f4ead8" d="M322 250C332 244 346 246 352 254C342 258 330 258 322 250Z"/>
+  <circle cx="404" cy="318" r="6" fill="#2b1a0f"/>
+  </g>
+</svg>

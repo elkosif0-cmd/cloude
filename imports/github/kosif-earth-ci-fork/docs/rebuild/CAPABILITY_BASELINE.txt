@@ -1,0 +1,81 @@
+# سجل القدرات — لا تُحذف قدرة من التطبيق دون قرار صريح.
+# CI يفشل إذا اختفى أي معرّف من هذه القائمة من ui/core/capabilities.json أو من حزمة الواجهة.
+# القدرة الجديدة تُضاف هنا في نفس التغيير. الصيغة: المعرّف<TAB>الاسم
+dash	مركز القيادة
+tasks	المهام
+notifications	مركز الإشعارات
+risks	المخاطر والملاحظات
+helperdesk	مركز الأدوات المساعدة
+decision	مركز القرار
+jev	Jev للقرار
+council	مجلس القرار
+risklab	المخاطر وجسر الربحية
+sensitivity	مختبر الحساسية
+commerce	الطلبات والتحصيل
+zatca	نقطة البيع والفاتورة الضريبية
+customers	العملاء
+followup	متابعة العملاء
+b2bcredit	ائتمان المطاعم
+offers	العروض والكتالوج
+operations	المناسبات والتشغيل
+salesintel	ذكاء المبيعات
+intelligence	ذكاء العملاء والطلب
+economics	اقتصاديات الطلب
+inventory	المخزون
+traceability	التتبع والتبريد
+suppliers	الموردون والمشتريات
+purchasing	أوامر الشراء والاستلام
+blending	خلطات اللحوم
+culinary	دليل الشيف
+carcass	اقتصاديات الذبيحة
+yieldlab	مختبر الجزارة
+nrv	تفكيك الذبيحة NRV
+ledger	الدفاتر المحاسبية
+cash	التدفق النقدي
+receivables	الذمم والتحصيل
+finance	الهندسة المالية
+productflow	استوديو المنتج
+catalog	الأصناف والأسعار
+costs	التكاليف والمصروفات
+sim	التسعير السريع
+kernel	نواة التسعير الصارمة
+memo	اعتماد الأسعار
+builder	البوكسات
+analyzer	تحليل البوكس
+compare	المقارنة التحليلية
+labels	ملصقات الموازين
+scanner	ماسح الباركود
+smartmatch	مطابقة المبيعات
+excelrecon	مطابقة الإكسل
+reportingintake	استلام البيانات وإعداد القوائم
+execreports	التقارير التنفيذية
+reports	مركز الطباعة
+exports	مركز التصدير
+archive	الأرشيف والتغييرات
+tbreview	ملف المراجعة
+codex	المدونة المحاسبية والمعايير
+auditbench	المرجع العالمي للمراجعة
+corpuslab	مختبر الشركات العالمية
+auditdesk	الاستوديو المتقدم
+auditdocs	المستندات والأدلة
+auditissues	الملاحظات والقضايا
+auditcouncil	مجلس المراجعين
+auditfin	القوائم والقيود
+auditreport	التقارير والإصدار
+auditanalytics	التحليل والاختبارات
+auditlab	مختبر المعايير والأبحاث
+settings	الإعدادات والمظهر
+devices	الأجهزة والمزامنة
+companies	الشركات والفترات
+masterdata	التعريفات
+governance	الحوكمة والجاهزية
+health	الصحة والتشخيص
+capabilitiesv2	الصلاحيات ومساحات العمل
+ptree	شجرة المنتجات
+salesmap	خريطة العملاء وتحليل المبيعات
+jesim	محاكي القيود
+benchmarks	المقارنة بالشركات العالمية
+advances	السلف والدفعات المقدمة
+legacyapps	الأنظمة الأصلية
+customerflow	استوديو العميل
+auditinbox	صندوق استلام المراجعة

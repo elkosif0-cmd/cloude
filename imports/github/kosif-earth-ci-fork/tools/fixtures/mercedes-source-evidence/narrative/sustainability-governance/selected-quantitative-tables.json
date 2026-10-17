@@ -1,0 +1,1362 @@
+[
+  {
+    "id": "MB2025-3392-1",
+    "physical_page": 3392,
+    "printed_page": 152,
+    "title": "Emissions to air",
+    "unit": "t",
+    "scope": "Own locations worldwide",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Dash zinc2025 means no E-PRTR AnnexII threshold exceedance, not zero. VOC direct or indirect site method; other pollutant estimates may use prior-year extrapolation.",
+    "rows": [
+      {
+        "label": "Solvents – VOC",
+        "values": {
+          "2025": 2913,
+          "2024": 3296
+        }
+      },
+      {
+        "label": "Nitrogen oxides – NOx",
+        "values": {
+          "2025": 109,
+          "2024": 207
+        }
+      },
+      {
+        "label": "Zinc – Zn",
+        "values": {
+          "2025": "–",
+          "2024": 2
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03392.txt"
+  },
+  {
+    "id": "MB2025-3395-2",
+    "physical_page": 3395,
+    "printed_page": 155,
+    "title": "Water consumption in own operations – ESRS",
+    "unit": "1000 m3",
+    "scope": "Own operations worldwide",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Consumption=withdrawal-discharge, discharge includes irrigation. At-risk includes high stress. Reused2024 restated+2425 (1000m3); measured/invoiced reused-data share23%; extrapolated total. Storage dash means no ESRS storage. Green-space irrigation is deducted in ESRS consumption, not in company supply.",
+    "rows": [
+      {
+        "label": "Water consumption",
+        "values": {
+          "2025": 2159,
+          "2024": 2091
+        }
+      },
+      {
+        "label": "Water consumption in areas at water risk",
+        "values": {
+          "2025": 1051,
+          "2024": 994
+        }
+      },
+      {
+        "label": "Water recycled and reused",
+        "values": {
+          "2025": 2488,
+          "2024": 2571
+        }
+      },
+      {
+        "label": "Water stored",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03395.txt"
+  },
+  {
+    "id": "MB2025-3395-3",
+    "physical_page": 3395,
+    "printed_page": 155,
+    "title": "Water consumption per net revenue – ESRS",
+    "unit": "m3/EUR million",
+    "scope": "Consolidated revenue from income statement",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Printed superscript6 by title versus definition footnote5: denominator explicitly consolidated Revenue. Preserve publication footnote mapping irregularity. Green-space irrigation is deducted in ESRS consumption, not in company supply.",
+    "rows": [
+      {
+        "label": "Water consumption per net revenue",
+        "values": {
+          "2025": 16.3,
+          "2024": 14.4
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03395.txt"
+  },
+  {
+    "id": "MB2025-3395-4",
+    "physical_page": 3395,
+    "printed_page": 155,
+    "title": "Company-specific water supply",
+    "unit": "1000 m3",
+    "scope": "Own operations worldwide, production subset",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Company method=water withdrawal-transfer to third parties; cannot deduct irrigation/wastewater. Not comparable to ESRS consumption.",
+    "rows": [
+      {
+        "label": "Water supply in own operations",
+        "values": {
+          "2025": 7170,
+          "2024": 7471
+        }
+      },
+      {
+        "label": "thereof in production",
+        "values": {
+          "2025": 5892,
+          "2024": 6238
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03395.txt"
+  },
+  {
+    "id": "MB2025-3395-5",
+    "physical_page": 3395,
+    "printed_page": 155,
+    "title": "Water supply in production per vehicle",
+    "unit": "m3/vehicle",
+    "scope": "Own production Cars versus Vans",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Cars increase principally denominator decline. Company method, not ESRS consumption.",
+    "rows": [
+      {
+        "label": "Mercedes-Benz Cars",
+        "values": {
+          "2025": 3.81,
+          "2024": 3.79
+        }
+      },
+      {
+        "label": "Mercedes-Benz Vans",
+        "values": {
+          "2025": 3.35,
+          "2024": 3.56
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03395.txt"
+  },
+  {
+    "id": "MB2025-3404-6",
+    "physical_page": 3404,
+    "printed_page": 164,
+    "title": "Resource inflows",
+    "unit": "mixed:1000t for weights;% for shares",
+    "scope": "Table titled Mercedes-Benz Group",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Footnote at gross-inflow-definition sentence: Information exclusively for Mercedes-Benz Cars. Table footnote1: biological share rounded. Do not silently resolve Cars/Group boundary. IMDS and industry-standard estimates.",
+    "rows": [
+      {
+        "label": "Total weight products and technical/biological materials [1000t]",
+        "values": {
+          "2025": 3890,
+          "2024": 4096
+        }
+      },
+      {
+        "label": "Share certified biological materials [%]",
+        "values": {
+          "2025": 0,
+          "2024": 0
+        }
+      },
+      {
+        "label": "Weight secondary materials [1000t]",
+        "values": {
+          "2025": 686,
+          "2024": 711
+        }
+      },
+      {
+        "label": "Share secondary materials [%]",
+        "values": {
+          "2025": 17.6,
+          "2024": 17.4
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03404.txt"
+  },
+  {
+    "id": "MB2025-3405-7",
+    "physical_page": 3405,
+    "printed_page": 165,
+    "title": "Waste",
+    "unit": "1000 t except identified percentage",
+    "scope": "Own operations; construction/demolition included",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Footnote1 increases on identified rows from one-off nonproduction construction/demolition.2024 nonhazardous incineration revised-400t. Recycling definition includes recycling and preparation for reuse. Do not sum subtotals with constituents.",
+    "rows": [
+      {
+        "label": "Hazardous: preparation for reuse",
+        "values": {
+          "2025": 0.3,
+          "2024": 0.2
+        }
+      },
+      {
+        "label": "Hazardous: recycling",
+        "values": {
+          "2025": 18.6,
+          "2024": 21.3
+        }
+      },
+      {
+        "label": "Hazardous: other recovery",
+        "values": {
+          "2025": 23.7,
+          "2024": 24.7
+        }
+      },
+      {
+        "label": "Total hazardous diverted from disposal",
+        "values": {
+          "2025": 42.6,
+          "2024": 46.2
+        }
+      },
+      {
+        "label": "Nonhazardous: preparation for reuse",
+        "values": {
+          "2025": 5.3,
+          "2024": 2.7
+        }
+      },
+      {
+        "label": "Nonhazardous: recycling",
+        "values": {
+          "2025": 716.4,
+          "2024": 561.3
+        }
+      },
+      {
+        "label": "Nonhazardous: other recovery",
+        "values": {
+          "2025": 101.4,
+          "2024": 85.1
+        }
+      },
+      {
+        "label": "Total nonhazardous diverted from disposal",
+        "values": {
+          "2025": 823.1,
+          "2024": 649.1
+        }
+      },
+      {
+        "label": "Total diverted from disposal",
+        "values": {
+          "2025": 865.7,
+          "2024": 695.3
+        }
+      },
+      {
+        "label": "Hazardous: incineration",
+        "values": {
+          "2025": 2.0,
+          "2024": 2.3
+        }
+      },
+      {
+        "label": "Hazardous: landfill",
+        "values": {
+          "2025": 1.6,
+          "2024": 8.8
+        }
+      },
+      {
+        "label": "Hazardous: other disposal",
+        "values": {
+          "2025": 8.3,
+          "2024": 2.6
+        }
+      },
+      {
+        "label": "Total hazardous directed to disposal",
+        "values": {
+          "2025": 11.9,
+          "2024": 13.7
+        }
+      },
+      {
+        "label": "Nonhazardous: incineration",
+        "values": {
+          "2025": 0.7,
+          "2024": 1.1
+        }
+      },
+      {
+        "label": "Nonhazardous: landfill",
+        "values": {
+          "2025": 19.7,
+          "2024": 5.7
+        }
+      },
+      {
+        "label": "Nonhazardous: other disposal",
+        "values": {
+          "2025": 4.4,
+          "2024": 3.6
+        }
+      },
+      {
+        "label": "Total nonhazardous directed to disposal",
+        "values": {
+          "2025": 24.8,
+          "2024": 10.4
+        }
+      },
+      {
+        "label": "Total directed to disposal",
+        "values": {
+          "2025": 36.7,
+          "2024": 24.1
+        }
+      },
+      {
+        "label": "Total waste",
+        "values": {
+          "2025": 902.4,
+          "2024": 719.4
+        }
+      },
+      {
+        "label": "thereof nonrecycled",
+        "values": {
+          "2025": 161.9,
+          "2024": 134.0
+        }
+      },
+      {
+        "label": "thereof nonrecycled share [%]",
+        "values": {
+          "2025": 17.9,
+          "2024": 18.7
+        }
+      },
+      {
+        "label": "thereof radioactive",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03405.txt"
+  },
+  {
+    "id": "MB2025-3405-8",
+    "physical_page": 3405,
+    "printed_page": 165,
+    "title": "Production waste per vehicle",
+    "unit": "kg/vehicle",
+    "scope": "Own-production Cars versus Vans",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Company-specific metric; excludes nonproduction waste driving total increase.",
+    "rows": [
+      {
+        "label": "Cars total",
+        "values": {
+          "2025": 358.1,
+          "2024": 367.5
+        }
+      },
+      {
+        "label": "Cars thereof disposal",
+        "values": {
+          "2025": 1.9,
+          "2024": 2.4
+        }
+      },
+      {
+        "label": "Vans total",
+        "values": {
+          "2025": 83.9,
+          "2024": 88.6
+        }
+      },
+      {
+        "label": "Vans thereof disposal",
+        "values": {
+          "2025": 5.3,
+          "2024": 8.1
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03405.txt"
+  },
+  {
+    "id": "MB2025-3411-9",
+    "physical_page": 3411,
+    "printed_page": 171,
+    "title": "Taxonomy summary with cross-referenced2024 denominators",
+    "unit": "EURm for amounts;% for percentages",
+    "scope": "Consolidated Taxonomy reporting",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "2024 includes activities3.18/6.15 treated nonmaterial2025. All aligned amounts climate mitigation;3.3 enabling;no transitional. Total revenue and CapEx IFRS provenance reasonable assurance, allocations limited.",
+    "rows": [
+      {
+        "label": "Revenue total [EURm]",
+        "values": {
+          "2025": 132214,
+          "2024": 145594
+        }
+      },
+      {
+        "label": "Revenue aligned [EURm]",
+        "values": {
+          "2025": 18838,
+          "2024": 18729
+        }
+      },
+      {
+        "label": "Revenue aligned [% total]",
+        "values": {
+          "2025": 14.2,
+          "2024": 12.9
+        }
+      },
+      {
+        "label": "CapEx total [EURm]",
+        "values": {
+          "2025": 25115,
+          "2024": 23620
+        }
+      },
+      {
+        "label": "CapEx aligned [EURm]",
+        "values": {
+          "2025": 7381,
+          "2024": 7116
+        }
+      },
+      {
+        "label": "CapEx aligned [% total]",
+        "values": {
+          "2025": 29.4,
+          "2024": 30.1
+        }
+      },
+      {
+        "label": "OpEx total [EURm]",
+        "values": {
+          "2025": 6931,
+          "2024": 6628
+        }
+      },
+      {
+        "label": "OpEx aligned [EURm]",
+        "values": {
+          "2025": 2274,
+          "2024": 2365
+        }
+      },
+      {
+        "label": "OpEx aligned [% total]",
+        "values": {
+          "2025": 32.8,
+          "2024": 35.7
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03411.txt",
+    "cross_source_pages": [
+      3411,
+      3413,
+      3416,
+      3418
+    ],
+    "exact_table_layout": false
+  },
+  {
+    "id": "MB2025-3411-10",
+    "physical_page": 3411,
+    "printed_page": 171,
+    "title": "Taxonomy2025 eligibility/materiality",
+    "unit": "% denominator",
+    "scope": "Each KPI own denominator",
+    "period_columns": [
+      "eligible2025",
+      "unassessed_nonmaterial2025",
+      "enabling2025"
+    ],
+    "footnotes_and_definition": "Nonmaterial activities not assessed;dash preserved. Total values2024 in previous table are cross-supported physical3413/3416/3418, not3411 alone.",
+    "rows": [
+      {
+        "label": "Revenue",
+        "values": {
+          "eligible2025": 94.1,
+          "unassessed_nonmaterial2025": 4.9,
+          "enabling2025": 13.6
+        }
+      },
+      {
+        "label": "CapEx",
+        "values": {
+          "eligible2025": 99.4,
+          "unassessed_nonmaterial2025": 0.6,
+          "enabling2025": 25.4
+        }
+      },
+      {
+        "label": "OpEx",
+        "values": {
+          "eligible2025": 100.0,
+          "unassessed_nonmaterial2025": "–",
+          "enabling2025": 32.8
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03411.txt"
+  },
+  {
+    "id": "MB2025-3413-11",
+    "physical_page": 3413,
+    "printed_page": 173,
+    "title": "Taxonomy revenue breakdown",
+    "unit": "EUR million;percentages separately",
+    "scope": "Consolidated income statement revenue",
+    "period_columns": [
+      "2025_aligned",
+      "2025_total",
+      "2025_percent",
+      "2024_aligned",
+      "2024_total",
+      "2024_percent"
+    ],
+    "footnotes_and_definition": "Direct/allocated revenue as described source. Total aligned rises but prose says fell;IFRS15 subset falls;unresolved referent.2024 comparator different taxonomy minor-activity perimeter.",
+    "rows": [
+      {
+        "label": "IFRS15",
+        "values": {
+          "2025_aligned": 17521,
+          "2025_total": 115033,
+          "2025_percent": 15.2,
+          "2024_aligned": 17740,
+          "2024_total": 128477,
+          "2024_percent": 13.8
+        }
+      },
+      {
+        "label": "Other revenue",
+        "values": {
+          "2025_aligned": 1317,
+          "2025_total": 17181,
+          "2025_percent": 7.7,
+          "2024_aligned": 989,
+          "2024_total": 17117,
+          "2024_percent": 5.8
+        }
+      },
+      {
+        "label": "Total",
+        "values": {
+          "2025_aligned": 18838,
+          "2025_total": 132214,
+          "2025_percent": 14.2,
+          "2024_aligned": 18729,
+          "2024_total": 145594,
+          "2024_percent": 12.9
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03413.txt"
+  },
+  {
+    "id": "MB2025-3416-12",
+    "physical_page": 3416,
+    "printed_page": 176,
+    "title": "Taxonomy CapEx breakdown",
+    "unit": "EUR million;percentages separately",
+    "scope": "Additions to relevant intangibles/PPE/ROU/operating-lease assets",
+    "period_columns": [
+      "2025_aligned",
+      "2025_total",
+      "2025_percent",
+      "2024_aligned",
+      "2024_total",
+      "2024_percent"
+    ],
+    "footnotes_and_definition": "Excludes goodwill;includes business-combination additions;lease equipment externally dealer-acquired vehicles;held-for-sale cutoff. Development row is subset,not additive. Mixed architecture allocation future sales except PHEV2025 only.",
+    "rows": [
+      {
+        "label": "Intangible assets",
+        "values": {
+          "2025_aligned": 2851,
+          "2025_total": 4260,
+          "2025_percent": 66.9,
+          "2024_aligned": 3170,
+          "2024_total": 4626,
+          "2024_percent": 68.5
+        }
+      },
+      {
+        "label": "thereof capitalized development",
+        "values": {
+          "2025_aligned": 2707,
+          "2025_total": 3625,
+          "2025_percent": 74.7,
+          "2024_aligned": 3084,
+          "2024_total": 4137,
+          "2024_percent": 74.5
+        }
+      },
+      {
+        "label": "PPE",
+        "values": {
+          "2025_aligned": 3447,
+          "2025_total": 5482,
+          "2025_percent": 62.9,
+          "2024_aligned": 2570,
+          "2024_total": 4039,
+          "2024_percent": 63.6
+        }
+      },
+      {
+        "label": "ROU assets",
+        "values": {
+          "2025_aligned": 110,
+          "2025_total": 613,
+          "2025_percent": 17.9,
+          "2024_aligned": 105,
+          "2024_total": 456,
+          "2024_percent": 23.0
+        }
+      },
+      {
+        "label": "Equipment on operating leases",
+        "values": {
+          "2025_aligned": 973,
+          "2025_total": 14760,
+          "2025_percent": 6.6,
+          "2024_aligned": 1271,
+          "2024_total": 14499,
+          "2024_percent": 8.8
+        }
+      },
+      {
+        "label": "Total",
+        "values": {
+          "2025_aligned": 7381,
+          "2025_total": 25115,
+          "2025_percent": 29.4,
+          "2024_aligned": 7116,
+          "2024_total": 23620,
+          "2024_percent": 30.1
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03416.txt"
+  },
+  {
+    "id": "MB2025-3418-13",
+    "physical_page": 3418,
+    "printed_page": 178,
+    "title": "Taxonomy OpEx breakdown",
+    "unit": "EUR million;percentages separately",
+    "scope": "Taxonomy-only expenditure subset,not IFRS total operating costs",
+    "period_columns": [
+      "2025_aligned",
+      "2025_total",
+      "2025_percent",
+      "2024_aligned",
+      "2024_total",
+      "2024_percent"
+    ],
+    "footnotes_and_definition": "Expensed R&D plus shortterm leases,renovations,certain repairs/maintenance. R&D mixed-architecture future allocation;PHEV current2025 only. Source prose/table direction mismatch unresolved.",
+    "rows": [
+      {
+        "label": "Research and noncapitalized development",
+        "values": {
+          "2025_aligned": 2108,
+          "2025_total": 6055,
+          "2025_percent": 34.8,
+          "2024_aligned": 2154,
+          "2024_total": 5580,
+          "2024_percent": 38.6
+        }
+      },
+      {
+        "label": "Other operating expenditure",
+        "values": {
+          "2025_aligned": 166,
+          "2025_total": 876,
+          "2025_percent": 18.9,
+          "2024_aligned": 211,
+          "2024_total": 1048,
+          "2024_percent": 20.1
+        }
+      },
+      {
+        "label": "Total",
+        "values": {
+          "2025_aligned": 2274,
+          "2025_total": 6931,
+          "2025_percent": 32.8,
+          "2024_aligned": 2365,
+          "2024_total": 6628,
+          "2024_percent": 35.7
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03418.txt"
+  },
+  {
+    "id": "MB2025-3420-14",
+    "physical_page": 3420,
+    "printed_page": 180,
+    "title": "Employees by region and gender",
+    "unit": "headcount",
+    "scope": "Active fully consolidated workforce at Dec31 incl holiday workers",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Excludes trainees,thesis writers,interns,working students,PhDs,senior experts. Total headcount explicitly reasonable assurance;do not extend automatically all breakdowns. Germany subset Europe.",
+    "rows": [
+      {
+        "label": "Europe",
+        "values": {
+          "2025": 130061,
+          "2024": 137610
+        }
+      },
+      {
+        "label": "thereof Germany",
+        "values": {
+          "2025": 107889,
+          "2024": 114741
+        }
+      },
+      {
+        "label": "North America",
+        "values": {
+          "2025": 12738,
+          "2024": 13321
+        }
+      },
+      {
+        "label": "Asia",
+        "values": {
+          "2025": 17578,
+          "2024": 18740
+        }
+      },
+      {
+        "label": "Other markets",
+        "values": {
+          "2025": 3743,
+          "2024": 5593
+        }
+      },
+      {
+        "label": "Total",
+        "values": {
+          "2025": 164120,
+          "2024": 175264
+        }
+      },
+      {
+        "label": "Female",
+        "values": {
+          "2025": 39240,
+          "2024": 41605
+        }
+      },
+      {
+        "label": "Male",
+        "values": {
+          "2025": 124880,
+          "2024": 133659
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03420.txt"
+  },
+  {
+    "id": "MB2025-3421-15",
+    "physical_page": 3421,
+    "printed_page": 181,
+    "title": "Employee contracts",
+    "unit": "headcount",
+    "scope": "At Dec31 active workforce;categories overlap",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Non-guaranteed hours subset temporary. Full/part-time gender subtotals mismatch total genders by1 in2025;preserve source and flag.",
+    "rows": [
+      {
+        "label": "Full time",
+        "values": {
+          "2025": 152528,
+          "2024": 163132
+        }
+      },
+      {
+        "label": "Full time female",
+        "values": {
+          "2025": 31615,
+          "2024": 33538
+        }
+      },
+      {
+        "label": "Full time male",
+        "values": {
+          "2025": 120913,
+          "2024": 129594
+        }
+      },
+      {
+        "label": "Part time",
+        "values": {
+          "2025": 11592,
+          "2024": 12132
+        }
+      },
+      {
+        "label": "Part time female",
+        "values": {
+          "2025": 7624,
+          "2024": 8067
+        }
+      },
+      {
+        "label": "Part time male",
+        "values": {
+          "2025": 3968,
+          "2024": 4065
+        }
+      },
+      {
+        "label": "Permanent",
+        "values": {
+          "2025": 160334,
+          "2024": 169476
+        }
+      },
+      {
+        "label": "Permanent female",
+        "values": {
+          "2025": 38273,
+          "2024": 40045
+        }
+      },
+      {
+        "label": "Permanent male",
+        "values": {
+          "2025": 122061,
+          "2024": 129431
+        }
+      },
+      {
+        "label": "Temporary",
+        "values": {
+          "2025": 3786,
+          "2024": 5788
+        }
+      },
+      {
+        "label": "Temporary female",
+        "values": {
+          "2025": 967,
+          "2024": 1560
+        }
+      },
+      {
+        "label": "Temporary male",
+        "values": {
+          "2025": 2819,
+          "2024": 4228
+        }
+      },
+      {
+        "label": "Non-guaranteed hours",
+        "values": {
+          "2025": 650,
+          "2024": 600
+        }
+      },
+      {
+        "label": "Non-guaranteed female",
+        "values": {
+          "2025": 203,
+          "2024": 196
+        }
+      },
+      {
+        "label": "Non-guaranteed male",
+        "values": {
+          "2025": 447,
+          "2024": 404
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03421.txt"
+  },
+  {
+    "id": "MB2025-3421-16",
+    "physical_page": 3421,
+    "printed_page": 181,
+    "title": "Employee turnover",
+    "unit": "headcount or % as labeled",
+    "scope": "Active ESRS versus permanent/core company-specific population",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "2025 denominator quarterly annual average rather than year-end.2024 ESRS rate unchanged12.9;core restated6.3 versus former6.5. Leavers include voluntary,dismissal,retirement,death;not all job cuts.",
+    "rows": [
+      {
+        "label": "Active annual average [headcount]",
+        "values": {
+          "2025": 169240,
+          "2024": 179291
+        }
+      },
+      {
+        "label": "ESRS leavers [headcount]",
+        "values": {
+          "2025": 22663,
+          "2024": 22601
+        }
+      },
+      {
+        "label": "ESRS turnover [%]",
+        "values": {
+          "2025": 13.4,
+          "2024": 12.9
+        }
+      },
+      {
+        "label": "Core leavers [headcount]",
+        "values": {
+          "2025": 13391,
+          "2024": 11006
+        }
+      },
+      {
+        "label": "Core turnover [%]",
+        "values": {
+          "2025": 8.2,
+          "2024": 6.3
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03421.txt"
+  },
+  {
+    "id": "MB2025-3424-17",
+    "physical_page": 3424,
+    "printed_page": 184,
+    "title": "Pay gap and total remuneration",
+    "unit": "% or ratio as labeled",
+    "scope": "Global unadjusted gross hourly earnings and total remuneration",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Gender gap=(male avg-female avg)/male avg;no region/job adjustment. Total remuneration includes monetary/in-kind benefits. Highest-paid individual,not automatically CEO.",
+    "rows": [
+      {
+        "label": "Gender pay gap [%]",
+        "values": {
+          "2025": 3.9,
+          "2024": 4.8
+        }
+      },
+      {
+        "label": "Highest paid:median annual total remuneration [x:1]",
+        "values": {
+          "2025": 135,
+          "2024": 175
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03424.txt"
+  },
+  {
+    "id": "MB2025-3426-18",
+    "physical_page": 3426,
+    "printed_page": 186,
+    "title": "OH&S",
+    "unit": "mixed",
+    "scope": "Own workforce under legal/ISO45001-based management",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Management coverage not certification percentage. Local-law recordable injuries excludes commuting;rate per1million attendance hours.",
+    "rows": [
+      {
+        "label": "Coverage [%]",
+        "values": {
+          "2025": 100,
+          "2024": 100
+        }
+      },
+      {
+        "label": "Recordable work accidents [count]",
+        "values": {
+          "2025": 815,
+          "2024": 989
+        }
+      },
+      {
+        "label": "Recordable work accident rate [per1m hours]",
+        "values": {
+          "2025": 2.8,
+          "2024": 3.2
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03426.txt"
+  },
+  {
+    "id": "MB2025-3427-19",
+    "physical_page": 3427,
+    "printed_page": 187,
+    "title": "Work-related fatalities",
+    "unit": "count",
+    "scope": "Own workforce versus other workers at Group sites",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Ill-health figures only cases reported or identified medical monitoring under local rules;no cases reported. Dashes retained.",
+    "rows": [
+      {
+        "label": "Injury own workforce",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      },
+      {
+        "label": "Injury other site workers",
+        "values": {
+          "2025": 1,
+          "2024": 2
+        }
+      },
+      {
+        "label": "Ill-health own workforce",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      },
+      {
+        "label": "Ill-health other site workers",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03427.txt"
+  },
+  {
+    "id": "MB2025-3429-20",
+    "physical_page": 3429,
+    "printed_page": 189,
+    "title": "Top management gender levels1–2",
+    "unit": "headcount or % as labeled",
+    "scope": "First2 levels below management board at Dec31",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Different from senior levels1–3 and AG-only statutory tiers.",
+    "rows": [
+      {
+        "label": "Male [headcount]",
+        "values": {
+          "2025": 294,
+          "2024": 330
+        }
+      },
+      {
+        "label": "Female [headcount]",
+        "values": {
+          "2025": 94,
+          "2024": 100
+        }
+      },
+      {
+        "label": "Male [%]",
+        "values": {
+          "2025": 75.8,
+          "2024": 76.7
+        }
+      },
+      {
+        "label": "Female [%]",
+        "values": {
+          "2025": 24.2,
+          "2024": 23.3
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03429.txt"
+  },
+  {
+    "id": "MB2025-3430-21",
+    "physical_page": 3430,
+    "printed_page": 190,
+    "title": "Senior management gender levels1–3",
+    "unit": "headcount or % as labeled",
+    "scope": "First3 levels below management board at Dec31",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Company-specific;explicit reasonable-assurance footnote. Do not map to AG parent-only statutory tiers. Independent assurance-letter category is levels 1–3 gender distribution (absolute); do not infer same assurance over percentages or targets.",
+    "rows": [
+      {
+        "label": "Male [headcount]",
+        "values": {
+          "2025": 1505,
+          "2024": 1656
+        }
+      },
+      {
+        "label": "Female [headcount]",
+        "values": {
+          "2025": 547,
+          "2024": 593
+        }
+      },
+      {
+        "label": "Male [%]",
+        "values": {
+          "2025": 73.3,
+          "2024": 73.6
+        }
+      },
+      {
+        "label": "Female [%]",
+        "values": {
+          "2025": 26.7,
+          "2024": 26.4
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03430.txt"
+  },
+  {
+    "id": "MB2025-3431-22",
+    "physical_page": 3431,
+    "printed_page": 191,
+    "title": "Discrimination and labour complaints",
+    "unit": "count;EUR for penalties",
+    "scope": "Written HR disciplinary matters and reported serious cases",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "Serious includes harassment,racism,physical/psychological integrity. Penalties approximated in prose and other operating income/expense.",
+    "rows": [
+      {
+        "label": "Reported serious discrimination",
+        "values": {
+          "2025": 11,
+          "2024": 21
+        }
+      },
+      {
+        "label": "Internal-channel complaints",
+        "values": {
+          "2025": 300,
+          "2024": 334
+        }
+      },
+      {
+        "label": "National-contact-point complaints",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      },
+      {
+        "label": "Related fines/sanctions/compensation [EUR approximate]",
+        "values": {
+          "2025": 51000,
+          "2024": 10000
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03431.txt"
+  },
+  {
+    "id": "MB2025-3452-23",
+    "physical_page": 3452,
+    "printed_page": 212,
+    "title": "Donations/sponsorships with possible political influence",
+    "unit": "EUR",
+    "scope": "Disclosed possible-influence contributions;not party contributions",
+    "period_columns": [
+      "2025",
+      "2024"
+    ],
+    "footnotes_and_definition": "2025 no party contributions. Donations in kind monetized.2024 Europe donations revised+1620000,Asia sponsorship+582624 due reassessment.",
+    "rows": [
+      {
+        "label": "Donations total",
+        "values": {
+          "2025": 3026624,
+          "2024": 2895188
+        }
+      },
+      {
+        "label": "Donations Europe",
+        "values": {
+          "2025": 3020709,
+          "2024": 2892852
+        }
+      },
+      {
+        "label": "Donations North America",
+        "values": {
+          "2025": 5381,
+          "2024": "–"
+        }
+      },
+      {
+        "label": "Donations Asia",
+        "values": {
+          "2025": 534,
+          "2024": 2336
+        }
+      },
+      {
+        "label": "Donations other",
+        "values": {
+          "2025": "–",
+          "2024": "–"
+        }
+      },
+      {
+        "label": "Sponsorship total",
+        "values": {
+          "2025": 855685,
+          "2024": 1283097
+        }
+      },
+      {
+        "label": "Sponsorship Europe",
+        "values": {
+          "2025": 153160,
+          "2024": 374881
+        }
+      },
+      {
+        "label": "Sponsorship North America",
+        "values": {
+          "2025": 42031,
+          "2024": 192771
+        }
+      },
+      {
+        "label": "Sponsorship Asia",
+        "values": {
+          "2025": 645794,
+          "2024": 672742
+        }
+      },
+      {
+        "label": "Sponsorship other",
+        "values": {
+          "2025": 14700,
+          "2024": 42703
+        }
+      }
+    ],
+    "exact_reported_values": true,
+    "visual_verified": true,
+    "source_text": "source-evidence/page-03452.txt"
+  }
+]

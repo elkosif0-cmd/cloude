@@ -1,0 +1,114 @@
+[
+  {
+    "id": "VANS-2024-CUSTOMER-SUM",
+    "pages": [
+      3289
+    ],
+    "kind": "integer_count_residual",
+    "status": "unresolved_source_exception",
+    "reported_total": 405610,
+    "component_sum": 405609,
+    "unit": "vehicles",
+    "action": "Retain exact source values; do not invent a rounding or classification explanation."
+  },
+  {
+    "id": "TAXONOMY-REVENUE-DIRECTION",
+    "pages": [
+      3413
+    ],
+    "kind": "narrative_table_direction",
+    "status": "unresolved_referent",
+    "reported_2025": 18838,
+    "reported_2024": 18729,
+    "unit": "EUR million",
+    "action": "Table total rises while prose says falls. IFRS15 subset declines, a possible narrower referent, not established."
+  },
+  {
+    "id": "TAXONOMY-RD-DIRECTION",
+    "pages": [
+      3418
+    ],
+    "kind": "narrative_table_direction",
+    "status": "unresolved_source_exception",
+    "reported_2025": 2108,
+    "reported_2024": 2154,
+    "unit": "EUR million",
+    "action": "Aligned expensed R&D declines despite explicit increased-less-sharply prose. Do not repair either disclosure."
+  },
+  {
+    "id": "HEADCOUNT-GENDER-COMPONENTS",
+    "pages": [
+      3421
+    ],
+    "kind": "integer_count_residual",
+    "status": "unresolved_source_exception",
+    "female_reported": 39240,
+    "female_components": 39239,
+    "male_reported": 124880,
+    "male_components": 124881,
+    "unit": "people",
+    "action": "Preserve one-person opposing residuals; overall workforce total reconciles."
+  },
+  {
+    "id": "RESOURCE-INFLOW-FOOTNOTE",
+    "pages": [
+      3404
+    ],
+    "kind": "scope_footnote_ambiguity",
+    "status": "unresolved_scope",
+    "action": "Cars-only footnote attached to gross-inflow definition, Group-labelled table. Keep exact attachment and do not silently choose a perimeter."
+  },
+  {
+    "id": "WATER-INTENSITY-FOOTNOTE",
+    "pages": [
+      3395
+    ],
+    "kind": "footnote_number",
+    "status": "source_presentation_exception",
+    "action": "Heading superscript6 differs from denominator footnote5; preserve explicit IFRS revenue denominator."
+  },
+  {
+    "id": "LEGAL-AFFAIRS-MEETING-COUNT",
+    "pages": [
+      3253,
+      3257
+    ],
+    "kind": "narrative_count",
+    "status": "independently_confirmed_unresolved_source_exception",
+    "outside_narrative_assignment": true,
+    "action": "Three total versus three in-person plus one video; attendance3/3. No invented correction."
+  },
+  {
+    "id": "AUDIT-COMMITTEE-SELF-EVALUATION-DATE",
+    "pages": [
+      3253,
+      3473
+    ],
+    "kind": "date_consistency",
+    "status": "unresolved_referent",
+    "action": "11February2026 versus explicit10February2026. Different meetings/referents possible; no date replaced."
+  },
+  {
+    "id": "TREASURY-AVERAGE-PRICE",
+    "pages": [
+      3555
+    ],
+    "kind": "price_quantity_reconciliation",
+    "status": "independently_confirmed_unresolved_source_exception",
+    "outside_narrative_assignment": true,
+    "reported_shares_million": "107",
+    "reported_average_EUR": "63.62",
+    "reported_total_EUR_million": "6992",
+    "computed_without_unidentified_costs_EUR_million": "6807.34",
+    "action": "Cost includes unspecified transaction costs; rounding alone cannot explain residual. Do not invent fees or assume error."
+  },
+  {
+    "id": "SCOPE3-PRIMARY-DATA-DENOMINATOR",
+    "pages": [
+      3384
+    ],
+    "kind": "denominator_ambiguity",
+    "status": "retain_source_wording",
+    "action": "24% supplier/partner data followed by of-this3% primary. Do not infer percentage-of-total without unambiguous denominator."
+  }
+]

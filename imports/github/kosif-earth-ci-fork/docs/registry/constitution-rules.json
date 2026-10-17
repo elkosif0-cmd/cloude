@@ -1,0 +1,172 @@
+{
+  "note": "رادع الدستور — every rule of FOUNDATION.md that can be checked by a machine, and what checks it. tools/constitution_guard.mjs runs this file; a rule with no check is listed as a gap, never as passing. 'tests' are unit files (node --test); 'checks' are static checks implemented in the guard.",
+  "rules": [
+    {
+      "id": "F2",
+      "section": "§2",
+      "rule": "مصدر الحقيقة: المستودع المذكور في الدستور هو مستودع الإنتاج الفعلي",
+      "checks": [
+        "source_of_truth"
+      ]
+    },
+    {
+      "id": "F3",
+      "section": "§3",
+      "rule": "القسم أولاً ثم الشركة — ثلاثة أقسام فقط: المحاسبة والمراجعة والأدوات",
+      "checks": [
+        "three_gateways"
+      ],
+      "tests": [
+        "tools/gate_nav_contract.test.mjs",
+        "tools/company_entry.test.mjs"
+      ]
+    },
+    {
+      "id": "F3.0-1",
+      "section": "§3.0‑1",
+      "rule": "المسار يملك المساحة عند الإنشاء (owner_scope)، وملفات المراجعة في سجلها وحدها",
+      "tests": [
+        "tools/owner_scope.test.mjs"
+      ],
+      "checks": [
+        "audit_registry_own"
+      ]
+    },
+    {
+      "id": "F3.0-3",
+      "section": "§3.0‑3",
+      "rule": "المراجعة مستقلة: مرتبطة أو عامة، ولا تُنشئ شركة في المحاسبة أو الأدوات",
+      "tests": [
+        "tools/audit_context_independence.test.mjs"
+      ]
+    },
+    {
+      "id": "F3.0-4",
+      "section": "§3.0‑4",
+      "rule": "الأدوات كتالوج مستقل؛ قائمة الأدوات لا تعرض شركات المحاسبة تلقائياً",
+      "checks": [
+        "tools_menu_own_space"
+      ]
+    },
+    {
+      "id": "F3.0-5",
+      "section": "§3.0‑5",
+      "rule": "النشاط يخصص النظام (Industry Profile / حزمة القطاع)",
+      "checks": [
+        "sector_pack_engine"
+      ]
+    },
+    {
+      "id": "F3.0-6",
+      "section": "§3.0‑6",
+      "rule": "عزل السياق: بيانات كل شركة تتبع الشركة",
+      "tests": [
+        "tools/company_scope_keys.test.mjs",
+        "tools/company_context.test.mjs",
+        "tools/bootstrap_scope.test.mjs"
+      ]
+    },
+    {
+      "id": "F3.0-7",
+      "section": "§3.0‑7",
+      "rule": "شريط السياق دائم: البرنامج · النشاط · الشركة · القسم",
+      "checks": [
+        "context_bar"
+      ],
+      "tests": [
+        "tools/context_display_regression.test.mjs"
+      ]
+    },
+    {
+      "id": "F3.0-8",
+      "section": "§3.0‑8",
+      "rule": "حالة حفظ مرئية: جاري الحفظ / تم الحفظ / تعذر الحفظ",
+      "tests": [
+        "tools/save_state.test.mjs"
+      ],
+      "checks": [
+        "save_state_wired"
+      ],
+      "gap": "الحفظ على الخادم نفسه غير موجود بعد — البيانات على الجهاز فقط، والشريحة تقول ذلك صراحة"
+    },
+    {
+      "id": "F3.0-9",
+      "section": "§3.0‑9",
+      "rule": "جلسة AI مرتبطة بالمساحة ولا تعبر الشركات",
+      "tests": [
+        "tools/assistant_scope.test.mjs"
+      ],
+      "gap": "لا يوجد Event Stream موحّد للأحداث بعد"
+    },
+    {
+      "id": "F3.0-10",
+      "section": "§3.0‑10",
+      "rule": "الأدوات والـAI قدرات Opt-in لكل شركة (Capability Profile): الشركة الجديدة تبدأ بأدوات العمل اليومي ونشاطها، والسابقة تبقى كما كانت",
+      "tests": [
+        "tools/capability_profile.test.mjs"
+      ]
+    },
+    {
+      "id": "F3.0-11",
+      "section": "§3.0‑11",
+      "rule": "الهلال لا الصليب في صور القطاع الصحي",
+      "checks": [
+        "health_art"
+      ]
+    },
+    {
+      "id": "F3.7",
+      "section": "§3.7",
+      "rule": "عشرة قطاعات، لكل قطاع صورته",
+      "checks": [
+        "ten_sectors"
+      ],
+      "tests": [
+        "tools/brand_art.test.mjs"
+      ]
+    },
+    {
+      "id": "F3.10",
+      "section": "§3.10",
+      "rule": "الشركات المرجعية: نفس الأرقام من ملف المراجعة ومن إعادة التشغيل",
+      "tests": [
+        "tools/corpus_same_results.test.mjs"
+      ]
+    },
+    {
+      "id": "F3.11.1",
+      "section": "§3.11.1",
+      "rule": "محرك التقارير والطباعة بهوية واحدة وفصل البيانات عن العرض",
+      "tests": [
+        "tools/mercury_report_presentation.test.mjs",
+        "tools/report_pack_guard.test.mjs"
+      ]
+    },
+    {
+      "id": "F3.11.2",
+      "section": "§3.11.2",
+      "rule": "هوية بصرية موحدة من الرموز، والباب جزء منها، ولا يسوء أي مقياس",
+      "tests": [
+        "tools/door_tokens.test.mjs",
+        "tools/identity_audit.test.mjs"
+      ]
+    },
+    {
+      "id": "F6-ai",
+      "section": "§6",
+      "rule": "AI يشرح ولا يختلق النتائج؛ الأرقام محسوبة وقابلة للتتبع",
+      "tests": [
+        "tools/harsh_review_guards.test.mjs"
+      ],
+      "gap": "لا يوجد فحص آلي عام يمنع رقماً من مصدر AI في الشاشات المالية"
+    },
+    {
+      "id": "F0.0.2",
+      "section": "§0.0.2",
+      "rule": "سجل العمل المشترك: كل مهمة مسجلة قبل التعديل",
+      "checks": [
+        "worklog"
+      ]
+    }
+  ]
+}

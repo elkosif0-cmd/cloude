@@ -1,0 +1,25 @@
+{
+  "frozen_at": "2026-10-05T12:54:00Z",
+  "purpose": "Independent immutable source oracle frozen before adapter implementation. No runtime oracle imports.",
+  "archives": {
+    "core": {
+      "path": "corpus-review-rebuilt/mercedes-benz/checkpoints/checkpoint-05-temporal-scope-hardened.zip",
+      "sha256": "d3389e9e0eff5ac1de876e0905d35b4a3e9b54dde5f0d828f991848c79949ad4"
+    },
+    "narrative": {
+      "path": "corpus-review-rebuilt/mercedes-benz/narrative/checkpoints/complete-narrative-3262-3490.zip",
+      "sha256": "97e5b9f8489377cb3bea0ce309e9ef98802e18c012ab83aa9b17be4c239773f9"
+    }
+  },
+  "files": {
+    "core/models/source-model.json": "dd83f48a95700e34b736eb6c5b93c57fb9e504ae6d470f450d3642dc7e02e9f7",
+    "core/source-exceptions.json": "07c7ec3d33e5b766ac43c28cfbdfe0f8a7d95d9b8fe669d9553f86f05867441b",
+    "core/tests/baseline-validation.json": "50cd4d509254f23761a25239d0a0af52dee9237a68225968b2fb4ed54abc748c",
+    "core/tests/mutation-results.json": "a0de30518d20d2a7afc095bc76a0ee7319d2331c2a3b064140acdc4bca74e803",
+    "narrative/selected-narrative-model.json": "f905fec395334ffbf4c5505627ec04718da29cfe872adf2a3ba24eccca6da096",
+    "narrative/source-exceptions.json": "75e1f01aaa7da3528cb147b6317e60fbc18e563ce6cf62afdc00331329e11724",
+    "narrative/sustainability-governance/selected-quantitative-tables.json": "b253780238f84ef8e0395113ece069e4c06e105863a8ec90357c91d64f7fa0d3",
+    "narrative/sustainability-governance/climate-supplement/selected-quantitative-tables.json": "e00e4c0c56c14da7d378d1a7eb9add54df47e71cbc61c34b248cc8e5b3394566",
+    "parent-verified-unified-ledger.json": "b93aa029cf52c48e45550998c65a2a68e37f864ecee8a81bc0b9b21f9c661c0a"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "sourcePages": [
+    4294,
+    4307
+  ],
+  "sourceAuditLabel": "HGB / EU Audit Regulation / IDW",
+  "auditor": "EY GmbH & Co. KG Wirtschaftspr\u00fcfungsgesellschaft",
+  "date": "2026-03-06",
+  "sourceStandards": "Sec. 317 HGB and EU Audit Regulation (No 537/2014); German Generally Accepted Standards for Financial Statement Audits promulgated by IDW",
+  "additionalIsaComplianceClaim": false,
+  "authoritativeLanguage": "German",
+  "suppliedText": "English translation",
+  "files": {
+    "pages/page-04294.txt": "38083e83c420b627364053ce7573153cee245d7f551349705c8c462a4c499a9b",
+    "pages/page-04307.txt": "c00b296a8d7d88faf04399a8985068b9abbb22d0194ce03c12b633bc56746325"
+  }
+}

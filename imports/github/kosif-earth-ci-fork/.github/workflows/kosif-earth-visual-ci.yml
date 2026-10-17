@@ -1,0 +1,39 @@
+name: KOSIF EARTH second-account visual verification
+on:
+  workflow_dispatch:
+    inputs:
+      candidate:
+        description: Candidate branch within the second-account fork
+        required: true
+        default: chatgpt/kosif-earth-door-main-ready-20261011
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.candidate }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Preview build
+        env:
+          SQC_BUILD_MODE: preview
+        run: python build.py
+      - name: Verify release boundary
+        run: |
+          test -s dist/art/brand/earth-office-door.css
+          test -s dist/art/brand/earth-office-sunlit-mobile.webp
+          test -s dist/art/brand/earth-office-sunlit-4k.webp
+          test ! -d dist/secure
+      - name: Focused tests and constitution
+        run: |
+          node --test tools/door_tokens.test.mjs tools/entry_point.test.mjs
+          node tools/constitution_guard.mjs

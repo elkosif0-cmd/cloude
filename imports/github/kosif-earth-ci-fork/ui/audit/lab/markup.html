@@ -1,0 +1,152 @@
+<main class="shell">
+    <header class="top">
+      <div class="brand"><div class="mark">K</div><div><div class="eyebrow">SQC · RESEARCH INTELLIGENCE</div><h1>مختبر ذكاء المراجعة</h1><p class="sub">تحويل حزمة التقارير المالية والمراجعة العالمية إلى قرارات تشغيلية قابلة للتتبع.</p></div></div>
+      <a class="back" href="./">العودة إلى SQC</a>
+    </header>
+
+    <section class="hero">
+      <article class="card hero-copy">
+        <div class="eyebrow">حزمة البحث المالي والمراجعة العالمية</div>
+        <h2>من تقارير منشورة إلى محرك مراجعة قابل للتفسير.</h2>
+        <p>هذه الصفحة التجريبية توصل الأنماط المتكررة في الحزمة بمحرك SQC الحتمي: أهمية الأداء، نطاق الاختبار، البنود المفحوصة 100%، إسقاط التحريفات، ترشيح المسائل الرئيسية، نطاق مراجعة المجموعة، ودورة علاج نقاط الرقابة.</p>
+        <div class="note">السياسات الرقمية هنا أدوات تخطيط داخلية شفافة وقابلة لتعديل المراجع. لا تدّعي أن ISA 530 أو أي معيار يفرض معادلة واحدة أو نسب نطاق ثابتة.</div>
+      </article>
+      <aside class="card">
+        <h3>الإشارات البحثية المستخدمة</h3><div class="source-list">
+          <div class="source-pill">Performance materiality → extent / sample size</div>
+          <div class="source-pill">Risk + controls + aggregation risk → audit scope</div>
+          <div class="source-pill">KAM → significance → response → results</div>
+          <div class="source-pill">Group audit → components + coverage + supervision</div>
+          <div class="source-pill">ICFR → design → operating effectiveness → sustainability</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <article class="card span-8">
+        <h3>01 · مخطط المعاينة البحثي</h3><div class="hint">يشغّل 5,000 حساب تجريبي، يحسب الأهمية، يعزل البنود ذات الأهمية الفردية للفحص 100%، ثم يحدد امتداد العينة المتبقية وفق عوامل المخاطر والضوابط.</div>
+        <div class="controls">
+          <label class="field"><span>مخاطر التحريف</span><select id="risk"><option value="low">منخفضة</option><option value="medium" selected>متوسطة</option><option value="high">مرتفعة</option></select></label>
+          <label class="field"><span>فعالية الضوابط</span><select id="controls"><option value="strong">قوية</option><option value="moderate" selected>متوسطة</option><option value="weak">ضعيفة</option><option value="none">لا اعتماد</option></select></label>
+          <label class="field"><span>مخاطر التجميع</span><select id="aggregation"><option value="low">منخفضة</option><option value="medium" selected>متوسطة</option><option value="high">مرتفعة</option></select></label>
+          <label class="field"><span>طريقة الاختيار</span><select id="method"><option value="mus" selected>MUS</option><option value="risk">موجهة بالمخاطر</option><option value="systematic">منتظمة</option><option value="random">عشوائية</option></select></label>
+          <label class="field"><span>التحريف المتوقع (ريال)</span><input id="expected" value="25000" inputmode="decimal"></label>
+          <label class="field"><span>حد أقصى للعينة المتبقية</span><input id="maxSample" type="number" min="20" max="1000" value="500"></label>
+        </div>
+        <div class="actions"><button id="runPlan">إعادة بناء الخطة</button><button class="secondary" id="simulateErrors">محاكاة 5 تحريفات واختبار الإسقاط</button></div>
+        <div class="metrics" id="sampleMetrics"></div>
+        <div class="table-wrap"><table><thead><tr><th>المؤشر</th><th>النتيجة</th><th>المعنى المهني</th></tr></thead><tbody id="sampleTable"></tbody></table></div>
+      </article>
+
+      <aside class="card span-4">
+        <h3>02 · إسقاط التحريفات</h3><div class="hint">يفصل الأخطاء المعروفة في طبقة 100% عن تحريفات العينة المتبقية، ثم يعرض إسقاطًا نسبيًا واضحًا للمراجعة البشرية.</div>
+        <div id="projectionBox" class="list"><div class="item"><strong>لم تُشغّل المحاكاة بعد</strong><small>اضغط «محاكاة 5 تحريفات» لرؤية تقييم تجريبي.</small></div></div>
+      </aside>
+
+      <article class="card span-6">
+        <h3>03 · مرشح المسائل الرئيسية KAM</h3><div class="hint">يرتب المسائل التي أثرت في المخاطر، الحكم، الموارد أو الأدلة؛ ويعرضها كمرشحات فقط، وليس قرارًا آليًا بإدراج KAM.</div>
+        <div id="kamList" class="list"></div>
+      </article>
+
+      <article class="card span-6">
+        <h3>04 · نطاق مراجعة المجموعة</h3><div class="hint">نموذج توضيحي: Full scope / Specific line items / Targeted risk assessment مع قياس تغطية الإيرادات والأصول.</div>
+        <div class="metrics" id="groupMetrics"></div><div class="table-wrap"><table><thead><tr><th>المكون</th><th>المخاطر</th><th>الإيراد</th><th>النطاق</th></tr></thead><tbody id="groupTable"></tbody></table></div>
+      </article>
+
+      <article class="card span-12">
+        <h3>05 · دورة علاج نقاط الرقابة</h3><div class="hint">تمنع إغلاق ضعف رقابي لمجرد تنفيذ الإجراء؛ يلزم إثبات التصميم والتنفيذ والفعالية التشغيلية ثم الاستدامة.</div>
+        <div class="metrics" id="controlMetrics"></div><div id="controlList" class="list"></div>
+      </article>
+
+      <article class="card span-12">
+        <h3>06 · أدوات البحث المتقدمة</h3>
+        <div class="hint">أربع قدرات مستخرجة من أنماط تقارير المراجعة العالمية: تجاوز الإدارة، تحدي ECL، الاستمرارية، وجودة الارتباط. افتح فقط الأداة التي تحتاجها.</div>
+        <div class="research-tools">
+          <details class="research-tool" open>
+            <summary><span><b>تجاوز الإدارة</b><small>قيود اليومية · تحيز التقديرات · المعاملات غير الاعتيادية</small></span><span id="overrideBadge" class="status info">—</span></summary>
+            <div class="research-tool-body">
+              <div class="controls compact">
+                <label class="field"><span>قيود متأخرة/بعد الإقفال</span><input id="ovLate" type="number" min="0" value="4"></label>
+                <label class="field"><span>قيود غير اعتيادية</span><input id="ovUnusual" type="number" min="0" value="6"></label>
+                <label class="field"><span>مؤشرات تحيز تقديرات</span><input id="ovBias" type="number" min="0" value="1"></label>
+              </div>
+              <div class="check-grid">
+                <label><input id="ovPressure" type="checkbox" checked> ضغط/حافز على النتائج</label>
+                <label><input id="ovPrivilege" type="checkbox" checked> صلاحيات ترحيل مرتفعة</label>
+                <label><input id="ovJournalsDone" type="checkbox"> اختبار القيود مكتمل</label>
+                <label><input id="ovEstimateDone" type="checkbox"> مراجعة تحيز التقديرات مكتملة</label>
+                <label><input id="ovUnusualDone" type="checkbox"> فحص المعاملات غير الاعتيادية مكتمل</label>
+                <label><input id="ovPopulation" type="checkbox"> اكتمال مجتمع القيود مؤكد</label>
+              </div>
+              <div class="actions"><button id="runOverride">حلّل تجاوز الإدارة</button></div>
+              <div id="overrideResult" class="list"></div>
+            </div>
+          </details>
+
+          <details class="research-tool">
+            <summary><span><b>تحدي نموذج ECL</b><small>Stage 1/2/3 · SICR · PD/LGD/EAD · السيناريوهات · overlays · validation</small></span><span id="eclBadge" class="status info">—</span></summary>
+            <div class="research-tool-body">
+              <div class="check-grid">
+                <label><input id="eclScope" type="checkbox" checked> النطاق محدد</label>
+                <label><input id="eclStaging" type="checkbox" checked> المراحل 1/2/3 موثقة</label>
+                <label><input id="eclSicr" type="checkbox"> SICR موثق ومختبر</label>
+                <label><input id="eclParams" type="checkbox" checked> PD/LGD/EAD مختبرة</label>
+                <label><input id="eclScenarios" type="checkbox"> سيناريوهات مستقبلية مرجحة</label>
+                <label><input id="eclMacro" type="checkbox" checked> ربط الاقتصاد الكلي موثق</label>
+                <label><input id="eclOverlays" type="checkbox"> حوكمة overlays</label>
+                <label><input id="eclValidation" type="checkbox"> تحقق مستقل للنموذج</label>
+                <label><input id="eclBacktest" type="checkbox" checked> Back-testing</label>
+                <label><input id="eclLineage" type="checkbox" checked> Data lineage</label>
+                <label><input id="eclSensitivity" type="checkbox"> تحليل حساسية</label>
+              </div>
+              <div class="actions"><button id="runEcl">قيّم حوكمة ECL</button></div>
+              <div id="eclResult" class="list"></div>
+            </div>
+          </details>
+
+          <details class="research-tool">
+            <summary><span><b>الاستمرارية واختبار الضغط</b><small>التوقعات · التسهيلات · covenants · downside · reverse stress · الإفصاح</small></span><span id="goingBadge" class="status info">—</span></summary>
+            <div class="research-tool-body">
+              <div class="controls compact"><label class="field"><span>أفق التوقع بالأشهر</span><input id="gcMonths" type="number" min="1" value="12"></label><label class="field"><span>مؤشرات سيولة سلبية</span><input id="gcFlags" type="number" min="0" value="1"></label></div>
+              <div class="check-grid">
+                <label><input id="gcReconcile" type="checkbox" checked> التوقعات مربوطة بالأرقام</label>
+                <label><input id="gcFacilities" type="checkbox" checked> التسهيلات مؤكدة</label>
+                <label><input id="gcCovenants" type="checkbox"> هامش covenants مختبر</label>
+                <label><input id="gcDownside" type="checkbox" checked> Downside scenario</label>
+                <label><input id="gcReverse" type="checkbox"> Reverse stress test</label>
+                <label><input id="gcPlans" type="checkbox" checked> خطط الإدارة مختبرة</label>
+                <label><input id="gcPost" type="checkbox" checked> الأحداث اللاحقة روجعت</label>
+                <label><input id="gcBoard" type="checkbox" checked> اعتماد الحوكمة</label>
+                <label><input id="gcMU" type="checkbox"> عدم تأكد جوهري</label>
+                <label><input id="gcDisclosure" type="checkbox"> الإفصاح كافٍ</label>
+              </div>
+              <div class="actions"><button id="runGoing">اختبر الاستمرارية</button></div>
+              <div id="goingResult" class="list"></div>
+            </div>
+          </details>
+
+          <details class="research-tool">
+            <summary><span><b>جودة الارتباط والاستقلال</b><small>الاستقلال · الخدمات غير المراجعة · الخبراء · التفتيش · EQR · شفافية حالة الاختبارات</small></span><span id="qualityBadge" class="status info">—</span></summary>
+            <div class="research-tool-body">
+              <div class="check-grid">
+                <label><input id="qInd" type="checkbox" checked> تأكيد الاستقلال موثق</label>
+                <label><input id="qProhibited" type="checkbox"> توجد خدمة محظورة</label>
+                <label><input id="qNonAudit" type="checkbox" checked> الخدمات المسموحة معتمدة</label>
+                <label><input id="qFees" type="checkbox" checked> اعتماد الأتعاب مراجع</label>
+                <label><input id="qRotation" type="checkbox" checked> التناوب مراجع</label>
+                <label><input id="qExperts" type="checkbox"> الخبراء مستخدمون عند الحاجة</label>
+                <label><input id="qInspection" type="checkbox" checked> نتائج التفتيش مأخوذة بالتخطيط</label>
+                <label><input id="qStatus" type="checkbox"> حالة الاختبارات مرفوعة مبكرًا</label>
+                <label><input id="qChallenge" type="checkbox" checked> تحدٍ مستقل موثق</label>
+                <label><input id="qEqr" type="checkbox"> EQR مكتملة عند اللزوم</label>
+              </div>
+              <div class="actions"><button id="runQuality">قيّم جودة الارتباط</button></div>
+              <div id="qualityResult" class="list"></div>
+            </div>
+          </details>
+        </div>
+      </article>
+
+    </section>
+    <footer class="footer">SQC Research Intelligence Lab · القرار المهني النهائي والاعتماد يظلان للمراجع البشري.</footer>
+  </main>

@@ -1,0 +1,10 @@
+{
+  "name": "wa-kosif-mcp",
+  "main": "index.js",
+  "compatibility_date": "2026-09-24",
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  "workers_dev": true,
+  "preview_urls": true,
+  "observability": { "enabled": true },
+  "services": [{ "binding": "BRIDGE", "service": "wa-kosif", "environment": "production" }]
+}

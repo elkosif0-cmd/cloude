@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" preserveAspectRatio="xMinYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8f8ae0"/><stop offset=".55" stop-color="#c9c3f5"/><stop offset="1" stop-color="#f1e9fb"/></linearGradient>
+    <linearGradient id="d1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b3aeee"/><stop offset="1" stop-color="#d9d5f8"/></linearGradient>
+    <linearGradient id="d2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9892e0"/><stop offset="1" stop-color="#c2bdf3"/></linearGradient>
+    <linearGradient id="d3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9e6fd"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#sky)"/>
+  <path d="M470 92a26 26 0 1 0 22 40 21 21 0 1 1-22-40z" fill="#fff" opacity=".9"/>
+  <g fill="#fff" opacity=".7"><circle cx="150" cy="80" r="2"/><circle cx="330" cy="140" r="1.6"/><circle cx="620" cy="60" r="1.8"/><circle cx="860" cy="120" r="1.5"/></g>
+  <path d="M0 400C160 350 300 360 460 390S780 420 960 380 1150 360 1200 370V600H0Z" fill="url(#d1)"/>
+  <!-- flock on the horizon -->
+  <g fill="#f7f5ff" stroke="#6d66c4" stroke-width="2">
+    <ellipse cx="200" cy="392" rx="14" ry="8"/><ellipse cx="236" cy="396" rx="13" ry="7.5"/><ellipse cx="270" cy="390" rx="14" ry="8"/><ellipse cx="306" cy="395" rx="12" ry="7"/><ellipse cx="338" cy="391" rx="13" ry="7.5"/>
+  </g>
+  <g fill="#6d66c4"><circle cx="214" cy="388" r="4"/><circle cx="249" cy="392" r="3.6"/><circle cx="284" cy="386" r="4"/><circle cx="318" cy="391" r="3.4"/><circle cx="351" cy="387" r="3.6"/></g>
+  <path d="M0 460C200 410 380 430 560 455S900 480 1200 430V600H0Z" fill="url(#d2)"/>
+  <!-- palms -->
+  <g fill="#4e46a8">
+    <path d="M118 470c4-70 10-130 22-186l8 2c-10 56-14 116-16 184z"/>
+    <path d="M144 282c-30-24-70-26-96-12 30-6 62 2 92 20zM146 280c-8-36-36-60-66-64 26 10 46 34 60 66zM148 280c16-34 48-52 80-50-28 8-54 26-74 54zM148 282c34-14 72-4 94 18-26-12-60-18-92-12zM146 284c-6 30-26 58-52 70 20-16 36-42 44-72z"/>
+    <path d="M78 474c2-40 6-74 12-106l6 1c-6 32-8 66-10 104z" opacity=".85"/>
+    <path d="M92 368c-18-14-42-14-58-6 18-2 38 2 56 12zM94 366c10-20 30-30 50-28-18 4-34 16-46 32zM94 368c20-6 42 2 54 16-16-8-36-12-54-10z" opacity=".85"/>
+  </g>
+  <path d="M0 520C260 480 520 500 760 525S1060 540 1200 505V600H0Z" fill="url(#d3)"/>
+</svg>

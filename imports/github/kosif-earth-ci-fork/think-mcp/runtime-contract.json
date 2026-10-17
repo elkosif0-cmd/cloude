@@ -1,0 +1,22 @@
+{
+  "sourceVersion": "0.18.6",
+  "supportedMcpPaths": [
+    "/mcp",
+    "/mcp/v0.18.6",
+    "/mcp/v0.18.5",
+    "/mcp/v0.18.4",
+    "/mcp/v0.18.3",
+    "/mcp/v0.9.3"
+  ],
+  "retiredMcpPaths": [
+    "/mcp/v0.17.13",
+    "/mcp/v0.17.12",
+    "/mcp/v0.17.11",
+    "/mcp/v0.17.10"
+  ],
+  "publicHealthKeys": [
+    "ok",
+    "service",
+    "version"
+  ]
+}

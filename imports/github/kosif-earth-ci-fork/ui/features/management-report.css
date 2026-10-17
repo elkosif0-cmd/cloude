@@ -1,0 +1,52 @@
+/* Single reviewed style source; build injects this same text for standalone HTML. */
+.sqc-management-document{margin:0;padding:0;background:#fff;color:#1d2340;}
+.sqc-management-report{color:var(--sk-ink,#1d2340);background:var(--sk-surface,#fff);font-family:var(--sk-font,"IBM Plex Sans Arabic"),Arial,Tahoma,sans-serif;font-size:16px;line-height:1.65;padding:24px;max-width:100%;min-width:0;box-sizing:border-box;direction:rtl;color-scheme:light}
+.sqc-management-report *{box-sizing:border-box}
+.sqc-management-report h1{font-size:28px;line-height:1.4;margin:8px 0 16px}
+.sqc-management-report h2{font-size:20px;line-height:1.5;margin:24px 0 12px;break-after:avoid}
+.sqc-management-report p{margin:8px 0;overflow-wrap:anywhere}
+.sqc-management-report .mr-brand{font-weight:700;letter-spacing:.12em}
+.sqc-management-report .mr-status{font-size:14px;line-height:1.6;font-weight:600;color:var(--sk-ink,#1d2340);background:var(--sk-surface,#fff);border-inline-start:3px solid currentColor;padding-inline-start:8px}
+.sqc-management-report .mr-derived{display:block;font-size:14px;color:var(--sk-ink,#1d2340)}
+.sqc-management-report .mr-table-wrap{max-width:100%;overflow-x:auto;outline-offset:3px}
+.sqc-management-report .mr-table-wrap:focus-visible{outline:3px solid var(--sk-ink,#1d2340)}
+.sqc-management-report table{width:100%;min-width:47.15em;border-collapse:collapse;font-size:14px;table-layout:fixed}
+.sqc-management-report caption{text-align:right;font-weight:600;padding:8px 0}
+.sqc-management-report .mr-label{width:54%}
+.sqc-management-report .mr-amount{width:23%}
+.sqc-management-report th,.sqc-management-report td{border-bottom:1px solid currentColor;padding:8px 6px;vertical-align:top;text-align:right}
+.sqc-management-report tbody th{font-weight:400;overflow-wrap:anywhere}
+.sqc-management-report td{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:end}
+.sqc-management-report thead{display:table-header-group}
+.sqc-management-report tfoot{display:table-row-group;font-weight:700;border-top:2px solid currentColor}
+.sqc-management-report .mr-context{font-size:14px;font-weight:400;overflow-wrap:anywhere}
+.sqc-management-report dl{margin:8px 0}
+.sqc-management-report dl>div{display:flex;flex-wrap:wrap;gap:8px 16px;border-bottom:1px solid var(--sk-line,#d7dbea);padding:6px 0}
+.sqc-management-report dt{font-weight:600}
+.sqc-management-report dd{margin:0;overflow-wrap:anywhere;min-width:0}
+.sqc-management-report .mr-metadata{font-size:14px}
+.sqc-management-report .mr-footer{font-size:14px;border-top:1px solid currentColor;margin-top:24px;padding-top:8px}
+@media(max-width:480px){.sqc-management-report{padding:16px}.sqc-management-report h1{font-size:24px}}
+@page sqc-management-report{size:A4 portrait;margin:18mm}
+@media print{
+  .sqc-management-report{page:sqc-management-report;color:#000!important;background:#fff!important;padding:0;font-size:11pt;line-height:1.5;max-width:none}
+  .sqc-management-report h1{font-size:20pt}.sqc-management-report h2{font-size:14pt}
+  .sqc-management-report .mr-status,.sqc-management-report .mr-derived,.sqc-management-report .mr-context,.sqc-management-report .mr-metadata,.sqc-management-report .mr-footer{font-size:9.5pt;color:#000!important;background:transparent!important}
+  .sqc-management-report .mr-table-wrap{overflow:visible;outline:none}
+  .sqc-management-report table{min-width:0;font-size:10pt;width:174mm}
+  .sqc-management-report .mr-label{width:94mm}.sqc-management-report .mr-amount{width:40mm}
+  .sqc-management-report th,.sqc-management-report td{padding:1.4mm 1mm;border-color:#000}
+  .sqc-management-report tr{break-inside:avoid}.sqc-management-report thead{display:table-header-group}
+  .sqc-management-report tfoot{display:table-row-group}
+  .sqc-management-report p{orphans:3;widows:3}
+  .sqc-management-report a{color:#000;text-decoration:underline}
+}
+.sqc-mr-dialog{width:min(1100px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);padding:0;border:1px solid var(--sk-line,#d7dbea);color:var(--sk-ink,#1d2340);background:var(--sk-surface,#fff);font-family:var(--sk-font,"IBM Plex Sans Arabic"),Arial,sans-serif;direction:rtl;overflow:auto}
+.sqc-mr-dialog::backdrop{background:rgb(0 0 0 / .55)}
+.sqc-mr-toolbar{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--sk-surface,#fff);border-bottom:1px solid var(--sk-line,#d7dbea)}
+.sqc-mr-toolbar h2{font-size:20px;margin:0}.sqc-mr-controls{padding:16px}.sqc-mr-attest{display:flex;min-height:44px;padding-block:8px;align-items:center;gap:8px;font-size:14px;line-height:1.6;margin-block:12px}
+.sqc-mr-dialog .btn{min-height:44px}.sqc-mr-dialog .sk-actions{display:flex;flex-wrap:wrap;gap:8px}.sqc-mr-status{font-size:14px;font-weight:600;line-height:1.6;color:var(--sk-ink,#1d2340);background:var(--sk-surface,#fff)}
+.sqc-mr-print-frame{position:fixed;inset-inline-start:-10000px;top:0;width:794px;height:1123px;border:0;pointer-events:none}
+@media(max-width:480px){.sqc-mr-dialog{width:calc(100vw - 16px);max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}.sqc-mr-controls{padding:12px}}
+
+.sqc-mr-controls [data-mr="context"],.sqc-mr-status{overflow-wrap:anywhere}

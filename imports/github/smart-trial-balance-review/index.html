@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ميزان المراجعة الذكي — مجلس المراجعين AI</title>
+<meta name="description" content="تطبيق يربط ميزان المراجعة بمعايير المحاسبة، ويدير جولات مراجعة بمجلس مراجعين ذكي ينتهي بتقرير نهائي وتحليلات احترافية">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">⚖️</div>
+    <div>
+      <h1 id="appTitle">ميزان المراجعة الذكي</h1>
+      <p class="sub">مجلس مراجعين بالذكاء الاصطناعي · ربط البنود بمعايير المحاسبة · جولات مراجعة حتى التقرير النهائي</p>
+    </div>
+  </div>
+  <nav class="tabs" id="mainTabs">
+    <button class="tab on" data-tab="home">🏠 الرئيسية</button>
+    <button class="tab" data-tab="standards">📋 الميزان والمعايير</button>
+    <button class="tab" data-tab="board">🧑‍⚖️ مجلس المراجعة</button>
+    <button class="tab" data-tab="report">📊 التقرير النهائي</button>
+    <button class="tab" data-tab="settings">⚙️ الإعدادات</button>
+  </nav>
+  <div class="header-actions">
+    <button class="hbtn" id="btnExportSession" title="تنزيل الجلسة كملف JSON">⬇️ تصدير الجلسة</button>
+    <label class="hbtn" title="استعادة جلسة محفوظة">⬆️ استيراد جلسة<input type="file" id="fileImportSession" accept=".json" hidden></label>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== HOME ==================== -->
+<section class="view on" id="view-home">
+  <div class="hero card">
+    <h2>ابدأ بإدخال ميزان المراجعة</h2>
+    <p>ارفع ملف Excel/CSV أو الصق الأرصدة يدويًا، أو جرّب نموذجًا جاهزًا. يتأكد التطبيق من توازن المدين والدائن، ثم يربط كل بند بمعايير المحاسبة المناظرة له، ويتولى <strong>مجلس المراجعين (AI)</strong> إدارة جولات المراجعة وطلب المستندات حتى صدور التقرير النهائي.</p>
+    <div class="entity-grid">
+      <label>اسم المنشأة / الجهة
+        <input type="text" id="inpEntity" placeholder="مثال: شركة النموذج للتجارة">
+      </label>
+      <label>الفترة المالية
+        <input type="text" id="inpPeriod" placeholder="مثال: السنة المنتهية في 31/12/2025">
+      </label>
+      <label>العملة
+        <input type="text" id="inpCurrency" value="ريال سعودي">
+      </label>
+    </div>
+    <div class="upload-zone" id="dropZone">
+      <input type="file" id="fileTB" accept=".xlsx,.xls,.csv,.txt" hidden>
+      <div class="dz-icon">📥</div>
+      <p><strong>اسحب ملف ميزان المراجعة هنا</strong><br>Excel (xlsx/xls) أو CSV أو TXT<br><span class="muted">الأعمدة المتوقعة: اسم الحساب · مدين · دائن (العناوين بالعربية أو الإنجليزية)</span></p>
+      <div class="row-actions">
+        <button class="btn primary" id="btnPickFile">اختيار ملف</button>
+        <button class="btn" id="btnPasteTB">✏️ لصق يدوي</button>
+        <button class="btn ghost" id="btnSample">🧪 تحميل نموذج جاهز</button>
+      </div>
+    </div>
+    <textarea id="pasteArea" class="hidden mono" rows="8" placeholder='الصق صفوف الميزان (كل سطر: اسم الحساب ثم قيم المدين والدائن مفصولة بفاصلة أو Tab)&#10;مثال:&#10;النقدية بالصندوق,15000,0&#10;المخزون,85000,0'></textarea>
+    <div id="parseStatus"></div>
+  </div>
+</section>
+
+<!-- ==================== STANDARDS ==================== -->
+<section class="view" id="view-standards">
+  <div class="tb-summary-row" id="tbSummaryRow"></div>
+  <div class="split">
+    <div class="card table-card">
+      <h3>بنود ميزان المراجعة وارتباطها بالمعايير</h3>
+      <p class="hint">اضغط على شارة المعيار لعرض تفاصيله ومصادره وآخر تحديث وعلاقته بهذا البند.</p>
+      <div class="table-wrap">
+        <table id="tbTable">
+          <thead><tr><th>#</th><th>اسم الحساب</th><th>مدين</th><th>دائن</th><th>المعايير المرتبطة</th><th>التصنيف التحليلي</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <aside class="card explorer">
+      <h3>📚 مستكشف المعايير</h3>
+      <input type="search" id="stdSearch" placeholder="بحث: اسم المعيار أو الرقم (مثل IFRS15 / المخزون)">
+      <div class="std-list" id="stdList"></div>
+    </aside>
+  </div>
+  <div class="center-actions">
+    <button class="btn primary big" id="btnGoBoard">⚖️ اعتماد الربط والانتقال إلى مجلس المراجعة ←</button>
+  </div>
+</section>
+
+<!-- ==================== BOARD ==================== -->
+<section class="view" id="view-board">
+  <div class="card board-head">
+    <div class="bh-text">
+      <h3>🧑‍⚖️ مجلس المراجعين</h3>
+      <p class="hint">يتألف المجلس من ثلاثة مراجعين افتراضيين يعملون بذكاء اصطناعي: <span class="chip role-tech">المراجع الفني المحاسبي</span> <span class="chip role-comp">مراجع الامتثال للمعايير والإفصاح</span> <span class="chip role-risk">مدقق المخاطر والأدلة</span>. تبدأ الجولة الأولى بمراجعة الميزان، وقد يطلب المجلس مستندات إضافية — ترفقها ثم يستأنف المراجعة في جولة جديدة حتى الاكتمال.</p>
+    </div>
+    <div class="bh-side">
+      <div class="round-meter"><span id="roundLabel">لم تبدأ المراجعة</span><div class="meter"><i id="roundMeterFill"></i></div><small id="roundHint" class="muted"></small></div>
+      <button class="btn primary big" id="btnStartReview">▶️ بدء الجولة الأولى</button>
+      <button class="btn danger hidden" id="btnForceReport">🏁 إنهاء وإصدار التقرير الآن</button>
+    </div>
+  </div>
+  <div id="boardAlerts"></div>
+  <ol class="timeline" id="roundsTimeline"></ol>
+</section>
+
+<!-- ==================== REPORT ==================== -->
+<section class="view" id="view-report">
+  <div class="empty-report" id="reportEmpty">
+    <div class="card center-card">
+      <div style="font-size:2rem">📊</div>
+      <h3>التقرير النهائي غير متاح بعد</h3>
+      <p class="muted">أكمل جولات المراجعة لدى مجلس المراجعين (أو اختر «إنهاء وإصدار التقرير الآن») ليُبنى التقرير النهائي مع التحليلات الاحترافية.</p>
+    </div>
+  </div>
+  <div id="reportBody" class="hidden"></div>
+</section>
+
+<!-- ==================== SETTINGS ==================== -->
+<section class="view" id="view-settings">
+  <div class="card">
+    <h3>🔑 اتصال الذكاء الاصطناعي (Google Gemini)</h3>
+    <p class="hint">يعمل مجلس المراجعين عبر واجهة Google Gemini. احصل على مفتاح مجاني من <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">AI Studio API Keys</a>. يُحفظ المفتاح <strong>في متصفحك فقط</strong> ولا يُرسل لأي جهة غير Google.</p>
+    <div class="settings-grid">
+      <label>مفتاح API
+        <input type="password" id="inpApiKey" placeholder="AIza..." autocomplete="off">
+      </label>
+      <label>الموديل
+        <select id="selModel">
+          <option value="gemini-2.5-flash">gemini-2.5-flash (موصى به — متوازن)</option>
+          <option value="gemini-2.5-pro">gemini-2.5-pro (أعمق وأبطأ وأغلى حصة)</option>
+          <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (أسرع وأخف)</option>
+        </select>
+      </label>
+      <label>حد أقصى لعدد الجولات
+        <input type="number" id="inpMaxRounds" min="1" max="10" value="6">
+      </label>
+    </div>
+    <div class="row-actions">
+      <button class="btn" id="btnTestKey">🔌 اختبار الاتصال</button>
+      <button class="btn danger ghost" id="btnResetSession">🗑️ تصفير الجلسة بالكامل</button>
+    </div>
+    <div id="keyStatus" class="status-line"></div>
+    <hr class="soft">
+    <details>
+      <summary>🔎 الخصوصية وطبيعة العمل</summary>
+      <ul class="plainlist">
+        <li>جميع البيانات تُعالج محليًا في المتصفح؛ ما يُرسل خارجيًا هو نصوص الميزان/المستندات إلى Gemini عند طلب المراجعة فقط.</li>
+        <li>ملفات المستندات المرفقة تبقى في ذاكرة الجلسة الحالية (لا تُحفظ على القرص)؛ استخدم «تصدير الجلسة» لحفظ نتائج الجولات.</li>
+        <li>قاعدة المعايير مدمجة داخل التطبيق بأسماء وأغراض وقواعد رسمية معلنة، والمخرجات توجيهية ولا تُغني عن رأي محاسب قانوني.</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+</main>
+
+<!-- Standard detail modal -->
+<div class="modal-back hidden" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-x" id="modalClose">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<footer>ميزان المراجعة الذكي · مجلس مراجعين بالذكاء الاصطناعي · المخرجات استراحة مهنية ولا تُغني عن رأي المحاسب القانوني المخوّل</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="js/data/standards.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/mapping.js"></script>
+<script src="js/gemini.js"></script>
+<script src="js/board.js"></script>
+<script src="js/report.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

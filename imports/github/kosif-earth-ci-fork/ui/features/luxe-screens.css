@@ -1,0 +1,111 @@
+/* S.kosif — KOSIF Luxe screens: Command Center (command-center.js), notification centre
+   (notifications.js), risks & findings (risks.js). Shared components live in ui/ds/luxe.css. */
+
+/* ================= Command Center ================= */
+.skc-luxe{gap:var(--sk-4)}
+/* the crystal world band (ui/art/crystal-world.js) */
+.skc-world{position:relative;height:190px;border-radius:var(--sk-r-l);overflow:hidden;background:url(./art/brand/banner.webp) center/cover no-repeat,radial-gradient(ellipse at 70% 0%,#1b2a8a 0%,#0b1030 55%,#05071a 100%);box-shadow:var(--sk-shadow-1)}
+.skc-world-v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85}
+.skc-world-c{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity 1.4s ease}.skc-world-c.on{opacity:1}
+.skc-world-tx{position:absolute;inset-inline-start:22px;bottom:18px;display:grid;gap:4px;color:#fff;text-shadow:0 2px 14px rgba(5,8,30,.8)}
+.skc-world-tx small{font:600 11.5px var(--sk-font-latin);letter-spacing:.14em;color:#9fc3ea}.skc-world-tx b{font-size:26px;font-weight:800;line-height:1.2}
+@media (max-width:600px){.skc-world{height:150px}.skc-world-tx b{font-size:21px}}
+@media (prefers-reduced-motion:reduce){.skc-world-c{transition:none}}
+.skc-luxe .skc-card{padding:18px 20px}
+.skc-luxe .skc-card>h3{display:flex;align-items:baseline;gap:4px 10px;margin-bottom:14px;font-size:16px;font-weight:700}
+.skc-luxe .skc-card>h3 small{font:600 11.5px var(--sk-font-latin);letter-spacing:.02em;color:var(--sk-ink-3)}
+.skc-luxe .skc-card>h3 .linkish,.skc-luxe .skc-card>h3 .skc-seg{margin-inline-start:auto}
+.skc-row3{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr) minmax(0,1fr);gap:var(--sk-4);align-items:stretch}
+.skc-row3b{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr) minmax(0,1.1fr);gap:var(--sk-4);align-items:start}
+.skc-seg{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--sk-line);border-radius:10px;background:var(--sk-surface-2)}
+.skc-seg button{min-height:28px;padding:0 10px;border:0;border-radius:8px;background:none;color:var(--sk-ink-3);font:inherit;font-size:var(--sk-fs-xs);font-weight:600;cursor:pointer}
+.skc-seg button[aria-pressed="true"]{background:var(--sk-surface);color:var(--sk-brand);box-shadow:0 1px 3px rgba(11,28,51,.1)}
+.skc-note{margin-top:12px}
+.skc-extras{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.skc-extras .sk-kpi{text-align:start;cursor:pointer;font:inherit}
+.skc-find{display:grid;gap:8px}
+.skc-f{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1px solid var(--sk-line);border-inline-start-width:3px;border-radius:12px;background:var(--sk-surface);color:var(--sk-ink);font:inherit;text-align:start;cursor:pointer}
+.skc-f.high{border-inline-start-color:var(--sk-bad-mark)}.skc-f.medium{border-inline-start-color:var(--sk-warn-mark)}.skc-f.low{border-inline-start-color:var(--sk-info-mark)}
+.skc-f:hover{background:var(--sk-surface-2)}
+.skc-f .tx{flex:1;min-width:0}.skc-f .tx b{display:block;font-size:var(--sk-fs-s)}.skc-f .tx small{display:block;font-size:var(--sk-fs-xs);color:var(--sk-ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skc-f .go{color:var(--sk-ink-3);font-size:18px}
+.skc-st{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--sk-line);font-size:var(--sk-fs-s)}
+.skc-st i{width:10px;height:10px;border-radius:50%;background:var(--sk-info-mark)}
+.skc-st i.ok{background:var(--sk-ok-mark)}.skc-st i.bad{background:var(--sk-bad-mark)}
+.skc-st b{font-variant-numeric:tabular-nums}.skc-st em{min-width:48px;font-style:normal;font-weight:700;color:var(--sk-ink-2);text-align:end}
+.skc-st+.skpb{margin-top:14px}
+.skc-luxe .skc-launch{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+@media (max-width:1280px){.skc-row3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.skc-row3 .skc-trend{grid-column:1/-1}.skc-row3b{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.skc-row3b>:first-child{grid-column:1/-1}}
+@media (max-width:760px){.skc-row3,.skc-row3b{grid-template-columns:minmax(0,1fr)}.skc-luxe .skc-card{padding:14px}.skc-f .tx small{white-space:normal}}
+
+/* ================= notification centre ================= */
+.skn-screen .card-b{padding-top:18px}
+.skn-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.skn-filters{margin-bottom:4px}
+.skn-filters .chip{display:inline-flex;align-items:center;gap:6px;min-height:34px}
+.skn-filters .chip[aria-selected="true"]{border-color:var(--sk-brand);background:var(--sk-brand);color:var(--sk-on-brand)}
+.skn-filters .chip b{min-width:20px;padding:0 6px;border-radius:999px;background:rgba(127,127,127,.18);font-size:var(--sk-fs-2xs);line-height:18px;text-align:center}
+.skn-day{margin:14px 2px 4px;font-size:var(--sk-fs-xs);font-weight:700;color:var(--sk-ink-3)}
+.skn-list{border:1px solid var(--sk-line);border-radius:14px;background:var(--sk-surface);overflow:hidden}
+.skn-list .skn-row{padding:14px}
+
+/* ================= risks & findings ================= */
+.rk{display:flex;flex-direction:column;gap:var(--sk-4)}
+.rk-tabs{max-width:420px}
+.rk-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sk-4);align-items:stretch}
+.rk-t{white-space:normal!important;min-width:220px}
+.rk-t b{display:block;font-weight:700}.rk-t small{display:block;margin-top:2px;font-size:var(--sk-fs-xs);color:var(--sk-ink-3);line-height:1.6}
+.rk-cat{display:inline-flex;align-items:center;gap:6px;font-size:var(--sk-fs-xs);white-space:nowrap}
+.rk-cat::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.rk-late{color:var(--sk-bad)!important;font-weight:700}
+.rk-acts{white-space:nowrap;font-size:var(--sk-fs-xs)}
+@media (max-width:900px){.rk-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* ================= executive report pack (report-pack.js) ================= */
+.rp{display:flex;flex-direction:column;gap:var(--sk-4)}
+.rp-hero{display:flex;align-items:center;justify-content:space-between;gap:var(--sk-4);flex-wrap:wrap;padding:20px 22px;border-radius:var(--sk-r-l);color:#fff;
+  background:linear-gradient(110deg,rgba(11,16,48,.96),rgba(18,58,107,.9) 55%,color-mix(in srgb,var(--sk-brand) 82%,transparent)),url(./art/kosif-sky.svg) center/cover no-repeat}
+.rp-hero h3{font-size:20px;color:#fff}.rp-hero p{max-width:640px;margin-top:4px;font-size:var(--sk-fs-s);line-height:1.8;color:#d6e4f5}
+.rp-hero .btn.primary{background:#fff!important;color:var(--sk-navy,#0b1030)!important;box-shadow:0 10px 24px -12px rgba(0,0,0,.6)}
+.rp-opts{display:grid;gap:var(--sk-3);padding:18px;border:1px solid var(--sk-line);border-radius:var(--sk-r-l);background:var(--sk-surface-2)}
+.rp-sec{display:flex;flex-wrap:wrap;gap:6px 16px}
+/* مختبر المبيعات (sales-lab.js) */
+.skslab{margin-top:var(--sk-4)}
+.skslab-tabs{margin-bottom:var(--sk-4)}
+.skslab-tabs button{flex:1 1 auto;white-space:nowrap;padding:0 12px}
+.skslab h4{margin:14px 0 8px;font-size:var(--sk-fs-s);font-weight:800}
+.skslab-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:6px}
+.skslab-k{display:grid;gap:3px;padding:12px 14px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface-2)}
+.skslab-k small{color:var(--sk-ink-3);font-weight:700;font-size:var(--sk-fs-xs)}.skslab-k b{font-size:var(--sk-fs-l);font-variant-numeric:tabular-nums}.skslab-k span{color:var(--sk-ink-3);font-size:var(--sk-fs-xs)}
+.skslab-k.ok b{color:var(--sk-ok)}.skslab-k.bad b{color:var(--sk-bad)}.skslab-k.warn b{color:var(--sk-warn)}
+.skslab-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sk-4)}
+.skslab-2>div{min-width:0}
+.skslab-ideas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.skslab-ideas article{display:grid;gap:6px;align-content:start;padding:14px;border:1px solid var(--sk-line);border-radius:var(--sk-r);background:linear-gradient(160deg,var(--sk-brand-soft),var(--sk-surface) 60%)}
+.skslab-ideas p{margin:0;font-size:var(--sk-fs-s);line-height:1.75;color:var(--sk-ink-2)}.skslab-ideas small{color:var(--sk-brand);font-weight:700}
+.skslab-ideas .linkish{justify-self:start}
+@media (max-width:900px){.skslab-2{grid-template-columns:1fr}.skslab-tabs{flex-wrap:nowrap;overflow-x:auto}.skslab-tabs button{flex:0 0 auto}}
+.skslab h4 select{margin-inline-start:8px;min-height:30px;border:1px solid var(--sk-line);border-radius:8px;background:var(--sk-surface);color:var(--sk-ink);font:inherit;font-size:var(--sk-fs-xs)}
+.skslab-pf{display:inline-flex;margin-inline-start:10px;vertical-align:middle}.skslab-pf button{min-height:30px;padding:0 10px;font-size:var(--sk-fs-xs)}
+.skslab .neg{color:var(--sk-bad)}
+.skslab-new input,.skslab-new select{width:100%;min-height:32px;border:1px solid var(--sk-line);border-radius:8px;background:var(--sk-surface-2);color:var(--sk-ink);font:inherit;font-size:var(--sk-fs-xs);padding:0 6px}
+.skslab-tree details{margin-bottom:8px;border:1px solid var(--sk-line);border-radius:var(--sk-r);padding:6px 10px;background:var(--sk-surface)}
+.skslab-tree summary{cursor:pointer;padding:4px 0}.skslab-tree summary small{color:var(--sk-ink-3)}
+.fu-plan{margin:0;padding-inline-start:20px;display:grid;gap:6px;font-weight:600}
+
+
+/* the books: the family strip (R2) is a row of pills above the tabs of the open family */
+[data-sk-tabs="ledger-family"]{gap:var(--sk-2);margin-bottom:var(--sk-2);padding:0;background:transparent}
+[data-sk-tabs="ledger-family"] .sk-hub-btn{flex:0 0 auto;min-height:36px;padding:0 var(--sk-4);border:1px solid var(--sk-line);border-radius:var(--sk-r-pill);background:var(--sk-surface);box-shadow:none}
+[data-sk-tabs="ledger-family"] .sk-hub-btn.active{border-color:var(--sk-brand);background:var(--sk-brand);color:var(--sk-on-brand)}
+
+/* the command center in four tabs (R7): the tab strip under the demo notice, the other tabs' blocks hidden */
+.skdash-tabs{margin:0 0 var(--sk-3)}
+.skdash-tabs .sk-hub-nav{margin-bottom:0}
+#view[data-dash-tab="today"] [data-dt]:not([data-dt="today"]),
+#view[data-dash-tab="sales"] [data-dt]:not([data-dt="sales"]),
+#view[data-dash-tab="cash"] [data-dt]:not([data-dt="cash"]),
+#view[data-dash-tab="decide"] [data-dt]:not([data-dt="decide"]){display:none}
+#view[data-dash-tab]:not([data-dash-tab="today"]) .skc-world{display:none}
+/* R14: the Jev council's form, folded while no model is configured (ui/features/jev.js) */
+.th-form>summary{padding:var(--sk-2) 0;font-weight:700;cursor:pointer;color:var(--sk-ink-2)}

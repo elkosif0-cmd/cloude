@@ -1,0 +1,148 @@
+{
+  "generated_at_utc": "2026-10-05T22:06:34.375414+00:00",
+  "kind": "Artifact structural/provenance consistency checks ONLY; not product tests or exhaustive source verification",
+  "passed": true,
+  "checks": [
+    {
+      "check": "17 unique accessible repositories",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "78 unique canonical IDs",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "28 family rows cover exactly78 IDs once",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "127 overlapping source-asset records, unique IDs",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Required migration fields present",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "Source records have inputs/outputs/rules",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "No retirement; no migration implied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "All source records carry nonempty source links",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Source links point to GitHub pinned40-char refs or numbered PRs",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "2854 original runtime-cut files,15 full-tree repositories",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "240 unique branch metadata records",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "4660 retained Atlas folders",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "4660 relevance entries",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Metadata relevance remains inferred",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "4639 uninspected nested Atlas subtrees retained",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Cloude depth counts reconcile696",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Latest coordination/PR151 reconciled",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Current activity128 PR/11open/140cloude branches",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "P0 explicitly incomplete and no runtime authorization",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "11 prioritized review batches",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "AUD-P01 malformed-row reliance gap corrected",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "No contradictory sampled Atlas review scope",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "No inventory product tests or remote runtime changes",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Arabic report retains broadP0gate",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "PR143 source counts distinguished from tree records",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Issue body transport limitation honestly disclosed",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Requirements standalone coordination addendum current",
+      "passed": true,
+      "detail": null
+    }
+  ],
+  "counts": {
+    "canonical_ids": 78,
+    "source_asset_records": 127,
+    "repositories": 17,
+    "verified_complete_production_capabilities": 0
+  }
+}

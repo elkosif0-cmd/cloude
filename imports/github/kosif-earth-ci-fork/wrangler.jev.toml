@@ -1,0 +1,8 @@
+name = "aghnam-jev-api"
+main = "jev-api/worker.js"
+compatibility_date = "2026-09-24"
+workers_dev = true
+
+[[services]]
+binding = "JEV_BRIDGE"
+service = "jev-claude-bridge"

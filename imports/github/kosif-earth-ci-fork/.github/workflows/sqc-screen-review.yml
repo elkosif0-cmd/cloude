@@ -1,0 +1,40 @@
+# Every screen captured on a GitHub runner for a screen-by-screen review (the owner's machine has too little memory for it):
+# tools/page_review.mjs on the data-free preview — the demo company on a desktop (whole pages) and a phone, and every ledger tab
+# of the six model companies — plus the page errors, broken values and overflow of each screen (report.json).
+name: SQC Screen Review
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/review-**"]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the data-free preview
+        run: SQC_BUILD_MODE=preview python3 build.py
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --prefix /tmp/pw playwright@1
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+      - name: Capture every screen
+        run: |
+          (python3 -m http.server 8765 --directory dist >/dev/null 2>&1 &)
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://localhost:8765/app-safe.html && break; sleep 1; done
+          PAGE_REVIEW_FULL=1 NODE_PATH=/tmp/pw/node_modules node tools/page_review.mjs http://localhost:8765/ page-review
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screen-review
+          path: page-review
+          retention-days: 7

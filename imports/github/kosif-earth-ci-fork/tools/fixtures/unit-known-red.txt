@@ -1,0 +1,5 @@
+# Unit test files red on main before the code review (docs/rebuild/CODE_REVIEW_20261008_ar.md §CI), each with its reason.
+# Listed here they are reported but do not fail «SQC Unit Tests (all files)». Remove a line when its file is fixed.
+# R16 merged PR #143 (published-source replays) with P5 kept: its 14 recovered files and the server security contract
+# (capabilities-v2/security-contract.test.mjs) are green. R17: helper_gateway runs in S.kosif again and
+# review_import_guard passes on Linux and Windows (fileURLToPath) — the list is empty.

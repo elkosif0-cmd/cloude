@@ -1,0 +1,49 @@
+Table of Contents
+
+
+
+                                        THE HOME DEPOT, INC.
+                          CONSOLIDATED STATEMENTS OF STOCKHOLDERS’ EQUITY
+                                                                                   Fiscal            Fiscal            Fiscal
+in millions                                                                        2025              2024               2023
+Common Stock:
+Balance at beginning of year                                                   $            90   $            90   $            90
+Shares issued under employee stock plans, net                                               —                 —                 —
+  Balance at end of year                                                                    90                90                90
+
+
+Paid-in Capital:
+Balance at beginning of year                                                         14,117            13,147            12,592
+Shares issued under employee stock plans, net                                           170               530               175
+Stock-based compensation expense                                                        522               440               380
+  Balance at end of year                                                             14,809            14,117            13,147
+
+
+Retained Earnings:
+Balance at beginning of year                                                         89,533            83,656            76,896
+Net earnings                                                                         14,156            14,806            15,143
+Cash dividends                                                                       (9,152)           (8,929)           (8,383)
+  Balance at end of year                                                             94,537            89,533            83,656
+
+
+Accumulated Other Comprehensive Loss:
+Balance at beginning of year                                                          (1,129)             (477)             (718)
+Foreign currency translation adjustments, net of tax                                     469              (605)              232
+Cash flow hedges, net of tax                                                              11               (45)                8
+Other, net of tax                                                                         (3)               (2)                1
+  Balance at end of year                                                                (652)           (1,129)             (477)
+
+
+Treasury Stock:
+Balance at beginning of year                                                        (95,971)          (95,372)          (87,298)
+Repurchases of common stock                                                              —               (599)           (8,074)
+  Balance at end of year                                                            (95,971)          (95,971)          (95,372)
+        Total stockholders’ equity                                             $     12,813      $      6,640      $      1,044
+—————
+Fiscal 2025 and fiscal 2023 include 52 weeks. Fiscal 2024 includes 53 weeks.
+See accompanying notes to consolidated financial statements.
+
+
+
+
+Fiscal 2025 Form 10-K                                          42

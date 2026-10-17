@@ -1,0 +1,14 @@
+/* the save state chip (ui/core/save-state.js) — FOUNDATION §3.0 rule 8; tokens only */
+.sk-save{display:inline-flex;align-items:center;gap:var(--sk-2);min-height:36px;padding:0 var(--sk-3);border:1px solid var(--sk-line);border-radius:var(--sk-r-pill);background:var(--sk-surface);color:var(--sk-ink-3);font:inherit;font-size:var(--sk-fs-xs);font-weight:600;white-space:nowrap;cursor:pointer}
+.sk-save i{flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:var(--sk-ok-mark)}
+.sk-save[data-state="saving"] i{background:var(--sk-brand-2);animation:sk-save-pulse .9s var(--sk-ease) infinite alternate}
+.sk-save[data-state="failed"]{border-color:var(--sk-bad);background:var(--sk-bad-soft);color:var(--sk-bad)}
+.sk-save[data-state="failed"] i{background:var(--sk-bad-mark)}
+.sk-save:focus-visible{outline:3px solid var(--sk-focus);outline-offset:2px}
+@keyframes sk-save-pulse{from{opacity:.35}to{opacity:1}}
+@media (max-width:900px){.sk-save{min-height:44px;min-width:44px;padding:0 var(--sk-3);justify-content:center}.sk-save span{display:none}}
+@media (prefers-reduced-motion:reduce){.sk-save[data-state="saving"] i{animation:none}}
+/* the smallest phones (320–380px): the top bar has no room for one more 44px button — the state shrinks to its dot, which
+   keeps its colour and its full label for screen readers (tools/phone_layout.mjs: no sideways scroll at 320px) */
+@media (max-width:380px){.sk-save{min-width:14px;width:14px;padding:0;margin-inline:-4px;border:0;background:transparent}
+  .sk-save[data-state="failed"]{background:transparent}.sk-save i{flex-basis:10px;width:10px;height:10px}}

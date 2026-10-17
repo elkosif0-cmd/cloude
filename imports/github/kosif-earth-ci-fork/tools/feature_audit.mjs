@@ -1,0 +1,315 @@
+import { createRequire } from 'module'; import fs from 'fs';
+// Feature audit: every capability the owner asked for across the rounds, checked in the running app.
+// usage: node tools/feature_audit.mjs http://localhost:8765/app-safe.html [out.json]
+const URL_=process.argv[2]||'http://localhost:8765/app-safe.html';
+const require = createRequire(import.meta.url);
+const { chromium } = require('playwright');
+const b = await chromium.launch(); const ctx0 = await b.newContext({viewport:{width:1440,height:900}});
+// a user who already answered «which company?» for the helper tools this session (the chooser has its own check below)
+await ctx0.addInitScript(()=>{try{if(!location.hash.includes('askspace'))sessionStorage.setItem('sqc_space_chosen','1')}catch{}});
+const p = await ctx0.newPage(); const errs=[];
+p.on('pageerror',e=>errs.push(e.message)); p.on('dialog',d=>d.dismiss());
+await p.goto(URL_); await p.waitForTimeout(6000); await p.waitForLoadState('load'); await p.waitForTimeout(2500);
+const go=async(v,ms=900)=>{await p.evaluate(x=>SKosifCore.go(x),v);await p.waitForTimeout(ms)};
+const has=s=>p.evaluate(x=>!!document.querySelector(x),s);
+const txt=s=>p.evaluate(x=>document.body.innerText.includes(x),s);
+const R=[];const ok=(area,name,v)=>R.push([area,name,!!v]);
+// ---------- earlier rounds ----------
+const E=await p.evaluate(()=>({docs:!!window.SKosifReportDocs&&['annual','release','auditor'].every(k=>typeof SKosifReportDocs[k]==='function'),assistant:!!window.SKosifAssistant,cmd:!!window.SKosifCommand,charts:['bars','line','hbars','waterfall','donut','matrix'].every(k=>SKCharts[k]),xlsx:!!(SKXlsx.write&&SKXlsx.book),looks:SKosifShell.looks().length,fonts:SKosifShell.fonts().length,accents:SKosifShell.accents().length,groups:SK.caps.groups().length,hubs:SK.caps.all().filter(c=>c.isHub).length,periodTB:!!SKEngines.finance.ledger.periodTrialBalance,globalReports:!!SK.caps.get('globalreports')}));
+ok('الجولات السابقة','التقرير السنوي بنمط 10-K وبيان النتائج وتقرير المراجع',E.docs);
+ok('الجولات السابقة','إلغاء مركز التقارير العالمي (ما زال ملغياً)',!E.globalReports);
+ok('الجولات السابقة','إعادة التنظيم: العام + المراجعة + خمسة استوديوهات للشركة + Jev',E.groups===8&&E.hubs>=10);
+ok('الجولات السابقة','الدفاتر ← ميزان الفترة ← مراجعة الميزان',E.periodTB);
+ok('الجولات السابقة','الرسوم البيانية المطورة (أعمدة، خطوط، أفقي، شلال، دائري، خريطة حرارية)',E.charts);
+ok('الجولات السابقة','Excel حقيقي (ورقة وعدة أوراق)',E.xlsx);
+ok('الجولات السابقة','المساعد المباشر ولوحة الأوامر',E.assistant&&E.cmd);
+ok('الجولات السابقة','استوديو المظهر: خطوط وألوان تمييز',E.fonts>=8&&E.accents>=9);
+await go('ledger');ok('الجولات السابقة','جداول مطورة (بحث، تصدير، أعمدة)',await has('.sktb-bar,.sk-tb-bar,[data-sktb],.sktbl-bar')||await p.evaluate(()=>!!window.SKosifTable));
+// ---------- research: council ----------
+await go('tbreview');await p.click('[data-tab="conf"]');await p.waitForTimeout(1500);
+const C=await p.evaluate(()=>{const t=document.body.innerText;return{states:document.querySelectorAll('.tbc-states li').length,apps:document.querySelectorAll('.tbc-apps article').length,matrix:document.querySelectorAll('.tbc-mx tbody tr').length,checks:document.querySelectorAll('.tbc-checks>div').length,reg:t.includes('سجل الأدلة المرقمة'),ranked:t.includes('الطلبات مرتبة بالقيمة'),exc:t.includes('سجل الاستثناءات'),isa:t.includes('خريطة الربط بمعايير المراجعة'),ready:t.includes('جاهزية المكتب'),journal:t.includes('اختبارات القيود على كامل المجتمع')}});
+ok('البحث: مجلس المراجعة','حالات الملف الثماني',C.states===8);ok('البحث: مجلس المراجعة','نقاط الاعتماد البشرية الأربع',C.apps===4);
+ok('البحث: مجلس المراجعة','درجة الثقة لكل بند × تأكيد مع العتبات',C.matrix>0);ok('البحث: مجلس المراجعة','فحوص السلامة الست',C.checks===6);
+ok('البحث: مجلس المراجعة','سجل الأدلة المرقمة (الاستشهاد الإلزامي)',C.reg);ok('البحث: مجلس المراجعة','ترتيب الطلبات بالقيمة المتوقعة',C.ranked);
+ok('البحث: مجلس المراجعة','سجل الاستثناءات وتعديل العتبات بسبب',C.exc);ok('البحث: مجلس المراجعة','خريطة الربط بمعايير ISA',C.isa);ok('البحث: مجلس المراجعة','جاهزية المكتب (الملحق هـ)',C.ready);
+ok('البحث: مجلس المراجعة','بنفورد والقيود غير المعتادة والقطع',C.journal);
+const K=await p.evaluate(()=>({members:SKEngines.audit.council.MEMBERS.length,council:JSON.stringify(SKEngines.audit.council.COUNCIL),stop:!!SKEngines.audit.confidence.stopRule,verify:!!SKEngines.audit.council.verifyOpinion,checklist:SKEngines.audit.confidence.ROUND_CHECKLIST.length}));
+ok('البحث: مجلس المراجعة','خمسة أعضاء (المتشكك، المحلل، المعايير، الضرائب، الرئيس)',K.members===5);ok('البحث: مجلس المراجعة','مجلس 1 أو 3 أو 5',K.council.includes('"5"'));
+ok('البحث: مجلس المراجعة','قاعدة الإيقاف والتصعيد',K.stop);ok('البحث: مجلس المراجعة','رفض الرأي المستشهد بدليل غير موجود',K.verify);ok('البحث: مجلس المراجعة','قائمة فحص المراجع (الملحق د)',K.checklist===6);
+await p.click('[data-tab="ai"]');await p.waitForTimeout(500);ok('البحث: مجلس المراجعة','اختيار تشكيل المجلس في جولات المراجعة',await has('[data-cc="size"][data-v="5"]'));
+await p.click('[data-tab="fs"]');await p.waitForTimeout(700);const L=await p.evaluate(()=>[...document.querySelectorAll('.tbr-li dt')].map(x=>x.textContent).join('|'));
+ok('البحث: مجلس المراجعة','خطاب الإدارة: الملاحظة/الأثر/التوصية/رد الإدارة (الملحق ج)',L.includes('الأثر')&&L.includes('رد الإدارة'));
+// ---------- fusion ----------
+const F=await p.evaluate(()=>({hub:SK.caps.members('tbreview').map(x=>x.id),hidden:SK.caps.all().filter(c=>c.hidden&&c.hub==="tbreview").length,feeds:SK.caps.all().filter(c=>c.feeds).length,flow:!!SK.flow,tabs:[...document.querySelectorAll('.tbr-tabs [data-tab]')].map(x=>x.dataset.tab)}));
+await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1500);
+const FS=await p.evaluate(()=>({adv:!!document.querySelector('.tbr-adv [data-studio-host]'),own:[...document.querySelectorAll('.tbr-tabs [data-tab]')].some(x=>x.dataset.tab==='studio')}));
+ok('المنظومة الواحدة','ملف مراجعة واحد: أدوات الاستوديو داخل تبويبات الملف نفسها بلا قائمة ثانية',F.hidden===6&&FS.adv&&!FS.own);ok('المنظومة الواحدة','التحليل صفحة في مركز المراجعة',F.hub.includes('auditanalytics'));
+ok('المنظومة الواحدة','مسار العمل (يأتي من / يذهب إلى) في كل شاشة',await has('.skflow')&&F.feeds>=30);await p.click('.tbr-tabs [data-tab="tb"]');await p.waitForTimeout(500);ok('المنظومة الواحدة','الإرسال إلى المهام وسجل الملاحظات',F.flow&&await has('[data-flow-finding]'));
+await go('dash',1400);ok('المنظومة الواحدة','رحلة العمل في مركز القيادة',await p.waitForFunction(()=>document.querySelectorAll('.skjr li').length===5,null,{timeout:6000}).then(()=>true,()=>false));
+await go('dash',1400);ok('نبض اليوم','بطاقة نبض اليوم تحت الملخص الصباحي: أربع بلاطات (طلبات اليوم، تحصيل اليوم، غير مدفوع، 7 أيام) وقائمة الاتصال وشريط جاهزية الإقفال',await p.waitForFunction(()=>{const s=document.querySelector('#view .skpulse');return !!s&&s.querySelectorAll('.skpulse-t').length===4&&!!s.querySelector('.skpulse-band, .skpulse-cols .skpulse-empty')},null,{timeout:15000}).then(()=>true,()=>false));
+ok('نبض اليوم','أرقام النبض = سجلات النواة ومحرك الإيقاع (دالة نقية)',await p.evaluate(()=>{const P=window.SKosifPulse;if(!P||!P.current())return false;const c=P.current();return typeof c.fig.orders==='number'&&Array.isArray(c.calls)&&(c.close===null||['ready','almost','blocked','atRisk'].includes(c.close.band))}));
+await go('auditanalytics',3500);const A=await p.evaluate(()=>({tabs:document.querySelectorAll('.kx-views [data-kxv]').length,tools:document.querySelectorAll('.kx-views .kx-tool').length}));
+ok('المنظومة الواحدة','أدوات التحليل بتبويبات التطبيق وبثيمه (صفحاتها وصوتها وأوامرها)',A.tabs>=15&&A.tools===2);
+{const base=(await import('node:fs')).readFileSync(new URL('../docs/rebuild/CAPABILITY_BASELINE.txt',import.meta.url),'utf8').split('\n').filter(l=>l&&!l.startsWith('#')).map(l=>l.split('\t')[0]);
+ const have=await p.evaluate(()=>SK.caps.all().map(c=>c.id));ok('عدم ضياع القدرات','قدرات خط الأساس الـ'+base.length+' كلها مسجلة',base.every(id=>have.includes(id))&&have.length>=base.length);}
+await go('helperdesk',900);ok('هيكل المنتج','ثلاثة مداخل رئيسية (محاسبة · مراجعة · أدوات) مع بقاء الاستوديوهات الداخلية للتوافق ونطاق الشركة',await p.evaluate(()=>SK.caps.get('helperdesk')?.company===true&&SK.caps.get('jev')?.group==='jev'&&document.querySelectorAll('.hd-node').length===6&&SK.caps.gateways().map(g=>g.id).join('|')==='accounting|audit|tools'&&SK.caps.groups().map(g=>g.id).join('|')==='home|audit|product|customer|supply|books|reports|jev'&&SK.caps.companyGroups().map(g=>g.id).join('|')==='product|customer|supply|books|reports'&&SK.caps.get('ledger')?.gateway==='accounting'&&SK.caps.get('execreports')?.gateway==='accounting'&&SK.caps.get('execreports')?.also.includes('tools')&&SK.caps.get('tbreview')?.gateway==='audit'&&SK.caps.get('helperdesk')?.gateway==='tools'&&SK.caps.all().every(c=>!!c.company===(SK.caps.group(c.group).company===true||['helperdesk','masterdata','auditinbox'].includes(c.id)))&&SK.caps.get('legacyapps')?.hub==='archive'&&SK.caps.advancedIds().length===0));
+ok('هيكل المنتج','لكل مجموعة أدوات مسموحة عقدة وسهم مطابقان بلا أسهم معلقة',await p.evaluate(()=>{
+  const sections=SK.caps.companyGroups().map(g=>({id:g.id,targets:SK.caps.hubsInGroup(g.id).filter(c=>SK.caps.inGatewayOf(c,'tools')).map(c=>c.id)})).filter(s=>s.targets.length);
+  sections.push({id:'decision',targets:['jev','council','decision','sensitivity','risks']});
+  const expected=sections.map(s=>({id:s.id,target:s.targets.find(id=>SK.caps.get(id)&&SK.perm.can(id))})).filter(s=>s.target);
+  const nodes=[...document.querySelectorAll('.hd-node')],edges=[...document.querySelectorAll('.hd-lines line')];
+  return nodes.length===expected.length&&edges.length===expected.length&&expected.every((s,i)=>{
+    const n=nodes[i],e=edges[i];
+    return n.dataset.hdSection===s.id&&n.dataset.hdGo===s.target&&e.dataset.hdSection===s.id&&
+      Number(e.getAttribute('x1'))===50&&Number(e.getAttribute('y1'))===50&&
+      Number(e.getAttribute('x2'))===parseFloat(n.style.left)&&Number(e.getAttribute('y2'))===parseFloat(n.style.top);
+  })&&[...document.querySelectorAll('.hd-shell [data-hd-go]')].every(n=>SK.caps.get(n.dataset.hdGo)&&SK.perm.can(n.dataset.hdGo));
+}));
+/* R1: the company switcher and the accountant's user live in the top bar's company menu, not in a strip above the screen */
+await p.click('#sk-tb-co');await p.waitForTimeout(200);
+ok('هيكل المنتج','الأدوات المساعدة تعرض شركتها ومبدّل الشركات (قائمة الشركة)',await p.evaluate(()=>!!document.querySelector('.sk-menu [data-space-open]')&&!!window.SKosifSpace&&!document.querySelector('.sqc-space-bar')));
+ok('هيكل المنتج','الأدوات المساعدة تعرض مستخدم المحاسب وتفصل مساحاته',await p.evaluate(()=>!!document.querySelector('.sk-menu [data-user-open]')&&typeof SKosifSpace.user==='function'&&typeof SKosifSpace.switchUser==='function'&&typeof SKosifSpace.createUser==='function'));
+await p.keyboard.press('Escape');await p.waitForTimeout(100);
+await go('productflow',1500);ok('الاستوديو','استوديو المنتج يُرسم بمكوّن الاستوديو المشترك (SK.studio): كيان في المركز، مدخلات ومخرجات، مفتّش وتبويبات',await p.evaluate(()=>!!(window.SK&&SK.studio&&SK.studio.mount)&&!!document.querySelector('.pf-canvas .pf-node.pf-r-center')&&document.querySelectorAll('.pf-canvas .pf-node.pf-r-input').length>=1&&document.querySelectorAll('.pf-tab').length===4));
+await go('customerflow',3000);await p.waitForFunction(()=>document.querySelector('.pf-canvas .pf-node.pf-r-center'),null,{timeout:15000}).catch(()=>{});
+ok('الاستوديو','استوديو العميل على القالب نفسه: العميل في المركز، الطلبات والمدفوعات والمنتجات مدخلات، الشريحة والإيقاع والقيمة والذمم والمتابعة مخرجات',await p.evaluate(()=>!!window.SKosifCustomerFlow&&!!document.querySelector('.pf-node.pf-customer.pf-r-center')&&document.querySelectorAll('.pf-node.pf-r-input').length>=3&&document.querySelectorAll('.pf-node.pf-r-output').length===5&&document.querySelectorAll('.pf-tab').length===4&&!!document.querySelector('#pf-q')));
+ok('الاستوديو','أرقام استوديو العميل = أرقام محرك ذكاء المبيعات (الطلبات، الإيراد، الحالة، الشريحة)',await p.evaluate(async()=>{const m=SKosifCustomerFlow.current();if(!m)return false;const r=await SKosifSalesIntel.snapshot('all');const e=r.customers.find(c=>String(c.id)===m.id),f=r.followup.find(c=>String(c.id)===m.id);return !!e&&e.orders===m.person.orders&&e.revenue===m.person.revenue&&e.segment===m.person.segment&&(f?f.status:'ok')===m.person.status}));
+await p.click('.pf-node.pf-r-center');await p.waitForTimeout(400);ok('الاستوديو','الضغط على المربع يفتح مفتّشه بتفاصيله وزرّ الأصل',await p.evaluate(()=>!!document.querySelector('.pf-insp .pf-kv')&&!!document.querySelector('.pf-insp [data-pf="open-customer"]')));
+await p.click('.pf-tab[data-tab="checks"]');await p.waitForTimeout(300);ok('الاستوديو','تبويب الرقابة يعرض ملاحظات محسوبة',await has('.pf-tabb .pf-chk'));
+await go('ledger',1500);await p.evaluate(()=>SKosifLedger.open('tb'));await p.waitForTimeout(900);
+ok('المالية','الشاشة = المحرك: إجمالي ميزان الدفاتر المعروض هو ميزان الفترة من المحرك على القيود المخزّنة',await p.evaluate(()=>{const d=SKosifLedger.snapshot(),E=SKEngines.finance.ledger;const c=SK.load('skosif_companies_v1',{}),a=c.active||{},per=(c.periods||[]).find(x=>x.id===a.periodId);const re=d.accounts.find(x=>x.code==='3100')||d.accounts.find(x=>/مبق|محتجز/.test(x.name));const tb=per?E.periodTrialBalance(d.entries,id=>(d.accounts.find(x=>x.id===id)||{}).type,{start:per.startDate,end:per.endDate},re?re.id:'__re__'):E.buildTrialBalance(d.entries);const foot=document.querySelector('#view tfoot[data-sk-summary-scope] tr');if(!tb.rows.length)return !!document.querySelector('#view .sks.empty')||!foot;if(!foot)return false;const cells=[...foot.querySelectorAll('td')].map(x=>x.textContent.trim());return cells[1]===SK.money(tb.totals.debit)&&cells[2]===SK.money(tb.totals.credit)&&tb.balanced}));
+await p.evaluate(()=>SKosifLedger.open('close'));await p.waitForTimeout(600);
+await go('tbreview',1200);ok('هيكل المنتج','دورة المراجعة مرسومة كعقد وأسهم مع حلقة جولات الأدلة',await p.evaluate(()=>document.querySelectorAll('.tbr-flow-node').length===9&&!!document.querySelector('.tbr-flowloop')));
+// ---------- global research bundle: audit benchmarks ----------
+await go('companies',900);
+ok('شركة الواحة','شركة الواحة الذهبية: ميزان 40 حساباً بسنتين وبيانات المنشأة، وزر إضافتها في الشركات',await p.evaluate(()=>{const W=SKEngines.reports.sampleCompany;return !!W&&W.WAHA_TB_CSV.split('\n').length===41&&W.WAHA_CONTEXT.company.includes('الواحة')})&&(await has('[data-w="add-waha"]')||await txt('شركة الواحة')));
+await go('auditbench',1200);
+const CO=await p.evaluate(()=>{const c=SKEngines.reports.globalCorpus,s=c.summary();return{pages:s.pagesClassified,types:s.sectionTypes,bp:document.querySelectorAll('.ab-bp li').length,reps:document.querySelectorAll('[data-ab-rep] option').length,ex:c.EXEMPLARS.length}});
+ok('البحث العالمي','قراءة الحزمة كاملة: كل صفحة مصنفة وبنية كل تقرير',CO.pages>12400&&CO.types>=50&&CO.reps===50&&CO.bp>=30);
+ok('البحث العالمي','الصفحات النموذجية لكل قسم يكتبه المراجع الذكي',CO.ex>=8);
+await p.click('[data-ab-tab="kams"]');await p.waitForTimeout(500);
+const GB=await p.evaluate(()=>{const g=SKEngines.audit.globalBenchmarks,s=g.summary();return{reports:s.reports,kams:s.kams,mat:s.materiality,src:s.sources,hub:SK.caps.members('codex').map(x=>x.id).includes('auditbench'),themes:document.querySelectorAll('.ab-th').length,
+  aramco:g.MATERIALITY.some(m=>m.report==='aramco-2025'&&m.currency==='SAR'),inTbr:!!window.SKosifAuditBench}});
+ok('البحث العالمي','المرجع العالمي للمراجعة صفحة في «المعايير والمدونة»',GB.hub);
+ok('البحث العالمي','مكتبة الأمور الرئيسية للمراجعة (96 أمراً من تقارير الحزمة الـ50) بموضوعاتها',GB.reports===50&&GB.kams>=90&&GB.themes>=10);
+ok('البحث العالمي','الأهمية النسبية المفصح عنها بما فيها أرامكو (ريال)',GB.mat===7&&GB.aramco);
+ok('البحث العالمي','المصادر الرسمية الثلاثون',GB.src===30);
+await p.click('[data-ab-tab="mat"]');await p.waitForTimeout(400);ok('البحث العالمي','فحص اختيار الأهمية النسبية مقابل الممارسة',await has('.ab-chk-r'));
+ok('البحث العالمي','السوابق العالمية داخل ملف المراجعة',GB.inTbr);
+await p.click('[data-ab-tab="peers"]');await p.waitForTimeout(400);ok('البحث العالمي','النظراء العالميون: 8 مجموعات × 13 نسبة من قوائمها',await p.evaluate(()=>document.querySelectorAll('.ab-pt thead th').length===10&&document.querySelectorAll('.ab-pt tbody tr').length===13));
+await go('tbreview',2200);await p.click('[data-tab="fs"]');await p.waitForTimeout(800);
+const RD=async k=>{await p.click('[data-doc="'+k+'"]');await p.waitForTimeout(1000);return p.evaluate(()=>{const a=document.querySelector('.rd-paper article');return a?a.innerText:''})};
+const AUD=await RD('auditor');ok('التقارير المتقدمة','تقرير المراجع: «نهجنا في المراجعة» بالأهمية النسبية وحد الإبلاغ (نمط أرامكو)',AUD.includes('نهجنا في المراجعة')&&AUD.includes('حد الإبلاغ'));
+const NT=await RD('notes');ok('التقارير المتقدمة','الإيضاحات المتممة: المصروفات حسب طبيعتها والمخاطر المالية وإدارة رأس المال',NT.includes('المصروفات حسب طبيعتها')&&NT.includes('إدارة المخاطر المالية')&&NT.includes('إدارة رأس المال'));
+const CM=await RD('committee');ok('التقارير المتقدمة','تقرير لجنة المراجعة (نمط HSBC)',CM.includes('الأمور الهامة التي نظرت فيها اللجنة'));
+const IC=await RD('icfr');ok('التقارير المتقدمة','تقرير الإدارة عن الرقابة الداخلية (COSO 2013)',IC.includes('COSO'));
+const PR=await RD('peers');ok('التقارير المتقدمة','المقارنة بالنظراء العالميين',PR.includes('وسيط النظراء'));
+ok('التقارير المتقدمة','مركز التقارير: المستندات مجمعة وأوراق المراجعة تفتح في المعاينة',await p.evaluate(()=>document.querySelectorAll('.tbr-docg .tbr-dg').length===5&&document.querySelectorAll('[data-fw-doc]').length===5));
+await p.click('[data-tab="plan"]');await p.waitForTimeout(1200);
+const FWK=await p.evaluate(()=>({wps:document.querySelectorAll('.fw-wp').length,mx:document.querySelectorAll('.fw-mx tbody tr').length,glob:document.querySelectorAll('.fw-src.global').length,sign:document.querySelectorAll('[data-fw-sign]').length}));
+ok('العمل الميداني','مصفوفة المخاطر × التأكيدات (ISA 315)',FWK.mx>0);ok('العمل الميداني','أوراق عمل بمراجع وإجراءات وعينات (ISA 330/530)',FWK.wps>0);
+ok('العمل الميداني','إجراءات المراجعين العالميين للمخاطر الجوهرية',FWK.glob>0);ok('العمل الميداني','توقيع المُعد والمراجِع مع فصل المهام',FWK.sign>0&&await p.evaluate(()=>{const w=SKEngines.audit.fieldwork.workingPapers({materiality:{overall:1,performance:1,trivial:0},risks:[],accounts:[]});return Array.isArray(w)}));
+await p.click('[data-tab="close"]');await p.waitForTimeout(800);ok('العمل الميداني','بوابة الإكمال (ISA 450/560/570/580)',await has('.fw-gate')&&await p.evaluate(()=>document.querySelectorAll('.fw-item').length>=10));
+await p.click('[data-fw-doc="reps"]');await p.waitForTimeout(1300);ok('العمل الميداني','خطاب الإقرارات يفتح في المعاينة قبل الطباعة',await has('.skout-f'));await p.keyboard.press('Escape');
+// ---------- demo, templates, outputs ----------
+const D=await p.evaluate(async()=>({demo:(await SK.demo.status()).filter(x=>x.demo).length,tpl:SK.templates.list().length,out:!!SK.output}));
+ok('البيانات والاستيراد','بيانات تجريبية للأقسام الفارغة',D.demo>=13);ok('البيانات والاستيراد','قوالب استيراد لكل قسم',D.tpl>=18);
+await go('suppliers');ok('البيانات والاستيراد','زر قوالب الاستيراد في رأس الشاشة',await has('.sk-ph .sktpl-btn'));
+await go('tbreview');await p.click('[data-tab="fs"]');await p.waitForTimeout(600);await p.click('[data-a="print"]');await p.waitForTimeout(1500);
+const O=await p.evaluate(()=>[...document.querySelectorAll('.skout [data-o]')].map(x=>x.dataset.o));
+ok('التقارير والمعاينة','معاينة داخل التطبيق بدل النوافذ المنبثقة',D.out&&await has('.skout-f'));ok('التقارير والمعاينة','تصدير PDF وWord وExcel وHTML',['print','word','excel','html'].every(x=>O.includes(x)));
+await p.keyboard.press('Escape');
+// ---------- themes & identity ----------
+ok('الهوية والثيمات','خمسة ثيمات احترافية جديدة',['aurora','vivid','oasis','graphite','onyx'].every(x=>E.looks>=14));
+await p.evaluate(()=>SKosifShell.setLook('oasis'));await p.waitForTimeout(500);
+await go('tbreview',1800);await p.click('.tbr-tabs [data-tab="fs"]');await p.waitForTimeout(700);await p.click('[data-doc="integrated"]');await p.waitForTimeout(1500);
+const IR=await p.evaluate(()=>({cover:!!document.querySelector('.ir-cover'),secs:document.querySelectorAll('.ir-sec').length,q:!!document.querySelector('.ir-q'),bar:!!document.querySelector('.sqc-nb'),risks:document.querySelectorAll('.ir-rt tbody tr').length,compat:document.querySelectorAll('.ir-compat-t tbody tr').length,
+  corpusCompat:SKEngines.reports.globalCorpus.reportCompatibility(['auditor_report','income_statement','balance_sheet']).length,
+  prov:window.SKosifAI&&SKosifAI.providers().map(x=>x.id).join(','),check:SKEngines.reports.narrative.verifyNumbers('412.6 مليون',{allowed:[412.6]}).length===0}));
+ok('التقرير المتكامل','التقرير السنوي المتكامل على بنية التقارير العالمية (غلاف، رسائل، مخاطر، جدوى، حوكمة، مراجع، قوائم، ملحق مطابقة)',IR.cover&&IR.secs>=15&&IR.q&&IR.bar&&IR.risks>=5);
+ok('التقرير المتكامل','الذكاء الاصطناعي من Gemini أو OpenAI أو Claude مع التحقق من كل رقم',IR.prov==='gemini,openai,anthropic'&&IR.check);
+ok('التقرير المتكامل','اختبار هيكل المخرجات فعلياً مقابل كل التقارير الـ50',IR.compat===50&&IR.corpusCompat===50);
+ok('الهوية والثيمات','هوية SQC واحدة في كل الثيمات',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail #app-name'),'::before').content.includes('SQC')));
+await p.evaluate(()=>SKosifShell.setLook('kosif'));
+/* SQC finish: the interface face is self-hosted and loads; no look lets the rail spill sideways; the SQC mark in every non-heritage look */
+const TY=await p.evaluate(async()=>{await document.fonts.ready;const plex=[...document.fonts].some(f=>/IBM Plex Sans Arabic/.test(f.family)&&f.status==='loaded');
+  const looks=SKosifShell.looks().map(x=>x.id).filter(x=>x!=='auto'),spill=[],mark=[];
+  for(const l of looks){SKosifShell.setLook(l);await new Promise(r=>setTimeout(r,120));const r=document.querySelector('.rail');if(r&&r.scrollWidth>r.clientWidth+1)spill.push(l);
+    const bg=getComputedStyle(document.querySelector('.rail .brand'),'::before').backgroundImage;if(!/heritage/.test(l)&&!/sqc-icon/.test(bg))mark.push(l)}
+  SKosifShell.setLook('kosif');return{plex,spill,mark,n:looks.length}});
+ok('الهوية والثيمات','خط الواجهة IBM Plex Sans Arabic مستضاف داخل التطبيق ويُحمَّل',TY.plex);
+ok('الهوية والثيمات','لا يفيض الشريط الجانبي في أي من الثيمات ('+TY.n+')',!TY.spill.length);
+ok('الهوية والثيمات','شعار SQC في كل الثيمات غير التراثية',!TY.mark.length);
+ok('الهوية والثيمات','نظام خطوط موحد (أرقام بعرض ثابت)',await p.evaluate(()=>{const td=document.querySelector('td');return !td||getComputedStyle(td).fontVariantNumeric.includes('tabular')}));
+// ---------- attachments ----------
+await go('salesintel',1500);const S=await p.evaluate(()=>[...document.querySelectorAll('[data-slab]')].map(x=>x.dataset.slab));
+ok('المرفقات: لوحة المبيعات','مختبر المبيعات: التوقع والتوزيع والزخم والخرائط والإحصاء وأفكار النمو',['pulse','invoices','momentum','maps','stats','ideas'].every(x=>S.includes(x)));
+ok('المرفقات: وحدة الإدارة V40','تكاليف الأصناف حسب فترة السريان والقناة وربحية القنوات',S.includes('profit'));ok('المرفقات: وحدة الإدارة V40','شجرة الأصناف والأكواد',S.includes('tree'));
+await p.evaluate(()=>{const b=document.querySelector('.sk-stabs [data-tab="lab"]');if(b)b.click()});await p.waitForTimeout(300);await p.click('[data-slab="profit"]');await p.waitForTimeout(800);ok('المرفقات: وحدة الإدارة V40','الأعلى ربحاً والخاسرة والضعيفة',await has('[data-cp-mode="loss"],[data-slab-pf="weak"]')); // the profit tab now delegates to «الربحية والقنوات» (#229)
+await go('followup');await p.click('[data-tab="report"]');await p.waitForTimeout(700);ok('المرفقات: CRM','خطة المتابعة المقترحة والمدن الأكثر احتياجاً',await txt('خطة المتابعة المقترحة'));
+ok('المرفقات: CRM','التسجيل اليومي وقائمة الاتصال وأولوية التواصل وتقرير الإنجاز',await p.evaluate(()=>['log','queue','priority','report'].every(k=>document.querySelector('[data-sk-tabs="fu"] [data-tab="'+k+'"]'))));
+
+// ---------- accounting application guidance from SOCPA guides ----------
+const AG=await p.evaluate(()=>({api:!!window.SKosifAccountingGuidance,change:window.SKosifAccountingGuidance?.accountingChange({newInformationOrNewExperience:true}),
+  ifrs19:window.SKosifAccountingGuidance?.ifrs19Eligibility({isSubsidiary:true,publicAccountability:false,parentProducesPublicIfrsConsolidated:true,usesFullIfrs:true}),
+  event:window.SKosifAccountingGuidance?.subsequentEvents({eventDateKnown:true,authorizationDateKnown:true,beforeAuthorization:true,evidenceOfConditionAtReportingDate:true,material:true})}));
+ok('المساعد التطبيقي','محرك يميز السياسة والتقدير والخطأ',AG.api&&AG.change?.treatment==='prospective');
+ok('المساعد التطبيقي','أهلية IFRS 19 وتصنيف الأحداث اللاحقة',AG.ifrs19?.decision==='eligible'&&AG.event?.decision==='adjusting');
+await go('codex',900);await p.evaluate(()=>SKosifCodex.tab('guide'));await p.waitForTimeout(300);ok('المساعد التطبيقي','أدوات الإطار والاعتراف والعرض والإيضاح والتدفقات والتطبيقات المتقدمة داخل المدونة',await has('.cdx-guide [data-ag-tab="framework"]')&&await has('.cdx-guide [data-ag-tab="recognition"]')&&await has('.cdx-guide [data-ag-tab="cashflow"]')&&await has('.cdx-guide [data-ag-tab="advanced"]'));
+await p.click('.cdx-guide [data-ag-tab="advanced"]');await p.waitForTimeout(300);ok('المساعد التطبيقي','IFRS 18 وIFRS 19 والأطراف ذات العلاقة والأحداث اللاحقة في مجموعة واحدة',await has('[data-ag-mode="ifrs18"]')&&await has('[data-ag-mode="ifrs19"]')&&await has('[data-ag-mode="related"]')&&await has('[data-ag-mode="events"]'));
+// ---------- global audit practice from the research bundle: planning, completion, reporting and the books ----------
+await go('tbreview',1200);await p.click('[data-tab="plan"]');await p.waitForTimeout(1200);
+ok('ممارسات المراجعة العالمية','خطة الأهمية النسبية في العمل الميداني: أساس معدّل وتنفيذية حسب الخطر وحد إبلاغ',await has('.ap-card [data-ap-risk="controlDeficiencies"]')&&await txt('حد إبلاغ المكلفين بالحوكمة'));
+ok('ممارسات المراجعة العالمية','مراجعة التقديرات بأثر رجعي (ISA 540) في التخطيط',await txt('مراجعة التقديرات بأثر رجعي'));
+await p.click('[data-tab="close"]');await p.waitForTimeout(1200);
+ok('ممارسات المراجعة العالمية','الاستمرارية في الإكمال: توقع نقدي 12 شهراً وسيناريوهات حادة واختبار عكسي',await p.evaluate(()=>document.querySelectorAll('.ap-gc tbody tr').length>=6&&!!document.querySelector('.ap-gc svg')));
+await p.click('[data-tab="fs"]');await p.waitForTimeout(1000);await p.click('[data-doc="issue"]');await p.waitForTimeout(1200);
+ok('ممارسات المراجعة العالمية','الأمور الرئيسية تُصاغ من المخاطر والسوابق العالمية مع النتيجة والاختيار',await p.evaluate(()=>document.querySelectorAll('.ap-kam [data-ap-kam]').length>0));
+await p.click('[data-doc="auditor"]');await p.waitForTimeout(1200);
+ok('ممارسات المراجعة العالمية','تقرير المراجع: قسم الاستمرارية ونتيجة كل أمر رئيسي',await p.evaluate(()=>{const h=[...document.querySelectorAll('.rd-audit .rd-sec h4')].map(x=>x.innerText);return h.some(x=>/الاستمرارية/.test(x))&&!!document.querySelector('.rd-audit .rd-kt2 .rd-obs')}));
+const AP=await p.evaluate(()=>({trail:!!window.SKosifLedger.trail&&!!SKosifLedger.trail(),rev:typeof SKosifLedger.revenueRecon,steps:SKosifClose.steps().map(s=>s.id)}));
+ok('ممارسات المراجعة العالمية','سجل التعديلات المختوم في الدفاتر ومطابقة الإيرادات في الإقفال',AP.trail&&AP.rev==='function'&&AP.steps.includes('trail')&&AP.steps.includes('revenue'));
+// ---------- older rounds (1–33) ----------
+const O2=await p.evaluate(()=>({device:!!SK.device,keys:!!window.SKosifKeys,notify:!!window.SKosifNotify,pack:!!window.SKosifReportPack,metrics:!!window.SKosifMetrics,topbar:!!window.SKosifTopbar,
+  codex:!!SKEngines.audit.codex,disc:!!SKEngines.audit.disclosures,rec:!!SKEngines.finance.reconciliation,prog:!!SKEngines.audit.programme,ecl:!!SKEngines.audit.tbReview.eclMatrix,
+  views:['devices','notifications','risks','codex','jev','ledger','execreports','companies','governance','health','capabilitiesv2'].every(id=>SK.caps.get(id)),toggleRail:!!(window.SKosifShell&&SKosifShell.paint)}));
+ok('الجولات 1–33','الأجهزة والمزامنة والنقل المشفر بين الآيفون واللابتوب',O2.device&&O2.views);ok('الجولات 1–33','اختصارات لوحة المفاتيح (اللابتوب)',O2.keys);
+ok('الجولات 1–33','مركز الإشعارات وسجل المخاطر والملاحظات',O2.notify);ok('الجولات 1–33','حزمة التقارير التنفيذية بالترويسة',O2.pack);ok('الجولات 1–33','الشريط العلوي: الشركة والفترة والبحث والجرس والمستخدم',O2.topbar);
+ok('الجولات 1–33','المدونة المحاسبية والمعايير',O2.codex);ok('الجولات 1–33','جاهزية الإفصاحات',O2.disc);ok('الجولات 1–33','مطابقة البنك',O2.rec);ok('الجولات 1–33','برنامج المراجعة',O2.prog);ok('الجولات 1–33','الخسائر الائتمانية المتوقعة (ECL)',O2.ecl);
+await go('tbreview');await p.click('[data-a="setup"]').catch(()=>{});await p.waitForTimeout(500);ok('الجولات 1–33','الشركات المصرية ومعايير المحاسبة المصرية',await p.evaluate(()=>!!document.querySelector('[data-ctx="country"] option[value="EG"]')));
+// ---------- the books and the working mechanism (rounds 38–41) ----------
+await go('ledger');
+const B=await p.evaluate(()=>{const tabs=SKosifLedger.tabs();return{tabs,
+  eng:['reverseJournalEntry','isPeriodLocked'].every(k=>typeof SKEngines.finance.ledger[k]==='function')&&typeof SKEngines.sales.sales.splitVatInclusive==='function'&&typeof SKEngines.stock.inventory.weightedAverageCostsAsOf==='function',
+  party:typeof SKEngines.finance.partyLedger.partyBalances==='function',vat:typeof SKEngines.finance.vatReturn.vatReturn==='function',bank:typeof SKEngines.finance.bankReconciliation.matchBankLines==='function',
+  tpl:SK.templates.list().some(t=>t.id==='bank'),close:!!window.SKosifClose,alerts:!!(window.SKosifClose&&Array.isArray(SKosifClose.alerts()))}});
+ok('الدفاتر وآلية العمل','الإقفال الشهري بخطوات حية (مع سجل التعديلات ومطابقة الإيرادات)',B.tabs.includes('close')&&await p.evaluate(()=>document.querySelectorAll('.skclose-steps li').length>=8&&SKosifClose.steps().some(s=>s.id==='trail')));
+ok('الدفاتر وآلية العمل','تكلفة المبيعات والضريبة الشاملة والعكس بدل الحذف وإقفال الفترة',B.eng&&await p.evaluate(()=>!document.querySelector('[data-l="del-entry"]')));
+await p.evaluate(()=>SKosifLedger.open('entries'));await p.waitForTimeout(400);
+ok('الدفاتر وآلية العمل','عكس القيد وإقفال الدفاتر في شاشة القيود',await has('[data-l="rev-entry"]')&&await has('#lg-lock'));
+await p.evaluate(()=>SKosifLedger.open('cash'));await p.waitForTimeout(400);
+ok('الدفاتر وآلية العمل','التحصيل والسداد: أعمار الذمم وكشوف الحساب من الدفاتر',B.party&&await has('[data-l="settle"]')&&await has('[data-l="stmt"]'));
+await p.evaluate(()=>SKosifLedger.open('vat'));await p.waitForTimeout(400);
+ok('الدفاتر وآلية العمل','إقرار الضريبة ربعاً بربع مع قيد الإقفال',B.vat&&await has('[data-l="vatq"]'));
+await p.evaluate(()=>SKosifLedger.open('recon'));await p.waitForTimeout(500);
+ok('الدفاتر وآلية العمل','مطابقة البنك بقالب كشف واستيراد',B.bank&&B.tpl&&await has('[data-l="bank-import"]'));
+ok('الدفاتر وآلية العمل','الجرد وتسوية المخزون',await has('#lg-cntd'));
+await go('dash',1800);
+ok('الدفاتر وآلية العمل','الملخص الصباحي في مركز القيادة',await p.evaluate(()=>document.querySelectorAll('.skbrief-t').length>=6));
+ok('الدفاتر وآلية العمل','تنبيهات الدفاتر في مركز الإشعارات',B.alerts);
+await go('auditdocs',5000);
+ok('البيانات والاستيراد','استوديو المراجعة يفتح على بيانات تجريبية',await p.evaluate(()=>{const r=[...document.querySelectorAll('#view *')].find(h=>h.shadowRoot)?.shadowRoot;return !!r&&!/لا توجد مستندات بعد/.test(r.textContent)}));
+// ---------- the global companies as audit clients ----------
+await go('corpuslab',2500);
+ok('الشركات العالمية','مختبر الشركات: 47 شركة من التقارير العالمية بقوائمها ومقارنة تقارير مراجعيها',await p.evaluate(()=>document.querySelectorAll('.cl-co').length===47&&document.querySelectorAll('.cl-k .skk4-t').length===4));
+ok('الشركات العالمية','خبرة القطاع ترفع ما يجده SQC من أمور المراجعين',await p.evaluate(()=>{const r=SKEngines.audit.corpusReplay,a=r.replayAll(),b=r.replayAll({prior:false});return a.recall>b.recall}));
+ok('الشركات العالمية','ما يطلبه المراجعون أولاً (إجراءات ومستندات من الأمور الرئيسية)',await has('.cl-proc'));
+await p.evaluate(()=>SKosifTBReview.loadCorpus('aramco-2025'));await p.waitForTimeout(2500);
+ok('الشركات العالمية','فتح شركة عالمية كملف مراجعة بعملتها ومراجعها وسنتها',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx&&d.ctx.corpusId==='aramco-2025'&&/ريال/.test(d.ctx.curSym)&&/Pricewaterhouse/.test(d.ctx.auditFirm)&&(Object.keys(d.overrides||{}).length>10||String(d.tbText||'').split('\n').length>20)}));
+await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1500);
+ok('الشركات العالمية','طلبات الجولة الأولى تشمل ما اعتمد عليه مراجعو التقارير العالمية',await txt('مراجعين في التقارير العالمية'));
+ok('الشركات العالمية','شركة دولية: طلبات ضريبة الدخل لا الزكاة ولا فواتير QR',await p.evaluate(()=>SKosifTBReview.loadCorpus('amazon-2023')).then(()=>p.waitForTimeout(2500)).then(()=>p.evaluate(()=>SKosifTBReview.open('docs'))).then(()=>p.waitForTimeout(1500)).then(()=>p.evaluate(()=>{const t=document.querySelector('#view').innerText;return /ضريبة الدخل/.test(t)&&!/احتساب الزكاة|رموز QR/.test(t)})));
+ok('الشركات العالمية','بيانات المراجعة تحفظ إطار الشركة الدولية ولا تقترح معيار المنشآت الصغيرة',await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return d.ctx.country==='INTL'&&d.ctx.framework==='IFRS'}));
+ok('هيكل المنتج','بطاقة الشريط الجانبي تعرض حالة ملف المراجعة لا هوامش البوكسات',await p.evaluate(()=>{const c=document.getElementById('status-card');return !!c&&/ملف المراجعة/.test(c.innerText)&&!/هامش البوكسات/.test(c.innerText)}));
+// ---------- the accountant helpers: product tree, customer map, sales analysis ----------
+await go('ptree',2500);
+ok('الأدوات المساعدة','شجرة المنتجات: المواد والمنتجات والموردون والعملاء من بيانات الشركة، بالشجرة والجدول والأسهم',await p.evaluate(()=>{const t=SKosifProductTree.get();return t.materials.length>0&&t.products.length>0&&t.suppliers.length>0&&t.customers.length>0&&!!document.querySelector('.pt-node')}));
+await p.click('[data-pt-tab="arrows"]');await p.waitForTimeout(600);
+ok('الأدوات المساعدة','الأسهم: مورد ← مادة ← منتج ← عميل',await p.evaluate(()=>['supplier','material','product','customer'].every(k=>document.querySelector('.pt-g.'+k))&&document.querySelectorAll('.pt-e').length>5));
+await go('salesmap',2500);
+ok('الأدوات المساعدة','خريطة العملاء: المناطق ملوّنة بالطلبات مع أرقامها',await p.evaluate(()=>document.querySelectorAll('.sm-svg [data-sm-region]').length===13&&document.querySelectorAll('.sm-side li').length>0));
+await p.click('.sm-svg [data-sm-region="makkah"]');await p.waitForTimeout(900);
+ok('الأدوات المساعدة','الاقتراب من المنطقة ثم المدينة يُظهر المدن ثم الأحياء',await p.evaluate(async()=>{if(!document.querySelector('.sm-svg [data-sm-city]'))return false;document.querySelector('.sm-svg [data-sm-city="جدة"]')?.dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,900));return document.querySelectorAll('.sm-d').length>0}));
+await p.click('[data-sm-tab="analysis"]');await p.waitForTimeout(700);
+ok('الأدوات المساعدة','تحليل المبيعات: الأكثر طلباً والشهور والعملاء وABC',await p.evaluate(()=>document.querySelectorAll('.skhb').length>=2&&/ABC/.test(document.body.innerText)));
+// ---------- the original systems, restored with demo data ----------
+await p.evaluate(()=>SKosifLegacy.open('crm'));await p.waitForTimeout(3500);
+const LG=await (async()=>{const fr=p.frames().find(f=>f.url().includes('/legacy/crm'));if(!fr)return{};return fr.evaluate(()=>{const t=document.documentElement.outerHTML;const ph=[...new Set(t.match(/(?<!\d)05\d{8}(?!\d)/g)||[])];return{v:document.title.includes('V8.2'),phones:ph.length,clean:ph.every(x=>/^05000000\d\d$/.test(x))}})})();
+ok('الأنظمة الأصلية','استعادة متابعة العملاء V8.2 وV31 وV33 وV40 داخل الأدوات المساعدة — ببيانات تجريبية فقط',LG.v&&LG.clean&&await p.evaluate(()=>document.querySelectorAll('.lg-card').length===4));
+{const cdn=[];p.on('request',r=>{if(/cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com\/ajax\/libs\/(?!font-awesome)/.test(r.url()))cdn.push(r.url())});
+const LIB={};for(const id of ['v31','v33','v40']){await p.evaluate(x=>SKosifLegacy.open(x),id);await p.waitForTimeout(4000);
+  const fr=p.frames().find(f=>f.url().includes('/legacy/'+id));LIB[id]=fr?await fr.evaluate(async()=>{if(window.__aghnamLoadHeavy)await window.__aghnamLoadHeavy();/* V40 loads its export libraries on first use */return typeof window.Chart==='function'&&typeof window.XLSX==='object'&&!!(window.jspdf&&window.jspdf.jsPDF)&&typeof window.html2canvas==='function'}).catch(()=>false):false}
+ok('الأنظمة الأصلية','V31 وV33 وV40 تعمل بمكتباتها من التطبيق نفسه (Chart وXLSX وjsPDF وhtml2canvas) — لا سكربت من طرف ثالث',Object.values(LIB).every(Boolean)&&!cdn.length);}
+await go('benchmarks',2500);
+{const BM=await p.evaluate(()=>{const rows=[...document.querySelectorAll('.bm-t tbody tr')];const E=SKEngines.reports.corpusBenchmarks,all=E.corpusPeers('').length;
+  return{rows:rows.length,bars:document.querySelectorAll('.bm-bar').length,all,noBank:!E.corpusPeers('').some(x=>x.sector==='banking'||x.sector==='insurance'),pages:rows.some(r=>/ص \d+/.test(r.innerText))}});
+ok('الأدوات المساعدة','المقارنة بالشركات العالمية: عشر نسب مقابل 35 شركة غير مالية بصفحاتها، بلا بنوك ولا تأمين',BM.rows===10&&BM.bars===10&&BM.all===35&&BM.noBank&&BM.pages);}
+await go('jesim',1200);await p.evaluate(()=>{localStorage.removeItem(SKosifEntrySim.memoryKey());localStorage.removeItem('sqc_jesim_v1')});await go('jesim',800);
+await p.click('[data-js-tab="learn"]');await p.waitForTimeout(300);await p.click('[data-js="books"]');await p.waitForTimeout(600);
+ok('الأدوات المساعدة','محاكي القيود يتعلم طريقة التسجيل من قيود الدفاتر',await p.evaluate(()=>{const m=SKosifEntrySim.memory();return m.patterns.length>=3&&m.stats.entries>20&&Object.keys(m.accounts).length>5}));
+await p.click('[data-js-tab="suggest"]');await p.waitForTimeout(300);await p.fill('[data-jd="text"]','مبيعات الشهر ملخص نقاط البيع');await p.fill('[data-jd="amount"]','1150');await p.click('[data-js="run"]');await p.waitForTimeout(500);
+ok('الأدوات المساعدة','يقترح قيد المستند متزناً وأين يُسجّل مع درجة الثقة',await p.evaluate(()=>!!document.querySelector('.js-res .js-lines')&&!!document.querySelector('.js-where')&&/٪/.test(document.querySelector('.js-res .sksev').textContent)));
+ok('الأدوات المساعدة','يسأل حين لا يعرف المستند، والمساعد متصل بالمحاكي',await p.evaluate(()=>{const s=SKosifEntrySim.suggest('غرامة تأخير مرورية لسيارة التوصيل',300);return s.status!=='sure'&&!!s.question&&SK.caps.get('jesim').group==='books'&&SK.caps.get('jesim').company===true}));
+ok('الأدوات المساعدة','ذاكرة محاكي القيود موسومة ومعزولة بمفتاح الشركة الحالية',await p.evaluate(()=>{const id=SKosifEntrySim.companyId(),m=SKosifEntrySim.memory(),k=SKosifEntrySim.memoryKey();return m.companyId===id&&k.startsWith('sqc_jesim_v1__')&&k.endsWith(id.replace(/[^A-Za-z0-9_.-]/g,'_'))}));
+const JPG=await p.evaluate(()=>{
+  const raw=localStorage.getItem('skosif_ledger_v1'),L=SKosifLedger,date='2099-12-31';let result;
+  try{
+    const beforeA=L.accounts().length,beforeE=L.entries().length,proposal={date,memo:'E2E governed simulator post',reference:'E2E-GOV',source:'محاكي القيود',
+      lines:[{account:'599901',name:'مصروف اختبار غير موجود',debit:25,credit:0},{account:'499902',name:'إيراد اختبار غير موجود',debit:0,credit:25}]};
+    const reject=L.post(proposal),safeReject=L.accounts().length===beforeA&&L.entries().length===beforeE;
+    const partial=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود',type:'expense'}]}),safePartial=L.accounts().length===beforeA&&L.entries().length===beforeE;
+    /* the type is the accountant's explicit choice: omitted or unsupported, nothing is opened or posted */
+    const noType=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود'},{code:'499902',name:'إيراد اختبار غير موجود',type:'revenue'}]}),safeNoType=L.accounts().length===beforeA&&L.entries().length===beforeE;
+    const badType=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود',type:'banana'},{code:'499902',name:'إيراد اختبار غير موجود',type:'revenue'}]}),safeBadType=L.accounts().length===beforeA&&L.entries().length===beforeE;
+    const opened=L.post(proposal,{open:[{code:'599901',name:'مصروف اختبار غير موجود',type:'expense'},{code:'499902',name:'إيراد اختبار غير موجود',type:'revenue'}]});
+    const explicitOk=opened.ok&&L.accounts().length===beforeA+2&&L.entries().length===beforeE+1;
+    const active=L.accounts().filter(a=>a.active!==false&&a.code).slice(0,2),mapBeforeA=L.accounts().length,mapBeforeE=L.entries().length;
+    let mapped={ok:false};
+    if(active.length===2)mapped=L.post({date,memo:'E2E mapped simulator post',reference:'E2E-MAP',source:'محاكي القيود',
+      lines:[{account:'EXT-D',name:'خارجي مدين',debit:10,credit:0},{account:'EXT-C',name:'خارجي دائن',debit:0,credit:10}]},
+      {map:{'EXT-D':String(active[0].code),'EXT-C':String(active[1].code)}});
+    const mappingOk=mapped.ok&&L.accounts().length===mapBeforeA&&L.entries().length===mapBeforeE+1;
+    result={reject:reject.code==='MISSING_ACCOUNTS'&&(reject.missingAccounts||[]).length===2&&safeReject,
+      partial:partial.code==='MISSING_ACCOUNTS'&&safePartial,explicit:explicitOk,mapping:mappingOk,
+      noType:noType.code==='ACCOUNT_TYPE_REQUIRED'&&safeNoType,badType:badType.code==='ACCOUNT_TYPE_INVALID'&&safeBadType};
+  }finally{if(raw==null)localStorage.removeItem('skosif_ledger_v1');else localStorage.setItem('skosif_ledger_v1',raw)}
+  return result;
+});
+ok('الأدوات المساعدة','حوكمة الترحيل: الحساب الناقص يُرفض بلا أثر، والفتح/الربط الصريح فقط يسمح بالقيد',JPG.reject&&JPG.partial&&JPG.explicit&&JPG.mapping);
+ok('الأدوات المساعدة','فتح حساب بلا نوع أو بنوع غير مدعوم يُرفض بلا أي أثر — لا استنتاج للنوع من رقم الحساب',JPG.noType&&JPG.badType);
+// ---------- the second round of requests follows the client's answers to the first ----------
+const R2=await p.evaluate(()=>{const O=SKEngines.audit.openingRequests,f=O.openingRequests(['impairment-intangibles']);const r=O.followUpRequests(f,id=>/-forecasts$/.test(id)?'unavailable':'open');return{alt:r.filter(x=>x.reason==='alternative').map(x=>x.proc).sort().join(','),round:r.length>0&&r.every(x=>x.round===2),none:O.followUpRequests(f,()=>'open').length}});
+ok('المراجعة','الجولة الثانية: توقعات غير متوفرة تُستبدل بتقدير مستقل ومراجعة بأثر رجعي (ISA 540)، ولا يُكرر طلب بلا رد',R2.alt==='independent_estimate,retrospective'&&R2.round&&R2.none===0);
+// ---------- regression: revisiting a view must not stack delegated listeners ----------
+await p.evaluate(()=>{
+  const orig=EventTarget.prototype.addEventListener;
+  window.__sqcListenerAuditOrig=orig;
+  window.__sqcListenerAudit={pt:0,sm:0,cl:0,hd:0};
+  EventTarget.prototype.addEventListener=function(type,fn,opt){
+    try{
+      if(this instanceof Element){
+        if(this.querySelector?.('[data-pt],[data-pt-tab]'))window.__sqcListenerAudit.pt++;
+        else if(this.querySelector?.('[data-sm],[data-sm-tab],[data-sm-region]'))window.__sqcListenerAudit.sm++;
+        else if(this.querySelector?.('[data-cl-prior],[data-cl-open]'))window.__sqcListenerAudit.cl++;
+        else if(this.querySelector?.('[data-hd-go]'))window.__sqcListenerAudit.hd++;
+      }
+    }catch{}
+    return orig.call(this,type,fn,opt);
+  };
+});
+await go('helperdesk',180);await go('ptree',180);await go('helperdesk',180);await go('salesmap',180);await go('helperdesk',180);await go('corpuslab',180);
+await go('helperdesk',180);await go('ptree',180);await go('salesmap',180);await go('corpuslab',180);
+const LA=await p.evaluate(()=>({...window.__sqcListenerAudit}));
+ok('ثبات الواجهات','إعادة فتح الشاشات لا تراكم مستمعي الأحداث (مركز الأدوات · شجرة المنتجات · خريطة المبيعات · مختبر الشركات)',LA.pt===0&&LA.sm===0&&LA.cl===0&&LA.hd===0);
+await p.evaluate(()=>{if(window.__sqcListenerAuditOrig)EventTarget.prototype.addEventListener=window.__sqcListenerAuditOrig;delete window.__sqcListenerAuditOrig;delete window.__sqcListenerAudit});
+// ---------- a bundle company walked from the first requests to the report (no AI key) ----------
+// Amazon, not Apple: Apple is a reviewed published source (PR #134) — simulated rounds stay not-assessed and the PBC letter
+// route cannot imply an engagement for it (tools/apple_source_reporting.test.mjs pins that).
+await go('tbreview',1200);await p.evaluate(()=>SKosifTBReview.openClient('amazon-2024'));await p.waitForTimeout(2500);
+await p.evaluate(()=>SKosifTBReview.demo());
+for(let i=0;i<40;i++){await p.waitForTimeout(600);if(await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}');return !!(d.session&&d.session.final)}))break}
+const DM=await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('skosif_tbreview_v1')||'{}'),s=d.session||{rounds:[],uploads:[]};return{co:d.ctx&&d.ctx.company,src:d.source,intl:d.ctx&&d.ctx.country,rounds:s.rounds.map(r=>r.status).join(','),uploads:s.uploads.length,insuff:s.rounds.some(r=>r.reviewed.some(v=>v.verdict==='غير كافٍ')),
+  final:!!s.final,sim:!!(s.final&&s.final.origin==='simulation'),earned:!!(s.final&&((s.final.kams||[]).length||s.final.opinion)),notAssessed:!!(s.final&&s.final.aiOpinion==='لم يُقيّم'),
+  zak:JSON.stringify(s.rounds.flatMap(r=>r.requests.map(q=>q.title))).match(/الزكاة|زكوي|QR|ZATCA/)}});
+// PR #134: the keyless walk-through is a labelled simulation — synthetic documents never complete a round or earn an opinion
+ok('العملاء التجريبيون','شركة عالمية كملف مراجعة كامل دون مفتاح: طلبات ← مستندات ← ثلاث جولات ← نتيجة محاكاة موسومة «لم يُقيّم» بلا رأي مكتسب',/Amazon/.test(DM.co)&&DM.src==='bundle'&&DM.intl==='INTL'&&DM.rounds==='needs_docs,needs_docs,needs_docs'&&DM.uploads>=5&&DM.insuff&&DM.final&&DM.sim&&DM.notAssessed&&!DM.earned&&!DM.zak);
+await p.evaluate(()=>SKosifTBReview.open('docs'));await p.waitForTimeout(1000);await p.click('[data-a="pbc-letter"]');await p.waitForTimeout(2500);
+const PBL=await (async()=>{const fr=p.frames().find(f=>f!==p.mainFrame()&&f.parentFrame()===p.mainFrame());return fr?fr.evaluate(()=>({t:document.body.innerText.includes('خطاب طلب المستندات'),stages:document.querySelectorAll('h2').length,rows:document.querySelectorAll('tr').length,logo:!!document.querySelector('.skp-band img,.skp-head img')})):{}})();
+ok('تقارير المراجعة','خطاب طلب المستندات للعميل بمراحل المراجعة والمواعيد والبدائل، على ترويسة المكتب وشعار SQC',PBL.t&&PBL.stages>=3&&PBL.rows>=15&&PBL.logo);
+await p.keyboard.press('Escape');await p.waitForTimeout(400);
+const ph=await (await b.newContext({viewport:{width:390,height:844},isMobile:true})).newPage();await ph.goto(URL_);await ph.waitForTimeout(5000);
+/* the first start fills the sample data and reloads: wait for the reloaded page to boot and settle */
+await ph.waitForFunction(()=>window.SKosifCore&&document.querySelector('.topbar')&&(!window.SK||!SK.demo||SK.demo.settled()),null,{timeout:90000}).catch(()=>{});await ph.waitForTimeout(800);
+ok('الجولات 1–33','شريط التبويبات السفلي في الآيفون',await ph.evaluate(()=>!!document.querySelector('.skb,.sk-tabbar,[class*="tabbar"]')));
+if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(R,null,1));
+const miss=R.filter(x=>!x[2]);console.log('TOTAL',R.length,'OK',R.length-miss.length);console.log('MISSING',JSON.stringify(miss));console.log('ERRS',errs.slice(0,5));await b.close();if(miss.length||errs.length)process.exit(1);

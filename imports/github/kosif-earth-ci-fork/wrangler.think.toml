@@ -1,0 +1,35 @@
+name = "kosif-think-mcp"
+main = "think-mcp/worker.js"
+compatibility_date = "2026-09-27"
+workers_dev = true
+
+[ai]
+binding = "AI"
+
+# /mcp stays closed (503) until the KOSIF_THINK_TOKEN secret holds at least 32 random characters:
+#   npx wrangler secret put KOSIF_THINK_TOKEN --config wrangler.think.toml
+# Council inference uses the AI binding directly. No external council provider secret is required.
+# Access rules and the risk they close: docs/KOSIF-THINK.md → "Access control".
+[vars]
+# browser origins allowed to call /mcp, comma-separated; empty = none (server-side MCP clients send no Origin)
+THINK_ALLOWED_ORIGINS = ""
+# "true" only for an MCP client that cannot send an Authorization header (the token then travels in the URL)
+THINK_ALLOW_PATH_TOKEN = "false"
+# "false" stops every council role agent call at once
+THINK_FRONTIER_ENABLED = "true"
+THINK_MAX_BODY_BYTES = "131072"
+# per caller, per minute; the local fallback used when a rate-limit binding below is missing or fails
+THINK_RPM = "30"
+THINK_MODEL_RPM = "10"
+THINK_AUTH_FAILS_PER_MIN = "20"
+
+# Per-caller limits enforced by Cloudflare across instances (Workers Rate Limiting binding).
+[[ratelimits]]
+name = "THINK_RATE_LIMITER"
+namespace_id = "7301"
+simple = { limit = 30, period = 60 }
+
+[[ratelimits]]
+name = "THINK_MODEL_LIMITER"
+namespace_id = "7302"
+simple = { limit = 10, period = 60 }

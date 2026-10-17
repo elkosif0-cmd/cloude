@@ -1,0 +1,67 @@
+# The browser suites Claude runs locally before a merge, on a GitHub runner — for the days the owner's machine cannot run them
+# (2026-10-07: 0.1 GB of RAM free, every page load swapped for a minute). The S.kosif workflow runs the same suites, but a step
+# before them fails on main for a feature not merged yet, so they never start there. This workflow has nothing before them.
+name: SQC Browser Suites
+on:
+  push:
+    branches: ["claude/**"]
+  workflow_dispatch:
+concurrency:
+  group: browser-suites-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  suites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Engines (the same gate as the Pages build)
+        run: cd app && npm install && npm run build
+      - name: Build the data-free preview
+        run: SQC_BUILD_MODE=preview python3 build.py
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --prefix /tmp/pw playwright@1
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+      - name: Serve the preview
+        run: |
+          (python3 -m http.server 8765 --directory dist >/dev/null 2>&1 &)
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://localhost:8765/app-safe.html && break; sleep 1; done
+      - name: Every screen on a laptop and a phone (ui_smoke)
+        run: NODE_PATH=/tmp/pw/node_modules node tools/ui_smoke.mjs http://localhost:8765/app-safe.html
+      - name: Feature audit
+        run: NODE_PATH=/tmp/pw/node_modules node tools/feature_audit.mjs http://localhost:8765/app-safe.html
+      - name: Company front door
+        run: NODE_PATH=/tmp/pw/node_modules node tools/company_entry_e2e.mjs http://localhost:8765/
+      - name: Advances
+        run: NODE_PATH=/tmp/pw/node_modules timeout 600 node tools/advances_e2e.mjs http://localhost:8765/app-safe.html
+      - name: Context and financial display
+        run: NODE_PATH=/tmp/pw/node_modules node tools/context_financial_display_e2e.mjs http://localhost:8765/
+      - name: The books of every sector (packs, model companies, integrity, links)
+        run: |
+          set -e
+          for t in meat_pack_e2e.mjs:app-safe.html books_integrity_e2e.mjs:app-safe.html health_pack_e2e.mjs: hotel_pack_e2e.mjs: construction_pack_e2e.mjs: digital_pack_e2e.mjs: education_pack_e2e.mjs: production_packs_e2e.mjs: agriculture_pack_e2e.mjs: trade_pack_e2e.mjs: model_companies_e2e.mjs: relationship_health_e2e.mjs: sales_reports_e2e.mjs:app-safe.html; do
+            f=${t%%:*}; path=${t#*:}; echo "== $f"; NODE_PATH=/tmp/pw/node_modules timeout 600 node "tools/$f" "http://localhost:8765/$path"
+          done
+      - name: Phone layout (no sideways overflow, no cut labels or buttons)
+        run: NODE_PATH=/tmp/pw/node_modules timeout 1500 node tools/phone_layout.mjs http://localhost:8765/app-safe.html
+      - name: Clutter ratchet (content must not start lower than the baseline)
+        run: NODE_PATH=/tmp/pw/node_modules node tools/clutter_audit.mjs http://localhost:8765/ artifacts/clutter --check
+      - name: Keep the clutter measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clutter-${{ github.sha }}
+          path: artifacts/clutter
+          if-no-files-found: ignore
+          retention-days: 7

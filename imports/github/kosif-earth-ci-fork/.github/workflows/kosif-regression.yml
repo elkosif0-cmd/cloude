@@ -1,0 +1,50 @@
+name: KOSIF Regression
+
+on:
+  push:
+    paths:
+      - 'think-mcp/**'
+      - '.github/workflows/kosif-regression.yml'
+  pull_request:
+    paths:
+      - 'think-mcp/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check runtime
+        run: node --check think-mcp/worker.js
+      - name: Syntax check secure executor
+        run: node --check think-mcp/secure-executor/worker.js
+      - name: Syntax check Jev mirror
+        run: node --check think-mcp/jev/worker.js
+      - name: 0.17.13 governance and execution regression
+        run: node think-mcp/regression-01713.test.mjs
+      - name: Current Cloudflare council contract
+        run: node think-mcp/cloudflare-council-01713.test.mjs
+      - name: Current MCP transport and access contracts
+        run: node --test think-mcp/worker.test.mjs
+      - name: Council-500 direct recovery contract
+        run: node --test think-mcp/direct-recovery-contract.test.mjs
+      - name: Expert Cognitive Cards v1 deterministic regression
+        run: node think-mcp/cognitive-cards-v1.test.mjs
+      - name: Live/source version guard
+        shell: bash
+        run: |
+          LIVE="$(cat think-mcp/LIVE-RUNTIME-VERSION | tr -d '[:space:]')"
+          SRC="$(sed -n 's/^const VERSION = "\([^"]*\)";/\1/p' think-mcp/worker.js | head -1)"
+          echo "Live runtime target: $LIVE"
+          echo "GitHub worker mirror: $SRC"
+          if [ "$LIVE" != "$SRC" ]; then
+            echo "::warning title=KOSIF live/source drift::Do not deploy think-mcp/worker.js over Cloudflare. Live=$LIVE GitHubMirror=$SRC"
+          fi

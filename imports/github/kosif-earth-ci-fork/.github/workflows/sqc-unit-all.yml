@@ -1,0 +1,68 @@
+# Every unit test file on Linux, each on its own, reported as one table (docs/rebuild/CODE_REVIEW_20261008_ar.md).
+# The S.kosif workflow stops at «Test server-side company security and sharing contract» (red on main), so the unit steps
+# after it have not run for days; this workflow runs them all without stopping at the first red file. A file listed in
+# tools/fixtures/unit-known-red.txt is reported but does not fail the job; any other red file does.
+name: SQC Unit Tests (all files)
+on:
+  push:
+    branches: ["claude/**"]
+  workflow_dispatch:
+concurrency:
+  group: unit-all-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Engines and the data-free preview (some tests read dist/)
+        run: |
+          cd app && npm install && npm run build && cd ..
+          SQC_BUILD_MODE=preview python3 build.py
+      - name: Test helpers
+        run: npm install --no-save --no-package-lock --prefix /tmp/sqc-ui linkedom@0.18.13
+      - name: Every unit test file
+        run: |
+          set +e
+          : > unit.txt
+          for f in tools/*.test.mjs capabilities-v2/*.test.mjs; do
+            # the source-replay files load the studio through a dynamic import inside the vm (as sqc-apple-source.yml runs them)
+            out=$(NODE_PATH=/tmp/sqc-ui/node_modules timeout 300 node --experimental-vm-modules --test "$f" 2>&1)
+            # TAP off a terminal («# pass N»), the spec reporter on one («ℹ pass N»)
+            p=$(printf '%s\n' "$out" | sed -nE 's/^(#|ℹ) pass ([0-9]+)$/\2/p' | tail -1)
+            x=$(printf '%s\n' "$out" | sed -nE 's/^(#|ℹ) fail ([0-9]+)$/\2/p' | tail -1)
+            # a browser test named *.test.mjs needs Playwright (installed in S.kosif and the browser suites, not here)
+            if printf '%s\n' "$out" | grep -q "Cannot find module 'playwright'"; then echo "$f browser -" >> unit.txt; continue; fi
+            echo "$f ${p:-0} ${x:-?}" >> unit.txt
+            if [ "${x:-?}" != "0" ]; then printf '%s\n' "$out" | grep -E '^not ok|^# Subtest|error:|Error' | head -30 > "fail-$(basename "$f").log"; fi
+          done
+          {
+            echo "| file | pass | fail |"; echo "|---|---|---|"
+            awk '{print "| " $1 " | " $2 " | " $3 " |"}' unit.txt
+          } >> "$GITHUB_STEP_SUMMARY"
+          red=$(awk '$3!="0" && $3!="-"{print $1}' unit.txt)
+          known=$(grep -v '^#' tools/fixtures/unit-known-red.txt 2>/dev/null)
+          new=""; for f in $red; do echo "$known" | grep -qx "$f" || new="$new $f"; done
+          echo "red files:"; echo "$red"
+          echo "new red (not in tools/fixtures/unit-known-red.txt):$new"
+          [ -z "$new" ]
+      - name: Keep the failure logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-all
+          path: |
+            unit.txt
+            fail-*.log
+          if-no-files-found: ignore

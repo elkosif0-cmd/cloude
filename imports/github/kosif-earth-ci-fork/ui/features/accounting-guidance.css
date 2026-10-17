@@ -1,0 +1,10 @@
+/* Accounting application guidance inside the Codex — progressive disclosure, no extra nav item */
+.cdx-guide{overflow:hidden}.cdx-guide .card-h{align-items:flex-start}.cdx-guide-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.cdx-guide-tabs button{min-height:36px}.cdx-guide-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.72fr);gap:14px}
+.cdx-guide-form{display:grid;gap:10px}.cdx-guide-q{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--sk-line);border-radius:var(--sk-r-s);background:var(--sk-surface-2)}
+.cdx-guide-q>span{display:grid;gap:2px}.cdx-guide-q small{color:var(--sk-muted);line-height:1.5}.cdx-guide-q select,.cdx-guide-q input{min-width:120px}
+.cdx-guide-result{border:1px solid var(--sk-line);border-radius:var(--sk-r);background:var(--sk-surface);padding:13px;min-height:130px}
+.cdx-guide-result h4{margin:0 0 8px}.cdx-guide-list{display:grid;gap:7px}.cdx-guide-row{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--sk-line)}.cdx-guide-row:last-child{border-bottom:0}
+.cdx-guide-dot{width:9px;height:9px;border-radius:50%;margin-top:6px;background:var(--sk-muted)}.cdx-guide-row.pass .cdx-guide-dot{background:var(--sk-ok)}.cdx-guide-row.fail .cdx-guide-dot{background:var(--sk-bad)}.cdx-guide-row.review .cdx-guide-dot{background:var(--sk-warn)}
+.cdx-guide-row b{font-size:12px}.cdx-guide-row small{display:block;color:var(--sk-muted);margin-top:2px;line-height:1.5}.cdx-guide-verdict{padding:10px 12px;border-radius:var(--sk-r-s);background:var(--sk-brand-soft);margin-bottom:10px}.cdx-guide-verdict b{display:block;margin-bottom:3px}
+@media(max-width:820px){.cdx-guide-grid{grid-template-columns:1fr}.cdx-guide-q{flex-direction:column}.cdx-guide-q select,.cdx-guide-q input{width:100%}}

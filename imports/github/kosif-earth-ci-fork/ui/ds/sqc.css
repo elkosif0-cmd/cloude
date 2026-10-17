@@ -1,0 +1,309 @@
+/* SQC finish — loaded last, after the design system and every feature stylesheet.
+   Structural fixes that hold in every look (the rail never spills, the status card wraps, the dashboard tiles balance),
+   the SQC identity in every non-heritage look (mark, wordmark, tagline), and the typographic baseline
+   (self-hosted faces from ds/fonts.css, tabular figures, antialiasing). Looks keep their own palettes. */
+
+/* ---------- typography baseline ---------- */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;font-feature-settings:"kern" 1}
+:where(td,th,.n,.num,output,time,[class*="kpi"] b,.stat b){font-variant-numeric:tabular-nums}
+:where(h1,h2,h3,h4){text-wrap:balance;letter-spacing:0}
+:where(p,li,small,dd){text-wrap:pretty}
+::selection{background:color-mix(in srgb,var(--sk-brand) 22%,transparent)}
+
+/* ---------- the rail: nothing spills sideways, in any look ---------- */
+.rail{overflow-x:hidden}
+.rail .status-card{min-width:0;overflow:hidden}
+.rail .status-card .row{min-width:0}
+.rail .status-card .row>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rail .status-card .acts2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.rail .status-card .acts2 .btn{min-width:0;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:auto;min-height:50px;
+  padding:7px 4px;font-size:11.5px;line-height:1.25;white-space:normal;text-align:center}
+.rail .status-card .acts2 .btn svg{width:17px;height:17px;margin:0;flex:none}
+.rail .status-card .save-line,.rail .status-card .v17-stability{min-width:0;flex-wrap:wrap}
+/* the sync line takes the rail's own ink: readable on light and dark rails alike */
+.rail .status-card .v19-sync{flex-wrap:wrap;gap:4px 10px;min-width:0;background:color-mix(in srgb,currentColor 7%,transparent);border-color:color-mix(in srgb,currentColor 16%,transparent);color:inherit}
+.rail .status-card .v19-sync b,.rail .status-card .v19-sync small{color:inherit}
+.rail .status-card .v19-sync small{opacity:.78}
+
+/* ---------- the SQC identity in the rail (every look but the heritage ones, which carry the business's own mark) ---------- */
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail .brand{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:12px;row-gap:0;direction:ltr}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail .brand::before{content:"";grid-row:1/3;width:46px;height:46px;border-radius:13px;padding:0;border:0;
+  background:url(./art/sqc-icon.svg) center/cover no-repeat;box-shadow:0 6px 18px -8px rgba(7,20,42,.55);-webkit-mask-image:none;mask-image:none}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail .brand-mark{display:none}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail .brand>div:not(.brand-mark){display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail #app-name{display:block;margin:0;font:700 0/1 var(--sk-font)}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail #app-name::before{content:"SQC";font:800 28px/1 "Montserrat","IBM Plex Sans Arabic",system-ui,sans-serif;letter-spacing:.06em;color:var(--sk-rail-ink,currentColor)}
+:root[data-look="kosif"]:not(#x):not(#y) .rail #app-name::before{color:#fff}
+:root[data-look="onyx"]:not(#x):not(#y) .rail #app-name::before{color:var(--sk-brand)}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail #biz-name{margin-top:5px;font:600 13px/1.4 var(--sk-font);direction:rtl;text-align:start;max-width:100%;white-space:normal}
+:root:not([data-look="heritage"]):not(#x):not(#y) .rail #biz-name::after{content:"Smart Quality Control";display:block;margin-top:3px;font:600 9.5px/1.3 "Montserrat",system-ui,sans-serif;letter-spacing:.07em;
+  text-transform:uppercase;direction:ltr;text-align:start;opacity:.72;white-space:nowrap}
+
+/* the card at the foot of the SQC rail: the mark and the platform line (replaces the earlier slogan) */
+:root[data-look="kosif"]:not(#x):not(#y) .rail::after{content:"AI-Powered Audit & Assurance Platform";white-space:normal;display:block;min-height:0;margin:var(--sk-4) var(--sk-1) 0;
+  padding:52px 14px 12px;border-radius:14px;direction:ltr;text-align:left;font:600 11px/1.45 "Montserrat",system-ui,sans-serif;letter-spacing:.04em;color:#9fc3f2;
+  background:url(./art/sqc-mark.svg) 14px 14px/78px auto no-repeat,linear-gradient(160deg,rgba(124,196,255,.10),rgba(255,255,255,.03));box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
+@media (max-width:900px){:root[data-look="kosif"]:not(#x):not(#y) .rail::after{display:none}}
+
+/* ---------- dashboard: the morning tiles fill their row instead of leaving one alone ---------- */
+.skbrief-g{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+@media (max-width:520px){.skbrief-g{grid-template-columns:1fr 1fr}}
+
+/* ---------- top bar brand (phone) uses the latin display face ---------- */
+.sk-tb-brand b{font-family:"Montserrat","IBM Plex Sans Arabic",system-ui,sans-serif;letter-spacing:.06em}
+
+/* rail status lines take the rail's muted ink (the page's muted ink is too dark on a navy rail) */
+.rail .status-card .save-line,.rail .status-card .v17-stability{color:var(--sk-rail-mute,var(--sk-ink-3))}
+
+/* top bar: the avatar's initials and the notification count stay legible on their fills */
+.sk-av{text-shadow:0 1px 1px rgba(0,0,0,.28)}
+:root[data-look="kosif"]:not([data-theme="dark"]) .sk-av{background:linear-gradient(135deg,#1a2a8f,#2340c4)}
+.sk-tb-icon .dot{background:color-mix(in srgb,var(--sk-bad-mark) 82%,#000)}
+
+/* the phone top bar: the SQC mark already spells the name, so the text beside it is left to screen readers */
+.sk-tb-brand svg.sk-tb-sqc{width:74px;height:27px}
+.sk-tb-brand svg.sk-tb-sqc+b{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* the rail status card: the audit file (ui/layouts/rail-audit.js) */
+.rail .status-card .sqc-rs-co span{font-weight:700;color:inherit;opacity:.92}
+.rail .status-card .sqc-rs .btn{min-height:28px;padding:2px 12px}
+
+/* one app, four sections: no daily/advanced switch — every screen is in its section */
+#modeseg{display:none!important}
+
+/* the helper tools' company: chooser and the strip on every helper screen (ui/core/helper-space.js) */
+.sqc-space{width:min(520px,100%)}
+.sqc-space .eyebrow{display:block;margin-bottom:4px}
+.sqc-space-list{display:grid;gap:8px;margin:var(--sk-3) 0;max-height:46vh;overflow:auto}
+.sqc-space-o{display:grid;gap:2px;text-align:start;padding:12px 14px;border:1px solid var(--sk-line);border-radius:12px;background:var(--sk-surface);color:var(--sk-ink);font:inherit;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.sqc-space-o:hover,.sqc-space-o:focus-visible{border-color:var(--sk-brand);background:var(--sk-brand-soft)}
+.sqc-space-o.on{border-color:color-mix(in srgb,var(--sk-brand) 55%,var(--sk-line))}
+.sqc-space-o small{color:var(--sk-ink-3)}
+/* phones: a dialog's actions keep their 44px touch target (the kosif look's 40px buttons would otherwise win) */
+@media (max-width:600px){.skd .skd-acts>.btn{min-height:44px}}
+
+/* ---------- phones: nothing widens the page ----------
+   Screens laid out for laptops keep their design; on narrow screens their grids may shrink below their content
+   (minmax(0,…)), four-up figures become two-up, side-by-side panels stack, controls shrink to their column, and
+   wide tables scroll inside their panel instead of pushing the page sideways. (tools/phone_layout.mjs) */
+html{overflow-x:hidden}
+@media (max-width:900px){
+  html,body{overflow-x:hidden;max-width:100vw}
+  .app,.maincol,.main,#view{min-width:0;max-width:100%}
+  .card{min-width:0;max-width:100%}
+  .card-b{min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .sk-table-wrap,.tw,.tbl-wrap,.table-wrap,.t-wrap{min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .sk-grid-2,.intel-view .grid2{grid-template-columns:minmax(0,1fr)}
+  .sk-grid-2>*,.grid2>*{min-width:0}
+  .card-h{flex-wrap:wrap}
+  .card-h>*{min-width:0}
+}
+@media (max-width:760px){
+  #sk-tb-theme{display:none}
+}
+@media (max-width:640px){
+  .skx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .skx-kpis>*{min-width:0;overflow-wrap:anywhere}
+  .skx-grid2{grid-template-columns:minmax(0,1fr)!important}
+  .skx-panel{min-width:0;overflow-x:auto}
+  .skx-line{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 34px}
+  .skx-line>*,.sk37-cut>*{min-width:0}
+  .sk37-cut{grid-template-columns:minmax(0,1fr) 80px}
+  #view input:not([type=checkbox]):not([type=radio]):not([type=range]),#view select,#view textarea{min-width:0;max-width:100%}
+  #view .hint,#view p{overflow-wrap:anywhere}
+  .sk-grid2{grid-template-columns:minmax(0,1fr)}
+  .sk-grid2>*{min-width:0}
+  .skslab-tree details{overflow-x:auto;max-width:100%}
+}
+
+/* ---------- readable status text in every look ----------
+   Severity chips, standard badges and danger buttons write their status colour on its own soft tint; in several looks
+   that pair fell below 4.5:1 for their small bold text. The text now mixes the status colour toward the look's ink —
+   darker on light looks, lighter on night looks — so the hue stays and the contrast holds (tools/phone_layout.mjs
+   measures every look). */
+.sksev.high,.sksev.bad{color:color-mix(in srgb,var(--sk-bad) 60%,var(--sk-ink))}
+.sksev.medium,.sksev.warn{color:color-mix(in srgb,var(--sk-warn) 60%,var(--sk-ink))}
+.sksev.low,.sksev.info{color:color-mix(in srgb,var(--sk-info) 60%,var(--sk-ink))}
+.sksev.ok,.sksev.done{color:color-mix(in srgb,var(--sk-ok) 60%,var(--sk-ink))}
+.std-b.std-ifrs{color:color-mix(in srgb,var(--sk-brand) 60%,var(--sk-ink))}
+.std-b.std-ias{color:color-mix(in srgb,var(--sk-info) 60%,var(--sk-ink))}
+.std-b.std-isa{color:color-mix(in srgb,var(--sk-violet) 60%,var(--sk-ink))}
+.std-b.std-saudi{color:color-mix(in srgb,var(--sk-ok) 60%,var(--sk-ink))}
+.std-b.std-eas{color:color-mix(in srgb,var(--sk-warn) 60%,var(--sk-ink))}
+.std-b.std-egypt{color:color-mix(in srgb,#0d9488 55%,var(--sk-ink))}
+.btn.danger{color:color-mix(in srgb,var(--ls) 60%,var(--sk-ink))}
+
+/* ---------- touch targets ----------
+   On touch screens every button and tab is at least 32px high (and square controls 32px wide); inline text-link
+   buttons are at least 24px (WCAG 2.2 AA target size). Pointer devices keep the compact desktop sizes. */
+@media (pointer:coarse){
+  #view button:not(.linklike),#view [role=tab],.skdemo-x{min-height:32px}
+  /* zero specificity: a control's own wider minimum (e.g. the quick-start buttons' 140px) still wins */
+  :where(#view button:not(.linklike),.skdemo-x){min-width:32px}
+  #view .linklike{min-height:24px;padding-block:2px}
+  .skdemo-x{display:inline-grid;place-items:center}
+}
+
+/* ---------- tabs never squeeze a label ----------
+   A segmented control (.sk-seg) wraps: each option is at least as wide as its label, shares the row equally when
+   the options fit, and moves to the next row when they do not. A scrolling tab bar scrolls instead of shrinking its
+   tabs until the labels are cut (tools/phone_layout.mjs measures both at 390 and 320). */
+.sk-seg>button,.sk-seg>[role=tab]{min-width:max-content}
+.sk-ops-nav>*,#view .tabs>button,#view [role=tablist]:not(.sk-seg)>*{flex-shrink:0}
+/* the open tab shows as open whether its control marks it pressed (aria-pressed) or selected (role=tab, aria-selected) */
+.sk-seg>[aria-selected="true"]{background:var(--sk-surface);color:var(--sk-brand);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+:root[data-look="kosif"] .sk-seg>[aria-selected="true"]{background:var(--sk-brand);color:#fff}
+
+/* Shared readability floor; existing display fonts/themes remain available. */
+body{font-size:max(16px,var(--sk-fs));font-variant-numeric:tabular-nums lining-nums}
+:root:not(#sk-unused) input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+:root:not(#sk-unused) select,:root:not(#sk-unused) textarea{font-size:max(16px,var(--sk-fs))!important;max-inline-size:100%;min-inline-size:0}
+bdi,[dir=ltr],a[href^="tel:"],a[href^="mailto:"],.sk-number{unicode-bidi:isolate}
+.skd,.skp,.sk-menu{animation-duration:var(--sk-motion-panel)}
+.btn,.sk-tb-btn,.sk-tb-icon{transition-duration:var(--sk-motion-fast)}
+.skd{max-inline-size:min(560px,calc(100vw - 24px));max-block-size:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain}
+.skd-acts{flex-wrap:wrap;gap:8px}.skd-acts .btn{min-block-size:44px}
+:focus-visible{outline:3px solid var(--sk-focus);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){
+  :root{--sk-motion-fast:0ms;--sk-motion-panel:0ms;--sk-t:0ms}
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+/* SQC calm financial first slice — light KOSIF chrome, command center and report controls.
+   Presentation only: no data, navigation or state changes. Other looks keep their palettes. */
+:root[data-look="kosif"][data-theme="light"] :is(.rail,.topbar,.skc-luxe,.sk-reports-wrap,.sk-ph[data-view="dash"],.sk-ph[data-view="execreports"]){
+  --sk-surface:#fff;--sk-surface-2:#f7f7f8;--sk-surface-3:#f2f2f5;--sk-line:#dedee4;--sk-line-2:#c8c7d0;
+  --sk-ink:#25242b;--sk-ink-2:#4b4a54;--sk-ink-3:#64636d;--sk-on-brand:#fff; /* one brand: the SQC blue from tokens.css (the logo, the front door); Mercury keeps its restraint, not its purple */
+  --sk-r:10px;--sk-r-l:10px;--sk-shadow-1:0 1px 2px rgba(37,36,43,.03);
+  --surface:var(--sk-surface);--surface-2:var(--sk-surface-2);--surface-3:var(--sk-surface-3);--line:var(--sk-line);--line-2:var(--sk-line-2);
+  --ink:var(--sk-ink);--ink-2:var(--sk-ink-2);--ink-3:var(--sk-ink-3);--brand:var(--sk-brand);--brand-soft:var(--sk-brand-soft);--brand-ink:var(--sk-on-brand);
+}
+:root[data-look="kosif"][data-theme="light"] .maincol{background:#f7f7f8}
+:root[data-look="kosif"][data-theme="light"] #rail{
+  --sk-rail:#fafafa;--sk-rail-ink:#25242b;--sk-rail-mute:#64636d;--sk-rail-2:#f0eff3;--sk-rail-active:var(--sk-brand-soft);
+  background:#fafafa;color:var(--sk-rail-ink);border-inline-start:0;border-inline-end:1px solid #dedee4;
+}
+:root[data-look="kosif"][data-theme="light"] #rail .nav-btn{border-radius:8px;color:#4b4a54;font-weight:500}
+:root[data-look="kosif"][data-theme="light"] #rail .nav-btn svg{color:#64636d}
+:root[data-look="kosif"][data-theme="light"] #rail .nav-btn[aria-current="page"]{background:var(--sk-brand-soft);color:var(--sk-brand);box-shadow:inset -2px 0 0 var(--sk-brand);font-weight:600}
+:root[data-look="kosif"][data-theme="light"] #rail .nav-btn[aria-current="page"] svg{color:inherit}
+:root[data-look="kosif"][data-theme="light"]:not(#x):not(#y) .rail #app-name::before{color:#25242b}
+:root[data-look="kosif"][data-theme="light"]:not(#x):not(#y) .rail::after{color:#64636d;background:url(./art/sqc-mark-dark.svg) 14px 14px/78px auto no-repeat #f2f2f5;box-shadow:none;border:1px solid #dedee4}
+/* Existing navy-rail rules contain literal pale colors; reset these locally as well. */
+:root[data-look="kosif"][data-theme="light"]:not(#x):not(#y) .rail #biz-name{color:#25242b}
+:root[data-look="kosif"][data-theme="light"]:not(#x):not(#y) .rail #biz-name::after{color:#64636d;opacity:1}
+:root[data-look="kosif"][data-theme="light"] #rail .nav .skn-note{color:#64636d}
+:root[data-look="kosif"][data-theme="light"] #rail .nav :is(.nav-group,.skn-gh){color:#64636d}
+:root[data-look="kosif"][data-theme="light"] #rail .nav .skn-group.here>.skn-gh{color:#25242b}
+:root[data-look="kosif"][data-theme="light"] #rail .nav-btn:hover{background:#f0eff3;color:#25242b}
+:root[data-look="kosif"][data-theme="light"] #rail .status-card{background:#fff;border-color:#dedee4;color:#25242b;box-shadow:none}
+:root[data-look="kosif"][data-theme="light"] #rail .status-card .row{color:#64636d}
+:root[data-look="kosif"][data-theme="light"] #rail .status-card .row b{color:#25242b}
+:root[data-look="kosif"][data-theme="light"] #rail .status-card .row b.red{color:var(--sk-bad)}
+:root[data-look="kosif"][data-theme="light"] #rail .sk-rail-close{background:#f2f2f5;color:#25242b}
+:root[data-look="kosif"][data-theme="light"] .topbar{background:#fff;border-color:#dedee4;box-shadow:none}
+:root[data-look="kosif"][data-theme="light"] .topbar :is(.skt-search,.sk-tb-btn,.sk-tb-icon,.menu-btn){border-radius:8px;box-shadow:none}
+:root[data-look="kosif"][data-theme="light"] :is(.sk-ph[data-view="dash"],.sk-ph[data-view="execreports"]) .sk-ph-ic{box-shadow:none;border-radius:10px}
+:root[data-look="kosif"][data-theme="light"] :is(.skc-luxe,.sk-reports-wrap){color:#25242b}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe{container-type:inline-size;gap:24px}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skc-card{padding:16px;border:1px solid #dedee4;border-radius:10px;background:#fff;box-shadow:none;min-width:0}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skc-card>h3{flex-wrap:wrap;align-items:center;gap:8px 12px;line-height:1.5}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skc-card>h3 small{font-weight:400;letter-spacing:0}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4-t{display:grid;grid-template-columns:minmax(0,1fr) 40px;align-items:start;gap:8px 12px;padding:16px;min-height:140px;border-radius:10px;box-shadow:none}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4-t .tx{grid-column:1;grid-row:1 / span 2;overflow-wrap:anywhere}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4-t .tx>span{font-size:14px;line-height:1.6;font-weight:500}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4-t .tx>b{font-size:28px;font-weight:600;line-height:1.3;margin-block:6px}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4-t .chip{grid-column:2;grid-row:1;display:grid;width:32px;height:32px;border-radius:8px}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4-t .chip svg{width:18px;height:18px}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4-t .skr{grid-column:2;grid-row:2;--sz:40px}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe :is(.skc-row3,.skc-row3b){gap:16px}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skc-f{border-radius:8px;box-shadow:none}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skc-f .tx small{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.6}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skc-seg{flex-wrap:wrap;max-width:100%;border-radius:8px}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skc-seg button{min-height:36px}
+:root[data-look="kosif"][data-theme="light"] .skc-luxe .skc-launch button{border-radius:8px;box-shadow:none}
+@container (min-width:1000px){:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@container (max-width:479px){:root[data-look="kosif"][data-theme="light"] .skc-luxe .skk4{grid-template-columns:minmax(0,1fr)}}
+:root[data-look="kosif"][data-theme="light"] .rp{gap:24px}
+:root[data-look="kosif"][data-theme="light"] .rp-hero{padding:4px 0 20px;background:none;color:#25242b;border-bottom:1px solid #dedee4;border-radius:0;align-items:flex-start}
+:root[data-look="kosif"][data-theme="light"] .rp-hero h3{color:#25242b;font-size:22px;font-weight:600}
+:root[data-look="kosif"][data-theme="light"] .rp-hero p{color:#64636d;line-height:1.8;max-width:62ch}
+:root[data-look="kosif"][data-theme="light"] .rp-hero .btn.primary{background:var(--sk-brand)!important;color:#fff!important;box-shadow:none;border-radius:8px;min-height:44px;white-space:normal}
+:root[data-look="kosif"][data-theme="light"] .rp .sk-kpis{grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px}
+:root[data-look="kosif"][data-theme="light"] .rp .sk-kpi{padding:16px;border:1px solid #dedee4;border-radius:10px;box-shadow:none;min-width:0;overflow-wrap:anywhere}
+:root[data-look="kosif"][data-theme="light"] .rp .sk-kpi b{font-size:26px;font-weight:600}
+:root[data-look="kosif"][data-theme="light"] .rp-opts{padding:20px;background:#fff;border:1px solid #dedee4;border-radius:10px;gap:24px}
+:root[data-look="kosif"][data-theme="light"] .rp-sec{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px 20px}
+:root[data-look="kosif"][data-theme="light"] .rp-sec .sk-check{align-items:flex-start;line-height:1.6}
+:root[data-look="kosif"][data-theme="light"] .rp-sec input{accent-color:var(--sk-brand);flex:none;margin-block-start:5px}
+:root[data-look="kosif"][data-theme="light"] .sk-rep-nav button{border-radius:8px;box-shadow:none;min-height:40px}
+:root[data-look="kosif"][data-theme="light"] .sk-rep-nav button.active{background:var(--sk-brand-soft);color:var(--sk-brand);border-color:color-mix(in srgb,var(--sk-brand) 30%,#fff);box-shadow:none}
+:root[data-look="kosif"][data-theme="light"] .rp .sk-seg button[aria-pressed="true"]{background:var(--sk-brand-soft);color:var(--sk-brand);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sk-brand) 30%,#fff)}
+:root[data-look="kosif"][data-theme="light"] :is(.skc-luxe,.rp) :focus-visible{outline:3px solid var(--sk-focus);outline-offset:3px}
+@media (max-width:520px){
+  :root[data-look="kosif"][data-theme="light"] .rp-opts{padding:16px}
+  :root[data-look="kosif"][data-theme="light"] .rp-hero .btn.primary{width:100%}
+  :root[data-look="kosif"][data-theme="light"] :is(.rp,.skc-luxe) button{min-height:44px}
+}
+@media (prefers-reduced-motion:no-preference){
+  @keyframes sqc-calm-enter{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  :root[data-look="kosif"][data-theme="light"] :is(.skc-luxe .skc-card,.rp-hero){animation:sqc-calm-enter 180ms ease-out 1}
+  :root[data-look="kosif"][data-theme="light"] :is(.skc-luxe button,.rp button){transition:background-color 140ms ease,border-color 140ms ease,box-shadow 140ms ease}
+}
+
+/* ---------- «دفتر KOSIF» (data-brand="ledger", the default from 2026-10-09) ----------
+   The calm light layer above pins neutral greys on the chrome and the command center; the ledger re-asserts its cream paper
+   and charcoal ink there, gives cards KOSIF's ink edge, and puts the one saffron accent on the active state. */
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] :is(.rail,.topbar,.skc-luxe,.sk-reports-wrap,.sk-ph[data-view="dash"],.sk-ph[data-view="execreports"]){
+  --sk-surface:#fffdf9;--sk-surface-2:#f8f3ec;--sk-surface-3:#f1e9de;--sk-line:#e3d9cc;--sk-line-2:#cbbfb0;
+  --sk-ink:#1d1814;--sk-ink-2:#4b4139;--sk-ink-3:#6f6358;--sk-on-brand:#fbf8f3;--sk-shadow-1:0 1px 2px rgba(29,24,20,.05);
+  --surface:var(--sk-surface);--surface-2:var(--sk-surface-2);--surface-3:var(--sk-surface-3);--line:var(--sk-line);--line-2:var(--sk-line-2);
+  --ink:var(--sk-ink);--ink-2:var(--sk-ink-2);--ink-3:var(--sk-ink-3);--brand-ink:var(--sk-on-brand);
+}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .maincol{background:var(--sk-bg)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail{
+  --sk-rail:#f3ece2;--sk-rail-ink:#1d1814;--sk-rail-mute:#6f6358;--sk-rail-2:rgba(29,24,20,.05);--sk-rail-active:var(--sk-brand-soft);
+  background:#f3ece2;border-inline-end:1.5px solid var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn{color:var(--sk-ink-2)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn svg{color:var(--sk-ink-3)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn:hover{background:var(--sk-surface-3);color:var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn[aria-current="page"]{background:var(--sk-surface);color:var(--sk-ink);box-shadow:inset 0 0 0 1.5px var(--sk-ink);font-weight:700}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav-btn[aria-current="page"] svg{color:var(--sk-brand-2)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav :is(.nav-group,.skn-gh,.skn-note){color:var(--sk-ink-3)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .nav .skn-group.here>.skn-gh{color:var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .status-card{background:var(--sk-surface);border-color:var(--sk-line);color:var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .status-card .row{color:var(--sk-ink-3)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .status-card .row b{color:var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] #rail .sk-rail-close{background:var(--sk-surface-3);color:var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail #app-name::before,
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail #biz-name{color:var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail #biz-name::after{color:var(--sk-ink-3)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"]:not(#x):not(#y) .rail::after{color:var(--sk-ink-3);background-color:var(--sk-surface-3);border-color:var(--sk-line)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .topbar{background:var(--sk-surface);border-color:var(--sk-line)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] :is(.skc-luxe,.sk-reports-wrap){color:var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skc-luxe .skc-card{background:var(--sk-surface);border-color:var(--sk-line-2)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skc-luxe .skk4-t{border:1.5px solid var(--sk-ink);background:var(--sk-surface)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-hero{color:var(--sk-ink);border-bottom-color:var(--sk-line)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-hero h3{color:var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-hero p{color:var(--sk-ink-3)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-hero .btn.primary{color:var(--sk-on-brand)!important}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp .sk-kpi{border:1.5px solid var(--sk-ink)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp-opts{background:var(--sk-surface);border-color:var(--sk-line)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .sk-rep-nav button.active,
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .rp .sk-seg button[aria-pressed="true"]{background:var(--sk-surface);color:var(--sk-ink);border-color:var(--sk-ink);box-shadow:inset 0 -3px 0 var(--sk-brand-2)}
+:root[data-look="kosif"][data-brand="ledger"]:not([data-theme="dark"]) .sk-av{background:linear-gradient(135deg,#d9530e,#a53e07)}
+/* dark ledger: the cobalt rail gradient and the cyan active bar of the base look become warm charcoal and saffron */
+:root[data-look="kosif"][data-brand="ledger"][data-theme="dark"]:not(#x) .rail{background:var(--sk-grad-rail);border-inline-end:1px solid var(--sk-line)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="dark"] .nav-btn[aria-current="page"]{background:linear-gradient(90deg,rgba(242,115,45,.06),rgba(242,115,45,.18));box-shadow:inset -3px 0 0 var(--sk-brand)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="dark"] :is(.btn.primary,.skn-domain button[aria-current="page"],.v12-periods button.on,.sk-seg button[aria-pressed="true"],.modeseg button[aria-pressed="true"]){color:var(--sk-on-brand)}
+/* briefing tiles: KOSIF's ink edge, the status stripe kept on the start side */
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skbrief-t{border-color:var(--sk-ink);border-width:1.5px;border-inline-start-width:4px}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skbrief-t.tone-ok{border-inline-start-color:var(--sk-ok)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skbrief-t.tone-warn{border-inline-start-color:var(--sk-warn)}
+:root[data-look="kosif"][data-brand="ledger"][data-theme="light"] .skbrief-t.tone-bad{border-inline-start-color:var(--sk-bad)}
+/* R20 (FOUNDATION §3.11.2, one identity): the command centre's band — its banner and film are the navy-and-gold Higgsfield art;
+   in «دفتر KOSIF» they are toned to ink and saffron, as the door's film, and the crystals turn to amber glass (crystal-world.js) */
+:root[data-look="kosif"][data-brand="ledger"] .skc-world{background:linear-gradient(160deg,rgba(217,83,14,.55),rgba(29,24,20,.9)),url(./art/brand/banner.webp) center/cover no-repeat,#1d1814;background-blend-mode:color,normal,normal}
+:root[data-look="kosif"][data-brand="ledger"] .skc-world video{filter:grayscale(1) sepia(.5) saturate(1.35) hue-rotate(-8deg) contrast(1.05) brightness(.82)}
