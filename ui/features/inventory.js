@@ -72,7 +72,7 @@ function html(){
     '<div class="sk-kpis"><div class="sk-kpi"><span>إجمالي دفعات اللحوم</span><b>'+expList.length+' دفعة</b></div><div class="sk-kpi '+(expUrgent?"bad":"good")+'"><span>دفعات حرجة (<= يوم)</span><b>'+expUrgent+'</b></div><div class="sk-kpi '+(expWarn?"warn":"good")+'"><span>قرب الانتهاء (2-3 أيام)</span><b>'+expWarn+'</b></div><div class="sk-kpi accent"><span>الوزن المعرض للخطر</span><b>'+expList.filter(x=>expAnalysis(x).status!=="good").reduce((s,x)=>s+num(x.stockKg),0).toFixed(1)+' كجم</b></div></div>',
     '<section class="card"><div class="card-h"><div><h3>رادار صلاحية وجودة اللحوم المبردة (FIFO & Freshness)</h3><p>متابعة تواريخ الذبح والتعبئة والصلاحية لمنع تلف اللحوم وتوجيه التقطيع والطهي حسب الأولوية.</p></div>',
     '<div class="sk-actions"><button type="button" class="btn sm primary" id="exp-add-btn">+ تسجيل دفعة لحوم</button><button type="button" class="btn sm" id="exp-wa-btn">تقرير الصلاحية (واتساب)</button></div></div><div class="card-b sk-stack">',
-    '<div id="exp-form-box" style="display:none;background:var(--surface-2,#fafafa);padding:12px;border-radius:8px;border:1px solid var(--line,#eee);">',
+    '<div id="exp-form-box" class="sk-inv-exp-form" style="display:none;">',
       '<div class="sk-grid2">',
         '<label class="sk-field"><span>رقم الدفعة (Lot No)</span><input id="exp-f-lot" value="LOT-'+Math.floor(100+Math.random()*900)+'"></label>',
         '<label class="sk-field"><span>الصنف / القطعية</span><input id="exp-f-item" placeholder="مثال: ريش نعيمي مبرد"></label>',
